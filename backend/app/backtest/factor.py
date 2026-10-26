@@ -11,6 +11,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from itertools import pairwise
+from math import ceil
 from pathlib import Path
 from typing import Any, Literal
 
@@ -404,14 +405,37 @@ class FactorBacktestService:
             "symbol", "date", "open", "high", "low", "close", "volume", "amount",
             "turnover_rate",
         ]
-        if any(
-            name in ("limit_up_count_20d", "limit_up_count_60d")
-            for name in factor_names
+        from app.factors.event_chain import is_event_chain_factor
+        from app.factors.registry import get_factor
+
+        event_chain_names = {
+            name for name in factor_names if is_event_chain_factor(name)
+        }
+        if (
+            any(
+                name in ("limit_up_count_20d", "limit_up_count_60d")
+                for name in factor_names
+            )
+            or event_chain_names
         ):
             panel_columns.append("consecutive_limit_ups")
         load_start = config.start
         if any(name != "turnover_rate" for name in factor_names):
-            load_start = config.start - timedelta(days=FACTOR_WARMUP_DAYS)
+            warmup_days = FACTOR_WARMUP_DAYS
+            if event_chain_names:
+                required_bars = max(
+                    (
+                        spec.warmup_bars
+                        for name in event_chain_names
+                        if (spec := get_factor(name)) is not None
+                    ),
+                    default=1,
+                )
+                warmup_days = max(
+                    warmup_days,
+                    ceil(max(required_bars - 1, 1) * 1.8) + 14,
+                )
+            load_start = config.start - timedelta(days=warmup_days)
 
         load_kwargs = {
             "columns": panel_columns,
@@ -683,8 +707,18 @@ class FactorBacktestService:
         if factor_cols & ext_factors.ext_factor_ids():
             panel = ext_factors.attach_ext_columns(panel, include_snapshot=False)
 
+        from app.factors.event_chain import is_event_chain_factor
         from app.factors.registry import get_factor
         from app.indicators.pipeline import compute_indicators
+
+        event_chain_names = {
+            name for name in factor_cols if is_event_chain_factor(name)
+        }
+        if event_chain_names:
+            panel = materialize_scoring_columns(panel, event_chain_names)
+            factor_cols = factor_cols - event_chain_names
+            if not factor_cols:
+                return panel
 
         # custom/composite 因子走注册表→DSL/组合 的同一条物化路径 (P3, 与策略评分共用);
         # 其底层依赖 (如 change_pct/ma20) 先经内置补算路径物化, 再做 DSL/组合物化。

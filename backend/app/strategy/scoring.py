@@ -55,12 +55,12 @@ def scoring_warmup_bars(scoring: Mapping[str, Any]) -> int:
         for name, weight in scoring.items()
         if weight
     ]
-    # composite/custom 因子的预热来自注册表 (P3)
+    # 注册表是动态因子预热窗口的权威来源 (custom/composite/事件链等)。
     for name, weight in scoring.items():
         if not weight:
             continue
         spec = _registry_get_factor(str(name))
-        if spec is not None and spec.kind in ("custom", "composite"):
+        if spec is not None:
             warmups.append(spec.warmup_bars)
     return max(warmups, default=1)
 
@@ -288,6 +288,38 @@ def materialize_scoring_columns(
     frame: pl.DataFrame,
     names: Collection[str],
 ) -> pl.DataFrame:
+    from app.factors.event_chain import (
+        is_event_chain_factor,
+        materialize_event_chain_columns,
+    )
+
+    event_chain_names: list[str] = [
+        str(name) for name in names
+        if is_event_chain_factor(str(name)) and str(name) not in frame.columns
+    ]
+    for name in names:
+        spec = _registry_get_factor(str(name))
+        if spec is None:
+            continue
+        if spec.kind == "composite":
+            event_chain_names.extend(
+                member_id
+                for member_id, _ in spec.components
+                if is_event_chain_factor(member_id) and member_id not in frame.columns
+            )
+        elif spec.kind == "custom":
+            from app.factors.dsl import compile_formula_cached
+
+            compiled = compile_formula_cached(spec.formula_text)
+            event_chain_names.extend(
+                factor_id
+                for factor_id in compiled.referenced_factors
+                if is_event_chain_factor(factor_id) and factor_id not in frame.columns
+            )
+    event_chain_names = list(dict.fromkeys(event_chain_names))
+    if event_chain_names:
+        frame = materialize_event_chain_columns(frame, event_chain_names)
+
     # custom (DSL) 因子先物化: frame_transform 可能需要多阶段临时列 (嵌套窗口规避),
     # 与单表达式路径不同, 必须整体走帧变换 —— 与检验/试算共用同一条计算路径 (P3)。
     from app.factors.dsl import FACTOR_COLUMN, compile_formula_cached

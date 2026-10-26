@@ -36,6 +36,7 @@ def test_allowed_fields_union_registry() -> None:
     assert "ma20_bias" in allowed  # 虚拟因子
     assert "turnover_z_60d" in allowed  # 虚拟因子 (61 日预热)
     assert "momentum_20d" in allowed  # 既是白名单列也是基础因子
+    assert "first_board_chain_stage" in allowed  # 有限回看事件链因子
     assert "nope_col" not in allowed
     # 静态白名单不受污染 (供 monitor_rules 等仍按物化列口径使用)
     assert "ma20_bias" not in custom_signals.ALLOWED_FIELDS
@@ -90,3 +91,37 @@ def test_materialize_skips_unknown_columns() -> None:
     df = _frame()
     df2 = custom_signals.materialize_factor_columns(df, exprs)
     assert df2.columns == df.columns
+
+
+def test_event_chain_factor_is_materialized_for_signal_conditions() -> None:
+    start = date(2026, 1, 5)
+    panel = pl.DataFrame({
+        "symbol": ["A"] * 7,
+        "date": [start + timedelta(days=index) for index in range(7)],
+        "open": [10.0, 10.6, 11.0, 11.7, 11.2, 10.9, 11.4],
+        "high": [10.2, 11.0, 12.0, 11.8, 11.3, 11.5, 12.2],
+        "low": [9.8, 10.5, 11.2, 11.0, 10.5, 10.8, 11.9],
+        "close": [10.0, 10.8, 11.7, 11.5, 10.9, 11.2, 12.1],
+        "consecutive_limit_ups": [1, 0, 0, 0, 0, 0, 1],
+    })
+    sig = {
+        "id": "chain_rebreak",
+        "name": "事件链首次突破",
+        "kind": "entry",
+        "enabled": True,
+        "conditions": [
+            {
+                "left": "first_board_chain_stage",
+                "op": ">=",
+                "right": "5",
+                "leftDays": 0,
+                "rightDays": 0,
+            },
+        ],
+    }
+    exprs = custom_signals.build_expressions([sig])
+    materialized = custom_signals.materialize_factor_columns(panel, exprs)
+    injected = custom_signals.inject(materialized, exprs)
+
+    assert materialized["first_board_chain_stage"][6] == 5
+    assert injected[custom_signals.column_name("chain_rebreak")][6] == 1

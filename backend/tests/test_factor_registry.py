@@ -99,6 +99,15 @@ GOLDEN_COLUMNS: list[dict] = [
     {"id": "position_240d", "label": "一年价格位置", "group": "价格位置", "desc": "收盘价在近240个交易日最低价到最高价之间的位置 (0~1)"},
     {"id": "distance_to_high_240d", "label": "距一年高点", "group": "价格位置", "desc": "收盘价 / 240日最高收盘价 - 1, 接近0代表贴近一年新高"},
     {"id": "kdj_kd_diff", "label": "KDJ K-D差", "group": "趋势", "desc": "KDJ K值 - D值, 正值代表快线在慢线上方"},
+    {"id": "first_board_chain_stage", "label": "首板事件链阶段", "group": "首板事件链", "desc": "目标首板向前回看250个交易日, 按最近首板优先递归; 0无锚/1结构不完整/2回调太浅/3回攻未过前高/4目标前已突破/5首次收盘突破; 最小回调5%"},
+    {"id": "first_board_chain_anchor_distance", "label": "事件链锚点距离", "group": "首板事件链", "desc": "递归选中的前次首板与目标首板之间的交易日数; 未选中锚点为空"},
+    {"id": "first_board_chain_pullback_pct", "label": "事件链回调幅度", "group": "首板事件链", "desc": "前高 P 到回调低点 L 的跌幅 1-L/P; 无完整峰谷时为空"},
+    {"id": "first_board_chain_target_above_reference_pct", "label": "目标收盘距前高", "group": "首板事件链", "desc": "目标首板收盘 / 前高 P - 1; 无完整前高时为空"},
+    {"id": "first_board_chain_strict_rebreak", "label": "事件链首次收盘突破", "group": "首板事件链", "desc": "目标首板收盘首次突破前高 P, 且此前无收盘突破"},
+    {"id": "first_board_chain_early_breakout", "label": "事件链目标前已突破", "group": "首板事件链", "desc": "回调后、目标首板前已有收盘价突破前高 P"},
+    {"id": "first_board_chain_recovered_not_breakout", "label": "事件链回攻未过前高", "group": "首板事件链", "desc": "结构有效且目标首板收盘未突破前高 P"},
+    {"id": "first_board_chain_seed_close_preserved", "label": "事件链锚点收盘守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板收盘价"},
+    {"id": "first_board_chain_seed_low_preserved", "label": "事件链锚点低点守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板最低价"},
 ]
 
 GOLDEN_VIRTUAL_DEPS: dict[str, frozenset[str]] = {
@@ -153,6 +162,15 @@ GOLDEN_VIRTUAL_DEPS: dict[str, frozenset[str]] = {
     "position_240d": frozenset({"close"}),
     "distance_to_high_240d": frozenset({"close"}),
     "kdj_kd_diff": frozenset({"kdj_k", "kdj_d"}),
+    "first_board_chain_stage": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_anchor_distance": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_pullback_pct": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_target_above_reference_pct": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_strict_rebreak": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_early_breakout": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_recovered_not_breakout": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_seed_close_preserved": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
+    "first_board_chain_seed_low_preserved": frozenset({"open", "high", "low", "close", "consecutive_limit_ups"}),
 }
 
 GOLDEN_WARMUP: dict[str, int] = {
@@ -182,6 +200,15 @@ GOLDEN_WARMUP: dict[str, int] = {
     "turnover_std_20d": 21,
     "position_240d": 241,
     "distance_to_high_240d": 241,
+    "first_board_chain_stage": 251,
+    "first_board_chain_anchor_distance": 251,
+    "first_board_chain_pullback_pct": 251,
+    "first_board_chain_target_above_reference_pct": 251,
+    "first_board_chain_strict_rebreak": 251,
+    "first_board_chain_early_breakout": 251,
+    "first_board_chain_recovered_not_breakout": 251,
+    "first_board_chain_seed_close_preserved": 251,
+    "first_board_chain_seed_low_preserved": 251,
 }
 
 @pytest.fixture(autouse=True)
@@ -230,10 +257,10 @@ def test_scoring_warmup_snapshot() -> None:
 
 def test_catalog_counts_and_kinds() -> None:
     specs = all_factors()
-    assert len(specs) == 77
-    assert len({spec.id for spec in specs}) == 77  # id 唯一
+    assert len(specs) == 86
+    assert len({spec.id for spec in specs}) == 86  # id 唯一
     virtual = [spec for spec in specs if spec.kind == "virtual"]
-    assert len(virtual) == 52  # ma/ema 10 + 原有 26 + 扩充批次 16
+    assert len(virtual) == 61  # ma/ema 10 + 原有 26 + 扩充批次 16 + 事件链 9
     financial = [spec for spec in specs if spec.pit]
     assert len(financial) == 7
     assert all(spec.pit_source == "financial_announce" for spec in financial)
@@ -261,7 +288,7 @@ def test_get_factor_and_dependencies() -> None:
 def test_asset_type_filter() -> None:
     stock = all_factors(asset_type="stock")
     etf = all_factors(asset_type="etf")
-    assert len(stock) == 77
+    assert len(stock) == 86
     assert len(etf) == 70  # 财务 7 项仅股票
 
 
@@ -309,7 +336,7 @@ def test_factors_api_contract() -> None:
     assert response.status_code == 200
     payload = response.json()
     factors = payload["factors"]
-    assert len(factors) == 77
+    assert len(factors) == 86
     first = factors[0]
     assert first["id"] == "momentum_5d"
     assert first["kind"] == "base"

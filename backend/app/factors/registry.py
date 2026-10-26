@@ -17,6 +17,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from app.factors.event_chain import (
+    DEFAULT_LOOKBACK_BARS,
+    DEFAULT_MIN_PULLBACK_PCT,
+    EVENT_CHAIN_DEPENDENCIES,
+)
+
 Kind = Literal["base", "virtual", "composite", "custom"]
 Direction = Literal["high", "low", "none"]
 Unit = Literal["ratio", "pct", "score", "count", "days", "currency", "none"]
@@ -297,6 +303,125 @@ _CATALOG: tuple[FactorSpec, ...] = (
         "kdj_kd_diff", "KDJ K-D差", "趋势",
         "KDJ K值 - D值, 正值代表快线在慢线上方",
         deps=frozenset({"kdj_k", "kdj_d"}),
+    ),
+    # --- 首板事件链 (有限回看 V1, 仅股票) ---
+    _virtual(
+        "first_board_chain_stage",
+        "首板事件链阶段",
+        "首板事件链",
+        (
+            f"目标首板向前回看{DEFAULT_LOOKBACK_BARS}个交易日, "
+            f"按最近首板优先递归; 0无锚/1结构不完整/2回调太浅/"
+            f"3回攻未过前高/4目标前已突破/5首次收盘突破; "
+            f"最小回调{DEFAULT_MIN_PULLBACK_PCT:.0%}"
+        ),
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        unit="score",
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        scale_free=True,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_anchor_distance",
+        "事件链锚点距离",
+        "首板事件链",
+        "递归选中的前次首板与目标首板之间的交易日数; 未选中锚点为空",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        unit="days",
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_pullback_pct",
+        "事件链回调幅度",
+        "首板事件链",
+        "前高 P 到回调低点 L 的跌幅 1-L/P; 无完整峰谷时为空",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        unit="ratio",
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_target_above_reference_pct",
+        "目标收盘距前高",
+        "首板事件链",
+        "目标首板收盘 / 前高 P - 1; 无完整前高时为空",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        unit="ratio",
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_strict_rebreak",
+        "事件链首次收盘突破",
+        "首板事件链",
+        "目标首板收盘首次突破前高 P, 且此前无收盘突破",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_early_breakout",
+        "事件链目标前已突破",
+        "首板事件链",
+        "回调后、目标首板前已有收盘价突破前高 P",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_recovered_not_breakout",
+        "事件链回攻未过前高",
+        "首板事件链",
+        "结构有效且目标首板收盘未突破前高 P",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_seed_close_preserved",
+        "事件链锚点收盘守住",
+        "首板事件链",
+        "回调低点 L 不低于锚点首板收盘价",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
+    ),
+    _virtual(
+        "first_board_chain_seed_low_preserved",
+        "事件链锚点低点守住",
+        "首板事件链",
+        "回调低点 L 不低于锚点首板最低价",
+        deps=EVENT_CHAIN_DEPENDENCIES,
+        warmup_bars=DEFAULT_LOOKBACK_BARS + 1,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        stability="experimental",
+        tags=("首板", "事件链", "实验"),
     ),
 )
 
