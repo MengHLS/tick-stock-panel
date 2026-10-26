@@ -161,6 +161,56 @@ def test_compact_factor_panel_matches_full_symbol_independent_calculation(
     assert compact.equals(full)
 
 
+def test_compact_factor_panel_loads_event_chain_dependency_and_warmup() -> None:
+    first = date(2026, 1, 5)
+    closes = [10.0, 10.8, 11.7, 11.5, 10.9, 11.2, 12.1]
+    highs = [10.2, 11.0, 12.0, 11.8, 11.3, 11.5, 12.2]
+    lows = [9.8, 10.5, 11.2, 11.0, 10.5, 10.8, 11.9]
+    raw = pl.DataFrame({
+        "symbol": ["000001.SZ"] * len(closes),
+        "date": [first + timedelta(days=index) for index in range(len(closes))],
+        "open": closes,
+        "high": highs,
+        "low": lows,
+        "close": closes,
+        "volume": [1000.0] * len(closes),
+        "amount": [10000.0] * len(closes),
+        "turnover_rate": [1.0] * len(closes),
+        "consecutive_limit_ups": [1, 0, 0, 0, 0, 0, 1],
+    })
+    captured: dict[str, object] = {}
+
+    class Engine:
+        def load_panel(self, _symbols, start, end, *, columns, **_kwargs):
+            captured["start"] = start
+            captured["columns"] = set(columns)
+            return raw.filter(
+                (pl.col("date") >= start) & (pl.col("date") <= end)
+            ).select(columns)
+
+    start = first + timedelta(days=6)
+    config = SimpleNamespace(
+        symbols=None,
+        start=start,
+        end=start,
+        asset_type="stock",
+    )
+
+    from app.backtest.factor import FactorBacktestService
+
+    compact = _load_compact_factor_panel(
+        FactorBacktestService(Engine()),
+        config,
+        ("first_board_chain_stage",),
+        expected_generation="generation",
+        cancel_check=None,
+    )
+
+    assert "consecutive_limit_ups" in captured["columns"]
+    assert captured["start"] < start - timedelta(days=120)
+    assert compact.row(0, named=True)["first_board_chain_stage"] == 5
+
+
 def test_compact_factor_panel_rejects_noncanonical_symbol_date_keys() -> None:
     first = date(2024, 1, 2)
     canonical = pl.DataFrame({

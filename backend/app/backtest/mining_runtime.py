@@ -59,7 +59,8 @@ from app.enriched_generation import (
     EnrichedGenerationUnavailableError,
     enriched_publication_incomplete,
 )
-from app.factors.registry import factor_columns_view
+from app.factors.event_chain import is_event_chain_factor
+from app.factors.registry import factor_columns_view, get_factor
 from app.services.mining_jobs import MiningRunStore
 from app.services.mining_preflight import enriched_partition_dates
 from app.services.mining_schedule import MINING_ALGORITHM_VERSION
@@ -341,15 +342,32 @@ def _load_compact_factor_panel(
         "amount",
         "turnover_rate",
     ]
-    if any(
+    event_chain_names = {
+        name for name in factor_names if is_event_chain_factor(name)
+    }
+    if event_chain_names or any(
         name in ("limit_up_count_20d", "limit_up_count_60d")
         for name in factor_names
     ):
         panel_columns.append("consecutive_limit_ups")
+    warmup_days = FACTOR_WARMUP_DAYS
+    if event_chain_names:
+        required_bars = max(
+            (
+                spec.warmup_bars
+                for name in event_chain_names
+                if (spec := get_factor(name)) is not None
+            ),
+            default=1,
+        )
+        warmup_days = max(
+            warmup_days,
+            math.ceil(max(required_bars - 1, 1) * 1.8) + 14,
+        )
     load_start = (
         config.start
         if all(name == "turnover_rate" for name in factor_names)
-        else config.start - timedelta(days=FACTOR_WARMUP_DAYS)
+        else config.start - timedelta(days=warmup_days)
     )
     raw = factor_service.engine.load_panel(
         config.symbols,
