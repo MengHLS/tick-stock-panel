@@ -101,7 +101,16 @@ def read_lock_holder(data_dir: Path | str) -> dict | None:
     try:
         raw = path.read_bytes()
     except OSError:
-        return None
+        if os.name != "nt":
+            return None
+        try:
+            # Windows prevents reading the locked first byte. The JSON writer
+            # always starts with "{", so read the unlocked suffix unbuffered.
+            with path.open("rb", buffering=0) as stream:
+                stream.seek(1)
+                raw = b"{" + stream.read()
+        except OSError:
+            return None
     try:
         value = json.loads(raw.decode("utf-8", errors="replace"))
     except (UnicodeError, json.JSONDecodeError):
@@ -125,9 +134,11 @@ def probe_lock_held(data_dir: Path | str) -> bool:
         os.set_inheritable(stream.fileno(), False)
         _try_lock_file(stream)
     except MiningProcessLockError:
+        stream.close()
         return True
     except OSError:
         # 无法探测时按未持锁处理, 让真正的 acquire 路径给出准确错误
+        stream.close()
         return False
     try:
         _unlock_file(stream)

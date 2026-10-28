@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Clock, X } from 'lucide-react'
 import { StockPanel } from '@/components/StockPanel'
@@ -21,6 +21,8 @@ interface Props {
   currentKey?: string | null
   /** 切交易回调: 收到目标项, 由调用方更新选中并同步分页 */
   onNavigate?: (item: TradeNavItem) => void
+  /** 退出原因徽标 (复用回测页的文案/信号名解析) */
+  reasonBadge?: ReactNode
   onClose: () => void
 }
 
@@ -45,7 +47,7 @@ function fmtSignedMoney(v: number | null | undefined): string {
   return `${prefix}${fmtMoney(v)}`
 }
 
-export function TradeKlineModal({ trade, navItems, currentKey, onNavigate, onClose }: Props) {
+export function TradeKlineModal({ trade, navItems, currentKey, onNavigate, reasonBadge, onClose }: Props) {
   const [showIntraday, setShowIntraday] = useState(false)
   const backdrop = useDialogBackdrop(onClose)
 
@@ -150,6 +152,21 @@ export function TradeKlineModal({ trade, navItems, currentKey, onNavigate, onClo
                 </div>
                 <div className="mt-1 text-[11px] text-muted">
                   {String(trade.entry_date).slice(0, 10)} 买入 → {String(trade.exit_date).slice(0, 10)} 卖出 · 持仓 {trade.duration ?? '—'} 天
+                </div>
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted">
+                  {trade.entry_signal_date && (
+                    <span>买入信号日 <span className="num text-secondary">{String(trade.entry_signal_date).slice(0, 10)}</span></span>
+                  )}
+                  <span className="flex items-center gap-1">
+                    卖出原因
+                    {reasonBadge ?? <span className="text-secondary">{trade.exit_reason || '—'}</span>}
+                  </span>
+                  {trade.exit_signal_date && (
+                    <span>卖出信号日 <span className="num text-secondary">{String(trade.exit_signal_date).slice(0, 10)}</span></span>
+                  )}
+                  {!!trade.blocked_exit_days && (
+                    <span className="text-amber-400">拒卖顺延 {trade.blocked_exit_days} 天</span>
+                  )}
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-3 text-xs">

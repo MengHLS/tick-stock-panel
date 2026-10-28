@@ -1,0 +1,12 @@
+{
+  "schema_version": "v0.1.2",
+  "calculation_version": "v0.1 unchanged",
+  "source_sha256": "51a649d0da45b02d7dd05a999a2045d096cc4537a59148aa676a034c2622bbf2",
+  "output_sha256": "3f66f3f512573652f123808b14043a3eb28a74fda9129ba69d1d8cac2a9a1c5e",
+  "added_nulls": 24,
+  "selected": 8,
+  "trace": 16,
+  "validation": "removing these 24 additions and their reason entries gives exact v0.1.1 equality",
+  "amount": "not independently verified",
+  "prior_versions": "preserved"
+}

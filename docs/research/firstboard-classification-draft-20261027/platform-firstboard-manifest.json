@@ -1,0 +1,11 @@
+{
+  "source": "D:/TSP/data/kline_daily_enriched",
+  "query": "SELECT symbol,date,open,high,low,close,consecutive_limit_ups FROM read_parquet('D:/TSP/data/kline_daily_enriched/date=*/*.parquet',hive_partitioning=true) WHERE date BETWEEN DATE '2025-01-01' AND DATE '2026-10-23' AND symbol IN ('000810.SZ','002687.SZ','600785.SH','002354.SZ') ORDER BY symbol,date",
+  "rule": "consecutive_limit_ups == 1; platform candidates, not certified historical identities",
+  "price_alignment": "all four OHLC fields exactly equal to frozen chart inputs, all matching symbol/date rows",
+  "rows": 1744,
+  "flags_csv_sha256": "92a7c72ff8b7d27ab0d409beaf96ffec91ec356ee06774fb5593802c920e4b77",
+  "chart_csv_sha256": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+  "cutoff": "2026-10-23",
+  "source_flag_version": "read at export time; earlier flag snapshot not available"
+}

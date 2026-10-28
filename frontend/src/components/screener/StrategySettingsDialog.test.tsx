@@ -187,17 +187,21 @@ it('trading page exposes full risk fields and save carries them', async () => {
   })
 })
 
-it('drawdown clamps to activate value (与回测抽屉同联动)', async () => {
+it('preserves 3% activation with an independent 8% peak drawdown', async () => {
   await render()
   act(() => { findButton('风控触发').click() })
 
   const taLabel = [...container.querySelectorAll('span')].find(s => s.textContent === '回撤止盈启动')!
   const tdLabel = [...container.querySelectorAll('span')].find(s => s.textContent === '回撤止盈回撤')!
   const tdInput = tdLabel.parentElement!.querySelector('input[type="number"]') as HTMLInputElement
-  // 先设回撤 30, 再设启动 20 → 回撤被钳到 20
-  setNumberInput(tdInput, '30')
-  setNumberInput(taLabel.parentElement!.querySelector('input[type="number"]') as HTMLInputElement, '20')
-  expect(tdInput.value).toBe('20')
+  setNumberInput(tdInput, '8')
+  setNumberInput(taLabel.parentElement!.querySelector('input[type="number"]') as HTMLInputElement, '3')
+  expect(tdInput.value).toBe('8')
+  await act(async () => { findButton('保存设置').click() })
+  expect(mocks.saveConfig.mock.calls[0][1]).toMatchObject({
+    trailing_take_profit_activate: 0.03,
+    trailing_take_profit_drawdown: 0.08,
+  })
 })
 
 it('save submits assembled payload and closes', async () => {

@@ -11,7 +11,7 @@ import threading
 import time
 import uuid
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Literal
@@ -19,7 +19,17 @@ from typing import Literal
 import numpy as np
 import polars as pl
 
-from app.backtest.engine import BacktestEngine, MatcherConfig, SimResult, SimulationOptions
+from app.backtest.engine import (
+    BacktestEngine,
+    ExecutionCostPolicy,
+    FullExecutionCapabilities,
+    HoldExtensionPolicy,
+    MatcherConfig,
+    SimResult,
+    SimulationOptions,
+    full_execution_unsupported_message,
+    unsupported_full_execution_rules,
+)
 from app.backtest.fundamentals import FUNDAMENTAL_FACTOR_NAMES
 from app.backtest.matrix import (
     MarketDataMatrix,
@@ -33,6 +43,7 @@ from app.backtest.matrix import (
     build_market_data_matrix,
     build_market_matrix,
     build_market_matrix_from_signals,
+    matrix_feature,
     slice_market_data_matrix,
     slice_signal_matrix,
 )
@@ -52,6 +63,11 @@ from app.indicators.pipeline import (
     LIMIT_SIGNAL_OUTPUTS,
     get_signal_dependencies,
 )
+from app.indicators.price_quality import (
+    AdjustmentIntegrityError,
+    require_active_token,
+    require_price_quality,
+)
 from app.strategy.engine import StrategyDataContext, StrategyDef, StrategyEngine
 from app.strategy.scoring import (
     SCORING_DIRECTION_LOW,
@@ -68,7 +84,7 @@ logger = logging.getLogger(__name__)
 BENCHMARK_SYMBOL = "000001.SH"
 _EXECUTION_COLUMNS = frozenset({
     "symbol", "date", "open", "high", "low", "close", "volume",
-    "name", "score", "signal_limit_up", "signal_limit_down",
+    "name", "score", "signal_limit_up", "signal_limit_down", "amount",
 })
 _LIMIT_BASE_COLUMNS = frozenset({"raw_close", "raw_high", "raw_low"})
 _INSTRUMENT_COLUMNS = frozenset({"name", "total_shares", "float_shares"})
@@ -309,9 +325,12 @@ class StrategyDependencyResolver:
         order_by = strategy.meta.get("order_by")
         if order_by and order_by != "score":
             required_features.add(str(order_by))
-        # 叠加条件字段并入矩阵列: 基础指标列来自 enriched 分区; ext_* 时序数值列
-        # 由引擎在矩阵加载后按 (日期, 标的) 对齐注入, 供入场掩码按 (时间, 标的) 评估。
-        overlay_fields = _overlay_numeric_fields(overrides)
+        # 叠加条件字段并入矩阵列: 虚拟因子需展开为 enriched 存储依赖, 否则
+        # parquet 加载会把因子 ID 当成物理列而 fail-closed; ext_* 时序数值列
+        # 保持原字段, 由引擎在矩阵加载后按 (日期, 标的) 对齐注入。
+        overlay_sources = _overlay_numeric_fields(overrides)
+        overlay_scoring = {name: 1.0 for name in overlay_sources}
+        overlay_fields = scoring_dependencies(overlay_scoring)
 
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         base_columns = frozenset(set(base_columns) | set(_LIMIT_BASE_COLUMNS))
@@ -322,10 +341,12 @@ class StrategyDependencyResolver:
             int(strategy.matrix_strategy.required_warmup_bars(params)),
             scoring_warmup_bars(scoring),
             scoring_warmup_bars(parameter_scoring),
+            scoring_warmup_bars(overlay_scoring),
         )
         matrix_columns = set(base_columns) | set(instrument_columns) | overlay_fields | {
             "signal_limit_up",
             "signal_limit_down",
+            "price_limit_pct",
         }
         return ResolvedFeaturePlan(
             base_columns=base_columns,
@@ -616,7 +637,7 @@ class StrategyBacktestConfig:
     max_positions: int = 10
     max_exposure_pct: float = 1.0
     initial_capital: float = 1_000_000.0
-    position_sizing: Literal["equal", "score_weight"] = "equal"
+    position_sizing: Literal["equal", "score_weight", "score_tier"] = "equal"
     mode: Literal["position", "full"] = "position"
     asset_type: str = "stock"
     holding_days: int = 5
@@ -647,6 +668,8 @@ class StrategyBacktestResult:
     factor_attribution: dict | None = None
     elapsed_ms: float = 0.0
     error: str | None = None
+    # 运行时 provenance: 有效配置、策略指纹、版本与数据冻结信息, 供保存快照使用。
+    provenance: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -778,6 +801,10 @@ class PreparedMatrixBacktest:
     reference_price: np.ndarray | None
     prepare_timing_ms: dict[str, float]
     compute_cache: MatrixComputeCache
+    # 准备该共享矩阵时的数据 generation (装载前后校验一致才非空); 无法证明为 None。
+    source_generation: str | None = None
+    # 准备该矩阵时签发的复权认证令牌; 复用时必须与当前令牌一致。
+    quality_token: dict | None = None
 
 
 class StrategyBacktestService:
@@ -803,6 +830,102 @@ class StrategyBacktestService:
             json.dumps(config.overrides or {}, sort_keys=True, ensure_ascii=False, default=str),
             json.dumps(config.regime_filter or {}, sort_keys=True, ensure_ascii=False, default=str),
         )
+
+    def _capture_generation(
+        self, asset_type: str, cancel_event: threading.Event | None,
+    ) -> str | None:
+        """在数据装载窗口内采集 enriched generation; 不可得/异常时返回 None。
+
+        仅用于“装载前后一致”校验: 调用方在装载前后各采一次, 相等才认为本次
+        读取的数据就是该版本。这里不抛异常, 版本信息不可得不应影响回测成功。
+        """
+        try:
+            await_getter = getattr(self.engine, "data_generation_await", None)
+            if callable(await_getter) and cancel_event is not None:
+                value = await_getter(asset_type, cancel_event=cancel_event)
+            else:
+                getter = getattr(self.engine, "data_generation", None)
+                if not callable(getter):
+                    repo = getattr(self.engine, "repo", None)
+                    getter = getattr(repo, "get_matrix_data_generation", None)
+                if not callable(getter):
+                    return None
+                value = getter(asset_type)
+            return str(value) if value else None
+        except Exception as exc:  # noqa: BLE001 - 版本不可得不影响回测
+            logger.debug("capture data generation failed: %s", exc)
+            return None
+
+    @staticmethod
+    def _resolve_bound_generation(
+        before: str | None, after: str | None,
+    ) -> str | None:
+        """装载前后版本一致才视为可绑定; 否则无法证明, 返回 None。"""
+        if before is not None and after is not None and before == after:
+            return before
+        return None
+
+    def _price_quality_error(self, config: StrategyBacktestConfig) -> str | None:
+        """回测入口的复权认证 fail-closed: 完整复核内容并签发版本令牌。
+
+        复核成本为 O(参与认证文件字节数); 同一次运行内的加载边界用令牌做低成本
+        版本复核, 发现发布中/ generation 变化/证据被替换即拒绝。
+        """
+        store = getattr(getattr(self.engine, "repo", None), "store", None)
+        data_dir = getattr(store, "data_dir", None)
+        if not isinstance(data_dir, (str, Path)):
+            return None
+        try:
+            require_price_quality(data_dir, config.asset_type)
+        except AdjustmentIntegrityError as exc:
+            return f"行情复权认证未通过，已拒绝回测：{exc}"
+        return None
+
+    def _quality_token_error(self, config: StrategyBacktestConfig) -> str | None:
+        """加载后复核: 同一次运行的版本令牌必须仍有效。"""
+        store = getattr(getattr(self.engine, "repo", None), "store", None)
+        data_dir = getattr(store, "data_dir", None)
+        if not isinstance(data_dir, (str, Path)):
+            return None
+        try:
+            require_active_token(data_dir, config.asset_type)
+        except AdjustmentIntegrityError as exc:
+            return f"行情复权认证已失效，已拒绝回测：{exc}"
+        return None
+
+    def _quality_data_dir(self, config: StrategyBacktestConfig):
+        store = getattr(getattr(self.engine, "repo", None), "store", None)
+        data_dir = getattr(store, "data_dir", None)
+        return data_dir if isinstance(data_dir, (str, Path)) else None
+
+    def _current_quality_token(self, config: StrategyBacktestConfig) -> dict | None:
+        data_dir = self._quality_data_dir(config)
+        if data_dir is None:
+            return None
+        try:
+            return require_active_token(data_dir, config.asset_type)
+        except AdjustmentIntegrityError:
+            return None
+
+    def _prepared_token_error(
+        self, config: StrategyBacktestConfig, prepared_token: dict | None,
+    ) -> str | None:
+        """复用共享基础矩阵前核对来源令牌, 防止旧 prepared 绕过认证。"""
+        data_dir = self._quality_data_dir(config)
+        if data_dir is None:
+            return None
+        try:
+            current = require_active_token(data_dir, config.asset_type)
+        except AdjustmentIntegrityError as exc:
+            return f"行情复权认证已失效，已拒绝回测：{exc}"
+        if prepared_token is None:
+            return "共享基础矩阵缺少复权认证令牌，拒绝复用"
+        if (
+            prepared_token.get("generation") != current["generation"]
+            or prepared_token.get("stamp_sha256") != current["stamp_sha256"]
+        ):
+            return "共享基础矩阵的复权认证令牌与当前数据版本不一致，拒绝复用"
+        return None
 
     def _resolve_composite_feature_plan(
         self,
@@ -949,6 +1072,9 @@ class StrategyBacktestService:
             raise ValueError("optimizer trials must share strategy, universe, range and overrides")
 
         first = configs[0]
+        quality_error = self._price_quality_error(first)
+        if quality_error:
+            raise ValueError(quality_error)
         strategy = self.strategy_engine.get(first.strategy_id)
         if strategy.execution_backend != "matrix_native":
             raise ValueError("shared MarketDataMatrix preparation requires matrix_native strategy")
@@ -1007,8 +1133,12 @@ class StrategyBacktestService:
 
         timing_ms: dict[str, float] = {}
         prepare_started = time.perf_counter()
+        prepared_generation: str | None = None
         if market_data_override is None:
             started = time.perf_counter()
+            gen_before = self._capture_generation(
+                first.asset_type, cancel_event=None,
+            )
             market_data = self.engine.load_market_data_matrix_for_backtest(
                 first.symbols,
                 load_start,
@@ -1019,6 +1149,8 @@ class StrategyBacktestService:
                 coverage_start=coverage_start,
                 coverage_end=coverage_end,
             )
+            gen_after = self._capture_generation(first.asset_type, cancel_event=None)
+            prepared_generation = self._resolve_bound_generation(gen_before, gen_after)
             direct_load_ms = round((time.perf_counter() - started) * 1000, 1)
         else:
             labels = market_data_override.timestamp_labels
@@ -1105,6 +1237,8 @@ class StrategyBacktestService:
             reference_price=reference_price,
             prepare_timing_ms=timing_ms,
             compute_cache=compute_cache,
+            source_generation=prepared_generation,
+            quality_token=self._current_quality_token(first),
         )
 
     def run(
@@ -1120,6 +1254,9 @@ class StrategyBacktestService:
         result_policy = result_policy or BacktestResultPolicy()
         # 因子归因快照容器: 日线路径在 _apply_score 里填充, 其余路径保持空
         factor_snapshot: dict = {}
+        # 本次实际读取的数据版本: 装载窗口内前后一致才绑定; 无法证明为 None。
+        bound_generation: str | None = None
+        generation_source: str | None = None
 
         def _err(msg: str) -> StrategyBacktestResult:
             return StrategyBacktestResult(
@@ -1163,6 +1300,35 @@ class StrategyBacktestService:
             unsupported = unsupported_minute_exit_signals(exit_signals)
             if unsupported:
                 return _err(f"以下卖出信号暂不支持分钟触发回放: {', '.join(unsupported)}")
+        try:
+            execution_policy = self._strategy_execution_policy(s)
+        except (TypeError, ValueError) as e:
+            return _err(f"策略执行策略配置无效: {e}")
+        if config.mode == "full":
+            # 数据加载/信号生成之前 fail-closed: 独立撮合未实现的执行规则
+            # 不能因空数据或无候选而被绕过, 也不能自动降级。
+            unsupported_rules = unsupported_full_execution_rules(
+                FullExecutionCapabilities(
+                    exit_signal_requires_profit=execution_policy[
+                        "exit_signal_requires_profit"
+                    ],
+                    hold_extension_policy=execution_policy["hold_extension_policy"],
+                    trailing_peak_price=execution_policy["trailing_peak_price"],
+                    plan_at_signal_close=execution_policy["plan_at_signal_close"],
+                    max_daily_entries=execution_policy["max_daily_entries"],
+                    position_sizing=config.position_sizing,
+                    execution_costs=execution_policy["execution_costs"],
+                    entry_price_basis=execution_policy["entry_price_basis"],
+                    block_limit_open=execution_policy["block_limit_open"],
+                )
+            )
+            if unsupported_rules:
+                return _err(full_execution_unsupported_message(unsupported_rules))
+        # 复权尺度 fail-closed: 行情未通过发布校验或因子已变化时拒绝回测,
+        # 不生成可保存的成功结果 (避免在混用尺度上产出虚假收益)。
+        quality_error = self._price_quality_error(config)
+        if quality_error:
+            return _err(quality_error)
         stop_loss = self._override_value(overrides, "stop_loss", s.stop_loss)
         take_profit = self._normalize_pct(
             self._override_value(overrides, "take_profit", getattr(s, "take_profit", None)),
@@ -1184,17 +1350,6 @@ class StrategyBacktestService:
             0.005,
             0.5,
         )
-        if (
-            trailing_take_profit_activate is not None
-            and trailing_take_profit_drawdown is not None
-            and trailing_take_profit_drawdown > trailing_take_profit_activate
-        ):
-            # 不再静默钳制: 旧 min() 会把用户填的回撤改写成激活值, 配置"不生效"
-            # 却无任何提示。组合无意义时显式报错, 让用户调整参数后重跑。
-            return _err(
-                f"移动止盈回撤({trailing_take_profit_drawdown:.0%})不能大于"
-                f"激活涨幅({trailing_take_profit_activate:.0%}), 请调整后再试"
-            )
         max_hold_days = self._override_value(overrides, "max_hold_days", s.max_hold_days)
         score_min, score_max = self._normalize_score_range(
             overrides.get("score_min"),
@@ -1274,7 +1429,9 @@ class StrategyBacktestService:
                 return _err("共享基础矩阵只能用于 matrix_native 策略")
             if prepared.signature != self._matrix_prepare_signature(config):
                 return _err("共享基础矩阵与当前回测配置不匹配")
-            load_start = prepared.load_start
+            prepared_token_error = self._prepared_token_error(config, prepared.quality_token)
+            if prepared_token_error:
+                return _err(prepared_token_error)
             load_end = prepared.load_end
             sim_end = prepared.sim_end
             feature_width = prepared.feature_width
@@ -1283,6 +1440,9 @@ class StrategyBacktestService:
             matrix_data_cache_status = prepared.market_data.cache_status
             matrix_data_cache_hit = matrix_data_cache_status in {"exact", "covering"}
             matrix_data_cache_timing_ms = prepared.market_data.cache_timing_ms
+            # 复用 prepared 共享矩阵时, 数据版本取准备该矩阵时的绑定值 (不重读)。
+            bound_generation = prepared.source_generation
+            generation_source = "matrix" if bound_generation else None
             # 环境过滤下正式起点=矩阵首日时顺延 (首日让渡为预热)
             if config.regime_filter:
                 config = self._clamp_regime_formal_start(
@@ -1313,6 +1473,7 @@ class StrategyBacktestService:
                 coverage_end = config.end + timedelta(
                     days=(cache_profile.forward_bars + 5) * 2
                 )
+            gen_before = self._capture_generation(config.asset_type, cancel_event)
             try:
                 market_data = self.engine.load_market_data_matrix_for_backtest(
                     config.symbols,
@@ -1326,6 +1487,9 @@ class StrategyBacktestService:
                 )
             except (ValueError, OSError) as e:
                 return _err(f"回测矩阵准备失败: {e}")
+            gen_after = self._capture_generation(config.asset_type, cancel_event)
+            bound_generation = self._resolve_bound_generation(gen_before, gen_after)
+            generation_source = "matrix" if bound_generation else None
             direct_load_ms = round((time.perf_counter() - t_load) * 1000, 1)
             timing_ms["load_panel"] = direct_load_ms
             timing_ms["market_data_matrix_build"] = 0.0
@@ -1348,6 +1512,7 @@ class StrategyBacktestService:
             feature_width = len(feature_plan.matrix_columns)
         else:
             t_load = time.perf_counter()
+            gen_before = self._capture_generation(config.asset_type, cancel_event)
             try:
                 panel = self.engine.load_panel_for_backtest(
                     config.symbols,
@@ -1358,6 +1523,9 @@ class StrategyBacktestService:
                 )
             except (ValueError, pl.exceptions.PolarsError) as e:
                 return _err(f"回测特征准备失败: {e}")
+            gen_after = self._capture_generation(config.asset_type, cancel_event)
+            bound_generation = self._resolve_bound_generation(gen_before, gen_after)
+            generation_source = "panel" if bound_generation else None
             timing_ms["load_panel"] = round((time.perf_counter() - t_load) * 1000, 1)
             if panel.is_empty():
                 return _err("无数据，请检查日期范围或先运行盘后管道")
@@ -1373,6 +1541,11 @@ class StrategyBacktestService:
                 return _err("正式回测区间内无数据")
             feature_width = int(panel.width)
 
+        if (
+            config.position_sizing == "score_tier"
+            and not execution_policy["score_tiers"]
+        ):
+            return _err("评分分档仓位需要策略声明 backtest_defaults.score_tiers")
         matcher_config = MatcherConfig(
             matching=config.matching,
             entry_fill=config.entry_fill,
@@ -1393,6 +1566,17 @@ class StrategyBacktestService:
             score_max=score_max,
             initial_capital=config.initial_capital,
             position_sizing=config.position_sizing,
+            score_tiers=execution_policy["score_tiers"],
+            entry_open_gap_range=execution_policy["entry_open_gap_range"],
+            entry_prev_day_change_range=execution_policy["entry_prev_day_change_range"],
+            trailing_peak_price=execution_policy["trailing_peak_price"],
+            exit_signal_requires_profit=execution_policy["exit_signal_requires_profit"],
+            hold_extension_policy=execution_policy["hold_extension_policy"],
+            execution_costs=execution_policy["execution_costs"],
+            plan_at_signal_close=execution_policy["plan_at_signal_close"],
+            max_daily_entries=execution_policy["max_daily_entries"],
+            entry_price_basis=execution_policy["entry_price_basis"],
+            block_limit_open=execution_policy["block_limit_open"],
             minute_fill=config.minute_fill,
             asset_type=config.asset_type,
         )
@@ -1560,11 +1744,16 @@ class StrategyBacktestService:
                     descending=bool(s.meta.get("descending", True)),
                     protect_strategy_cache=prepared is not None,
                 )
+                strategy_params = dict(params)
+                # Keep pre-start warmup bars out of the event universe. The
+                # first-board seed is observable only when its event day is
+                # inside the formal backtest window.
+                strategy_params["_event_start"] = config.start.isoformat()
                 if prepared is None:
                     signal_matrix = MatrixStrategyPipeline().run(
                         s.matrix_strategy,
                         market_data,
-                        params,
+                        strategy_params,
                         pipeline_config,
                         timing_ms,
                     )
@@ -1573,7 +1762,7 @@ class StrategyBacktestService:
                         signal_matrix = MatrixStrategyPipeline().run(
                             s.matrix_strategy,
                             market_data,
-                            params,
+                            strategy_params,
                             pipeline_config,
                             timing_ms,
                         )
@@ -1844,6 +2033,11 @@ class StrategyBacktestService:
             strategy_info=strategy_info,
             factor_attribution=factor_attribution,
             elapsed_ms=round(elapsed, 1),
+            provenance=self._build_run_provenance(
+                s, config, params, matcher_config, overrides,
+                data_generation=bound_generation,
+                generation_source=generation_source,
+            ),
         )
 
     # ── 分钟策略回测: 逐日回放入场 + 日K矩阵离场 ──
@@ -1902,6 +2096,7 @@ class StrategyBacktestService:
 
         timing_ms: dict[str, float] = {}
         t_load = time.perf_counter()
+        gen_before = self._capture_generation("stock", cancel_event)
         try:
             panel = self.engine.load_panel_for_backtest(
                 config.symbols,
@@ -1912,6 +2107,9 @@ class StrategyBacktestService:
             )
         except (ValueError, OSError, pl.exceptions.PolarsError) as e:
             return _err(f"回测特征准备失败: {e}")
+        gen_after = self._capture_generation("stock", cancel_event)
+        bound_generation = self._resolve_bound_generation(gen_before, gen_after)
+        generation_source = "panel" if bound_generation else None
         timing_ms["load_panel"] = round((time.perf_counter() - t_load) * 1000, 1)
         if panel.is_empty():
             return _err("无日线数据, 请检查日期范围或先运行盘后管道")
@@ -2014,6 +2212,10 @@ class StrategyBacktestService:
             # 不再叠加日线口径的分钟成交细化。
             minute_fill=False,
         )
+        if config.mode == "full":
+            unsupported = unsupported_full_execution_rules(matcher_config)
+            if unsupported:
+                return _err(full_execution_unsupported_message(unsupported))
 
         t_matrix = time.perf_counter()
         market_data = build_market_data_matrix(sim_panel)
@@ -2138,6 +2340,11 @@ class StrategyBacktestService:
             ),
             strategy_info=strategy_info,
             elapsed_ms=round(elapsed, 1),
+            provenance=self._build_run_provenance(
+                s, config, params, matcher_config, overrides,
+                data_generation=bound_generation,
+                generation_source=generation_source,
+            ),
         )
 
     # ── 全量模拟 (策略能力统计, 不建组合不算净值) ──
@@ -2445,30 +2652,38 @@ class StrategyBacktestService:
         n_times = len(market_data.timestamp_labels)
         n_assets = len(market_data.symbols)
         mask = np.ones((n_times, n_assets), dtype=bool)
+
+        def overlay_values(name: str) -> np.ndarray:
+            if name in market_data.fields:
+                return np.asarray(market_data.fields[name], dtype=float)
+            return np.asarray(matrix_feature(market_data, name), dtype=float)
+
         for i, c in enumerate(conditions):
             op = c.get("op")
             fn = _OVERLAY_NP_OPS.get(op)
             if fn is None:
                 return None, f"第 {i+1} 个叠加条件: matrix 路径不支持运算符 {op!r}"
             left = str(c.get("left", ""))
-            if left not in market_data.fields:
+            try:
+                left_arr = overlay_values(left)
+            except ValueError as exc:
                 return None, (
                     f"叠加条件引用的列不在回测矩阵中: {left} "
-                    "(请检查扩展数据拉取/因子计算是否可用)"
+                    f"(请检查扩展数据拉取/因子计算是否可用: {exc})"
                 )
             left_days = int(c.get("leftDays", 0) or 0)
             right_days = int(c.get("rightDays", 0) or 0)
             left_arr = cls._shift_time(
-                np.asarray(market_data.fields[left], dtype=float), left_days
+                left_arr, left_days
             )
             right = c.get("right")
             if isinstance(right, str) and right.startswith("field:"):
                 col = right[len("field:"):]
-                if col not in market_data.fields:
-                    return None, f"叠加条件引用的列不在回测矩阵中: {col}"
-                right_arr = cls._shift_time(
-                    np.asarray(market_data.fields[col], dtype=float), right_days
-                )
+                try:
+                    right_arr = overlay_values(col)
+                except ValueError as exc:
+                    return None, f"叠加条件引用的列不在回测矩阵中: {col} ({exc})"
+                right_arr = cls._shift_time(right_arr, right_days)
                 cond = fn(left_arr, right_arr) & ~np.isnan(left_arr) & ~np.isnan(right_arr)
             else:
                 try:
@@ -2618,6 +2833,79 @@ class StrategyBacktestService:
         return score_min, score_max
 
     @staticmethod
+    def _strategy_execution_policy(s: StrategyDef) -> dict:
+        defaults = s.meta.get("backtest_defaults")
+        if not isinstance(defaults, dict):
+            defaults = {}
+
+        def _range(name: str) -> tuple[float, float] | None:
+            value = defaults.get(name)
+            if not isinstance(value, (list, tuple)) or len(value) != 2:
+                return None
+            try:
+                return float(value[0]), float(value[1])
+            except (TypeError, ValueError):
+                return None
+
+        raw_tiers = defaults.get("score_tiers")
+        score_tiers: tuple[tuple[float, float], ...] | None = None
+        if isinstance(raw_tiers, list):
+            parsed: list[tuple[float, float]] = []
+            for item in raw_tiers:
+                if not isinstance(item, (list, tuple)) or len(item) != 2:
+                    parsed = []
+                    break
+                try:
+                    parsed.append((float(item[0]), float(item[1])))
+                except (TypeError, ValueError):
+                    parsed = []
+                    break
+            score_tiers = tuple(parsed) if parsed else None
+
+        hold_raw = defaults.get("hold_extension")
+        hold_policy = None
+        if isinstance(hold_raw, dict):
+            hold_policy = HoldExtensionPolicy(
+                decision_days=int(hold_raw.get("decision_days", 5)),
+                strong_hold_days=int(hold_raw.get("strong_hold_days", 10)),
+                strong_hold_min_return=float(
+                    hold_raw.get("strong_hold_min_return", 0.03)
+                ),
+                runner_new_high_days=int(hold_raw.get("runner_new_high_days", 3)),
+                runner_extend_days=int(hold_raw.get("runner_extend_days", 74)),
+            )
+        cost_raw = defaults.get("execution_costs")
+        execution_costs = None
+        if isinstance(cost_raw, dict):
+            execution_costs = ExecutionCostPolicy(
+                min_commission=float(cost_raw.get("min_commission", 0.0)),
+                transfer_fee_pct=float(cost_raw.get("transfer_fee_pct", 0.0)),
+                buy_slippage_tiers=tuple(
+                    (float(item[0]), float(item[1]))
+                    for item in cost_raw.get("buy_slippage_tiers", [])
+                    if isinstance(item, (list, tuple)) and len(item) == 2
+                ),
+            )
+        trailing_peak = str(defaults.get("trailing_peak_price", "high"))
+        if trailing_peak not in {"high", "close"}:
+            raise ValueError("trailing_peak_price must be 'high' or 'close'")
+        return {
+            "score_tiers": score_tiers,
+            "entry_open_gap_range": _range("entry_open_gap_range"),
+            "entry_prev_day_change_range": _range("entry_prev_day_change_range"),
+            "trailing_peak_price": trailing_peak,
+            "exit_signal_requires_profit": bool(
+                defaults.get("exit_signal_requires_profit", False)
+            ),
+            "hold_extension_policy": hold_policy,
+            "execution_costs": execution_costs,
+            "plan_at_signal_close": bool(defaults.get("plan_at_signal_close", False)),
+            "max_daily_entries": defaults.get("max_daily_entries"),
+            "entry_price_basis": str(defaults.get("entry_price_basis", "adjusted")),
+            "block_limit_open": bool(defaults.get("block_limit_open", False)),
+        }
+
+    @staticmethod
     def _normalize_params(params: dict, s: StrategyDef) -> dict:
         normalized = dict(params)
         for param in s.meta.get("params", []):
@@ -2675,6 +2963,121 @@ class StrategyBacktestService:
             "exit_signal_id": getattr(t, "exit_signal_id", None),
         }
 
+    def _build_run_provenance(
+        self,
+        s: StrategyDef,
+        config: StrategyBacktestConfig,
+        params: dict,
+        matcher_config: MatcherConfig,
+        overrides: dict,
+        *,
+        data_generation: str | None = None,
+        generation_source: str | None = None,
+    ) -> dict:
+        """采集本次运行的有效配置与版本信息 (供保存快照; 不参与撮合计算)。
+
+        只记录回测相关配置; 不写凭证、provider 连接、本机路径或策略源码。
+        data_generation 必须是调用方在“数据装载窗口”内采集并校验一致的实际版本;
+        无法证明与实际矩阵一致时传 None, 这里绝不重新读取新版本冒充。
+        """
+        from app import __version__
+
+        def _policy(value):
+            return asdict(value) if value is not None else None
+
+        strategy_hash = None
+        file_path = getattr(s, "file_path", None)
+        if file_path:
+            try:
+                strategy_hash = hashlib.sha256(Path(file_path).read_bytes()).hexdigest()
+            except OSError:
+                strategy_hash = None
+
+        generation = data_generation if data_generation else None
+        source = generation_source if generation else None
+
+        basic_filter = _basic_filter_for_asset(
+            self._effective_basic_filter(s, overrides), config.asset_type
+        )
+        return {
+            "algorithm_version": "strategy_backtest_v1",
+            "app_version": __version__,
+            "strategy": {
+                "id": s.meta.get("id", config.strategy_id),
+                "name": s.meta.get("name", config.strategy_id),
+                "source": s.source,
+                "execution_backend": s.execution_backend,
+                "definition_sha256": strategy_hash,
+            },
+            "run": {
+                "asset_type": config.asset_type,
+                "mode": config.mode,
+                "start": str(config.start),
+                "end": str(config.end),
+                "symbols": list(config.symbols) if config.symbols else None,
+                "holding_days": config.holding_days,
+                "minute_fill": config.minute_fill,
+                "regime_filter": config.regime_filter,
+            },
+            "params": params,
+            "filters": basic_filter,
+            "scoring": {
+                "weights": effective_scoring(s.meta.get("scoring"), overrides),
+                "directions": effective_scoring_directions(overrides),
+            },
+            "execution": {
+                "matching": matcher_config.matching,
+                "entry_fill": matcher_config.entry_fill,
+                "exit_fill": matcher_config.exit_fill,
+                "fees_pct": matcher_config.fees_pct,
+                "commission_pct": matcher_config.commission_pct,
+                "stamp_tax_pct": matcher_config.stamp_tax_pct,
+                "slippage_bps": matcher_config.slippage_bps,
+                "max_positions": matcher_config.max_positions,
+                "max_exposure_pct": matcher_config.max_exposure_pct,
+                "initial_capital": matcher_config.initial_capital,
+                "position_sizing": matcher_config.position_sizing,
+                "score_tiers": (
+                    [list(tier) for tier in (matcher_config.score_tiers or ())] or None
+                ),
+                "entry_open_gap_range": matcher_config.entry_open_gap_range,
+                "entry_prev_day_change_range": (
+                    matcher_config.entry_prev_day_change_range
+                ),
+                "trailing_peak_price": matcher_config.trailing_peak_price,
+                "exit_signal_requires_profit": (
+                    matcher_config.exit_signal_requires_profit
+                ),
+                # 有效风控: 取当次实际 matcher_config, 而不是请求里的默认 holding_days。
+                "stop_loss_pct": matcher_config.stop_loss_pct,
+                "take_profit_pct": matcher_config.take_profit_pct,
+                "trailing_stop_pct": matcher_config.trailing_stop_pct,
+                "trailing_take_profit_activate_pct": (
+                    matcher_config.trailing_take_profit_activate_pct
+                ),
+                "trailing_take_profit_drawdown_pct": (
+                    matcher_config.trailing_take_profit_drawdown_pct
+                ),
+                "max_hold_days": matcher_config.max_hold_days,
+                "hold_extension": _policy(matcher_config.hold_extension_policy),
+                "max_daily_entries": matcher_config.max_daily_entries,
+                "plan_at_signal_close": matcher_config.plan_at_signal_close,
+                "entry_price_basis": matcher_config.entry_price_basis,
+                "block_limit_open": matcher_config.block_limit_open,
+                "execution_costs": _policy(matcher_config.execution_costs),
+            },
+            "data": {
+                "frozen": False,
+                "generation": generation,
+                "generation_source": source,
+                "coverage": {"start": str(config.start), "end": str(config.end)},
+                "note": (
+                    "generation 为数据装载窗口内采集并校验一致的实际矩阵/面板版本；"
+                    "无法证明一致时为 null。未冻结快照，仅反映本次运行，不宣称可重算复现"
+                ),
+            },
+        }
+
     @staticmethod
     def _config_to_dict(c: StrategyBacktestConfig) -> dict:
         score_min, score_max = StrategyBacktestService._normalize_score_range(
@@ -2710,6 +3113,7 @@ class StrategyBacktestService:
             "holding_days": c.holding_days,
             "minute_fill": c.minute_fill,
             "regime_filter": c.regime_filter,
+            "asset_type": c.asset_type,
         }
 
     @staticmethod

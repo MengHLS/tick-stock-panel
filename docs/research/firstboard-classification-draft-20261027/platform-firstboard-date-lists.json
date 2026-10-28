@@ -1,0 +1,138 @@
+[
+  {
+    "code": "000810.SZ",
+    "window": "长图",
+    "start": "2025-10-13",
+    "end": "2026-10-23",
+    "count_including_target": 2,
+    "historical_count": 1,
+    "dates": [
+      "2026-07-10",
+      "2026-10-23"
+    ],
+    "anchor": "2026-07-10",
+    "anchor_in_platform_dates": true
+  },
+  {
+    "code": "000810.SZ",
+    "window": "近图",
+    "start": "2026-07-23",
+    "end": "2026-10-23",
+    "count_including_target": 1,
+    "historical_count": 0,
+    "dates": [
+      "2026-10-23"
+    ],
+    "anchor": "2026-07-10",
+    "anchor_in_platform_dates": false
+  },
+  {
+    "code": "002687.SZ",
+    "window": "长图",
+    "start": "2025-10-13",
+    "end": "2026-10-23",
+    "count_including_target": 6,
+    "historical_count": 5,
+    "dates": [
+      "2026-06-23",
+      "2026-06-29",
+      "2026-07-28",
+      "2026-08-11",
+      "2026-10-08",
+      "2026-10-23"
+    ],
+    "anchor": "2026-10-08",
+    "anchor_in_platform_dates": true
+  },
+  {
+    "code": "002687.SZ",
+    "window": "近图",
+    "start": "2026-07-23",
+    "end": "2026-10-23",
+    "count_including_target": 4,
+    "historical_count": 3,
+    "dates": [
+      "2026-07-28",
+      "2026-08-11",
+      "2026-10-08",
+      "2026-10-23"
+    ],
+    "anchor": "2026-10-08",
+    "anchor_in_platform_dates": true
+  },
+  {
+    "code": "600785.SH",
+    "window": "长图",
+    "start": "2025-10-13",
+    "end": "2026-10-23",
+    "count_including_target": 9,
+    "historical_count": 8,
+    "dates": [
+      "2026-01-14",
+      "2026-01-29",
+      "2026-02-02",
+      "2026-07-15",
+      "2026-08-21",
+      "2026-09-01",
+      "2026-09-07",
+      "2026-09-21",
+      "2026-10-23"
+    ],
+    "anchor": "2026-09-21",
+    "anchor_in_platform_dates": true
+  },
+  {
+    "code": "600785.SH",
+    "window": "近图",
+    "start": "2026-07-23",
+    "end": "2026-10-23",
+    "count_including_target": 5,
+    "historical_count": 4,
+    "dates": [
+      "2026-08-21",
+      "2026-09-01",
+      "2026-09-07",
+      "2026-09-21",
+      "2026-10-23"
+    ],
+    "anchor": "2026-09-21",
+    "anchor_in_platform_dates": true
+  },
+  {
+    "code": "002354.SZ",
+    "window": "长图",
+    "start": "2025-10-13",
+    "end": "2026-10-23",
+    "count_including_target": 10,
+    "historical_count": 9,
+    "dates": [
+      "2026-04-29",
+      "2026-05-18",
+      "2026-06-05",
+      "2026-06-18",
+      "2026-06-24",
+      "2026-06-26",
+      "2026-07-02",
+      "2026-07-31",
+      "2026-08-28",
+      "2026-10-23"
+    ],
+    "anchor": "2026-08-28",
+    "anchor_in_platform_dates": true
+  },
+  {
+    "code": "002354.SZ",
+    "window": "近图",
+    "start": "2026-07-23",
+    "end": "2026-10-23",
+    "count_including_target": 3,
+    "historical_count": 2,
+    "dates": [
+      "2026-07-31",
+      "2026-08-28",
+      "2026-10-23"
+    ],
+    "anchor": "2026-08-28",
+    "anchor_in_platform_dates": true
+  }
+]

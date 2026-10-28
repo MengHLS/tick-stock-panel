@@ -1,0 +1,13 @@
+{
+  "generated": "2026-10-28T17:28:06",
+  "script_executed": "docs\\research\\firstboard-classification-draft-20261027\\replay_events_v01.py",
+  "runs": 55,
+  "baseline_reproduced": true,
+  "baseline_mismatches": [],
+  "truncation_problems": [],
+  "truncation_count": 0,
+  "injection_problems": [],
+  "injection_count": 0,
+  "run_failures": [],
+  "note": "injection mutates only the first-board flags file; the delivered script asserts every adjusted row against the live raw panel, so injected prices would abort before writing"
+}

@@ -89,7 +89,12 @@ _REGIME_FILTERS: dict[str, dict[str, list[str]]] = {
 
 # 面板/撮合矩阵读取期间 enriched 世代被并发发布打断时, 允许用新世代整体重读的次数
 # 与发布未完成时的等待秒数; 超过后以带指引的错误终止运行。
-_SNAPSHOT_MAX_ATTEMPTS = 3
+_SNAPSHOT_MAX_ATTEMPTS = 3  # 已废弃: 任务固定入队版本, 首次漂移即失败
+MINING_QUALITY_FAILURE = (
+    "行情数据版本或复权认证已变化，本次挖掘已停止，未生成可用结果。"
+    "请等待数据完成完整校验后重新发起挖掘。"
+)
+_QUALITY_ERROR_MARKERS = ("复权认证", "认证未通过", "认证已失效", "版本令牌")
 _SNAPSHOT_PUBLISH_WAIT_SECONDS = 5.0
 
 # ── P2b 冠军权重精调 (docs/auto-strategy-lab-plan.md §4.2) ──────────────
@@ -241,6 +246,8 @@ class MatcherCandidateEvaluator:
                 prepared.compute_cache.close()
             self.backtest_count += 1
             if result.error:
+                if any(marker in result.error for marker in _QUALITY_ERROR_MARKERS):
+                    raise ValueError(result.error)
                 return CandidateEvaluation(score=None, error=result.error)
             metrics = {
                 key: _finite_or_none(result.stats.get(key))
@@ -254,7 +261,11 @@ class MatcherCandidateEvaluator:
                     error="backtest did not return a finite sharpe",
                 )
             return CandidateEvaluation(score=score, metrics=metrics)
-        except (OSError, ValueError, TypeError) as exc:
+        except ValueError as exc:
+            if any(marker in str(exc) for marker in _QUALITY_ERROR_MARKERS):
+                raise
+            return CandidateEvaluation(score=None, error=str(exc))
+        except (OSError, TypeError) as exc:
             return CandidateEvaluation(score=None, error=str(exc))
 
     def _backtest_config(
@@ -486,6 +497,40 @@ def run_mining_runtime(
     )
     if not isinstance(expected_generation, str) or not expected_generation:
         raise ValueError("mining worker payload is missing its data generation")
+
+    from app.indicators.price_quality import (
+        AdjustmentIntegrityError,
+        certification_submission,
+        require_active_token,
+        verify_certification_for_generation,
+    )
+
+    def _quality_abort(stage: str, detail: str = "") -> ValueError:
+        suffix = f"（阶段: {stage}{'; ' + detail if detail else ''}）"
+        return ValueError(MINING_QUALITY_FAILURE + suffix)
+
+    try:
+        verify_certification_for_generation(
+            data_dir, request.asset_type, expected_generation,
+        )
+        quality_token = require_active_token(data_dir, request.asset_type)
+    except AdjustmentIntegrityError as exc:
+        raise _quality_abort("入队版本校验", str(exc)) from exc
+
+    def _assert_snapshot(stage: str) -> None:
+        try:
+            current = require_active_token(data_dir, request.asset_type)
+        except AdjustmentIntegrityError as exc:
+            raise _quality_abort(stage, str(exc)) from exc
+        if (
+            current.get("generation") != expected_generation
+            or current.get("stamp_sha256") != quality_token.get("stamp_sha256")
+        ):
+            raise _quality_abort(
+                stage,
+                f"预期 {expected_generation}，实际 {current.get('generation')}",
+            )
+
     store = MiningRunStore(data_dir)
     phase_peak_rss_bytes: dict[str, int] = {}
 
@@ -515,22 +560,11 @@ def run_mining_runtime(
     panel: pl.DataFrame | None = None
     base_market: np.ndarray | None = None
     generation: str | None = None
-    for attempt in range(_SNAPSHOT_MAX_ATTEMPTS):
-        if attempt:
-            # 读取期间 enriched 发布了新世代, 面板可能新旧混合: 丢弃本轮,
-            # 用新世代整体重读。排队指纹只在首轮校验; 数据在运行中前进,
-            # 重试跟随新世代属于预期 (等价于"更新后立刻重跑")。
-            emit({"phase": "panel", "label": "数据已更新, 重新读取快照", "done": 0, "total": 1})
-            if enriched_publication_incomplete(data_dir):
-                time.sleep(_SNAPSHOT_PUBLISH_WAIT_SECONDS)
-            service.engine.clear_panel_cache()
+    if True:
+        _assert_snapshot("面板读取前")
         panel_started = time.perf_counter()
         try:
-            generation = factor_service._data_generation(request.asset_type)
-            if attempt == 0 and generation != expected_generation:
-                raise ValueError(
-                    "mining data generation changed after the run was queued"
-                )
+            generation = expected_generation
             source_panel = _load_compact_factor_panel(
                 factor_service,
                 factor_config,
@@ -547,7 +581,8 @@ def run_mining_runtime(
                 request.start,
                 request.end,
             )
-            factor_service._assert_data_generation(request.asset_type, generation)
+            factor_service._assert_data_generation(request.asset_type, expected_generation)
+            _assert_snapshot("面板读取后")
             panel = attach_single_forward_return(
                 source_panel,
                 start=request.start,
@@ -590,7 +625,8 @@ def run_mining_runtime(
                 expected_generation=generation,
                 cancel_check=cancel_check,
             )
-            factor_service._assert_data_generation(request.asset_type, generation)
+            factor_service._assert_data_generation(request.asset_type, expected_generation)
+            _assert_snapshot("共享矩阵准备后")
             phase_ms["matrix"] = round(
                 (time.perf_counter() - matrix_started) * 1000.0, 3
             )
@@ -602,13 +638,8 @@ def run_mining_runtime(
                 "total": 1,
                 "matrix_bytes": base_market.nbytes,
             })
-            break
         except EnrichedGenerationUnavailableError as exc:
-            if attempt + 1 >= _SNAPSHOT_MAX_ATTEMPTS:
-                raise ValueError(
-                    "行情数据正在更新: 挖掘读取期间 enriched 数据世代反复变化, "
-                    "重试后仍拿不到稳定快照; 请等数据更新完成后再开始挖掘"
-                ) from exc
+            raise _quality_abort("面板读取", str(exc)) from exc
     if panel is None or base_market is None or generation is None:
         raise RuntimeError("mining data snapshot did not settle")
 
@@ -645,6 +676,7 @@ def run_mining_runtime(
     })
 
     _raise_if_cancelled(cancel_check)
+    _assert_snapshot("候选评估后")
     start_phase()
     artifact_started = time.perf_counter()
     emit({"phase": "artifacts", "label": "写入研究结果", "done": 0, "total": 4})
@@ -656,17 +688,29 @@ def run_mining_runtime(
         evaluator,
         cancel_check,
     )
-    for done, (name, frame) in enumerate(artifact_frames.items(), start=1):
-        _raise_if_cancelled(cancel_check)
-        path = store.artifact_path(request.run_id, name)  # type: ignore[arg-type]
-        _atomic_write_parquet(frame, path)
-        store.register_artifact(request.run_id, name)  # type: ignore[arg-type]
-        emit({
-            "phase": "artifacts",
-            "label": f"已写入 {name}",
-            "done": done,
-            "total": 4,
-        })
+    written_paths: list[tuple[str, str]] = []
+    try:
+        for done, (name, frame) in enumerate(artifact_frames.items(), start=1):
+            _raise_if_cancelled(cancel_check)
+            path = store.artifact_path(request.run_id, name)  # type: ignore[arg-type]
+            _atomic_write_parquet(frame, path)
+            written_paths.append((name, str(path)))
+            emit({
+                "phase": "artifacts",
+                "label": f"已写入 {name}",
+                "done": done,
+                "total": 4,
+            })
+        # 最终核对与登记在发布读写协调锁内完成, 防止检查后写方插入。
+        with certification_submission(data_dir, request.asset_type):
+            _assert_snapshot("产物提交前")
+            store.register_artifacts(
+                request.run_id, [name for name, _path in written_paths],
+            )  # type: ignore[arg-type]
+    except BaseException:
+        for _name, path_text in written_paths:
+            Path(path_text).unlink(missing_ok=True)
+        raise
     phase_ms["artifacts"] = round((time.perf_counter() - artifact_started) * 1000.0, 3)
     finish_phase("artifacts")
 

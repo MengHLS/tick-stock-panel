@@ -24,6 +24,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import psutil
+
 from app.services.mining_jobs import ACTIVE_RUN_STATUSES
 from app.services.mining_process_lock import (
     MiningProcessLock,
@@ -169,14 +171,13 @@ def _pid_alive(pid: int | None) -> bool:
     if not pid or pid <= 0:
         return False
     try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
+        return psutil.Process(pid).is_running()
+    except psutil.NoSuchProcess:
         return False
-    except PermissionError:
+    except psutil.AccessDenied:
         return True
     except OSError:
         return False
-    return True
 
 
 def _pid_matches_start_time(pid: int, started_at: Any) -> bool:

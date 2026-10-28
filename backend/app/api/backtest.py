@@ -340,7 +340,7 @@ class StrategyBacktestRequest(BaseModel):
     max_positions: int = 10
     max_exposure_pct: float = 1.0
     initial_capital: float = 1_000_000.0
-    position_sizing: Literal["equal", "score_weight"] = "equal"
+    position_sizing: Literal["equal", "score_weight", "score_tier"] = "equal"
     mode: Literal["position", "full"] = "position"
     holding_days: int = 5
     asset_type: str = "stock"
@@ -373,6 +373,16 @@ def _guard_minute_strategy_backtest(
                 "请先用「扩展分钟K历史」拉取更多数据, 或缩小回测区间"
             ),
         )
+
+
+def _register_completed_strategy_result(result) -> None:
+    """登记真实完成的策略回测结果, 供随后按 run_id 保存 (失败不影响响应)。"""
+    from app.backtest.result_store import register_completed_run
+
+    try:
+        register_completed_run(result)
+    except Exception:
+        logger.exception("register completed strategy backtest result failed")
 
 
 @router.post("/strategy/run")
@@ -414,7 +424,101 @@ def strategy_run(req: StrategyBacktestRequest, request: Request):
     from app.services.heavy_job_limiter import shared_heavy_job_limiter
 
     with shared_heavy_job_limiter.slot("normal"):
-        return run_worker_task(task)
+        result = run_worker_task(task)
+    _register_completed_strategy_result(result)
+    return result
+
+
+# ── 已完成策略回测结果的保存 / 历史 / 打开 / 删除 ─────────────────
+
+class SaveStrategyResultRequest(BaseModel):
+    run_id: str = Field(min_length=1, max_length=64)
+    name: str | None = Field(default=None, max_length=120)
+
+
+def _raise_strategy_result_error(exc: Exception) -> None:
+    from app.backtest.result_store import (
+        InvalidSavedIdError,
+        ResultStoreError,
+        RunResultExpiredError,
+        RunResultNotSavableError,
+        SavedResultCorruptError,
+        SavedResultLimitExceededError,
+        SavedResultNotFoundError,
+        UnsupportedResultSchemaError,
+    )
+
+    if isinstance(exc, InvalidSavedIdError):
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if isinstance(exc, SavedResultNotFoundError):
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    if isinstance(exc, RunResultExpiredError):
+        raise HTTPException(status_code=410, detail=str(exc)) from exc
+    if isinstance(
+        exc,
+        (
+            UnsupportedResultSchemaError,
+            SavedResultCorruptError,
+            SavedResultLimitExceededError,
+            RunResultNotSavableError,
+        ),
+    ):
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if isinstance(exc, OSError):
+        raise HTTPException(
+            status_code=500, detail="保存或读取回测结果失败，请稍后重试",
+        ) from exc
+    if isinstance(exc, ResultStoreError):
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    raise exc
+
+
+@router.post("/strategy/results")
+def strategy_result_save(req: SaveStrategyResultRequest):
+    """保存一次真实完成的回测结果; 只接受 run_id, 结果由服务端缓存提供。"""
+    from app.backtest.result_store import save_completed_result
+
+    try:
+        return save_completed_result(
+            settings.data_dir, run_id=req.run_id, name=req.name,
+        )
+    except Exception as exc:  # noqa: BLE001 - 统一映射为可读 HTTP 错误
+        _raise_strategy_result_error(exc)
+
+
+@router.get("/strategy/results")
+def strategy_result_list(page: int = 1, page_size: int = 20):
+    """分页返回已保存结果的摘要 (不含完整交易与曲线)。"""
+    from app.backtest.result_store import list_saved_results
+
+    try:
+        return list_saved_results(
+            settings.data_dir, page=page, page_size=page_size,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _raise_strategy_result_error(exc)
+
+
+@router.get("/strategy/results/{saved_id}")
+def strategy_result_get(saved_id: str):
+    """打开保存的完整快照; 只读文件, 不触发任何回测或引擎调用。"""
+    from app.backtest.result_store import get_saved_result
+
+    try:
+        return get_saved_result(settings.data_dir, saved_id)
+    except Exception as exc:  # noqa: BLE001
+        _raise_strategy_result_error(exc)
+
+
+@router.delete("/strategy/results/{saved_id}")
+def strategy_result_delete(saved_id: str):
+    from app.backtest.result_store import delete_saved_result
+
+    try:
+        delete_saved_result(settings.data_dir, saved_id)
+    except Exception as exc:  # noqa: BLE001
+        _raise_strategy_result_error(exc)
+    return {"ok": True, "saved_id": saved_id}
 
 
 # ── SSE 流式回测 (实时进度 + 可取消 + 支持重连) ───────────────────
@@ -636,6 +740,7 @@ async def strategy_stream(
                             lambda d: job.progress.append(d),
                             job.cancel_event,
                         )
+                    _register_completed_strategy_result(result)
                     _finish_job(job, result=result)
                 except HeavyJobCancelledError:
                     _finish_job(job, error="回测已取消")

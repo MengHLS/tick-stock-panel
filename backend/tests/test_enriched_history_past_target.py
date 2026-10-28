@@ -15,6 +15,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from app.services import screener as screener_module
 from app.services.screener import ScreenerService
 from app.tickflow.repository import DataStore, KlineRepository
 
@@ -69,3 +70,55 @@ def test_screener_history_does_not_depend_on_later_cached_days(tmp_path):
     assert without_later["date"].n_unique() == LOOKBACK + 1
     assert with_later["date"].n_unique() == without_later["date"].n_unique()
     assert with_later.sort(["symbol", "date"]).equals(without_later.sort(["symbol", "date"]))
+
+
+@pytest.mark.parametrize("asset_type", ["stock", "etf"])
+@pytest.mark.parametrize("lookback", [20, 126])
+def test_history_fallback_preserves_requested_trading_window(
+    tmp_path, monkeypatch, asset_type, lookback,
+):
+    monkeypatch.setattr(screener_module, "_history_cache", {})
+    repo = _repo(tmp_path, pl.DataFrame())
+    svc = ScreenerService(repo, asset_type=asset_type)
+    target = date(2026, 10, 26)
+    # Synthetic closures leave fewer than 120 sessions in the last 180 calendar days.
+    days = [
+        target - timedelta(days=offset)
+        for offset in range(400, -6, -1)
+        if (target - timedelta(days=offset)).weekday() < 5
+        and not (
+            date(2026, 5, 1) <= target - timedelta(days=offset) <= date(2026, 5, 7)
+            or date(2026, 10, 1) <= target - timedelta(days=offset) <= date(2026, 10, 9)
+        )
+    ]
+    rows = [
+        {
+            "symbol": "600001.SH" if asset_type == "stock" else "510300.SH",
+            "date": day,
+            "open": 10.0 + i * 0.01,
+            "high": 10.2 + i * 0.01,
+            "low": 9.8 + i * 0.01,
+            "close": 10.1 + i * 0.01,
+            "volume": 10000.0 + i,
+            "amount": 100000.0 + i,
+        }
+        for i, day in enumerate(days)
+    ]
+    root = tmp_path / svc._enriched_dirname
+    root.mkdir(exist_ok=True)
+    pl.DataFrame(rows).write_parquet(root / "history.parquet")
+
+    out = svc._load_enriched_history(target, lookback)
+
+    want = [day for day in days if day <= target][-(lookback + 1):]
+    assert out["date"].unique().sort().to_list() == want
+    if lookback >= 120:
+        assert out["close"].rolling_max(window_size=120)[-1] is not None
+    assert svc._load_enriched_history(target, lookback).equals(out)
+
+
+def test_history_fallback_returns_empty_without_local_data(tmp_path, monkeypatch):
+    monkeypatch.setattr(screener_module, "_history_cache", {})
+    svc = ScreenerService(_repo(tmp_path, pl.DataFrame()))
+
+    assert svc._load_enriched_history(date(2026, 10, 26), 126).is_empty()

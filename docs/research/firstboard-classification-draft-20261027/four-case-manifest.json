@@ -1,0 +1,96 @@
+{
+  "generated": "2026-10-28",
+  "role": "frozen replay snapshot for historical first-board method test",
+  "source": "D:/TSP/data/kline_daily_enriched",
+  "dimension_source": "D:/TSP/data/instruments (as_of 2026-10-26, single snapshot)",
+  "query": "SELECT symbol,date,open,high,low,close,volume,amount,raw_close,raw_high,raw_low,consecutive_limit_ups\nFROM read_parquet('D:/TSP/data/kline_daily_enriched/**/*.parquet',union_by_name=true)\nWHERE date BETWEEN DATE '2023-10-01' AND DATE '2026-10-23'\n  AND symbol IN ('000810.SZ','002687.SZ','600785.SH','002354.SZ')\nORDER BY symbol,date",
+  "snapshot_upper_date": "2026-10-23",
+  "lookback_bars": 250,
+  "forward_days": 20,
+  "display_window_start": "2025-10-13",
+  "price_basis": {
+    "adjusted": "close/high/low = platform forward-adjusted, unrounded float64, basis = snapshot date; changes retroactively on new ex-rights",
+    "raw": "raw_close/raw_high/raw_low = exchange raw prices, 2 decimals; use for limit-up confirmation and tradable prices",
+    "adj_ratio": "close / raw_close at this snapshot; not a constant across ex-rights"
+  },
+  "artifacts": {
+    "four-case-paths.csv": {
+      "sha256": "5b6e657d956cb8f1635c732761ffe85c68e62179e65cee9d11a753c9e8cca47d",
+      "rows": 2952
+    },
+    "four-case-events.csv": {
+      "sha256": "fefaedd74f4df8a35363df9b7646a8481c2b197ddc19a11335c9c3fe220bf308",
+      "rows": 63
+    }
+  },
+  "per_symbol": {
+    "000810.SZ": {
+      "bars_in_snapshot": 738,
+      "first_date": "2023-10-09",
+      "last_date": "2026-10-23",
+      "max_calendar_gap_days": null,
+      "row_gaps": 0,
+      "listing_date": "1998-06-02",
+      "board": "MAIN",
+      "board_limit_pct_now": 0.1,
+      "name_now": "创维数字",
+      "st_now": false,
+      "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+      "firstboard_events_in_snapshot": 12,
+      "firstboard_events_in_window": 2
+    },
+    "002687.SZ": {
+      "bars_in_snapshot": 738,
+      "first_date": "2023-10-09",
+      "last_date": "2026-10-23",
+      "max_calendar_gap_days": null,
+      "row_gaps": 0,
+      "listing_date": "2012-07-13",
+      "board": "MAIN",
+      "board_limit_pct_now": 0.1,
+      "name_now": "乔治白",
+      "st_now": false,
+      "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+      "firstboard_events_in_snapshot": 9,
+      "firstboard_events_in_window": 6
+    },
+    "600785.SH": {
+      "bars_in_snapshot": 738,
+      "first_date": "2023-10-09",
+      "last_date": "2026-10-23",
+      "max_calendar_gap_days": null,
+      "row_gaps": 0,
+      "listing_date": "1997-01-08",
+      "board": "MAIN",
+      "board_limit_pct_now": 0.1,
+      "name_now": "新华百货",
+      "st_now": false,
+      "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+      "firstboard_events_in_snapshot": 15,
+      "firstboard_events_in_window": 9
+    },
+    "002354.SZ": {
+      "bars_in_snapshot": 738,
+      "first_date": "2023-10-09",
+      "last_date": "2026-10-23",
+      "max_calendar_gap_days": null,
+      "row_gaps": 0,
+      "listing_date": "2010-02-09",
+      "board": "MAIN",
+      "board_limit_pct_now": 0.1,
+      "name_now": "天娱数科",
+      "st_now": false,
+      "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+      "firstboard_events_in_snapshot": 27,
+      "firstboard_events_in_window": 10
+    }
+  },
+  "limitations": [
+    "首板身份为平台 consecutive_limit_ups 口径，历史 ST 与早期板块制度未认证",
+    "无历史 ST 数据集：当前名称不含 ST 不能证明历史非 ST",
+    "退市股维表缺失，历史可交易池无法按 as-of 还原",
+    "复权基准 = 快照日；新增除权会回溯改变历史复权价，百分比距离不变、绝对价位会变",
+    "D+20 超出 2026-10-23 的事件标记 right_censored，不补截止日之后行情",
+    "四只股票已被挑选和观察，结果只验证方法，不是策略有效性的独立证据"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "v0.1.1-schema",
+  "calculation_version": "replay-v01-discussion-20261028 unchanged",
+  "scope": "27 events / 432 event-rule rows; schema-only candidate sidecar",
+  "source": "C:\\work\\sourcecode\\tick-stock-panel\\docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\candidate-classifications.json",
+  "source_sha256": "564dc00f0e920d385e6659916f89c09ae91c5177e1302dc74ad1da002a3d4ccb",
+  "output_sha256": "51a649d0da45b02d7dd05a999a2045d096cc4537a59148aa676a034c2622bbf2",
+  "affected_candidate_rows": 92,
+  "affected_serialized_nodes": 160,
+  "added_null_fields": 480,
+  "selected_null_fields": 162,
+  "trace_null_fields": 318,
+  "old_directory_sha256": {
+    "candidate-classifications.json": "564dc00f0e920d385e6659916f89c09ae91c5177e1302dc74ad1da002a3d4ccb",
+    "event-price-charts.html": "c8a86a504337e177e2cd726983f1949f3503467c25861dafc35b058d7ac5e9c6",
+    "factor-snapshot-manifest.json": "6e83de18a89c47bac12aed09829b6cfe4f6c46df8cc807dba51d6e6cacae73fa",
+    "factor-snapshots-long.csv": "957fd9275b8cf5d3121f913ee6665e61d58622484e010564488107e2a5dc7269",
+    "forward-outcomes.csv": "e5cec3c913f9985873ba2439d14ce6342e66fe30d344ebf8c722fa06efcc7551",
+    "forward-tracking.json": "f92d3216b664ad87d0cd3b29d01b0434e2f978fc3fb22aeefeb9fe93b586cf11",
+    "historical-events.csv": "47928b22b95a93fcad15bec6b1090258ba0aafd099f0dd4bc4fc17339c687d88",
+    "historical-events.json": "751124ff16708cf5bafd6d8570686193c1e023b509be3fcf292a20c6af6310f9",
+    "manifest.json": "5e4ebd9527117d1fb8e9be6341b00384bec75859ed21c86c9d5d32446c5b0322",
+    "raw-price-snapshot.csv": "ea988fd3146968a4db1d697bb60fa9e0329b10d77f755d362ded6d99f7bd5fef",
+    "README.md": "8d52773c4692bb77b0f2a2b5de2b460e7c0513cf638344d02d4727ac494b343d"
+  },
+  "verification": "Remove only added null fields and reason maps => deep equality with v01; all old directory hashes unchanged",
+  "audit_count_note": "Verifier reported 170 missing-field checks; this file reports actual JSON paths including duplicated selected/trace representations. Counting scopes differ and are not forced to match.",
+  "limitations": "No recomputation; prior independent rule-value review pertains to unchanged old values. Future-isolation, outcomes, followups, factor and identity audits not implied."
+}

@@ -1,0 +1,17 @@
+{
+  "generated": "2026-10-28T17:19:48",
+  "events": 27,
+  "snapshots_per_event": 2,
+  "fields_compared": 1404,
+  "mismatches": 0,
+  "mismatch_details": [],
+  "asof_issues": [],
+  "skipped_fields": [
+    "amount (not present in the frozen path file)"
+  ],
+  "inputs": {
+    "shape-selection-paths.csv": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+    "historical-events.json": "751124ff16708cf5bafd6d8570686193c1e023b509be3fcf292a20c6af6310f9",
+    "verify_factor_asof.py": "7ae9b7253ac45b9d043a8eea160561d30a32fcada2bb74a29d9d2d119294b3bc"
+  }
+}

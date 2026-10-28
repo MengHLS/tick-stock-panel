@@ -8,6 +8,18 @@ import pytest
 from app.indicators import pipeline
 
 
+@pytest.fixture(autouse=True)
+def _adj_factor_fixture(tmp_path):
+    """严格复权契约要求因子数据集存在; 用无关标的的空事件因子文件即可。"""
+    out = tmp_path / "adj_factor" / "all.parquet"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pl.DataFrame({
+        "symbol": ["999999.SZ"],
+        "trade_date": [date(2020, 1, 2)],
+        "ex_factor": [1.0],
+    }).write_parquet(out)
+
+
 def _write_daily(data_dir, ds: str, close: float) -> None:
     out = data_dir / "kline_daily" / f"date={ds}" / "part.parquet"
     out.parent.mkdir(parents=True, exist_ok=True)

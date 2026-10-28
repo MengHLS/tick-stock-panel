@@ -57,6 +57,22 @@ def test_builtin_factor_rank_research_shim_forwards_to_research_module():
     from app.strategy.builtin.factor_rank_research import META  # noqa: F401
 
 
+@pytest.mark.parametrize(
+    "module_name",
+    [
+        "app.strategy.builtin.factor_rank_research",
+        "app.strategy.research.factor_rank_research",
+    ],
+)
+def test_factor_rank_import_paths_pass_strategy_safety_validation(module_name):
+    """新旧生成器路径都必须可加载, 旧用户策略不能因迁移被白名单拒绝。"""
+    from app.strategy.ai_generator import AIStrategyGenerator
+
+    AIStrategyGenerator._validate_safety(
+        f"from {module_name} import FactorRankResearchMatrixStrategy\n"
+    )
+
+
 def test_run_all_skips_unknown_ids_and_reports_them(monkeypatch, tmp_path):
     """池里混着已删除的内置 ID: 跳过继续跑, 响应带回 skipped_unknown。"""
     engine = _Engine()

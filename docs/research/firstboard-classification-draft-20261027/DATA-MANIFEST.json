@@ -1,0 +1,53 @@
+{
+  "status": "逻辑快照指纹；共享存储未物理冻结，缺全表内容哈希，不足以保证后续完全复现",
+  "source": "DATA-EVIDENCE.md",
+  "data_root": "D:/TSP/data",
+  "observed_upper_date": "2026-10-27",
+  "adjustment_base": "当前面板数据快照上界2026-10-27；旧案例因子基准未认证",
+  "tables": {
+    "daily": {
+      "rows": 9728665,
+      "symbols": 5810,
+      "start": "2018-01-08",
+      "end": "2026-10-27"
+    },
+    "enriched": {
+      "rows": 9728665,
+      "start": "2018-01-08",
+      "end": "2026-10-27",
+      "reported_mtime": "2026-10-27 10:28"
+    },
+    "adj_factor": {
+      "rows": 32840,
+      "symbols": 5183,
+      "start": "2018-01-11",
+      "end": "2026-10-27"
+    },
+    "instruments": {
+      "symbols": 5889,
+      "as_of": "2026-10-26",
+      "history": false
+    },
+    "index_daily": {
+      "sessions": 243,
+      "start": "2025-10-27",
+      "end": "2026-10-27"
+    },
+    "union_calendar": {
+      "sessions": 2133,
+      "official": false
+    }
+  },
+  "limitations": [
+    "历史ST未知",
+    "早期创业板制度漏判风险",
+    "历史股票池不可完整还原",
+    "缺官方长历史交易日历"
+  ],
+  "source_hashes": {
+    "C:\\work\\sourcecode\\stock-limit-up-analyzer\\docs\\research\\FIRSTBOARD-20261023-RECURSIVE-2019-V1-20261026\\target-chain-summary.csv": "bdb017e8760a04826efe610bd508a7e38b1831c69c705ff2144da667f89283d3",
+    "DATA-EVIDENCE.md": "672bdd9788d2c2fdd070d3ba700dcb66a858a50cb7b3eae1ad8c9dfbab3e4dd2"
+  },
+  "code_head": "待登记；本轮未执行引擎计算",
+  "code_dirty_status": "未冻结工作区，HEAD不代表实际执行代码全状态"
+}

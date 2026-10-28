@@ -810,13 +810,9 @@ export function StrategySettingsDialog({ strategyId, onClose, onSaved, onAiModif
                               label="回撤止盈启动"
                               value={ttpActivate}
                               min={1} max={200}
-                              onChange={n => {
-                                setTtpActivate(n)
-                                // 联动: 回撤不能超过启动值 (与回测抽屉同规则)
-                                if (n != null && ttpDrawdown != null && ttpDrawdown > n) setTtpDrawdown(n)
-                              }}
+                              onChange={setTtpActivate}
                             />
-                            <RiskPctField label="回撤止盈回撤" value={ttpDrawdown} onChange={setTtpDrawdown} min={0.5} max={50} unit="点" />
+                            <RiskPctField label="回撤止盈回撤" value={ttpDrawdown} onChange={setTtpDrawdown} min={0.5} max={50} />
                             <div className="flex items-center gap-2">
                               <span className={FIELD_LABEL_CLS}>最长持仓</span>
                               <input type="number" value={maxHoldDays ?? ''} onChange={e => setMaxHoldDays(e.target.value === '' ? null : Number(e.target.value))} step={1} min={1}
@@ -824,7 +820,7 @@ export function StrategySettingsDialog({ strategyId, onClose, onSaved, onAiModif
                               <span className="text-[10px] text-muted">天{maxHoldDays == null && '（不限）'}</span>
                             </div>
                           </div>
-                          <div className="text-[10px] leading-4 text-muted/70">回撤止盈：涨幅达到「启动」后启用，从高点回撤「回撤」个百分点即卖出；留空 = 不启用对应纪律。</div>
+                          <div className="text-[10px] leading-4 text-muted/70">回撤止盈：涨幅达到「启动」后启用，价格降至峰值 ×（1 − 回撤比例）时触发；启动和回撤可独立设置，与固定止损共同生效。留空 = 不启用对应纪律。</div>
                         </div>
                       </Card>
 

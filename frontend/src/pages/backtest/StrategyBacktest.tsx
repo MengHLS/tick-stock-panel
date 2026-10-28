@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback, memo, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, FlaskConical, Clock, Loader2, Square, Search, Plus, X, SlidersHorizontal, BarChart3, Gauge, Zap, ListPlus, HelpCircle, ChevronRight, AlertTriangle, Layers, BookmarkPlus, Download, Filter, Star, TrendingUp, CalendarRange } from 'lucide-react'
+import { Play, FlaskConical, Clock, Loader2, Square, Search, Plus, X, SlidersHorizontal, BarChart3, Gauge, Zap, ListPlus, HelpCircle, ChevronRight, AlertTriangle, Layers, BookmarkPlus, Download, Filter, Star, TrendingUp, CalendarRange, Save, Archive } from 'lucide-react'
 import {
   api,
   type StrategyBacktestResult,
@@ -11,6 +11,7 @@ import {
   type StrategyParamDef,
   type ScoringDirection,
   type CustomSignalCondition,
+  type SavedStrategyBacktestDetail,
   REGIME_STATE_LABELS,
   REGIME_STATE_COLORS,
 } from '@/lib/api'
@@ -18,7 +19,7 @@ import { QK } from '@/lib/queryKeys'
 import { setUiPref } from '@/lib/uiPrefs'
 import { groupParams, visibleParams } from '@/lib/strategyParams'
 import { storage } from '@/lib/storage'
-import { fmtPct, fmtPrice, priceColorClass } from '@/lib/format'
+import { fmtPct, fmtPrice, priceColorClass, cnDateTimeFromUtc } from '@/lib/format'
 import { boardTag } from '@/lib/board'
 import { boardTag as boardBadge } from '@/components/stock-table/primitives'
 import { BUILTIN_COLUMNS } from '@/lib/watchlist-columns'
@@ -41,6 +42,15 @@ import { ConditionEditor } from '@/components/signals/ConditionEditor'
 import { WatchlistGroupMenu } from '@/components/WatchlistAddMenu'
 import { ScoringEditor } from '@/components/ScoringEditor'
 import { strategyResultCandidate } from './researchCandidates'
+import { SavedResultsDialog } from './SavedResultsDialog'
+import {
+  isEntryFill,
+  isExitFill,
+  resolveCandidateFills,
+  resolveStrategyFills,
+} from './fillDefaults'
+import { canSaveResult as canSaveCurrentResult } from './savedResults'
+import { decideDetailSync } from './detailSync'
 import { buildDailyNavItems, buildTradeKeyMap, buildTradesNavItems, type TradeNavItem } from './tradeNav'
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10)
@@ -967,6 +977,26 @@ function StockPoolPicker({ value, onChange, assetType = 'stock' }: { value: stri
   )
 }
 
+/** 结果区动作: 保存这次已完成运行 (打开历史在顶部工具栏, 复用现有结果区, 不新建页面) */
+function ResultSaveActions({ canSave, saving, onSave }: {
+  canSave: boolean
+  saving: boolean
+  onSave: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSave}
+      disabled={!canSave || saving}
+      title={canSave ? '把这次已完成运行的完整结果（逐笔/曲线/统计/有效配置）保存到本地' : '当前结果不可保存（运行中、出错或缺少运行标识）'}
+      className="inline-flex h-6 shrink-0 items-center gap-1 rounded border border-border bg-base px-2 text-[10px] text-secondary transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+    >
+      {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+      {saving ? '保存中' : '保存结果'}
+    </button>
+  )
+}
+
 export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
   /** 候选方案「载入复测」: 回填保存的回测配置 (消费后由父组件清空) */
   loadCandidate?: ResearchCandidate | null
@@ -990,10 +1020,10 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
   const [fees, setFees] = useState(saved?.fees ?? '2')
   const [stampTax, setStampTax] = useState(saved?.stampTax ?? '1')
   const [slippage, setSlippage] = useState(saved?.slippage ?? '5')
-  const [maxPositions, setMaxPositions] = useState(saved?.maxPositions ?? '10')
+  const [maxPositions, setMaxPositions] = useState(saved?.maxPositions ?? '5')
   const [maxExposure, setMaxExposure] = useState(saved?.maxExposure ?? '100')
   const [initialCapital, setInitialCapital] = useState(saved?.initialCapital ?? '1000000')
-  const [positionSizing, setPositionSizing] = useState<'equal' | 'score_weight'>(saved?.positionSizing ?? 'equal')
+  const [positionSizing, setPositionSizing] = useState<'equal' | 'score_weight' | 'score_tier'>(saved?.positionSizing ?? 'equal')
   const [simMode, setSimMode] = useState<'position' | 'full'>(saved?.mode ?? 'position')
   const [holdingDays, setHoldingDays] = useState(saved?.holdingDays ?? '5')
   const [highGranularity, setHighGranularity] = useState(saved?.minuteFill ?? false)
@@ -1022,6 +1052,11 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
   // 跨会话/拉新代码后自动渲染一个可能对应已失效策略的旧结果会造成困惑
   // (切页不卸载组件,内存中的 result 仍保留,无需靠 localStorage 恢复)。
   const [result, setResult] = useState<StrategyBacktestResult | null>(null)
+  // 已保存结果: 展示的是保存当时的快照, 与新运行/当前表单无关
+  const [savedMeta, setSavedMeta] = useState<{ saved_id: string; name: string; saved_at: string } | null>(null)
+  const [savedResultsOpen, setSavedResultsOpen] = useState(false)
+  /** 候选方案载入时已提供的成交口径: 详情回填只补候选没给的一侧, 不覆盖候选 */
+  const candidateFillRef = useRef<{ strategyId: string | null; providedEntry: boolean; providedExit: boolean } | null>(null)
 
   // 候选方案「载入复测」: 把保存的 23 项回测配置回填到表单 (字段缺失时保留当前值)
   useEffect(() => {
@@ -1034,9 +1069,19 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
     }
     if (cfg.start) setStart(String(cfg.start).slice(0, 10))
     if (cfg.end) setEnd(String(cfg.end).slice(0, 10))
-    if (cfg.entry_fill === 'close_t' || cfg.entry_fill === 'open_t+1') setEntryFill(cfg.entry_fill)
-    if (cfg.exit_fill === 'close_t' || cfg.exit_fill === 'open_t+1' || cfg.exit_fill === 'signal_next_minute') {
-      setExitFill(cfg.exit_fill)
+    // 成交口径: 候选显式 fill → 旧候选 matching → 该策略默认; 缺的一侧不能用上一策略残留值
+    const targetStrategyId = cfg.strategy_id ? String(cfg.strategy_id) : selectedStrategy
+    const knownDetail = strategyDetail.data && strategyDetail.data.id === targetStrategyId
+      ? strategyDetail.data
+      : null
+    const strategyFills = resolveStrategyFills(knownDetail?.backtest_defaults)
+    const candidateFills = resolveCandidateFills(cfg)
+    setEntryFill(candidateFills?.entry ?? strategyFills.entry)
+    setExitFill(candidateFills?.exit ?? strategyFills.exit)
+    candidateFillRef.current = {
+      strategyId: targetStrategyId,
+      providedEntry: candidateFills?.entry !== undefined,
+      providedExit: candidateFills?.exit !== undefined,
     }
     if (cfg.commission_pct != null) setFees(String(Math.round(Number(cfg.commission_pct) * 10000)))
     if (cfg.stamp_tax_pct != null) setStampTax(String(Number(cfg.stamp_tax_pct) * 1000))
@@ -1044,7 +1089,7 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
     if (cfg.max_positions != null) setMaxPositions(String(cfg.max_positions))
     if (cfg.max_exposure_pct != null) setMaxExposure(String(Math.round(Number(cfg.max_exposure_pct) * 100)))
     if (cfg.initial_capital != null) setInitialCapital(String(cfg.initial_capital))
-    if (cfg.position_sizing === 'equal' || cfg.position_sizing === 'score_weight') {
+    if (cfg.position_sizing === 'equal' || cfg.position_sizing === 'score_weight' || cfg.position_sizing === 'score_tier') {
       setPositionSizing(cfg.position_sizing)
     }
     if (cfg.mode === 'position' || cfg.mode === 'full') setSimMode(cfg.mode)
@@ -1130,6 +1175,43 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
     onError: error => toast(`保存失败 · ${String((error as Error).message || error)}`, 'error'),
   })
 
+  // 保存这次已完成运行的原始结果: 只提交 run_id, 交易/曲线/统计由服务端从运行结果取,
+  // 不使用当前表单, 也不截取表格当前页/筛选后的交易子集。
+  const saveResult = useMutation({
+    mutationFn: () => {
+      if (!result) throw new Error('暂无回测结果')
+      if (result.error) throw new Error('本次回测有错误，不能保存')
+      if (!result.run_id) throw new Error('本次结果缺少运行标识，不能保存')
+      const name = `${result.strategy_info?.name ?? '回测'} ${String(result.config?.start ?? '').slice(0, 10)}~${String(result.config?.end ?? '').slice(0, 10)}`
+      return api.saveStrategyBacktestResult({ run_id: result.run_id, name: name.trim() })
+    },
+    onSuccess: saved => {
+      queryClient.invalidateQueries({ queryKey: ['backtest-saved-results'] })
+      setSavedMeta({
+        saved_id: saved.saved_id,
+        name: saved.name || saved.strategy_name || '已保存结果',
+        saved_at: saved.saved_at,
+      })
+      toast('回测结果已保存，可在「已保存结果」中重新打开', 'success')
+    },
+    onError: error => toast(`保存失败 · ${String((error as Error).message || error)}`, 'error'),
+  })
+
+  // 只有「刚完成的一次运行」可保存: 运行中/出错/无 run_id/正在看历史快照时都禁止
+  const canSaveResult = canSaveCurrentResult(result, { isPending, viewingSaved: !!savedMeta })
+
+  /** 打开保存快照: 直接展示保存时的结果, 不调用 worker/引擎 */
+  const openSavedResult = useCallback((detail: SavedStrategyBacktestDetail) => {
+    const label = detail.name || detail.meta?.strategy_name || '已保存结果'
+    setResult(detail.result)
+    setSavedMeta({ saved_id: detail.saved_id, name: label, saved_at: detail.saved_at })
+    setResultTab('daily')
+    setDailyPage(0)
+    setTradePage(0)
+    setChartOverlay(null)
+    setSavedResultsOpen(false)
+    toast(`已打开保存的结果「${label}」`, 'success')
+  }, [])
   const dataStatus = useDataStatus()
   const backtestDataStatus = assetType === 'etf'
     ? dataStatus.data?.etf_enriched
@@ -1139,8 +1221,30 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
   const backtestDataLabel = assetType === 'etf' ? 'ETF 指标数据' : '股票指标数据'
 
   const resetConfigFromDetail = (detail: StrategyDetail) => {
+    candidateFillRef.current = null
     setStrategyParams(strategyDefaultParams(detail))
     setOverrides(buildDefaultOverrides(detail))
+    // 成交口径必须按当前策略解析: 不沿用上一策略的 entryFill/exitFill
+    const strategyFills = resolveStrategyFills(detail.backtest_defaults)
+    setEntryFill(strategyFills.entry)
+    setExitFill(strategyFills.exit)
+    const defaults = detail.backtest_defaults
+    if (!defaults) return
+    if (defaults.initial_capital != null) setInitialCapital(String(defaults.initial_capital))
+    if (defaults.max_positions != null) setMaxPositions(String(defaults.max_positions))
+    if (defaults.max_exposure_pct != null) setMaxExposure(String(defaults.max_exposure_pct * 100))
+    if (defaults.commission_pct != null) setFees(String(defaults.commission_pct * 10000))
+    if (defaults.stamp_tax_pct != null) setStampTax(String(defaults.stamp_tax_pct * 1000))
+    if (defaults.slippage_bps != null) setSlippage(String(defaults.slippage_bps))
+    if (defaults.mode === 'position' || defaults.mode === 'full') setSimMode(defaults.mode)
+    if (defaults.holding_days != null) setHoldingDays(String(defaults.holding_days))
+    if (
+      defaults.position_sizing === 'equal'
+      || defaults.position_sizing === 'score_weight'
+      || defaults.position_sizing === 'score_tier'
+    ) {
+      setPositionSizing(defaults.position_sizing)
+    }
   }
 
   // 「应用到策略」: 把弹窗里当前编辑的 overrides + params 持久化为策略定义,
@@ -1171,29 +1275,50 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
 
   useEffect(() => {
     const detail = strategyDetail.data
-    if (!detail) return
-    const configSignature = strategyBacktestConfigSignature(detail)
-    const configKey = `${assetType}:${detail.id}:${configSignature}`
-    if (loadedStrategyRef.current === configKey) return
-    loadedStrategyRef.current = configKey
-    if (
-      saved?.assetType === assetType
+    const identity = `${assetType}:${detail?.id ?? ''}`
+    const hasDraftRestore = !!detail && !!saved
+      && saved.assetType === assetType
       && saved.selectedStrategy === detail.id
-      && saved.strategyConfigSignature === configSignature
-      && (saved.params || saved.overrides)
-    ) {
-      setStrategyParams(mergeStrategyParams(detail, saved.params))
-      setOverrides(normalizeStrategyOverrides(detail, saved.overrides ?? buildDefaultOverrides(detail)))
+      && saved.strategyConfigSignature === strategyBacktestConfigSignature(detail)
+      && !!(saved.params || saved.overrides)
+    const pendingCandidate = candidateFillRef.current
+    const action = decideDetailSync({
+      detailId: detail?.id,
+      selectedStrategy,
+      loadedIdentity: loadedStrategyRef.current,
+      identity,
+      hasDraftRestore,
+      candidatePending: !!pendingCandidate && pendingCandidate.strategyId === detail?.id,
+    })
+    if (action === 'skip' || action === 'keep' || !detail) return
+    // 记录已同步的身份: 之后同策略 refetch (即使配置签名变化) 不再重置, 保留手改
+    loadedStrategyRef.current = identity
+    const strategyFills = resolveStrategyFills(detail.backtest_defaults)
+    if (action === 'candidate' && pendingCandidate) {
+      // 候选载入: 参数/成交口径已按候选回填, 这里只补候选没给的一侧, 不整体重置
+      candidateFillRef.current = null
+      if (!pendingCandidate.providedEntry) setEntryFill(strategyFills.entry)
+      if (!pendingCandidate.providedExit) setExitFill(strategyFills.exit)
+      return
+    }
+    candidateFillRef.current = null
+    if (action === 'restoreDraft') {
+      // 同策略草稿恢复 (有策略归属+版本签名): 参数与两侧口径按草稿恢复
+      setStrategyParams(mergeStrategyParams(detail, saved?.params))
+      setOverrides(normalizeStrategyOverrides(detail, saved?.overrides ?? buildDefaultOverrides(detail)))
+      setEntryFill(isEntryFill(saved?.entryFill) ? saved!.entryFill : strategyFills.entry)
+      setExitFill(isExitFill(saved?.exitFill) ? saved!.exitFill : strategyFills.exit)
       return
     }
     resetConfigFromDetail(detail)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetType, strategyDetail.data])
+  }, [assetType, strategyDetail.data, selectedStrategy])
 
   // 当全局回测任务完成时, 把结果写入组件 (切页回来也能恢复)
   useEffect(() => {
     if (backtestTask && !backtestTask.isPending && backtestTask.result) {
       setResult(backtestTask.result)
+      setSavedMeta(null)
       setResultTab('daily')
       setDailyPage(0)
       setTradePage(0)
@@ -1223,13 +1348,14 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
         strategyConfigSignature: strategyDetail.data
           ? strategyBacktestConfigSignature(strategyDetail.data)
           : undefined,
-        result: backtestTask.result,
       })
     }
   }, [backtestTask])
 
   const handleRun = () => {
     if (!selectedStrategy || backtestDataUnavailable) return
+    // 新运行开始即离开已保存快照视图, 避免把旧快照误当成这次运行
+    setSavedMeta(null)
     const requestOverrides = detail
       ? normalizeStrategyOverrides(detail, overrides)
       : overrides
@@ -1345,11 +1471,13 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
     }
 
     lines.push('', '# 交易明细',
-      'symbol,name,entry_date,entry_price,exit_date,exit_price,pnl_pct,duration,exit_reason,shares,entry_value,exit_value,pnl_amount')
+      'symbol,name,entry_date,entry_price,exit_date,exit_price,pnl_pct,duration,exit_reason,shares,entry_value,exit_value,pnl_amount,entry_score,entry_signal_date,entry_signal_id,exit_signal_date,exit_signal_id,blocked_exit_days')
     for (const t of result.trades ?? []) {
       lines.push([t.symbol, t.name ?? '', t.entry_date, num(t.entry_price), t.exit_date,
         num(t.exit_price), num(t.pnl_pct), num(t.duration), t.exit_reason ?? '',
-        num(t.shares), num(t.entry_value), num(t.exit_value), num(t.pnl_amount)].map(csvEsc).join(','))
+        num(t.shares), num(t.entry_value), num(t.exit_value), num(t.pnl_amount),
+        num(t.entry_score), t.entry_signal_date ?? '', t.entry_signal_id ?? '',
+        t.exit_signal_date ?? '', t.exit_signal_id ?? '', num(t.blocked_exit_days ?? 0)].map(csvEsc).join(','))
     }
 
     lines.push('', '# 分标的统计', 'symbol,n_trades,total_return,win_rate,best,worst')
@@ -2012,6 +2140,7 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
             <select value={positionSizing} onChange={e => setPositionSizing(e.target.value as any)} className={INPUT_CLS}>
               <option value="equal">等权买入</option>
               <option value="score_weight">评分加权</option>
+              <option value="score_tier">评分分档</option>
             </select>
           </div>
           <div>
@@ -2135,6 +2264,15 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                 </div>
               )
             )}
+            <button
+              type="button"
+              onClick={() => setSavedResultsOpen(true)}
+              title="打开保存过的回测结果（快照, 不重新回测）"
+              className="inline-flex h-8 items-center gap-1.5 rounded-btn border border-border bg-surface px-2.5 text-[11px] text-secondary transition-colors hover:border-accent/40 hover:text-accent"
+            >
+              <Archive className="h-3.5 w-3.5" />
+              已保存结果
+            </button>
             {result && !result.error && (
               <button
                 type="button"
@@ -2272,6 +2410,32 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
           </motion.div>
         )}
 
+        {/* 已保存结果横幅: 明确当前展示的是快照而非新运行 */}
+        {result && savedMeta && (
+          <div className="flex flex-wrap items-center gap-2 rounded-card border border-accent/30 bg-accent/5 px-3 py-2 text-[11px] text-accent">
+            <Archive className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium">已保存结果「{savedMeta.name}」</span>
+            <span className="text-accent/80">保存于 {cnDateTimeFromUtc(savedMeta.saved_at) || savedMeta.saved_at}</span>
+            {result.config?.entry_fill && result.config?.exit_fill && (
+              <span className="text-accent/80">
+                成交口径 买入{result.config.entry_fill === 'close_t' ? '信号日收盘' : '次日开盘'} / 卖出
+                {result.config.exit_fill === 'close_t'
+                  ? '信号日收盘'
+                  : result.config.exit_fill === 'signal_next_minute' ? '信号下一分钟' : '次日开盘'}
+              </span>
+            )}
+            <span className="text-muted">显示保存当时的逐笔/曲线/统计与有效配置，不会重新回测</span>
+            <button
+              type="button"
+              onClick={() => setSavedMeta(null)}
+              className="ml-auto inline-flex items-center gap-1 rounded border border-accent/30 px-1.5 py-0.5 text-[10px] text-accent/80 transition-colors hover:bg-accent/10"
+            >
+              <X className="h-3 w-3" />
+              退出快照视图
+            </button>
+          </div>
+        )}
+
         {/* 旧全量模拟结果: 固定前瞻收益统计 (兼容历史缓存结果) */}
         {result && !result.error && result.stats && result.stats.mode === 'full' && result.stats.full_kind !== 'candidate_execution' && (
           <motion.div
@@ -2299,6 +2463,11 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                 <Download className="h-3 w-3" />
                 导出
               </button>
+              <ResultSaveActions
+                canSave={canSaveResult}
+                saving={saveResult.isPending}
+                onSave={() => saveResult.mutate()}
+              />
               <span className="ml-auto text-[11px] text-muted font-mono">
                 {String(result.config?.start).slice(0,10)} ~ {String(result.config?.end).slice(0,10)}
               </span>
@@ -2424,6 +2593,11 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                   <Download className="h-3 w-3" />
                   导出
                 </button>
+                <ResultSaveActions
+                  canSave={canSaveResult}
+                  saving={saveResult.isPending}
+                  onSave={() => saveResult.mutate()}
+                />
               </div>
             )}
 
@@ -2613,6 +2787,14 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                             className="rounded-btn border border-border bg-surface px-2.5 py-1 text-xs text-secondary transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
                           >
                             下一页
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDailyPage(Math.max(dailyPageCount - 1, 0))}
+                            disabled={safeDailyPage >= dailyPageCount - 1}
+                            className="rounded-btn border border-border bg-surface px-2.5 py-1 text-xs text-secondary transition-colors hover:border-accent/40 hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+                          >
+                            末页
                           </button>
                         </div>
                       </div>
@@ -3134,20 +3316,12 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                       <NumberField
                         value={numOrNull(trailingTakeProfitActivatePct)}
                         min={1} max={200} step={0.5}
-                        onChange={n => {
-                          const next = n == null ? null : Math.abs(n) / 100
-                          updateOverride('trailing_take_profit_activate', next)
-                          // 联动: 回撤不能超过启动值
-                          const drawdown = numOrNull(trailingTakeProfitDrawdownPct)
-                          if (next != null && drawdown != null && drawdown / 100 > next) {
-                            updateOverride('trailing_take_profit_drawdown', next)
-                          }
-                        }}
+                        onChange={n => updateOverride('trailing_take_profit_activate', n == null ? null : Math.abs(n) / 100)}
                         className={INPUT_CLS}
                       />
                     </label>
                     <label className="block">
-                      <span className="mb-1 block text-[11px] text-secondary">回撤止盈回撤(点)</span>
+                      <span className="mb-1 block text-[11px] text-secondary">距峰值回撤(%)</span>
                       <NumberField
                         value={numOrNull(trailingTakeProfitDrawdownPct)}
                         min={0.5} max={50} step={0.5}
@@ -3260,6 +3434,13 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
         navItems={tradeNavItems}
         currentKey={activeTradeKey}
         onNavigate={handleTradeNav}
+        reasonBadge={selectedTrade ? (
+          <ExitReasonBadge
+            reason={selectedTrade.exit_reason}
+            signalId={selectedTrade.exit_signal_id}
+            signalNames={signalNames}
+          />
+        ) : undefined}
         onClose={() => setChartOverlay(null)}
       />
       <PicksSymbolKlineModal
@@ -3271,6 +3452,17 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
         onNavigate={(sym) => setChartOverlay({ kind: 'symbol', symbol: sym })}
         onClose={() => setChartOverlay(null)}
       />
+      {savedResultsOpen && (
+        <SavedResultsDialog
+          currentSavedId={savedMeta?.saved_id ?? null}
+          onOpen={openSavedResult}
+          onDeleted={savedId => {
+            // 只清掉快照标记; 屏幕上的结果保留, 不删除策略/行情/当前运行结果
+            if (savedMeta?.saved_id === savedId) setSavedMeta(null)
+          }}
+          onClose={() => setSavedResultsOpen(false)}
+        />
+      )}
     </div>
   )
 }

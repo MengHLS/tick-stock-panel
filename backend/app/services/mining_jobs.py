@@ -251,6 +251,33 @@ class MiningRunStore:
             _atomic_write_json(run_dir / "manifest.json", manifest)
         return manifest
 
+    def register_artifacts(
+        self,
+        run_id: str,
+        names: list[ArtifactName],
+    ) -> dict[str, Any]:
+        """Atomically register several artifacts: validate all, then write manifest once."""
+        safe_run_id = self._validate_run_id(run_id)
+        for name in names:
+            self._validate_artifact_name(name)
+        run_dir = self._run_dir(safe_run_id)
+        with _STORE_LOCK:
+            manifest = self._required_manifest(safe_run_id)
+            artifacts = dict(manifest.get("artifacts") or {})
+            for name in names:
+                artifact_path = self._safe_artifact_path(
+                    safe_run_id, Path(f"{name}.parquet"),
+                )
+                if artifact_path.suffix.lower() != ".parquet":
+                    raise MiningRunValidationError(
+                        "mining artifacts must use the .parquet suffix"
+                    )
+                artifacts[name] = artifact_path.relative_to(run_dir).as_posix()
+            manifest["artifacts"] = artifacts
+            manifest["updated_at"] = _now_iso()
+            _atomic_write_json(run_dir / "manifest.json", manifest)
+        return manifest
+
     def append_event(
         self,
         run_id: str,

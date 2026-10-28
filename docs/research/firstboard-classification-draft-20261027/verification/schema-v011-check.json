@@ -1,0 +1,20 @@
+{
+  "generated": "2026-10-28T17:22:42",
+  "records": {
+    "old": 432,
+    "new": 432
+  },
+  "rows_with_additions": 92,
+  "added_null_fields": 480,
+  "added_by_node_type": {
+    "selected": 162,
+    "trace": 318
+  },
+  "my_earlier_count_selected_only": 162,
+  "delivered_difference_entries": 480,
+  "missing_reason_codes": 0,
+  "wrong_reason_codes": 0,
+  "stripped_rows_that_differ_from_v01": 0,
+  "problems": [],
+  "count_explanation": "170 was the absent-key count on the selected node only; the delivered 480 counts the same three fields over selected plus every trace node"
+}

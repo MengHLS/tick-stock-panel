@@ -45,8 +45,14 @@ _POSIX = pytest.mark.skipif(os.name == "nt", reason="外部持锁进程仅在 PO
 
 def _spawn_holder(data_dir: Path) -> subprocess.Popen:
     env = {**os.environ, "PYTHONPATH": str(_BACKEND_ROOT)}
+    # Windows venv launchers can spawn another PID; target the actual interpreter.
+    interpreter = (
+        getattr(sys, "_base_executable", sys.executable)
+        if os.name == "nt"
+        else sys.executable
+    )
     proc = subprocess.Popen(
-        [sys.executable, "-c", _HOLDER_SCRIPT, str(data_dir)],
+        [interpreter, "-c", _HOLDER_SCRIPT, str(data_dir)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -96,6 +102,54 @@ def test_legacy_lock_content_is_unknown_holder(tmp_path):
     path.write_bytes(b"0")
     assert read_lock_holder(tmp_path) is None
     assert probe_lock_held(tmp_path) is False
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows byte-range lock regression")
+def test_windows_external_holder_metadata_remains_readable(tmp_path):
+    proc = _spawn_holder(tmp_path)
+    try:
+        holder = read_lock_holder(tmp_path)
+        assert holder is not None
+        assert holder["pid"] == proc.pid
+        assert holder["role"] == "worker"
+        status = lock_status(tmp_path)
+        assert status["held"] is True
+        assert status["mine"] is False
+        assert status["holder_alive"] is True
+        assert proc.poll() is None
+    finally:
+        _kill(proc)
+
+
+def test_pid_probe_does_not_send_process_signals(monkeypatch):
+    from app.services.mining_lock_admin import _pid_alive
+
+    def reject_signal(*args):
+        raise AssertionError("A liveness check must not send a process signal")
+
+    monkeypatch.setattr(os, "kill", reject_signal)
+    assert _pid_alive(os.getpid()) is True
+
+
+def test_contended_probe_closes_its_file_handle(tmp_path, monkeypatch):
+    owner = MiningProcessLock(tmp_path)
+    owner.acquire()
+    streams = []
+    original_open = Path.open
+
+    def track_open(path, *args, **kwargs):
+        stream = original_open(path, *args, **kwargs)
+        streams.append(stream)
+        return stream
+
+    try:
+        with monkeypatch.context() as context:
+            context.setattr(Path, "open", track_open)
+            assert probe_lock_held(tmp_path) is True
+        assert streams
+        assert all(stream.closed for stream in streams)
+    finally:
+        owner.release()
 
 
 def test_corrupt_lock_content_is_unknown_holder(tmp_path):

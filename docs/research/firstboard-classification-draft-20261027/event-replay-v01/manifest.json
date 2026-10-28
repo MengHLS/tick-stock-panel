@@ -1,0 +1,32 @@
+{
+  "version": "replay-v01-discussion-20261028",
+  "event_count": 27,
+  "candidate_rows": 432,
+  "outcome_rows": 135,
+  "tracking_rows": 449,
+  "cutoff": "2026-10-23",
+  "input_hashes": {
+    "shape-selection-paths.csv": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+    "platform-firstboard-flags.csv": "92a7c72ff8b7d27ab0d409beaf96ffec91ec356ee06774fb5593802c920e4b77"
+  },
+  "output_hashes": {
+    "historical-events.csv": "47928b22b95a93fcad15bec6b1090258ba0aafd099f0dd4bc4fc17339c687d88",
+    "historical-events.json": "751124ff16708cf5bafd6d8570686193c1e023b509be3fcf292a20c6af6310f9",
+    "candidate-classifications.json": "564dc00f0e920d385e6659916f89c09ae91c5177e1302dc74ad1da002a3d4ccb",
+    "forward-outcomes.csv": "e5cec3c913f9985873ba2439d14ce6342e66fe30d344ebf8c722fa06efcc7551",
+    "forward-tracking.json": "f92d3216b664ad87d0cd3b29d01b0434e2f978fc3fb22aeefeb9fe93b586cf11",
+    "event-price-charts.html": "c8a86a504337e177e2cd726983f1949f3503467c25861dafc35b058d7ac5e9c6",
+    "raw-price-snapshot.csv": "ea988fd3146968a4db1d697bb60fa9e0329b10d77f755d362ded6d99f7bd5fef"
+  },
+  "self_check_prefix_comparisons": 432,
+  "self_check_scope": "same function on identical event prefixes; independent verifier still required",
+  "data_policy": "fixed past cutoff; censored outcomes not backfilled; no actual fill simulation",
+  "raw_query": 0.05,
+  "factor_limitations": [
+    "exchange preclose absent",
+    "PIT float shares unknown",
+    "PIT industry unknown",
+    "market alignment not supplied",
+    "snapshot adjusted ratios not proof of historical factor availability"
+  ]
+}

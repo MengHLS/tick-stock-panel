@@ -1,0 +1,210 @@
+[
+  {
+    "code": "000810.SZ",
+    "label_for_discussion": "下跌后的低位整理候选",
+    "anchor_external": "2026-07-10",
+    "P": 12.84,
+    "P_date": "2026-07-10",
+    "P_known_at": "2026-07-13",
+    "L_setup": 8.65,
+    "L_setup_date": "2026-10-19",
+    "first_break": null,
+    "rule": "包含首次下降日high；以最近旧首板为外部给定锚点，不强制P超过锚点high",
+    "status": "新增局部标注未独立复核；非旧递归结构认证",
+    "metrics_asof": "2026-10-22",
+    "range_metrics": [
+      {
+        "window": 20,
+        "start": "2026-09-17",
+        "end": "2026-10-22",
+        "high": 9.82,
+        "low": 8.65,
+        "range_over_current_close": 0.12843029637760703,
+        "selection_width_over_low": 0.1352601156069364
+      },
+      {
+        "window": 60,
+        "start": "2026-07-23",
+        "end": "2026-10-22",
+        "high": 10.23,
+        "low": 8.65,
+        "range_over_current_close": 0.17343578485181121,
+        "selection_width_over_low": 0.18265895953757227
+      },
+      {
+        "window": 120,
+        "start": "2026-04-24",
+        "end": "2026-10-22",
+        "high": 13.75,
+        "low": 8.65,
+        "range_over_current_close": 0.5598243688254665,
+        "selection_width_over_low": 0.5895953757225434
+      },
+      {
+        "window": 250,
+        "start": "2025-10-13",
+        "end": "2026-10-22",
+        "high": 14.04,
+        "low": 8.65,
+        "range_over_current_close": 0.5916575192096596,
+        "selection_width_over_low": 0.6231213872832368
+      }
+    ]
+  },
+  {
+    "code": "002687.SZ",
+    "label_for_discussion": "上涨后的偏高位震荡",
+    "anchor_external": "2026-10-08",
+    "P": 6.62,
+    "P_date": "2026-10-12",
+    "P_known_at": "2026-10-12",
+    "L_setup": 5.91,
+    "L_setup_date": "2026-10-19",
+    "first_break": "2026-10-23",
+    "rule": "包含首次下降日high；以最近旧首板为外部给定锚点，不强制P超过锚点high",
+    "status": "新增局部标注未独立复核；非旧递归结构认证",
+    "metrics_asof": "2026-10-22",
+    "range_metrics": [
+      {
+        "window": 20,
+        "start": "2026-09-17",
+        "end": "2026-10-22",
+        "high": 6.72,
+        "low": 5.5,
+        "range_over_current_close": 0.19869706840390877,
+        "selection_width_over_low": 0.2218181818181817
+      },
+      {
+        "window": 60,
+        "start": "2026-07-23",
+        "end": "2026-10-22",
+        "high": 6.75,
+        "low": 4.57,
+        "range_over_current_close": 0.3550488599348534,
+        "selection_width_over_low": 0.47702407002188174
+      },
+      {
+        "window": 120,
+        "start": "2026-04-24",
+        "end": "2026-10-22",
+        "high": 6.75,
+        "low": 4.0,
+        "range_over_current_close": 0.4478827361563518,
+        "selection_width_over_low": 0.6875
+      },
+      {
+        "window": 250,
+        "start": "2025-10-13",
+        "end": "2026-10-22",
+        "high": 6.75,
+        "low": 4.0,
+        "range_over_current_close": 0.4478827361563518,
+        "selection_width_over_low": 0.6875
+      }
+    ]
+  },
+  {
+    "code": "600785.SH",
+    "label_for_discussion": "长期下跌后的阶段反弹",
+    "anchor_external": "2026-09-21",
+    "P": 11.55,
+    "P_date": "2026-09-22",
+    "P_known_at": "2026-09-22",
+    "L_setup": 10.26,
+    "L_setup_date": "2026-09-29",
+    "first_break": "2026-10-09",
+    "rule": "包含首次下降日high；以最近旧首板为外部给定锚点，不强制P超过锚点high",
+    "status": "新增局部标注未独立复核；非旧递归结构认证",
+    "metrics_asof": "2026-10-22",
+    "range_metrics": [
+      {
+        "window": 20,
+        "start": "2026-09-17",
+        "end": "2026-10-22",
+        "high": 11.9,
+        "low": 9.9,
+        "range_over_current_close": 0.17513134851138354,
+        "selection_width_over_low": 0.202020202020202
+      },
+      {
+        "window": 60,
+        "start": "2026-07-23",
+        "end": "2026-10-22",
+        "high": 13.08,
+        "low": 7.63,
+        "range_over_current_close": 0.47723292469352013,
+        "selection_width_over_low": 0.7142857142857144
+      },
+      {
+        "window": 120,
+        "start": "2026-04-24",
+        "end": "2026-10-22",
+        "high": 19.39,
+        "low": 7.46,
+        "range_over_current_close": 1.0446584938704029,
+        "selection_width_over_low": 1.5991957104557644
+      },
+      {
+        "window": 250,
+        "start": "2025-10-13",
+        "end": "2026-10-22",
+        "high": 27.76,
+        "low": 7.46,
+        "range_over_current_close": 1.777583187390543,
+        "selection_width_over_low": 2.7211796246648796
+      }
+    ]
+  },
+  {
+    "code": "002354.SZ",
+    "label_for_discussion": "阶段上涨后的回撤候选",
+    "anchor_external": "2026-08-28",
+    "P": 8.8,
+    "P_date": "2026-09-01",
+    "P_known_at": "2026-09-02",
+    "L_setup": 6.81,
+    "L_setup_date": "2026-10-09",
+    "first_break": null,
+    "rule": "包含首次下降日high；以最近旧首板为外部给定锚点，不强制P超过锚点high",
+    "status": "新增局部标注未独立复核；非旧递归结构认证",
+    "metrics_asof": "2026-10-22",
+    "range_metrics": [
+      {
+        "window": 20,
+        "start": "2026-09-17",
+        "end": "2026-10-22",
+        "high": 8.27,
+        "low": 6.81,
+        "range_over_current_close": 0.2,
+        "selection_width_over_low": 0.2143906020558004
+      },
+      {
+        "window": 60,
+        "start": "2026-07-23",
+        "end": "2026-10-22",
+        "high": 8.97,
+        "low": 5.88,
+        "range_over_current_close": 0.4232876712328768,
+        "selection_width_over_low": 0.5255102040816328
+      },
+      {
+        "window": 120,
+        "start": "2026-04-24",
+        "end": "2026-10-22",
+        "high": 10.34,
+        "low": 5.38,
+        "range_over_current_close": 0.6794520547945205,
+        "selection_width_over_low": 0.9219330855018588
+      },
+      {
+        "window": 250,
+        "start": "2025-10-13",
+        "end": "2026-10-22",
+        "high": 10.34,
+        "low": 5.36,
+        "range_over_current_close": 0.6821917808219178,
+        "selection_width_over_low": 0.9291044776119401
+      }
+    ]
+  }
+]

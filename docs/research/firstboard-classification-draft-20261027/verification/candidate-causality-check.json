@@ -1,0 +1,16 @@
+{
+  "generated": "2026-10-28T17:20:31",
+  "method": "independent re-implementation (reproduces delivered table exactly) run twice per row: (A) inputs truncated at D, (B) future first boards injected after D",
+  "checks": 864,
+  "rows": 432,
+  "truncation_differences": 0,
+  "injection_differences": 0,
+  "details": [],
+  "limit": "the delivered script itself is not executed; the argument rests on the re-implementation matching all 432 delivered rows. Price rows after D are dropped by construction inside the classifier, so test B exercises the board set, the only cross-event input.",
+  "inputs": {
+    "shape-selection-paths.csv": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+    "platform-firstboard-flags.csv": "92a7c72ff8b7d27ab0d409beaf96ffec91ec356ee06774fb5593802c920e4b77",
+    "candidate-classifications.json": "564dc00f0e920d385e6659916f89c09ae91c5177e1302dc74ad1da002a3d4ccb",
+    "verify_candidate_causality.py": "963e063bf4bbb0db56ee02cd703ce9a711fdc853a747b357bd557aed95a0d691"
+  }
+}

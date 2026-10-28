@@ -1,0 +1,1381 @@
+[
+  {
+    "code": "001328.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-07-27",
+    "nearest": "2026-07-27",
+    "C": "32.51",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "33.06",
+      "Pdate": "2026-07-30",
+      "L": "27.5",
+      "Ldate": "2026-08-31",
+      "breakdate": "",
+      "status": "洗盘后回攻但未越过前高"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "EPISODE_REATTACK_BELOW_REFERENCE",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": null,
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "000559.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-02-10",
+    "nearest": "2026-02-10",
+    "C": "11.55",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "20.65029702970297",
+      "Pdate": "2026-02-11",
+      "L": "9.22",
+      "Ldate": "2026-10-15",
+      "breakdate": "",
+      "status": "洗盘后回攻但未越过前高"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "EPISODE_REATTACK_BELOW_REFERENCE",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": null,
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "discrepancy_hypotheses": {
+      "status": "未归因",
+      "candidates": [
+        "下降日高价归属",
+        "峰值定义",
+        "锚点选择",
+        "原始行情/公司行动/复权版本差异"
+      ],
+      "note": "均需逐项复算，未排除数据差异"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "002612.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-07-27",
+    "nearest": "2026-07-27",
+    "C": "16.93",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "验证员已复现候选A数值；移出无法解释方向冲突",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "legacy": {
+      "P": "15.64",
+      "Pdate": "2026-07-30",
+      "L": "14.26",
+      "Ldate": "2026-07-31",
+      "breakdate": "2026-08-10",
+      "status": "目标前已经越过前高"
+    },
+    "quality_reason_codes": [
+      "CANDIDATE_RULE_NOT_FINAL",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "ALREADY_REBROKEN_BEFORE_TARGET",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2026-08-10",
+      "reason_code": "DISTANCE_DIRECTION_CONFLICT"
+    },
+    "discrepancy_hypotheses": {
+      "status": "验证员指定规则下已解释",
+      "evidence": "首次下降收盘2026-07-31、排除下降日high，P15.64/L_setup14.26/距P+8.248%；本轮未独立导出此例"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "002241.SZ",
+    "T": "2026-10-23",
+    "anchor": "2025-08-26",
+    "nearest": "2025-08-26",
+    "C": "23.11",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "旧标签顺序冲突反例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": "19.5",
+      "date": "2026-10-15",
+      "status": "旧报告全路径最低落在突破后，未认证为新规则区间最低",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "36.72057042253521",
+      "Pdate": "2025-08-29",
+      "L": "19.5",
+      "Ldate": "2026-10-15",
+      "breakdate": "2025-09-30",
+      "status": "目标前已经越过前高"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "ALREADY_REBROKEN_BEFORE_TARGET",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2025-09-30",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "discrepancy_hypotheses": {
+      "status": "未归因",
+      "candidates": [
+        "下降日高价归属",
+        "峰值定义",
+        "锚点选择",
+        "原始行情/公司行动/复权版本差异"
+      ],
+      "note": "均需逐项复算，未排除数据差异"
+    },
+    "shape_label": null,
+    "shape_certification": "候选数值已计算，待独立复核",
+    "board_identity_certification": "历史制度未知",
+    "candidate_shape_results": [
+      {
+        "anchor": "2025-08-26",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 37.17,
+            "P_date": "2025-08-29",
+            "P_known_at": "2025-09-01",
+            "P_window": 40.68,
+            "P_window_date": "2025-10-09",
+            "L_setup": 30.3,
+            "L_setup_date": "2025-09-11",
+            "L_after": 19.5,
+            "L_after_date": "2026-10-15",
+            "depth": 0.1848264729620662,
+            "first_break_date": "2025-09-30",
+            "C_T_minus_1": 21.01,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 37.17,
+            "P_date": "2025-08-29",
+            "P_known_at": "2025-09-01",
+            "P_window": 40.68,
+            "P_window_date": "2025-10-09",
+            "L_setup": 30.3,
+            "L_setup_date": "2025-09-11",
+            "L_after": 19.5,
+            "L_after_date": "2026-10-15",
+            "depth": 0.1848264729620662,
+            "first_break_date": "2025-09-30",
+            "C_T_minus_1": 21.01,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      }
+    ],
+    "shape_label_by_candidate": [
+      {
+        "anchor": "2025-08-26",
+        "include_decline_high": false,
+        "path_state_T_minus_1": "prior_close_break",
+        "break_event_T": {
+          "first_break_on_T": false,
+          "prior_break": true,
+          "relation": "below"
+        }
+      },
+      {
+        "anchor": "2025-08-26",
+        "include_decline_high": true,
+        "path_state_T_minus_1": "prior_close_break",
+        "break_event_T": {
+          "first_break_on_T": false,
+          "prior_break": true,
+          "relation": "below"
+        }
+      }
+    ],
+    "evidence_file": "THREE-CASE-EVIDENCE.md"
+  },
+  {
+    "code": "002687.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-10-08",
+    "nearest": "2026-10-08",
+    "C": "6.75",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "6.62",
+      "Pdate": "2026-10-12",
+      "L": "5.91",
+      "Ldate": "2026-10-19",
+      "breakdate": "2026-10-23",
+      "status": "试盘洗盘后首次收盘突破"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "EPISODE_FIRST_CLOSE_REBREAK",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2026-10-23",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "候选数值已计算，待独立复核",
+    "board_identity_certification": "历史制度未知",
+    "candidate_shape_results": [
+      {
+        "anchor": "2026-10-08",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 6.57,
+            "P_date": "2026-10-09",
+            "P_known_at": "2026-10-12",
+            "P_window": 6.62,
+            "P_window_date": "2026-10-12",
+            "L_setup": 5.91,
+            "L_setup_date": "2026-10-19",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.10045662100456623,
+            "first_break_date": "2026-10-23",
+            "C_T_minus_1": 6.14,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": true,
+              "prior_break": false,
+              "relation": "above"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 6.62,
+            "P_date": "2026-10-12",
+            "P_known_at": "2026-10-12",
+            "P_window": 6.62,
+            "P_window_date": "2026-10-12",
+            "L_setup": 5.91,
+            "L_setup_date": "2026-10-19",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.10725075528700906,
+            "first_break_date": "2026-10-23",
+            "C_T_minus_1": 6.14,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": true,
+              "prior_break": false,
+              "relation": "above"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      }
+    ],
+    "shape_label_by_candidate": [
+      {
+        "anchor": "2026-10-08",
+        "include_decline_high": false,
+        "path_state_T_minus_1": "left_low_below_P",
+        "break_event_T": {
+          "first_break_on_T": true,
+          "prior_break": false,
+          "relation": "above"
+        }
+      },
+      {
+        "anchor": "2026-10-08",
+        "include_decline_high": true,
+        "path_state_T_minus_1": "left_low_below_P",
+        "break_event_T": {
+          "first_break_on_T": true,
+          "prior_break": false,
+          "relation": "above"
+        }
+      }
+    ],
+    "evidence_file": "THREE-CASE-EVIDENCE.md"
+  },
+  {
+    "code": "002322.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-10-13",
+    "nearest": "2026-10-13",
+    "C": "13.67",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "13.33",
+      "Pdate": "2026-10-14",
+      "L": "12.31",
+      "Ldate": "2026-10-15",
+      "breakdate": "2026-10-23",
+      "status": "目标日直接首次收盘突破（前一日尚未回升）"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "EPISODE_TARGET_DAY_DIRECT_BREAK",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2026-10-23",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "002945.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-07-29",
+    "nearest": "2026-10-15",
+    "C": "15.36",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "旧标签顺序冲突反例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": "13.52",
+      "date": "2026-10-09",
+      "status": "旧报告全路径最低落在突破后，未认证为新规则区间最低",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "15.39",
+      "Pdate": "2026-07-30",
+      "L": "13.52",
+      "Ldate": "2026-10-09",
+      "breakdate": "2026-09-01",
+      "status": "目标前已经越过前高"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "EPISODE_NO_PULLBACK_YET",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2026-09-01",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "候选数值已计算，待独立复核",
+    "board_identity_certification": "历史制度未知",
+    "candidate_shape_results": [
+      {
+        "anchor": "2026-07-29",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 15.39,
+            "P_date": "2026-07-30",
+            "P_known_at": "2026-07-31",
+            "P_window": 16.04,
+            "P_window_date": "2026-09-01",
+            "L_setup": 13.68,
+            "L_setup_date": "2026-08-25",
+            "L_after": 13.52,
+            "L_after_date": "2026-10-09",
+            "depth": 0.11111111111111116,
+            "first_break_date": "2026-09-01",
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 15.39,
+            "P_date": "2026-07-30",
+            "P_known_at": "2026-07-31",
+            "P_window": 16.04,
+            "P_window_date": "2026-09-01",
+            "L_setup": 13.68,
+            "L_setup_date": "2026-08-25",
+            "L_after": 13.52,
+            "L_after_date": "2026-10-09",
+            "depth": 0.11111111111111116,
+            "first_break_date": "2026-09-01",
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      },
+      {
+        "anchor": "2026-10-15",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 15.39,
+            "P_date": "2026-10-15",
+            "P_known_at": "2026-10-16",
+            "P_window": 15.39,
+            "P_window_date": "2026-10-15",
+            "L_setup": 13.9,
+            "L_setup_date": "2026-10-22",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.09681611435997402,
+            "first_break_date": null,
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": false,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 15.39,
+            "P_date": "2026-10-15",
+            "P_known_at": "2026-10-16",
+            "P_window": 15.39,
+            "P_window_date": "2026-10-15",
+            "L_setup": 13.9,
+            "L_setup_date": "2026-10-22",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.09681611435997402,
+            "first_break_date": null,
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": false,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      }
+    ],
+    "shape_label_by_candidate": [
+      {
+        "anchor": "2026-07-29",
+        "include_decline_high": false,
+        "path_state_T_minus_1": "prior_close_break",
+        "break_event_T": {
+          "first_break_on_T": false,
+          "prior_break": true,
+          "relation": "below"
+        }
+      },
+      {
+        "anchor": "2026-07-29",
+        "include_decline_high": true,
+        "path_state_T_minus_1": "prior_close_break",
+        "break_event_T": {
+          "first_break_on_T": false,
+          "prior_break": true,
+          "relation": "below"
+        }
+      },
+      {
+        "anchor": "2026-10-15",
+        "include_decline_high": false,
+        "path_state_T_minus_1": "left_low_below_P",
+        "break_event_T": {
+          "first_break_on_T": false,
+          "prior_break": false,
+          "relation": "below"
+        }
+      },
+      {
+        "anchor": "2026-10-15",
+        "include_decline_high": true,
+        "path_state_T_minus_1": "left_low_below_P",
+        "break_event_T": {
+          "first_break_on_T": false,
+          "prior_break": false,
+          "relation": "below"
+        }
+      }
+    ],
+    "evidence_file": "THREE-CASE-EVIDENCE.md"
+  },
+  {
+    "code": "603448.SH",
+    "T": "2026-10-23",
+    "anchor": "",
+    "nearest": "",
+    "C": "56.24",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "历史覆盖不足，不能认证无前次首板",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "历史覆盖不足；不能据此判断结构不适用",
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "历史覆盖不足；不能据此判断结构不适用",
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "历史覆盖不足；不能据此判断结构不适用",
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "历史覆盖不足；不能据此判断结构不适用",
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "历史覆盖不足；不能据此判断结构不适用",
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "历史覆盖不足；不能据此判断结构不适用",
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "legacy": {
+      "P": "",
+      "Pdate": "",
+      "L": "",
+      "Ldate": "",
+      "breakdate": "",
+      "status": "无有效前次首板事件链"
+    },
+    "quality_reason_codes": [
+      "HISTORY_COVERAGE_INSUFFICIENT",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": null,
+      "reason_code": "HISTORY_COVERAGE_INSUFFICIENT"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "000700.SZ",
+    "T": "2026-10-23",
+    "anchor": "2026-07-02",
+    "nearest": "2026-07-02",
+    "C": "11.88",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "旧报告异常在当前数据中未复现；不是已认证缺行样本",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "旧异常未复现，待跨版本字段和路径核对",
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "旧异常未复现，待跨版本字段和路径核对",
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "旧异常未复现，待跨版本字段和路径核对",
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "旧异常未复现，待跨版本字段和路径核对",
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "旧异常未复现，待跨版本字段和路径核对",
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "旧异常未复现，待跨版本字段和路径核对",
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "legacy": {
+      "P": "",
+      "Pdate": "",
+      "L": "",
+      "Ldate": "",
+      "breakdate": "",
+      "status": "事件链信息不足"
+    },
+    "quality_reason_codes": [
+      "LEGACY_ANOMALY_NOT_REPRODUCED",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "CHAIN_INFORMATION_INSUFFICIENT",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": null,
+      "reason_code": "LEGACY_ANOMALY_NOT_REPRODUCED"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "603286.SH",
+    "T": "2026-10-23",
+    "anchor": "2026-10-19",
+    "nearest": "2026-10-19",
+    "C": "50.89",
+    "source": "recursive/target-chain-summary.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2026-10-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "46.86",
+      "Pdate": "2026-10-20",
+      "L": "44.5",
+      "Ldate": "2026-10-21",
+      "breakdate": "2026-10-23",
+      "status": "试盘洗盘后首次收盘突破"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": "EPISODE_FIRST_CLOSE_REBREAK",
+      "scope": "legacy",
+      "reason_code": "LEGACY_ONLY"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2026-10-23",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "603121.SH",
+    "T": "2019-09-16",
+    "anchor": "2019-08-26",
+    "nearest": "2019-08-26",
+    "C": "20.34",
+    "source": "603121/event-annotations.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2019-09-16 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "19.03",
+      "Pdate": "2019-08-27",
+      "L": "16.88",
+      "Ldate": "2019-09-02",
+      "breakdate": "2019-09-16",
+      "status": "首次收盘突破确认"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": null,
+      "scope": "legacy",
+      "reason_code": "SOURCE_STAGE_NOT_MAPPED"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": "2019-09-16",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  },
+  {
+    "code": "603121.SH",
+    "T": "2019-09-23",
+    "anchor": "2019-09-16",
+    "nearest": "2019-09-16",
+    "C": "32.65",
+    "source": "603121/event-annotations.csv",
+    "evidence_role": "形态对照，非新规则正例",
+    "price_basis": {
+      "status": "待核验",
+      "description": "源报告称使用公司行动与局部价格认证；未追溯逐例复权基准日、因子版本、全路径，不能凭小数位数判断同尺度",
+      "current_snapshot_ref": "DATA-MANIFEST.json",
+      "legacy_basis_status": "LEGACY_FACTOR_BASE_PENDING"
+    },
+    "P_episode": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待核验，legacy P不能直接认证为新定义",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "P_window": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整OHLC路径",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_setup": {
+      "value": null,
+      "date": null,
+      "known_at": null,
+      "status": "待完整突破前路径认证",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "L_after": {
+      "value": null,
+      "date": null,
+      "status": "待核验/不适用尚未判定",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "path_state_T_minus_1": {
+      "value": null,
+      "asof": "T-1 close",
+      "status": "待路径重算，不继承T日旧标签",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "break_event_T": {
+      "value": null,
+      "asof": "2019-09-23 close",
+      "status": "待P与突破历史认证；旧breakdate只保留事实来源",
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "legacy": {
+      "P": "",
+      "Pdate": "",
+      "L": "",
+      "Ldate": "",
+      "breakdate": "",
+      "status": "目标前无首次收盘回落"
+    },
+    "quality_reason_codes": [
+      "PATH_EVIDENCE_PENDING",
+      "HISTORICAL_REGIME_UNCERTIFIED"
+    ],
+    "firstboard_identity": {
+      "value": null,
+      "reason_code": "HISTORICAL_REGIME_UNCERTIFIED",
+      "note": "形态价格数值可复现不等于首板身份可认证；不默认历史非ST"
+    },
+    "nearest_stage": {
+      "value": null,
+      "scope": "legacy",
+      "reason_code": "SOURCE_STAGE_NOT_MAPPED"
+    },
+    "recursion_steps": {
+      "value": null,
+      "reason_code": "CANDIDATE_TRACE_PENDING"
+    },
+    "L_breakday": {
+      "value": null,
+      "date": null,
+      "reason_code": "PATH_EVIDENCE_PENDING"
+    },
+    "shape_label": null,
+    "shape_certification": "待核验",
+    "board_identity_certification": "历史制度未知"
+  }
+]

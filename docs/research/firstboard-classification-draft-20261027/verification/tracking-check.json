@@ -1,0 +1,21 @@
+{
+  "generated": "2026-10-28T17:21:43",
+  "rows": 449,
+  "fields_compared": 12123,
+  "problems": 0,
+  "problem_details": [],
+  "checks": [
+    "asof equals D + step_observed_sessions",
+    "frozen_D_P equals the D-day P of the reference rule",
+    "return_since_D recomputed from the frozen path",
+    "current relation to frozen P",
+    "factors_asof_tracking_day recomputed from rows <= that session",
+    "D_record_overwritten is False"
+  ],
+  "inputs": {
+    "shape-selection-paths.csv": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+    "forward-tracking.json": "f92d3216b664ad87d0cd3b29d01b0434e2f978fc3fb22aeefeb9fe93b586cf11",
+    "candidate-classifications.json": "564dc00f0e920d385e6659916f89c09ae91c5177e1302dc74ad1da002a3d4ccb",
+    "verify_tracking.py": "09e2d31a22bead979b7d87acbfb2e9b4c91a7e32a23398d5a5986deec11672ce"
+  }
+}

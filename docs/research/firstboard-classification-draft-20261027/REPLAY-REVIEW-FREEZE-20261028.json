@@ -1,0 +1,28 @@
+{
+  "status": "review freeze declaration; fingerprints only, no filesystem lock",
+  "date": "2026-10-28",
+  "events": 27,
+  "candidate_records": 432,
+  "rules": "A/B × q3%/5% × new-high gate off/on × nearest/recursive = 16 candidates per event",
+  "factor_sidecar": "27 events × 2 asof snapshots × 14 fields = 756; separate version; do not confuse with original short-input JSON factors",
+  "modification_policy": "no in-place edits during independent verification; fixes go to a new version",
+  "files": {
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\candidate-classifications.json": "564dc00f0e920d385e6659916f89c09ae91c5177e1302dc74ad1da002a3d4ccb",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\event-price-charts.html": "c8a86a504337e177e2cd726983f1949f3503467c25861dafc35b058d7ac5e9c6",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\factor-snapshot-manifest.json": "6e83de18a89c47bac12aed09829b6cfe4f6c46df8cc807dba51d6e6cacae73fa",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\factor-snapshots-long.csv": "957fd9275b8cf5d3121f913ee6665e61d58622484e010564488107e2a5dc7269",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\forward-outcomes.csv": "e5cec3c913f9985873ba2439d14ce6342e66fe30d344ebf8c722fa06efcc7551",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\forward-tracking.json": "f92d3216b664ad87d0cd3b29d01b0434e2f978fc3fb22aeefeb9fe93b586cf11",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\historical-events.csv": "47928b22b95a93fcad15bec6b1090258ba0aafd099f0dd4bc4fc17339c687d88",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\historical-events.json": "751124ff16708cf5bafd6d8570686193c1e023b509be3fcf292a20c6af6310f9",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\manifest.json": "5e4ebd9527117d1fb8e9be6341b00384bec75859ed21c86c9d5d32446c5b0322",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\raw-price-snapshot.csv": "ea988fd3146968a4db1d697bb60fa9e0329b10d77f755d362ded6d99f7bd5fef",
+    "docs\\research\\firstboard-classification-draft-20261027\\event-replay-v01\\README.md": "8d52773c4692bb77b0f2a2b5de2b460e7c0513cf638344d02d4727ac494b343d",
+    "docs\\research\\firstboard-classification-draft-20261027\\replay_events_v01.py": "55a1008e996ba59726a22907af5f2271d55af6814209dac3a7dd1907ca26fbdc",
+    "docs\\research\\firstboard-classification-draft-20261027\\replay_factor_sidecar.py": "308a9d33f4ede54945e0faee83c60f47a7f563c24f9776edb5a929726184c24f",
+    "docs\\research\\firstboard-classification-draft-20261027\\four-case-paths.csv": "5b6e657d956cb8f1635c732761ffe85c68e62179e65cee9d11a753c9e8cca47d",
+    "docs\\research\\firstboard-classification-draft-20261027\\four-case-manifest.json": "fea6474b6146afd84fbbfbff9409b63011c070f86aafc00f63d117c9943f066d",
+    "docs\\research\\firstboard-classification-draft-20261027\\shape-selection-paths.csv": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+    "docs\\research\\firstboard-classification-draft-20261027\\platform-firstboard-flags.csv": "92a7c72ff8b7d27ab0d409beaf96ffec91ec356ee06774fb5593802c920e4b77"
+  }
+}

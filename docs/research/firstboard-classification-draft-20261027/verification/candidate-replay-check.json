@@ -1,0 +1,153 @@
+{
+  "generated": "2026-10-28T17:19:04",
+  "method": "independent re-implementation from the written candidate rules; compared against event-replay-v01/candidate-classifications.json",
+  "delivered_self_check_note": "the delivered self-check compares classify(prefix) with classify(batch) where batch contains exactly the rows of prefix, so it tests determinism, not causality",
+  "rows_compared": 432,
+  "fields_compared": 6288,
+  "mismatches": 0,
+  "mismatch_details": [],
+  "absent_fields": 170,
+  "absent_field_details": [
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.03_G1_R0",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.03_G1_R0",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.03_G1_R0",
+      "field": "recovery_applicable",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.03_G1_R1",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.03_G1_R1",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.03_G1_R1",
+      "field": "recovery_applicable",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.05_G1_R0",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.05_G1_R0",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.05_G1_R0",
+      "field": "recovery_applicable",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.05_G1_R1",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.05_G1_R1",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PA_q0.05_G1_R1",
+      "field": "recovery_applicable",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.03_G1_R0",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.03_G1_R0",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.03_G1_R0",
+      "field": "recovery_applicable",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.03_G1_R1",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.03_G1_R1",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.03_G1_R1",
+      "field": "recovery_applicable",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.05_G1_R0",
+      "field": "depth",
+      "path_state": "no_post_anchor_high"
+    },
+    {
+      "event": "000810.SZ@2026-07-10",
+      "rule": "PB_q0.05_G1_R0",
+      "field": "recovery_raw",
+      "path_state": "no_post_anchor_high"
+    }
+  ],
+  "fingerprints": {
+    "engine.py": "fbc27443df15ac3c535ecbaa2ad783fd351e85a17411879bfe87250160d03e41",
+    "strategy.py": "9ab50b399d1f5c895e5a80045ec202a4f74be7ff0e0f8a11d4957d91a60c3d56",
+    "event_chain.py": "8aa42c52aca07756480190b682386d30064b0bb9d1227d48f8c77fe50154ca06",
+    "shape-selection-paths.csv": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+    "platform-firstboard-flags.csv": "92a7c72ff8b7d27ab0d409beaf96ffec91ec356ee06774fb5593802c920e4b77",
+    "verify_candidate_replay.py": "adf6c34a6f56e57cfccec5a14546a474fc4188dbc4e98c4e398eaa9bc527ef4f"
+  },
+  "fingerprint_prefix_checks": {
+    "engine.py": true,
+    "strategy.py": true
+  },
+  "scope": {
+    "events": 27,
+    "candidate_rows": 432,
+    "not_covered": [
+      "forward outcomes and daily tracking tables (evaluated separately)",
+      "factor point-in-time integrity beyond the sampled fields",
+      "first-board identity / historical ST / board regime"
+    ]
+  }
+}

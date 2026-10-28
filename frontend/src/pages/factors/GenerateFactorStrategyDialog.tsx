@@ -4,44 +4,9 @@ import { Sparkles } from 'lucide-react'
 import { Modal } from '@/components/Modal'
 import { toast } from '@/components/Toast'
 import { api } from '@/lib/api'
+import { renderFactorStrategyCode } from './factorStrategyTemplate'
 
 const INPUT_CLS = 'h-8 w-full rounded-input border border-border bg-surface px-2.5 text-xs text-foreground focus:border-accent focus:outline-none'
-
-/** 渲染与挖掘发布同构的单因子排名策略源码 (FactorRankResearchMatrixStrategy)。 */
-function renderStrategyCode(strategyId: string, name: string, factorId: string, direction: 'high' | 'low', description: string): string {
-  const assetTypes = '["stock"]'
-  return `"""${name}: 由因子库一键生成的单因子排名策略。"""
-from app.strategy.builtin.factor_rank_research import FactorRankResearchMatrixStrategy
-
-META = {
-    "id": ${JSON.stringify(strategyId)},
-    "name": ${JSON.stringify(name)},
-    "description": ${JSON.stringify(description)},
-    "tags": ["factor", "auto-generated"],
-    "asset_types": ${assetTypes},
-    "timeframes": ["1d"],
-    "params": [
-        {"id": "entry_score", "label": "入选评分下限", "type": "float", "default": 70.0, "min": 0.0, "max": 100.0, "step": 5.0},
-        {"id": "exit_score", "label": "离场评分上限", "type": "float", "default": 40.0, "min": 0.0, "max": 100.0, "step": 5.0},
-        {"id": "top_rank", "label": "每日入选上限", "type": "int", "default": 20, "min": 1, "max": 100, "step": 1},
-    ],
-    "scoring": {},
-    "order_by": "score",
-    "descending": True,
-    "limit": 100,
-}
-
-EXECUTION_BACKEND = "matrix_native"
-ENTRY_SIGNALS = ["signal_factor_rank_entry"]
-EXIT_SIGNALS = ["signal_factor_rank_exit"]
-STOP_LOSS = -0.08
-MAX_HOLD_DAYS = 30
-
-SCORING = {${JSON.stringify(factorId)}: 1.0}
-DIRECTIONS = {${JSON.stringify(factorId)}: ${JSON.stringify(direction)}}
-MATRIX_STRATEGY = FactorRankResearchMatrixStrategy(SCORING, DIRECTIONS)
-`
-}
 
 /** 因子库 → 一键生成完整可回测策略 (单因子排名, 参数化入场/离场评分与每日上限)。 */
 export function GenerateFactorStrategyDialog({
@@ -64,7 +29,7 @@ export function GenerateFactorStrategyDialog({
         try {
           return await api.strategySaveCodeV2({
             strategy_id: strategyId,
-            code: renderStrategyCode(strategyId, name.trim(), item.id, direction, description),
+            code: renderFactorStrategyCode(strategyId, name.trim(), item.id, direction, description),
             target_source: 'custom',
             mode: 'create',
             name: name.trim(),

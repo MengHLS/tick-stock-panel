@@ -1,0 +1,11 @@
+{
+  "target": "2026-10-23",
+  "background_asof": "2026-10-22",
+  "source": "D:/TSP/data/kline_daily_enriched",
+  "query": "SELECT symbol,date,open,high,low,close,volume,raw_close FROM read_parquet('D:/TSP/data/kline_daily_enriched/date=*/*.parquet',hive_partitioning=true) WHERE date BETWEEN DATE '2025-01-01' AND DATE '2026-10-23' AND symbol IN ('000156.SZ','000559.SZ','000700.SZ','000810.SZ','000972.SZ','001216.SZ','001283.SZ','001298.SZ','001301.SZ','001328.SZ','001359.SZ','002009.SZ','002026.SZ','002077.SZ','002241.SZ','002322.SZ','002343.SZ','002354.SZ','002380.SZ','002421.SZ','002439.SZ','002474.SZ','002612.SZ','002687.SZ','002747.SZ','002812.SZ','002931.SZ','002945.SZ','002979.SZ','002982.SZ','002988.SZ','600094.SH','600215.SH','600303.SH','600506.SH','600785.SH','600865.SH','601519.SH','603081.SH','603160.SH','603171.SH','603286.SH','603337.SH','603341.SH','603448.SH','603466.SH','603677.SH','603713.SH','603721.SH','603838.SH','603859.SH','603901.SH','605488.SH') ORDER BY symbol,date",
+  "csv_sha256": "7a4606c9ac5729aa4102e610d508d7882d2e13e9eea02207a6688581f079f7fa",
+  "rows": 22642,
+  "scope": "53旧目标候选中的形态选样，不是策略筛选或身份认证；当前读取快照与前次快照未断言一致",
+  "adjustment_basis": "本次读取的enriched存储快照；具体因子末日未另认证；每张图内部同一尺度",
+  "future_rows_used": false
+}

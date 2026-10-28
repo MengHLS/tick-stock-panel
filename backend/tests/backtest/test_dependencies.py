@@ -6,6 +6,18 @@ from datetime import date, timedelta
 import polars as pl
 import pytest
 
+
+from app.backtest.engine import BacktestEngine
+
+@pytest.fixture(autouse=True)
+def _bypass_engine_quality(monkeypatch):
+    """合成夹具不经过 enriched 发布; 加载保护由专门用例覆盖。"""
+    monkeypatch.setattr(
+        "app.backtest.engine.BacktestEngine._require_certified_load",
+        lambda self, asset_type="stock", **kwargs: None,
+    )
+
+
 from app.backtest.strategy import StrategyDependencyResolver
 from app.strategy.engine import StrategyDef
 
@@ -80,7 +92,6 @@ def test_load_panel_for_backtest_supplies_raw_low_for_recovery(monkeypatch, tmp_
     旧 bug: 涨跌停基础列漏 raw_low, 因子用到翘板信号时回测特征准备抛
     "unable to find column raw_low"。
     """
-    from app.backtest.engine import BacktestEngine
 
     n_days = 40
     start = date(2024, 1, 1)

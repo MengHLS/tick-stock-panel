@@ -1,0 +1,417 @@
+[
+  {
+    "id": "B9",
+    "purpose": "下降日最高价归属",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "99",
+        "high": "110",
+        "low": "96",
+        "close": "98",
+        "volume": "1000"
+      },
+      {
+        "session": "S2",
+        "open": "98",
+        "high": "99",
+        "low": "90",
+        "close": "94",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "100",
+        "high": "106",
+        "low": "99",
+        "close": "105",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "anchor": "S0",
+      "q": "0.05",
+      "first_decline": "S1"
+    },
+    "expected_by_candidate": {
+      "exclude_decline_day": {
+        "P_episode": "100",
+        "P_window": "110",
+        "close_above_episode": true
+      },
+      "include_decline_day": {
+        "P_episode": "110",
+        "P_window": "110",
+        "close_above_episode": false
+      }
+    },
+    "decision": "待定；不将候选之一作为通过标准"
+  },
+  {
+    "id": "B10",
+    "purpose": "曾突破分支目标等P",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "98",
+        "high": "99",
+        "low": "95",
+        "close": "96",
+        "volume": "1000"
+      },
+      {
+        "session": "S2",
+        "open": "99",
+        "high": "102",
+        "low": "98",
+        "close": "101",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "101",
+        "high": "102",
+        "low": "99",
+        "close": "100",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "P_frozen": "100",
+      "first_break": "S2"
+    },
+    "expected": {
+      "prior_break": true,
+      "current_relation": "equal",
+      "close_above_P": false,
+      "first_break_on_T": false
+    }
+  },
+  {
+    "id": "B11",
+    "purpose": "L等P分母零",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "100",
+        "high": "100",
+        "low": "100",
+        "close": "100",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "100",
+        "high": "100",
+        "low": "100",
+        "close": "100",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "100",
+        "high": "100",
+        "low": "100",
+        "close": "100",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "P_frozen": "100",
+      "L_setup_candidate": "100",
+      "q": "0.05"
+    },
+    "expected": {
+      "drawdown": "0",
+      "qualified_pullback": false,
+      "recovery_ratio": null,
+      "close_above_P": false
+    }
+  },
+  {
+    "id": "B12",
+    "purpose": "盘中越P但收盘未过",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "98",
+        "high": "99",
+        "low": "94",
+        "close": "95",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "98",
+        "high": "103",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "P_frozen": "100",
+      "no_prior_close_break": true
+    },
+    "expected": {
+      "intraday_above_P": true,
+      "close_above_P": false,
+      "first_break_on_T": false
+    }
+  },
+  {
+    "id": "B13",
+    "purpose": "最近锚点浅回调是否递归",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "95",
+        "high": "100",
+        "low": "94",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "98",
+        "high": "99",
+        "low": "90",
+        "close": "92",
+        "volume": "1000"
+      },
+      {
+        "session": "S2",
+        "open": "95",
+        "high": "98",
+        "low": "94",
+        "close": "97",
+        "volume": "1000"
+      },
+      {
+        "session": "S3",
+        "open": "97",
+        "high": "99",
+        "low": "94",
+        "close": "96",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "firstboard_dates": [
+        "S0",
+        "S2"
+      ],
+      "nearest_anchor": "S2",
+      "older_anchor": "S0",
+      "q": "0.05",
+      "price_basis": "synthetic same scale",
+      "firstboard_membership": "外部显式提供，非由这组OHLC推导"
+    },
+    "expected_by_candidate": {
+      "recurse_on_shallow": {
+        "nearest_depth": "0.04081632653061224489795918367",
+        "action": "continue",
+        "selected_anchor": "S0",
+        "nearest_state": "shallow_pullback"
+      },
+      "nearest_only": {
+        "selected_anchor": "S2",
+        "state": "shallow_pullback"
+      }
+    },
+    "decision": "递归政策待定；现行浅回调继续回溯作对照"
+  },
+  {
+    "id": "B14",
+    "purpose": "T−1路径与T日事件分离",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "98",
+        "high": "99",
+        "low": "90",
+        "close": "92",
+        "volume": "1000"
+      },
+      {
+        "session": "T-1",
+        "open": "93",
+        "high": "97",
+        "low": "92",
+        "close": "96",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "98",
+        "high": "103",
+        "low": "97",
+        "close": "102",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "P_frozen": "100",
+      "L_setup": "90",
+      "recovery_definition": "仅验证是否离开低点，不认证有效回攻"
+    },
+    "expected": {
+      "path_state_T_minus_1": "left_low_below_P",
+      "break_event_T": {
+        "prior_break": false,
+        "first_break_on_T": true,
+        "current_relation": "above"
+      }
+    }
+  },
+  {
+    "id": "B15",
+    "purpose": "T−1路径与T日事件分离",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "98",
+        "high": "99",
+        "low": "94",
+        "close": "95",
+        "volume": "1000"
+      },
+      {
+        "session": "T-1",
+        "open": "94",
+        "high": "95",
+        "low": "90",
+        "close": "90",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "95",
+        "high": "103",
+        "low": "94",
+        "close": "102",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "P_frozen": "100",
+      "L_setup": "90",
+      "recovery_definition": "仅验证是否离开低点，不认证有效回攻"
+    },
+    "expected": {
+      "path_state_T_minus_1": "at_low",
+      "break_event_T": {
+        "prior_break": false,
+        "first_break_on_T": true,
+        "current_relation": "above"
+      }
+    }
+  },
+  {
+    "id": "B16",
+    "purpose": "T−1路径与T日事件分离",
+    "rows": [
+      {
+        "session": "S0",
+        "open": "98",
+        "high": "100",
+        "low": "97",
+        "close": "99",
+        "volume": "1000"
+      },
+      {
+        "session": "S1",
+        "open": "98",
+        "high": "99",
+        "low": "90",
+        "close": "92",
+        "volume": "1000"
+      },
+      {
+        "session": "S2",
+        "open": "98",
+        "high": "103",
+        "low": "97",
+        "close": "102",
+        "volume": "1000"
+      },
+      {
+        "session": "T-1",
+        "open": "101",
+        "high": "102",
+        "low": "99",
+        "close": "100",
+        "volume": "1000"
+      },
+      {
+        "session": "T",
+        "open": "99",
+        "high": "100",
+        "low": "97",
+        "close": "98",
+        "volume": "1000"
+      }
+    ],
+    "context": {
+      "P_frozen": "100",
+      "L_setup": "90",
+      "recovery_definition": "仅验证是否离开低点，不认证有效回攻"
+    },
+    "expected": {
+      "path_state_T_minus_1": "prior_close_break",
+      "break_event_T": {
+        "prior_break": true,
+        "first_break_on_T": false,
+        "current_relation": "below"
+      }
+    }
+  }
+]

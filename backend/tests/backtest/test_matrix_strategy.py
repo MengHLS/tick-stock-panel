@@ -21,7 +21,7 @@ from app.backtest.matrix import (
     apply_time_masks,
     build_market_data_matrix,
     build_matrix_score,
-    load_market_data_matrix_from_parquet,
+    load_market_data_matrix_from_parquet as _load_matrix_real,
     make_signal_matrix,
     matrix_feature,
     slice_signal_matrix,
@@ -45,6 +45,22 @@ def _migrated_signal_definitions(monkeypatch):
     """注入迁移自内置的信号定义 (信号列定义驱动, 不依赖运行目录)。"""
     from tests.signal_seeds import install_pipeline_caches
     install_pipeline_caches(monkeypatch)
+
+
+
+
+def _load_matrix(parquet_root, start, end, **kwargs):
+    """测试包装: 显式给出来源根, 并按临时夹具声明合成来源令牌。"""
+    kwargs.setdefault("data_dir", Path(parquet_root).parent)
+    return _load_matrix_real(parquet_root, start, end, **kwargs)
+
+
+@pytest.fixture(autouse=True)
+def _synthetic_quality_token(monkeypatch):
+    monkeypatch.setattr(
+        "app.indicators.price_quality.require_active_token",
+        lambda *args, **kwargs: {"generation": "synthetic", "stamp_sha256": "synthetic"},
+    )
 
 
 def test_common_matrix_features_match_polars_indicator_pipeline():
@@ -366,7 +382,7 @@ def test_direct_parquet_matrix_reports_actionable_error_when_enriched_is_empty(t
     market_root.mkdir()
 
     with pytest.raises(ValueError, match="本地指标数据为空"):
-        load_market_data_matrix_from_parquet(
+        _load_matrix(
             market_root,
             date(2024, 1, 1),
             date(2024, 1, 31),
@@ -435,7 +451,7 @@ def test_direct_parquet_matrix_matches_panel_builder_and_reuses_mmap(tmp_path):
     }
     expected = build_market_data_matrix(enriched, field_columns=field_columns)
     cache_root = tmp_path / "matrix_cache"
-    actual = load_market_data_matrix_from_parquet(
+    actual = _load_matrix(
         market_root,
         days[0],
         days[-1],
@@ -464,7 +480,7 @@ def test_direct_parquet_matrix_matches_panel_builder_and_reuses_mmap(tmp_path):
     for name in field_columns:
         np.testing.assert_array_equal(actual.field(name), expected.field(name))
 
-    cached = load_market_data_matrix_from_parquet(
+    cached = _load_matrix(
         market_root,
         days[0],
         days[-1],
@@ -485,7 +501,7 @@ def test_direct_parquet_matrix_matches_panel_builder_and_reuses_mmap(tmp_path):
         .alias("close")
     )
     latest.write_parquet(latest_path)
-    refreshed = load_market_data_matrix_from_parquet(
+    refreshed = _load_matrix(
         market_root,
         days[0],
         days[-1],
@@ -592,7 +608,7 @@ def test_matrix_cold_build_reports_axis_scan_breakdown(tmp_path, caplog):
     }).write_parquet(partition / "part.parquet")
 
     with caplog.at_level(logging.INFO, logger=matrix_module.__name__):
-        market = load_market_data_matrix_from_parquet(
+        market = _load_matrix(
             root, day, day, field_columns=set(), cache_root=tmp_path / "cache",
         )
 
@@ -630,7 +646,7 @@ def test_covering_matrix_cache_reuses_wider_dates_and_fields(tmp_path):
         "name": ["A", "B"],
     })
     cache_root = tmp_path / "matrix_cache"
-    broad = load_market_data_matrix_from_parquet(
+    broad = _load_matrix(
         market_root,
         days[0],
         days[-1],
@@ -638,7 +654,7 @@ def test_covering_matrix_cache_reuses_wider_dates_and_fields(tmp_path):
         instruments=instruments,
         cache_root=cache_root,
     )
-    narrow = load_market_data_matrix_from_parquet(
+    narrow = _load_matrix(
         market_root,
         days[1],
         days[2],
@@ -674,7 +690,7 @@ def test_covering_cache_ignores_outside_slice_change_but_invalidates_inside(tmp_
         }).write_parquet(partition / "part.parquet")
     instruments = pl.DataFrame({"symbol": ["000001.SZ"], "name": ["A"]})
     cache_root = tmp_path / "matrix_cache"
-    load_market_data_matrix_from_parquet(
+    _load_matrix(
         market_root,
         days[0],
         days[-1],
@@ -687,7 +703,7 @@ def test_covering_cache_ignores_outside_slice_change_but_invalidates_inside(tmp_
     pl.read_parquet(outside_path).with_columns(pl.lit(99.0).alias("close")).write_parquet(
         outside_path
     )
-    outside = load_market_data_matrix_from_parquet(
+    outside = _load_matrix(
         market_root,
         days[1],
         days[2],
@@ -701,7 +717,7 @@ def test_covering_cache_ignores_outside_slice_change_but_invalidates_inside(tmp_
     pl.read_parquet(inside_path).with_columns(pl.lit(77.0).alias("close")).write_parquet(
         inside_path
     )
-    inside = load_market_data_matrix_from_parquet(
+    inside = _load_matrix(
         market_root,
         days[1],
         days[2],
@@ -728,7 +744,7 @@ def test_matrix_cache_can_be_disabled(tmp_path):
         "volume": [1_000.0],
     }).write_parquet(partition / "part.parquet")
 
-    market = load_market_data_matrix_from_parquet(
+    market = _load_matrix(
         market_root,
         current,
         current,
@@ -767,7 +783,7 @@ def test_matrix_cache_cancellation_removes_staging_output(tmp_path, monkeypatch)
         matrix_module.MatrixPrewarmCancelledError,
         match="prewarm cancelled",
     ):
-        load_market_data_matrix_from_parquet(
+        _load_matrix(
             market_root,
             current,
             current,
@@ -785,8 +801,8 @@ def test_matrix_cache_can_be_cancelled_before_scan(tmp_path):
     cancel_event.set()
 
     with pytest.raises(matrix_module.MatrixPrewarmCancelledError):
-        load_market_data_matrix_from_parquet(
-            tmp_path / "missing",
+        _load_matrix(
+            tmp_path / "kline_daily_enriched",
             date(2024, 3, 1),
             date(2024, 3, 1),
             field_columns=set(),
@@ -814,7 +830,7 @@ def test_matrix_cache_prunes_by_bytes_and_leaves_no_staging_directory(tmp_path):
 
     cache_root = tmp_path / "matrix_cache"
     write_close(10.0)
-    first = load_market_data_matrix_from_parquet(
+    first = _load_matrix(
         market_root,
         current,
         current,
@@ -823,7 +839,7 @@ def test_matrix_cache_prunes_by_bytes_and_leaves_no_staging_directory(tmp_path):
         cache_max_bytes=1,
     )
     write_close(11.0)
-    second = load_market_data_matrix_from_parquet(
+    second = _load_matrix(
         market_root,
         current,
         current,
@@ -857,7 +873,7 @@ def test_managed_source_generation_skips_file_walk_and_invalidates_explicitly(tm
     }).write_parquet(partition / "part.parquet")
     cache_root = tmp_path / "matrix_cache"
 
-    first = load_market_data_matrix_from_parquet(
+    first = _load_matrix(
         market_root,
         current,
         current,
@@ -865,7 +881,7 @@ def test_managed_source_generation_skips_file_walk_and_invalidates_explicitly(tm
         cache_root=cache_root,
         source_generation="generation-a",
     )
-    repeated = load_market_data_matrix_from_parquet(
+    repeated = _load_matrix(
         market_root,
         current,
         current,
@@ -873,7 +889,7 @@ def test_managed_source_generation_skips_file_walk_and_invalidates_explicitly(tm
         cache_root=cache_root,
         source_generation="generation-a",
     )
-    changed = load_market_data_matrix_from_parquet(
+    changed = _load_matrix(
         market_root,
         current,
         current,

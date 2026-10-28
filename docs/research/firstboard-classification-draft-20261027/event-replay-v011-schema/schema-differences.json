@@ -1,0 +1,4322 @@
+[
+  {
+    "row_index": 2,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 2,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 2,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 2,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 2,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 2,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 3,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 3,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 3,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 3,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 3,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 3,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 6,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 6,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 6,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 6,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 6,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 6,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 7,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 7,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 7,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 7,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 7,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 7,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 10,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 10,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 10,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 10,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 10,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 10,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 11,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 11,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 11,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 11,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 11,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 11,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 14,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 14,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 14,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 14,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 14,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 14,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 15,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 15,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 15,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 15,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 15,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 15,
+    "event_id": "000810.SZ@2026-07-10",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 18,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 18,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 18,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 18,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 18,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 18,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 19,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 19,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 19,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 19,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 19,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 19,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 22,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 22,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 22,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 22,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 22,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 22,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 23,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 23,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 23,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 23,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 23,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 23,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 26,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 26,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 26,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 26,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 26,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 26,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 27,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 27,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 27,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 27,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 27,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 27,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 30,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 30,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 30,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 30,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 30,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 30,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 31,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 31,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 31,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 31,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 31,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 31,
+    "event_id": "000810.SZ@2026-10-23",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 104,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 104,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 104,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 104,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 104,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 104,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 105,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 105,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 105,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 106,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 106,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 106,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 106,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 106,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 106,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 107,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 107,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 107,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 108,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 108,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 108,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 108,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 108,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 108,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 109,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 109,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 109,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 110,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 110,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 110,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 110,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 110,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 110,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 111,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 111,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 111,
+    "event_id": "002354.SZ@2026-06-24",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 114,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 114,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 114,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 114,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 114,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 114,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 115,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 115,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 115,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 118,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 118,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 118,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 118,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 118,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 118,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 119,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 119,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 119,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 122,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 122,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 122,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 122,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 122,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 122,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 123,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 123,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 123,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 123,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 123,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 123,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 126,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 126,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 126,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 126,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 126,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 126,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 127,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 127,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 127,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 127,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 127,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 127,
+    "event_id": "002354.SZ@2026-06-26",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 128,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 128,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 128,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 128,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 128,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 128,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 129,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 129,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 129,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 130,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 130,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 130,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 130,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 130,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 130,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 131,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 131,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 131,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 131,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 131,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 131,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 132,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 132,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 132,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 132,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 132,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 132,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 133,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 133,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 133,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 134,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 134,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 134,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 134,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 134,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 134,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 135,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 135,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 135,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 135,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 135,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 135,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 136,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 136,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 136,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 136,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 136,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 136,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 137,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 137,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 137,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 138,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 138,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 138,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 138,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 138,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 138,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[2].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[2].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 139,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[2].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 140,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 140,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 140,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 140,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 140,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 140,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 141,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 141,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 141,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 142,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 142,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 142,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 142,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 142,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 142,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_FIRST_DECLINE_BEFORE_D"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[2].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[2].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 143,
+    "event_id": "002354.SZ@2026-07-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[2].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 146,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 146,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 146,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 146,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 146,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 146,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 147,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 147,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 147,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 150,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 150,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 150,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 150,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 150,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 150,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 151,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 151,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 151,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 154,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 154,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 154,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 154,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 154,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 154,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 155,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 155,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 155,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 158,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 158,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 158,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 158,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 158,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 158,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 159,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 159,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 159,
+    "event_id": "002354.SZ@2026-07-31",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 242,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 242,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 242,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 242,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 242,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 242,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 243,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 243,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 243,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 246,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 246,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 246,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 246,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 246,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 246,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 247,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 247,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 247,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 250,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 250,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 250,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 250,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 250,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 250,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 251,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 251,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 251,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 254,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 254,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 254,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 254,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 254,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 254,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 255,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 255,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 255,
+    "event_id": "002687.SZ@2026-08-11",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 290,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 290,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 290,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 290,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 290,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 290,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 291,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 291,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 291,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 294,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 294,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 294,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 294,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 294,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 294,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 295,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 295,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 295,
+    "event_id": "600785.SH@2026-01-14",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 322,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 322,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 322,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 322,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 322,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 322,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 323,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 323,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 323,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 326,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 326,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 326,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 326,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 326,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 326,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 327,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 327,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 327,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 328,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 328,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 328,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 328,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 328,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 328,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 329,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 329,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 329,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 330,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 330,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 330,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 330,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 330,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 330,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 331,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 331,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 331,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 332,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 332,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 332,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 332,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 332,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 332,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 333,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 333,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 333,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G0_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 334,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 334,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 334,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 334,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 334,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 334,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 335,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 335,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 335,
+    "event_id": "600785.SH@2026-02-02",
+    "rule": "PB_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "NO_PREBREAK_SETUP_LOW"
+  },
+  {
+    "row_index": 386,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 386,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 386,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 386,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 386,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 386,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 387,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 387,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 387,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 390,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 390,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 390,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 390,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 390,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 390,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 391,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 391,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 391,
+    "event_id": "600785.SH@2026-09-07",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 402,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 402,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 402,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 402,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 402,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 402,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 403,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 403,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 403,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 403,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 403,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 403,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 406,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 406,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 406,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 406,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 406,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 406,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 407,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 407,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 407,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 407,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 407,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 407,
+    "event_id": "600785.SH@2026-09-21",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 418,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 418,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 418,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 418,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 418,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 418,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[2].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[2].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 419,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.03_G1_R1",
+    "path": "classification.trace[2].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 422,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 422,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 422,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.selected.recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 422,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 422,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 422,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R0",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[0].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[1].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[2].depth",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[2].recovery_raw",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  },
+  {
+    "row_index": 423,
+    "event_id": "600785.SH@2026-10-23",
+    "rule": "PA_q0.05_G1_R1",
+    "path": "classification.trace[2].recovery_applicable",
+    "before": "KEY_ABSENT",
+    "after": null,
+    "reason_code": "POST_ANCHOR_HIGH_REQUIREMENT_FAILED"
+  }
+]

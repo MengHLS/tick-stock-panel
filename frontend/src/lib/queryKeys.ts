@@ -72,6 +72,11 @@ export const QK = {
   guardianOverview:     ['backtest-guardian-overview'] as const,
   guardianRuns:         ['backtest-guardian-runs'] as const,
   labReport:            ['backtest-lab-report'] as const,
+  /** 已保存策略回测结果摘要列表 (page 从 1 开始) */
+  savedStrategyResults: (page: number, pageSize: number) =>
+                          ['backtest-saved-results', page, pageSize] as const,
+  /** 已保存结果完整快照; 以 saved_id 为键, 不污染当前任务缓存 */
+  savedStrategyResult:  (savedId: string) => ['backtest-saved-result', savedId] as const,
   researchCandidates:  ['research-candidates'] as const,
   strategyLinkOptions: (assetType?: 'stock' | 'etf') => assetType
     ? ['strategy-link-options', assetType] as const

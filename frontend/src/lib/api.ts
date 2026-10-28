@@ -866,6 +866,32 @@ export interface StrategyDetail {
   trailing_take_profit_activate: number | null
   trailing_take_profit_drawdown: number | null
   max_hold_days: number | null
+  backtest_defaults?: {
+    initial_capital?: number
+    max_positions?: number
+    max_exposure_pct?: number
+    commission_pct?: number
+    stamp_tax_pct?: number
+    slippage_bps?: number
+    mode?: 'position' | 'full'
+    holding_days?: number
+    position_sizing?: 'equal' | 'score_weight' | 'score_tier'
+    score_tiers?: [number, number][]
+    plan_at_signal_close?: boolean
+    max_daily_entries?: number
+    entry_price_basis?: 'adjusted' | 'raw'
+    block_limit_open?: boolean
+    /** 成交口径 (策略默认): 买卖均在信号后次日开盘 / 信号日收盘 */
+    entry_fill?: 'close_t' | 'open_t+1'
+    exit_fill?: 'close_t' | 'open_t+1' | 'signal_next_minute'
+    /** 旧字段: 买卖未分别声明时的兼容口径 */
+    matching?: 'close_t' | 'open_t+1'
+    execution_costs?: {
+      min_commission?: number
+      transfer_fee_pct?: number
+      buy_slippage_tiers?: [number, number][]
+    }
+  }
   display_limit?: number
   order_by: string
   descending: boolean
@@ -1903,6 +1929,67 @@ export interface StrategyBacktestResult {
   }
   elapsed_ms: number
   error: string | null
+}
+
+// ===== 已保存策略回测结果 =====
+
+/** 历史结果列表项: 只含摘要, 不含交易与曲线 */
+export interface SavedStrategyBacktestSummary {
+  schema_version?: number
+  saved_id: string
+  run_id: string
+  name: string | null
+  strategy_id: string | null
+  strategy_name: string | null
+  start: string | null
+  end: string | null
+  mode: string | null
+  asset_type?: string | null
+  n_trades: number | null
+  total_return: number | null
+  annual_return?: number | null
+  max_drawdown?: number | null
+  sharpe?: number | null
+  win_rate?: number | null
+  /** 结果完成时间 (ISO 8601) */
+  completed_at: string
+  /** 保存时间 (ISO 8601) */
+  saved_at: string
+}
+
+/** 打开保存结果: 返回保存时的完整记录快照, 不触发重新计算 */
+export interface SavedStrategyBacktestDetail {
+  schema_version: number
+  saved_id: string
+  run_id: string
+  /** 保存时未命名则为 null, 展示端需自行回退到策略名/未命名 */
+  name: string | null
+  /** 结果完成时间 (ISO 8601) */
+  completed_at: string
+  /** 保存时间 (ISO 8601) */
+  saved_at: string
+  meta: {
+    strategy_id: string | null
+    strategy_name: string | null
+    start: string | null
+    end: string | null
+    mode: string | null
+    asset_type: string | null
+  }
+  /** 运行时可取得的版本/数据信息; 缺失为 null (未冻结) */
+  provenance?: Record<string, any> | null
+  result: StrategyBacktestResult
+}
+
+/** 历史结果列表 (page 从 1 开始) */
+export interface SavedStrategyBacktestList {
+  items: SavedStrategyBacktestSummary[]
+  page: number
+  page_size: number
+  total: number
+  has_more: boolean
+  /** 损坏或版本不支持而被跳过的记录数 */
+  skipped: number
 }
 
 // ===== Settings =====
@@ -3628,13 +3715,34 @@ export const api = {
     slippage_bps?: number
     max_positions?: number
     initial_capital?: number
-    position_sizing?: 'equal' | 'score_weight'
+    position_sizing?: 'equal' | 'score_weight' | 'score_tier'
     asset_type?: 'stock' | 'etf' | 'index'
     minute_fill?: boolean
   }) =>
     request<StrategyBacktestResult>('/api/backtest/strategy/run', {
       method: 'POST',
       body: JSON.stringify(payload),
+    }),
+
+  /** 保存一次已完成回测的运行结果 (只传 run_id, 结果由服务端取, 不接受浏览器提交的交易) */
+  saveStrategyBacktestResult: (payload: { run_id: string; name?: string | null }) =>
+    request<SavedStrategyBacktestSummary>('/api/backtest/strategy/results', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  /** 历史结果摘要列表 (分页, page 从 1 开始) */
+  savedStrategyBacktestResults: (page = 1, pageSize = 20) =>
+    request<SavedStrategyBacktestList>(
+      `/api/backtest/strategy/results?page=${page}&page_size=${pageSize}`,
+    ),
+  /** 打开历史结果: 直接返回保存时的完整快照, 不调用回测引擎 */
+  savedStrategyBacktestResult: (savedId: string) =>
+    request<SavedStrategyBacktestDetail>(
+      `/api/backtest/strategy/results/${encodeURIComponent(savedId)}`,
+    ),
+  deleteSavedStrategyBacktestResult: (savedId: string) =>
+    request<{ ok: boolean }>(`/api/backtest/strategy/results/${encodeURIComponent(savedId)}`, {
+      method: 'DELETE',
     }),
 
   pipelineRun: () => request<{ job_id: string; reused: boolean }>(

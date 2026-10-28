@@ -8,6 +8,7 @@ from app.backtest.matrix import (
     SignalMatrix,
     build_matrix_score,
     make_signal_matrix,
+    matrix_feature,
 )
 
 META = {
@@ -115,6 +116,10 @@ class FactorRankResearchMatrixStrategy:
             raise ValueError("exit_score must not exceed entry_score")
 
         universe = np.isfinite(market.close)
+        # Missing event observations are not a bearish score. Only evaluate
+        # entry/exit thresholds when every scoring input is observable today.
+        for name in scoring:
+            universe &= np.isfinite(matrix_feature(market, name))
         score = build_matrix_score(
             market,
             universe,

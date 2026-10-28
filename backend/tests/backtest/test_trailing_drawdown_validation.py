@@ -1,12 +1,10 @@
-"""回归: 移动止盈「回撤 > 激活涨幅」时显式报错, 不再静默钳制。
-
-用户 bug 报告②: 旧实现用 min(drawdown, activate) 把用户填的回撤值静默改写为
-激活值, 配置"不生效"且无任何提示。修复后该组合直接报错, 用户需调整参数。
-"""
+"""Activation and peak drawdown are independent risk thresholds."""
 from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
+
+import pytest
 
 from app.backtest.engine import BacktestEngine
 from app.backtest.strategy import StrategyBacktestConfig, StrategyBacktestService
@@ -35,12 +33,20 @@ def _config(activate, drawdown) -> StrategyBacktestConfig:
     )
 
 
-def test_drawdown_greater_than_activate_errors():
-    """回撤(10%) > 激活(5%) → 报错并点名两参数, 而非静默按 5% 跑。"""
-    result = _service().run(_config(0.05, 0.10))
-    assert result.error
-    assert "移动止盈回撤" in result.error
-    assert "激活涨幅" in result.error
+@pytest.mark.parametrize(("activate", "drawdown"), [(0.03, 0.08), (0.05, 0.10), (0.10, 0.05)])
+def test_independent_thresholds_pass_validation(monkeypatch, activate, drawdown):
+    service = _service()
+
+    class DataLoadReachedError(Exception):
+        pass
+
+    def load(*args, **kwargs):
+        raise DataLoadReachedError
+
+    monkeypatch.setattr(service.engine, "load_panel_for_backtest", load)
+    monkeypatch.setattr(service.engine, "load_market_data_matrix_for_backtest", load)
+    with pytest.raises(DataLoadReachedError):
+        service.run(_config(activate, drawdown))
 
 
 def test_drawdown_not_greater_than_activate_passes_validation():

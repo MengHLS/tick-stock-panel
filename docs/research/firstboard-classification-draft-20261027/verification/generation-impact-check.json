@@ -1,0 +1,33 @@
+{
+  "generated": "2026-10-28T18:42:39",
+  "generation_marker": {
+    "state": "ready",
+    "generation": "449e60cbb0dc442781cb5d3745416ab5",
+    "updated_at_ns": 1793183131027413900
+  },
+  "question": "does the current enriched panel still equal the frozen replay inputs",
+  "results": {
+    "shape-selection-paths.csv": {
+      "rows": 22642,
+      "symbols": 53,
+      "panel_rows_compared": 22642,
+      "missing_in_panel": 0,
+      "mismatches": 0,
+      "mismatch_details": []
+    },
+    "four-case-paths.csv": {
+      "rows": 2952,
+      "symbols": 4,
+      "panel_rows_compared": 2952,
+      "missing_in_panel": 0,
+      "mismatches": 0,
+      "mismatch_details": []
+    }
+  },
+  "conclusion": "verified equal on every covered row; the generation change has no value-level effect inside the replay window, so the 27-event results stay reproducible",
+  "limits": [
+    "proves current == frozen, not pre-rewrite == frozen",
+    "the rewritten 2026-10-27/28 partitions are outside the replay cutoff and are not assessed",
+    "only the columns the replay reads are compared"
+  ]
+}

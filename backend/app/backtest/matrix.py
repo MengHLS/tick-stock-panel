@@ -28,6 +28,17 @@ import pyarrow.dataset as pads
 
 from app.backtest.minute_trigger import build_minute_exit_reference
 from app.backtest.numba_runtime import run_numba_parallel
+from app.factors.event_chain import (
+    DEFAULT_LOOKBACK_BARS as FIRST_BOARD_CHAIN_LOOKBACK_BARS,
+)
+from app.factors.event_chain import (
+    DEFAULT_MIN_PULLBACK_PCT as FIRST_BOARD_CHAIN_MIN_PULLBACK_PCT,
+)
+from app.factors.event_chain import (
+    EVENT_CHAIN_FIELDS,
+    EventChainConfig,
+    compute_event_chain_outputs,
+)
 from app.price_limits import (
     MAIN_BOARD_ST_LIMIT_CHANGE_DATE,
     numpy_limit_pct_vectors,
@@ -554,6 +565,12 @@ class MarketMatrix:
     # 逐格入场价覆盖 (time x asset, NaN=回退 open/close 惯例)。分钟策略回测用:
     # 信号在盘中第 m 根触发, 入场价 = 触发分钟收盘价, 而非当日开盘/收盘。
     entry_price: np.ndarray | None = None
+    source_entry: np.ndarray | None = None
+    source_exit: np.ndarray | None = None
+    raw_close: np.ndarray | None = None
+    raw_open: np.ndarray | None = None
+    price_limit_pct: np.ndarray | None = None
+    amount: np.ndarray | None = None
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -693,8 +710,27 @@ def load_market_data_matrix_from_parquet(
     cache_max_bytes: int = _MATRIX_DISK_CACHE_DEFAULT_MAX_BYTES,
     profile_generation: str = "default",
     source_generation: str | None = None,
+    data_dir: Path | None = None,
+    asset_type: str = "stock",
     cancel_event: threading.Event | None = None,
 ) -> MarketDataMatrix:
+
+    from app.indicators.price_quality import require_active_token
+    from app.tickflow.repository import enriched_dirname
+
+    if data_dir is None:
+        raise ValueError(
+            "矩阵磁盘加载必须提供明确的数据根与资产类型（用于复权认证），"
+            "不能用父目录推测或跳过认证"
+        )
+    quality_root = Path(data_dir).resolve()
+    expected_root = (quality_root / enriched_dirname(asset_type)).resolve()
+    if Path(parquet_root).resolve() != expected_root:
+        raise ValueError(
+            "矩阵目录不属于该认证数据根的 enriched 根，拒绝读取"
+        )
+    require_active_token(quality_root, asset_type)
+
     """Load a daily market matrix, reusing a covering read-only mmap when possible."""
     _raise_if_matrix_cancelled(cancel_event)
     if start > end:
@@ -2404,6 +2440,16 @@ def build_market_matrix_from_signals(
         entry_signal_code,
         exit_signal_code,
     )
+    raw_close = market.fields.get("raw_close")
+    raw_open = None
+    if raw_close is not None:
+        # Daily equity quotes have a one-cent tick. Undo the same-day price
+        # adjustment using the stored raw close, without crossing price bases.
+        with np.errstate(divide="ignore", invalid="ignore"):
+            raw_open = np.round(
+                market.open.astype(np.float64) * raw_close / market.close, 2,
+            )
+        _make_read_only(raw_open)
 
     return MarketMatrix(
         timestamps=market.timestamps,
@@ -2434,6 +2480,12 @@ def build_market_matrix_from_signals(
             if entry_price_override is not None
             else None
         ),
+        source_entry=signals.entry,
+        source_exit=signals.exit,
+        raw_close=raw_close,
+        raw_open=raw_open,
+        price_limit_pct=market.fields.get("price_limit_pct"),
+        amount=market.fields.get("amount"),
     )
 
 
@@ -2453,7 +2505,7 @@ def build_market_matrix(
         raise ValueError("cannot build MarketMatrix from an empty panel")
     market = build_market_data_matrix(
         panel,
-        field_columns={"score", "ma5", "ma10", "ma20"},
+        field_columns={"score", "ma5", "ma10", "ma20", "raw_close", "price_limit_pct", "amount"},
     )
     _, _, _, time_id, asset_id = _encode_axes(panel)
     shape = market.shape
@@ -3588,6 +3640,24 @@ class MatrixStrategyPipeline:
                 fallback=signals.score,
                 directions=config.scoring_directions,
             )
+            candidate_limit = getattr(strategy, "daily_candidate_limit", None)
+            if callable(candidate_limit):
+                limit = candidate_limit(params)
+                if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
+                    raise ValueError("daily_candidate_limit must return a positive integer")
+                # Apply universe gates before ranking so excluded assets do not
+                # consume the strategy's daily candidate slots.
+                for time_id in range(market.shape[0]):
+                    candidates = np.flatnonzero(entry[time_id])
+                    ranked = sorted(
+                        candidates,
+                        key=lambda asset_id: (
+                            -float(score[time_id, asset_id]),
+                            market.symbols[asset_id],
+                        ),
+                    )
+                    entry[time_id, ranked[limit:]] = 0
+                score = np.where(entry != 0, score, np.float32(0.0))
             entry_codes = np.where(entry != 0, signals.entry_signal_code, -1).astype(np.int16)
             exit_codes = np.where(signals.exit != 0, signals.exit_signal_code, -1).astype(np.int16)
         if timing_ms is not None:
@@ -3807,6 +3877,7 @@ _MATRIX_COMPUTED_FEATURES = frozenset({
     "vol_regime_5_60", "amplitude_trend_20_60", "obv_trend_20d",
     "amount_mean_20d", "turnover_mean_20d", "turnover_std_20d",
     "position_240d", "distance_to_high_240d", "kdj_kd_diff",
+    *EVENT_CHAIN_FIELDS,
 })
 
 
@@ -3824,17 +3895,59 @@ def matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
     )
     if not supported:
         raise ValueError(f"unsupported matrix feature: {name}")
+    cache_inputs = (
+        (
+            market.open,
+            market.high,
+            market.low,
+            market.close,
+            market.field("consecutive_limit_ups"),
+        )
+        if name in EVENT_CHAIN_FIELDS
+        else (market.close,)
+    )
     with _activate_valid_bar_index(market.valid_bars):
         return _cached_matrix_operation(
             "matrix_feature",
-            (market.close,),
+            cache_inputs,
             {"name": name},
             lambda: _compute_matrix_feature(market, name),
         )
 
 
+def compute_matrix_event_chain(
+    market: MarketDataMatrix,
+    *,
+    lookback_bars: int = FIRST_BOARD_CHAIN_LOOKBACK_BARS,
+    min_pullback_pct: float = FIRST_BOARD_CHAIN_MIN_PULLBACK_PCT,
+    require_new_high_after_anchor: bool = True,
+) -> dict[str, np.ndarray]:
+    """Matrix adapter for strategy code; all variants use the shared kernel."""
+    return compute_event_chain_outputs(
+        market.open,
+        market.high,
+        market.low,
+        market.close,
+        market.field("consecutive_limit_ups"),
+        EventChainConfig(
+            lookback_bars=lookback_bars,
+            min_pullback_pct=min_pullback_pct,
+            require_new_high_after_anchor=require_new_high_after_anchor,
+        ),
+    )
+
+
 def _compute_matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
     close_valid = np.isfinite(market.close)
+    if name in EVENT_CHAIN_FIELDS:
+        consecutive = market.field("consecutive_limit_ups")
+        return compute_event_chain_outputs(
+            market.open,
+            market.high,
+            market.low,
+            market.close,
+            consecutive,
+        )[name]
     if name == "prev_close":
         return valid_shift(market.close, 1, close_valid)
     if name == "change_pct":

@@ -19,6 +19,16 @@ from app.backtest.regime_alignment import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _bypass_price_quality(monkeypatch):
+    """合成夹具不经过 enriched 发布; 认证拒绝由专门用例覆盖。"""
+    monkeypatch.setattr(
+        "app.backtest.factor.FactorBacktestService._price_quality_error",
+        lambda self, config: None,
+    )
+
+
+
 class _Engine:
     def __init__(self, panel: pl.DataFrame, data_dir=None) -> None:
         self.panel = panel

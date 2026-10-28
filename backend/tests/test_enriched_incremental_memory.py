@@ -59,7 +59,6 @@ def test_incremental_batches_preserve_values_and_generation(sample, tmp_path, mo
             out = tmp_path / "kline_daily_enriched" / f"date={frame['date'][0]}" / "part.parquet"
             out.parent.mkdir(parents=True)
             frame.write_parquet(out)
-    monkeypatch.setattr(pipeline, "_load_recent_history", lambda *args, **kwargs: pl.DataFrame())
     original_compute = pipeline.compute_enriched
 
     def bounded_compute(frame, **kwargs):
@@ -90,7 +89,6 @@ def test_failed_compute_batch_publishes_no_partial_new_dates(sample, tmp_path, m
         return original_compute(frame, **kwargs)
 
     monkeypatch.setattr(pipeline, "compute_enriched", fail_second)
-    monkeypatch.setattr(pipeline, "_load_recent_history", lambda *args, **kwargs: pl.DataFrame())
     generation = get_enriched_generation(tmp_path)
     with pytest.raises(RuntimeError, match="batch failed"):
         pipeline.run_pipeline(tmp_path, new_dates_only=True)

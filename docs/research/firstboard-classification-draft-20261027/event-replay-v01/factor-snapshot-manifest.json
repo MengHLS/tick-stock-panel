@@ -1,0 +1,11 @@
+{
+  "source_sha256": "5b6e657d956cb8f1635c732761ffe85c68e62179e65cee9d11a753c9e8cca47d",
+  "output_sha256": "957fd9275b8cf5d3121f913ee6665e61d58622484e010564488107e2a5dc7269",
+  "events": 27,
+  "snapshot_times": 54,
+  "factor_records": 756,
+  "version": "factor-sidecar-v01-20261028",
+  "scope": "27 chart-window events; longer data only supplies warmup; no 63-event expansion",
+  "compatibility": "240 and 250 research formulas explicit; not claimed to be registry position_240d implementation until independent comparison",
+  "priority": "this sidecar is authoritative for warmed-up factor comparisons; original event JSON retains earlier short-input snapshot for audit"
+}

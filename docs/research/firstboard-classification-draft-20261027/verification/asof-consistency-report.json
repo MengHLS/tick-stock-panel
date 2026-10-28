@@ -1,0 +1,592 @@
+{
+  "generated": "2026-10-28T17:18:33",
+  "scope": {
+    "kernel": "app.factors.event_chain.compute_event_chain_outputs",
+    "kernel_config": {
+      "lookback_bars": 250,
+      "min_pullback_pct": 0.05,
+      "require_new_high_after_anchor": true
+    },
+    "events": 63,
+    "symbols": [
+      "000810.SZ",
+      "002354.SZ",
+      "002687.SZ",
+      "600785.SH"
+    ],
+    "fields": [
+      "first_board_chain_stage",
+      "first_board_chain_anchor_distance",
+      "first_board_chain_pullback_pct",
+      "first_board_chain_target_above_reference_pct",
+      "first_board_chain_strict_rebreak",
+      "first_board_chain_early_breakout",
+      "first_board_chain_recovered_not_breakout",
+      "first_board_chain_seed_close_preserved",
+      "first_board_chain_seed_low_preserved"
+    ],
+    "perturbation_range": "5 个交易日，位于事件日之后且不含事件日本身",
+    "perturbation_modes": [
+      "future_board",
+      "future_extreme",
+      "future_board_extreme"
+    ],
+    "not_covered": [
+      "new classification rules (P/L/path-state) - event table not delivered at run time",
+      "factor snapshots",
+      "first-board identity / historical ST / board regime",
+      "adjusted-vs-raw basis comparison on this basket (no ex-rights inside these windows)"
+    ]
+  },
+  "inputs": {
+    "data_snapshot": "D:/TSP/data/kline_daily_enriched",
+    "snapshot_upper_date": "2026-10-23",
+    "frozen_files": {
+      "four-case-paths.csv": "5b6e657d956cb8f1635c732761ffe85c68e62179e65cee9d11a753c9e8cca47d",
+      "four-case-events.csv": "fefaedd74f4df8a35363df9b7646a8481c2b197ddc19a11335c9c3fe220bf308",
+      "event_chain.py": "8aa42c52aca07756480190b682386d30064b0bb9d1227d48f8c77fe50154ca06",
+      "verify_asof_consistency.py": "1d790d5aa4a905a42bd20ae608ee1b22c44d4bcdcae80e6be28ba221bacb77b2"
+    },
+    "manifest_hash_checks": {
+      "four-case-paths.csv": true,
+      "four-case-events.csv": true
+    },
+    "row_count_checks": {
+      "four-case-paths.csv": true,
+      "four-case-events.csv": true
+    }
+  },
+  "asof_truncation": {
+    "fields_compared": 567,
+    "mismatches": 0,
+    "per_event": [
+      {
+        "symbol": "000810.SZ",
+        "date": "2023-12-20",
+        "stage_batch": 0,
+        "stage_asof": 0,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-08-15",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-08-22",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-08-26",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-09-30",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-10-16",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-10-22",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2024-12-24",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2025-02-06",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2025-09-09",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2026-07-10",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "000810.SZ",
+        "date": "2026-10-23",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2024-02-08",
+        "stage_batch": 0,
+        "stage_asof": 0,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2024-09-24",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2024-11-06",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2026-06-23",
+        "stage_batch": 0,
+        "stage_asof": 0,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2026-06-29",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2026-07-28",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2026-08-11",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2026-10-08",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002687.SZ",
+        "date": "2026-10-23",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2024-02-19",
+        "stage_batch": 0,
+        "stage_asof": 0,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2024-12-16",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2024-12-26",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2025-02-07",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2025-04-08",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2025-09-11",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-01-14",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-01-29",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-02-02",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-07-15",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-08-21",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-09-01",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-09-07",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-09-21",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "600785.SH",
+        "date": "2026-10-23",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2023-12-19",
+        "stage_batch": 0,
+        "stage_asof": 0,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-01-05",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-02-20",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-08-22",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-09-30",
+        "stage_batch": 1,
+        "stage_asof": 1,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-11-15",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-11-20",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-12-02",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-12-05",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-12-13",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2024-12-17",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2025-01-08",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2025-02-05",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2025-02-10",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2025-04-25",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2025-05-07",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2025-08-07",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-04-29",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-05-18",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-06-05",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-06-18",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-06-24",
+        "stage_batch": 5,
+        "stage_asof": 5,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-06-26",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-07-02",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-07-31",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-08-28",
+        "stage_batch": 4,
+        "stage_asof": 4,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      },
+      {
+        "symbol": "002354.SZ",
+        "date": "2026-10-23",
+        "stage_batch": 3,
+        "stage_asof": 3,
+        "fields_compared": 9,
+        "mismatched_fields": []
+      }
+    ]
+  },
+  "future_perturbation": {
+    "comparisons": 1701,
+    "mismatches": 0,
+    "details": []
+  },
+  "adjusted_vs_raw_coverage": [
+    {
+      "symbol": "000810.SZ",
+      "rows_where_adjusted_differs_from_raw": 0
+    },
+    {
+      "symbol": "002687.SZ",
+      "rows_where_adjusted_differs_from_raw": 0
+    },
+    {
+      "symbol": "600785.SH",
+      "rows_where_adjusted_differs_from_raw": 0
+    },
+    {
+      "symbol": "002354.SZ",
+      "rows_where_adjusted_differs_from_raw": 0
+    }
+  ]
+}

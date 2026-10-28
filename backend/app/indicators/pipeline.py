@@ -20,6 +20,7 @@ import shutil
 import time
 import uuid
 from collections.abc import Callable
+from datetime import date as _date
 from datetime import timedelta as _timedelta
 from pathlib import Path
 
@@ -29,6 +30,12 @@ from app.config import settings
 from app.enriched_generation import (
     EnrichedPublication,
     enriched_publication_incomplete,
+)
+from app.indicators.price_quality import (
+    certify_full_history,
+    invalidate_certification,
+    load_adj_factors_strict,
+    validate_adjusted_scale,
 )
 from app.market_time import cn_today
 from app.parquet import scan_daily_parquet, scan_enriched_parquet, scan_parquet_compat
@@ -1533,6 +1540,9 @@ def run_pipeline(data_dir: Path | None = None,
     读写持续失败, 且停止实时行情 (运行期唯一频繁的写入方) 也无法自愈。
     """
     d = Path(data_dir or settings.data_dir)
+    # 任何发布都会改变受认证内容: 先失效旧证据。增量/局部/实时结束后保持
+    # “待完整验证”, 只有全量+全标的的完整校验才重新签发全局证据。
+    invalidate_certification(d, "stock", reason="enriched 发布开始, 待完整认证")
     publication = EnrichedPublication(
         d, "stock", recover=True, claim_wait_s=_PUBLICATION_CLAIM_WAIT_S,
     )
@@ -1618,7 +1628,7 @@ def _run_pipeline_impl(data_dir: Path | None = None,
             logger.info("增量模式: 无新日期, 无需重算")
             return 0
 
-        # 加载复权因子 (全量,因为所有标的都可能需要)
+        # 严格模式: 缺失/不可读/非法/冲突都终止生成, 不允许静默退化为“不复权”。
         factors = _load_factors(factor_path)
 
         # 2. 为新日期计算 enriched (所有标的)
@@ -1630,20 +1640,12 @@ def _run_pipeline_impl(data_dir: Path | None = None,
                 raw_new = pl.concat([raw_new, scan_daily_parquet(nd / "*.parquet", cast_options=_cast)], how="diagonal_relaxed")
             raw_new = raw_new.sort(["symbol", "date"]).collect(streaming=True)
 
-            # 增量模式: 只算新日期, 但指标需要历史窗口
-            # 读已有 enriched 最近 60 天作为历史前缀
+            # 递归指标 (EMA/MACD 等) 必须从受影响证券的完整原始历史计算后截取,
+            # 不能用 90/120 天窗口近似冒充与全量逐值一致 (也不能复用已复权历史)。
             sym_list = raw_new["symbol"].unique().to_list()
-            hist_df = _load_recent_history(enriched_base, sym_list, days=60)
-
-            # 合并历史 + 新数据
-            if not hist_df.is_empty():
-                # 只取基础行情列做历史前缀
-                hist_cols = [c for c in ["symbol", "date", "open", "high", "low", "close",
-                                         "volume", "amount", "raw_close", "raw_high", "raw_low"]
-                             if c in hist_df.columns]
-                raw_full = pl.concat([hist_df.select(hist_cols), raw_new], how="diagonal_relaxed")
-            else:
-                raw_full = raw_new
+            raw_full = scan_daily_parquet(daily_glob, cast_options=_cast)
+            raw_full = raw_full.filter(pl.col("symbol").is_in(sym_list))
+            raw_full = raw_full.sort(["symbol", "date"]).collect(streaming=True)
 
             enriched_new = _compute_storage_batches(
                 raw_full,
@@ -1661,6 +1663,9 @@ def _run_pipeline_impl(data_dir: Path | None = None,
                 pl.col("date").map_elements(lambda x: x.isoformat(), return_dtype=pl.Utf8).is_in(list(new_date_set))
             )
 
+            # 发布前尺度校验: adjusted/raw 必须与因子推算比例一致, 否则不写盘。
+            validate_adjusted_scale(enriched_new, raw_new, factors)
+
             t_new = _t.perf_counter()
             logger.info("增量计算: %d 个新日期, %d 行, 耗时 %.2fs",
                         len(new_date_dirs), enriched_new.height, t_new - t0)
@@ -1676,7 +1681,7 @@ def _run_pipeline_impl(data_dir: Path | None = None,
                     written += date_df.height
                 t_write_new = _t.perf_counter()
                 logger.info("增量写入: %.2fs, %d 行", t_write_new - t_new, written)
-            del raw_new, hist_df, raw_full, enriched_new
+            del raw_new, raw_full, enriched_new
 
         # 3. 受除权因子影响的个股: 重算全部已有日期 (累积因子链变了)
         if symbols:
@@ -1694,6 +1699,8 @@ def _run_pipeline_impl(data_dir: Path | None = None,
                     instruments=inst_sym,
                     historical_shares=shares_sym,
                 )
+                # 因子链变化后重算的全部历史同样必须通过尺度校验。
+                validate_adjusted_scale(enriched_sym, raw_sym, factors_sym)
                 for date_df in enriched_sym.partition_by("date"):
                     dt = date_df["date"][0]
                     ds = dt.isoformat() if hasattr(dt, "isoformat") else str(dt)
@@ -1709,6 +1716,8 @@ def _run_pipeline_impl(data_dir: Path | None = None,
                     written += date_df.height
                 logger.info("除权重算: %d 只, 共写入 %d 行", len(sym_set), written)
         publication.commit()
+        # 增量/局部模式不得签发全局证据: 旧证据已在发布前失效, 这里保持待完整验证。
+        logger.info("增量/局部发布完成: 全局认证保持失效, 待全量完整校验")
         t_done = _t.perf_counter()
         logger.info("增量管道完成: %.2fs, %d 行", t_done - t0, written)
         return written
@@ -1743,6 +1752,9 @@ def _run_pipeline_impl(data_dir: Path | None = None,
 
     total_syms = len(all_symbols)
 
+    # 发布证据使用完整因子集 (局部模式下面也会过滤 factors, 不能把子集指纹
+    # 当成整份数据的复权基准)。
+    evidence_factors = factors
     if not factors.is_empty() and symbols:
         factors = factors.filter(pl.col("symbol").is_in(list(sym_set)))
     if not factors.is_empty():
@@ -1768,6 +1780,9 @@ def _run_pipeline_impl(data_dir: Path | None = None,
         _sweep_stale_staging(d)
         staging_dir = d / _STAGING_ROOT / uuid.uuid4().hex
         staging_dir.mkdir(parents=True, exist_ok=True)
+
+    # 全量认证需要每只标的的实际日期范围 (覆盖校验 + 证据)。
+    symbol_dates: dict[str, tuple[_date, _date]] = {}
 
     try:
         for batch_start in range(0, total_syms, SYM_BATCH):
@@ -1803,6 +1818,19 @@ def _run_pipeline_impl(data_dir: Path | None = None,
                 instruments=batch_inst,
                 historical_shares=batch_shares,
             )
+
+            if not enriched.is_empty():
+                # 发布前尺度校验: 本批 adjusted/raw 必须与因子推算一致, 否则不落盘。
+                validate_adjusted_scale(enriched, raw, batch_factors)
+                for symbol, start, end in enriched.group_by("symbol").agg(
+                    pl.col("date").min().alias("start"),
+                    pl.col("date").max().alias("end"),
+                ).iter_rows():
+                    known = symbol_dates.get(symbol)
+                    symbol_dates[symbol] = (
+                        start if known is None else min(known[0], start),
+                        end if known is None else max(known[1], end),
+                    )
 
             if not enriched.is_empty():
                 if symbols:
@@ -1907,6 +1935,13 @@ def _run_pipeline_impl(data_dir: Path | None = None,
             shutil.rmtree(staging_dir, ignore_errors=True)
 
     publication.commit()
+    if not symbols:
+        # 只有全历史+全标的完整校验才签发全局证据; 覆盖未知时保持不可认证。
+        certify_full_history(
+            d, "stock",
+            symbols_with_dates=symbol_dates,
+            factors=evidence_factors,
+        )
     t_done = _t.perf_counter()
     adj_label = "含复权" if not factors.is_empty() else "无复权"
     logger.info("enriched 完成 [%s]: %.2fs, 共 %d 行, %s",
@@ -1915,44 +1950,8 @@ def _run_pipeline_impl(data_dir: Path | None = None,
 
 
 def _load_factors(factor_path: Path) -> pl.DataFrame:
-    """加载复权因子文件。"""
-    if not factor_path.exists():
-        return pl.DataFrame()
-    try:
-        return pl.read_parquet(factor_path)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("复权因子读取失败: %s", e)
-        return pl.DataFrame()
-
-
-def _load_recent_history(enriched_base: Path, symbols: list[str], days: int) -> pl.DataFrame:
-    """从已有 enriched parquet 加载最近 N 天的历史数据(用于增量模式的指标计算窗口)。
-
-    只读基础行情列, 作为指标计算的历史前缀。
-    """
-    from datetime import date, timedelta
-    cutoff = date.today() - timedelta(days=days + 30)  # 多读 30 天余量
-
-    cast_options = pl.ScanCastOptions(integer_cast="allow-float")
-    try:
-        lf = (
-            scan_enriched_parquet(
-                str(enriched_base / "**" / "*.parquet"),
-                cast_options=cast_options,
-            )
-            .filter(
-                (pl.col("symbol").is_in(symbols))
-                & (pl.col("date") >= cutoff)
-            )
-            .sort(["symbol", "date"])
-        )
-        hist_cols = [c for c in ["symbol", "date", "open", "high", "low", "close",
-                                 "volume", "amount", "raw_close", "raw_high", "raw_low"]
-                    if c in lf.schema]
-        return lf.select(hist_cols).collect()
-    except Exception as e:  # noqa: BLE001
-        logger.warning("历史数据加载失败: %s", e)
-        return pl.DataFrame()
+    """严格加载复权因子; 任何不可用状态都抛 FactorDataError 中止生成。"""
+    return load_adj_factors_strict(factor_path)
 
 
 def compute_enriched_single(daily_for_symbol: pl.DataFrame) -> pl.DataFrame:

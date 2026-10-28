@@ -598,6 +598,14 @@ def test_pipeline_self_heals_snapshot_day(tmp_path, monkeypatch):
     _write_full_partition(tmp_path, "kline_daily", today, _ts_ms(today, time(10, 0)))
     _write_full_partition(tmp_path, "kline_daily_enriched", yesterday, _ts_ms(yesterday, time(11, 58)))
     _write_full_partition(tmp_path, "kline_daily_enriched", today, _ts_ms(today, time(10, 0)))
+    # 复权因子是 enriched 生成的前置输入 (缺失时管道 fail-closed); 本场景无事件。
+    factor_path = tmp_path / "adj_factor" / "all.parquet"
+    factor_path.parent.mkdir(parents=True, exist_ok=True)
+    pl.DataFrame({
+        "symbol": ["999999.SZ"],
+        "trade_date": [date(2020, 1, 2)],
+        "ex_factor": [1.0],
+    }).write_parquet(factor_path)
 
     # 网络函数离线化: 维表同步 + 日K batch 拉取(记录参数)
     monkeypatch.setattr(instrument_sync, "sync_instruments", lambda data_dir: 0)

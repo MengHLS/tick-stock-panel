@@ -148,7 +148,7 @@ export const storage = {
   /** 策略回测快捷区间按钮配置 */
   strategyBacktestQuickRanges: kv<unknown>('strategy-backtest-quick-ranges'),
 
-  /** 策略回测最后一次成功结果和参数 */
+  /** 策略回测最后一次运行的表单参数 (结果本身不落 localStorage: 完整结果走「已保存结果」) */
   strategyBacktestLast: kv<{
     selectedStrategy: string | null
     symbols: string
@@ -164,7 +164,7 @@ export const storage = {
     maxPositions: string
     maxExposure: string
     initialCapital: string
-    positionSizing: 'equal' | 'score_weight'
+    positionSizing: 'equal' | 'score_weight' | 'score_tier'
     mode: 'position' | 'full'
     holdingDays: string
     minuteFill?: boolean
@@ -173,7 +173,6 @@ export const storage = {
     params?: Record<string, any>
     overrides?: Record<string, any>
     strategyConfigSignature?: string
-    result: any
   } | null>('strategy-backtest-last'),
 
   /** 概念分析页面字段配置 */

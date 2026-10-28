@@ -90,6 +90,7 @@ const nav = [
   { to: '/screener',         label: '策略',     icon: IconStrategy },
   { to: '/factors',          label: '因子',     icon: IconFactors },
   { to: '/backtest',         label: '回测',     icon: IconBacktest },
+  { to: '/research/firstboard', label: '首板回放', icon: IconFactors },
   { to: '/regime',           label: '市场环境', icon: IconRegime },
   { to: '/indices',          label: '指数',     icon: IconIndices },
   { to: '/data',             label: '数据',     icon: IconData },

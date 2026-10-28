@@ -22,6 +22,25 @@ from app.factors.ext_factors import (
 )
 from app.tickflow.repository import DataStore, KlineRepository
 
+
+@pytest.fixture(autouse=True)
+def _bypass_price_quality(monkeypatch):
+    """合成行情夹具不经过 enriched 发布; 复权校验由专门用例覆盖。"""
+    monkeypatch.setattr(
+        "app.backtest.strategy.require_price_quality",
+        lambda *args, **kwargs: {"basis": "forward_adjusted"},
+    )
+    monkeypatch.setattr(
+        "app.backtest.engine.BacktestEngine._require_certified_load",
+        lambda self, asset_type="stock", **kwargs: None,
+    )
+    # 合成矩阵夹具不经过 enriched 发布: 直入口认证在同文件专门用例覆盖。
+    monkeypatch.setattr(
+        "app.indicators.price_quality.require_active_token",
+        lambda *args, **kwargs: {"generation": "synthetic", "stamp_sha256": "synthetic"},
+    )
+
+
 SYMS = ["600001.SH", "600002.SH"]
 DATES = [date(2026, 1, 5), date(2026, 1, 6), date(2026, 1, 7), date(2026, 1, 8)]
 EXT_COL = "ext_ext_demo_rank"      # ext_column_name("ext_demo", "rank")

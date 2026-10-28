@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import pathlib
 import queue
 import threading
 from datetime import date, timedelta
@@ -11,12 +13,11 @@ import pytest
 
 from app.backtest import worker as worker_module
 from app.backtest.mining import benchmark_candidate
-from app.backtest.optimizer import OptimizeConfig
 from app.backtest.strategy import StrategyBacktestConfig
 from app.backtest.walkforward import WalkForwardConfig
 from app.backtest.worker import BacktestWorkerError, make_worker_task, run_worker_task
 from app.enriched_generation import bump_enriched_generation, get_enriched_generation
-from app.services.mining_jobs import MiningRunStore
+from app.services.mining_jobs import MiningRunStore, MiningRunValidationError
 
 
 def _write_worker_strategy(data_dir) -> None:
@@ -62,6 +63,52 @@ MATRIX_STRATEGY = AlwaysEntry()
     )
 
 
+def _approve_price_quality(data_dir) -> None:
+    """写入完整认证证据与可信覆盖, 让子进程回测入口的 fail-closed 校验通过。"""
+    from app.indicators.price_quality import (
+        certify_full_history,
+        coverage_path,
+        load_adj_factors_strict,
+    )
+
+    factor_path = data_dir / "adj_factor" / "all.parquet"
+    factor_path.parent.mkdir(parents=True, exist_ok=True)
+    if not factor_path.exists():
+        pl.DataFrame({
+            "symbol": ["999999.SZ"],
+            "trade_date": [date(2020, 1, 2)],
+            "ex_factor": [1.0],
+        }).write_parquet(factor_path)
+    coverage = {
+        "asset_type": "stock",
+        "basis_date": "2026-12-31",
+        "source": "test-fixture:trusted",
+        "acquired_at": "2026-10-28T00:00:00+00:00",
+        "records": [
+            {
+                "symbol": "600000.SH",
+                "start": "2018-01-01",
+                "end": "2026-12-31",
+                "status": "COMPLETE",
+                "source": "test-fixture:trusted",
+                "acquired_at": "2026-10-28T00:00:00+00:00",
+            }
+        ],
+    }
+    coverage_path(data_dir, "stock").write_text(json.dumps(coverage), encoding="utf-8")
+    bump_enriched_generation(data_dir, "stock")
+    dates = sorted(
+        part.name.split("=")[1]
+        for part in (data_dir / "kline_daily_enriched").glob("date=*")
+    )
+    certify_full_history(
+        data_dir, "stock",
+        symbols_with_dates={"600000.SH": (date.fromisoformat(dates[0]), date.fromisoformat(dates[-1]))},
+        factors=load_adj_factors_strict(factor_path),
+    )
+
+
+
 def _write_market_data(data_dir, start: date, days: int = 3) -> None:
     rows = []
     for offset in range(days):
@@ -96,6 +143,50 @@ def _write_market_data(data_dir, start: date, days: int = 3) -> None:
         "float_shares": [1_000_000_000.0],
     }).write_parquet(instruments_dir / "part.parquet")
 
+    _approve_price_quality(data_dir)
+
+
+def _approve_mining_quality(data_dir, symbols, start: date, days: int) -> None:
+    from app.indicators.price_quality import (
+        certify_full_history,
+        coverage_path,
+        load_adj_factors_strict,
+    )
+
+    factor_path = data_dir / "adj_factor" / "all.parquet"
+    factor_path.parent.mkdir(parents=True, exist_ok=True)
+    if not factor_path.exists():
+        pl.DataFrame({
+            "symbol": ["999999.SZ"],
+            "trade_date": [date(2020, 1, 2)],
+            "ex_factor": [1.0],
+        }).write_parquet(factor_path)
+    coverage = {
+        "asset_type": "stock",
+        "basis_date": "2026-12-31",
+        "source": "test-fixture:trusted",
+        "acquired_at": "2026-10-28T00:00:00+00:00",
+        "records": [
+            {
+                "symbol": symbol,
+                "start": "2018-01-01",
+                "end": "2026-12-31",
+                "status": "COMPLETE",
+                "source": "test-fixture:trusted",
+                "acquired_at": "2026-10-28T00:00:00+00:00",
+            }
+            for symbol in symbols
+        ],
+    }
+    coverage_path(data_dir, "stock").write_text(json.dumps(coverage), encoding="utf-8")
+    bump_enriched_generation(data_dir, "stock")
+    certify_full_history(
+        data_dir, "stock",
+        symbols_with_dates={
+            symbol: (start, start + timedelta(days=days - 1)) for symbol in symbols
+        },
+        factors=load_adj_factors_strict(factor_path),
+    )
 
 def _write_mining_market_data(
     data_dir,
@@ -138,6 +229,9 @@ def _write_mining_market_data(
         "total_shares": [1_000_000_000.0] * assets,
         "float_shares": [1_000_000_000.0] * assets,
     }).write_parquet(instruments_dir / "part.parquet")
+
+
+    _approve_mining_quality(data_dir, symbols, start, days)
 
 
 def test_spawn_worker_returns_compact_result_and_memory_metrics(tmp_path):
@@ -201,6 +295,8 @@ def test_spawn_walkforward_reuses_shared_matrix_across_folds(tmp_path):
     assert result["shared_market_data_bytes"] > 0
     assert all(fold["oos_stats"]["shared_market_data"] for fold in result["folds"])
     assert result["worker"]["worker_exitcode"] == 0
+
+
 
 
 def test_spawn_mining_writes_four_artifacts_and_returns_compact_summary(tmp_path):
@@ -358,7 +454,7 @@ def test_spawn_mining_rejects_generation_change_after_queue(tmp_path):
 
     with pytest.raises(
         BacktestWorkerError,
-        match="changed after the run was queued",
+        match="行情数据版本或复权认证已变化",
     ):
         run_worker_task(make_worker_task("mining", data_dir, payload))
 
@@ -560,6 +656,7 @@ def _queue_mining_run(data_dir, start: date, run_id: str) -> dict:
     }
 
 
+
 def _patch_generation_drift(monkeypatch, data_dir, *, always: bool) -> dict:
     """让世代校验第一次(或每次)调用前先 bump 再抛错, 模拟读取期间并发发布完成。"""
     from app.backtest.engine import BacktestEngine
@@ -594,20 +691,28 @@ def test_mining_rereads_snapshot_when_generation_commits_mid_read(
     from app.backtest.mining_runtime import run_mining_runtime
 
     events: list[dict] = []
-    result = run_mining_runtime(
-        payload,
-        data_dir=data_dir,
-        service=service,
-        strategy_engine=strategy_engine,
-        progress_cb=events.append,
-        cancel_check=None,
-    )
 
-    assert result["status"] in {"succeeded", "succeeded_with_budget_exhausted"}
+    with pytest.raises(ValueError, match="行情数据版本或复权认证已变化"):
+        run_mining_runtime(
+            payload,
+            data_dir=data_dir,
+            service=service,
+            strategy_engine=strategy_engine,
+            progress_cb=events.append,
+            cancel_check=None,
+        )
+
+    # 固定入队版本契约: 首次漂移即停止, 不重读新快照, 不进入搜索/产物成功阶段。
     assert state["drifts"] == 1
-    assert any(
+    assert not any(
         event.get("label") == "数据已更新, 重新读取快照" for event in events
     )
+    assert not any(
+        event.get("phase") in {"search", "artifacts"} and event.get("done")
+        for event in events
+    )
+    run_manifest = MiningRunStore(data_dir).get("midread_drift_mining")
+    assert run_manifest["artifacts"] == {}  # type: ignore[index]
 
 
 def test_mining_fails_with_guidance_when_generation_keeps_drifting(
@@ -622,7 +727,7 @@ def test_mining_fails_with_guidance_when_generation_keeps_drifting(
 
     from app.backtest.mining_runtime import run_mining_runtime
 
-    with pytest.raises(ValueError, match="稳定快照"):
+    with pytest.raises(ValueError, match="重新发起挖掘"):
         run_mining_runtime(
             payload,
             data_dir=data_dir,
@@ -631,6 +736,8 @@ def test_mining_fails_with_guidance_when_generation_keeps_drifting(
             progress_cb=None,
             cancel_check=None,
         )
+    run_manifest = MiningRunStore(data_dir).get("endless_drift_mining")
+    assert run_manifest["artifacts"] == {}  # type: ignore[index]
 
 
 def test_spawn_robust_optimize_runs_k_segments_in_worker(tmp_path):
@@ -684,3 +791,49 @@ def test_spawn_robust_optimize_runs_k_segments_in_worker(tmp_path):
     assert result["plateau"] is not None
     assert result["plateau"]["label"] in ("plateau", "slope", "peak", "isolated")
     assert result["worker"]["worker_exitcode"] == 0
+
+
+def test_mining_artifact_commit_drift_leaves_no_artifacts(monkeypatch, tmp_path):
+    """最终令牌核对发生在产物提交前: 漂移时四文件不得登记为可用产物。"""
+    start = date(2023, 1, 2)
+    data_dir = tmp_path / "data"
+    _write_mining_market_data(data_dir, start)
+    payload = _queue_mining_run(data_dir, start, "artifact_drift_mining")
+    service, strategy_engine = _mining_runtime_services(data_dir)
+
+    from app.backtest.mining_runtime import run_mining_runtime
+    from app.indicators import price_quality
+
+    original = price_quality.require_active_token
+
+    def _flaky(data_dir_arg, asset_type="stock", **kwargs):
+        # 产物文件已落盘 = 已到“提交前”阶段; 此时模拟发布插入使令牌失效。
+        staged = any(
+            path.suffix == ".parquet" and "artifact_drift_mining" in str(path)
+            for path in pathlib.Path(data_dir_arg).rglob("*.parquet")
+        )
+        if staged:
+            raise price_quality.PriceScaleError("simulated publish before artifact commit")
+        return original(data_dir_arg, asset_type, **kwargs)
+
+    monkeypatch.setattr(price_quality, "require_active_token", _flaky)
+
+    with pytest.raises(ValueError, match="行情数据版本或复权认证已变化"):
+        run_mining_runtime(
+            payload,
+            data_dir=data_dir,
+            service=service,
+            strategy_engine=strategy_engine,
+            progress_cb=None,
+            cancel_check=None,
+        )
+    run_manifest = MiningRunStore(data_dir).get("artifact_drift_mining")
+    assert run_manifest["artifacts"] == {}  # type: ignore[index]
+
+
+def test_register_artifacts_is_all_or_nothing(tmp_path):
+    _queue_mining_run(tmp_path, date(2023, 1, 2), "atomic_register")
+    store = MiningRunStore(tmp_path)
+    with pytest.raises(MiningRunValidationError):
+        store.register_artifacts("atomic_register", ["folds", "not-an-artifact"])
+    assert store.get("atomic_register")["artifacts"] == {}  # type: ignore[index]

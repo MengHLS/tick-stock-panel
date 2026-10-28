@@ -1,0 +1,17 @@
+{
+  "generated": "2026-10-28T17:30:36",
+  "records": {
+    "v0.1.1": 432,
+    "v0.1.2": 432
+  },
+  "added_null_fields": 24,
+  "added_by_node_type": {
+    "selected": 8,
+    "trace": 16
+  },
+  "rows_touched": 16,
+  "difference_entries": 24,
+  "missing_or_mismatched_reason_codes": 0,
+  "rows_that_differ_after_stripping": 0,
+  "problems": []
+}

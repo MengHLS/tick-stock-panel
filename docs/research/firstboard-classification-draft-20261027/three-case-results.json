@@ -1,0 +1,245 @@
+[
+  {
+    "code": "002687.SZ",
+    "target": "2026-10-23",
+    "close_T": 6.75,
+    "basis": "enriched unrounded forward-adjusted snapshot upper date 2026-10-27; frozen CSV values",
+    "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+    "legacy_selected_anchor": "2026-10-08",
+    "legacy_nearest_anchor": "2026-10-08",
+    "anchor_selection": "legacy externally provided; not re-certified",
+    "recursion_reason": "nearest equals legacy selected",
+    "traces": [
+      {
+        "anchor": "2026-10-08",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 6.57,
+            "P_date": "2026-10-09",
+            "P_known_at": "2026-10-12",
+            "P_window": 6.62,
+            "P_window_date": "2026-10-12",
+            "L_setup": 5.91,
+            "L_setup_date": "2026-10-19",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.10045662100456623,
+            "first_break_date": "2026-10-23",
+            "C_T_minus_1": 6.14,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": true,
+              "prior_break": false,
+              "relation": "above"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 6.62,
+            "P_date": "2026-10-12",
+            "P_known_at": "2026-10-12",
+            "P_window": 6.62,
+            "P_window_date": "2026-10-12",
+            "L_setup": 5.91,
+            "L_setup_date": "2026-10-19",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.10725075528700906,
+            "first_break_date": "2026-10-23",
+            "C_T_minus_1": 6.14,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": true,
+              "prior_break": false,
+              "relation": "above"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "002241.SZ",
+    "target": "2026-10-23",
+    "close_T": 23.11,
+    "basis": "enriched unrounded forward-adjusted snapshot upper date 2026-10-27; frozen CSV values",
+    "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+    "legacy_selected_anchor": "2025-08-26",
+    "legacy_nearest_anchor": "2025-08-26",
+    "anchor_selection": "legacy externally provided; not re-certified",
+    "recursion_reason": "nearest equals legacy selected",
+    "traces": [
+      {
+        "anchor": "2025-08-26",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 37.17,
+            "P_date": "2025-08-29",
+            "P_known_at": "2025-09-01",
+            "P_window": 40.68,
+            "P_window_date": "2025-10-09",
+            "L_setup": 30.3,
+            "L_setup_date": "2025-09-11",
+            "L_after": 19.5,
+            "L_after_date": "2026-10-15",
+            "depth": 0.1848264729620662,
+            "first_break_date": "2025-09-30",
+            "C_T_minus_1": 21.01,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 37.17,
+            "P_date": "2025-08-29",
+            "P_known_at": "2025-09-01",
+            "P_window": 40.68,
+            "P_window_date": "2025-10-09",
+            "L_setup": 30.3,
+            "L_setup_date": "2025-09-11",
+            "L_after": 19.5,
+            "L_after_date": "2026-10-15",
+            "depth": 0.1848264729620662,
+            "first_break_date": "2025-09-30",
+            "C_T_minus_1": 21.01,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "002945.SZ",
+    "target": "2026-10-23",
+    "close_T": 15.36,
+    "basis": "enriched unrounded forward-adjusted snapshot upper date 2026-10-27; frozen CSV values",
+    "firstboard_identity": "HISTORICAL_REGIME_UNCERTIFIED",
+    "legacy_selected_anchor": "2026-07-29",
+    "legacy_nearest_anchor": "2026-10-15",
+    "anchor_selection": "legacy externally provided; not re-certified",
+    "recursion_reason": "See frozen legacy candidate links; current candidate traces only cover nearest and selected, not full recursion",
+    "traces": [
+      {
+        "anchor": "2026-07-29",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 15.39,
+            "P_date": "2026-07-30",
+            "P_known_at": "2026-07-31",
+            "P_window": 16.04,
+            "P_window_date": "2026-09-01",
+            "L_setup": 13.68,
+            "L_setup_date": "2026-08-25",
+            "L_after": 13.52,
+            "L_after_date": "2026-10-09",
+            "depth": 0.11111111111111116,
+            "first_break_date": "2026-09-01",
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 15.39,
+            "P_date": "2026-07-30",
+            "P_known_at": "2026-07-31",
+            "P_window": 16.04,
+            "P_window_date": "2026-09-01",
+            "L_setup": 13.68,
+            "L_setup_date": "2026-08-25",
+            "L_after": 13.52,
+            "L_after_date": "2026-10-09",
+            "depth": 0.11111111111111116,
+            "first_break_date": "2026-09-01",
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "prior_close_break",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": true,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      },
+      {
+        "anchor": "2026-10-15",
+        "versions": [
+          {
+            "include_decline_high": false,
+            "P": 15.39,
+            "P_date": "2026-10-15",
+            "P_known_at": "2026-10-16",
+            "P_window": 15.39,
+            "P_window_date": "2026-10-15",
+            "L_setup": 13.9,
+            "L_setup_date": "2026-10-22",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.09681611435997402,
+            "first_break_date": null,
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": false,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          },
+          {
+            "include_decline_high": true,
+            "P": 15.39,
+            "P_date": "2026-10-15",
+            "P_known_at": "2026-10-16",
+            "P_window": 15.39,
+            "P_window_date": "2026-10-15",
+            "L_setup": 13.9,
+            "L_setup_date": "2026-10-22",
+            "L_after": null,
+            "L_after_date": null,
+            "depth": 0.09681611435997402,
+            "first_break_date": null,
+            "C_T_minus_1": 13.96,
+            "T_minus_1": "2026-10-22",
+            "path_state_T_minus_1": "left_low_below_P",
+            "break_event_T": {
+              "first_break_on_T": false,
+              "prior_break": false,
+              "relation": "below"
+            },
+            "reason_code": "CANDIDATE_RULE_NOT_FINAL"
+          }
+        ]
+      }
+    ]
+  }
+]
