@@ -164,7 +164,9 @@ export const storage = {
     maxPositions: string
     maxExposure: string
     initialCapital: string
-    positionSizing: 'equal' | 'score_weight' | 'score_tier'
+    positionSizing: 'equal' | 'score_weight' | 'score_tier' | 'policy'
+    positionPolicyId?: string
+    positionPolicyParams?: Record<string, number | boolean | string>
     mode: 'position' | 'full'
     holdingDays: string
     minuteFill?: boolean

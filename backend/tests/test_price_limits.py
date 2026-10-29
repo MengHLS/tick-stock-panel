@@ -103,8 +103,15 @@ def test_polars_and_numpy_limit_prices_use_identical_half_up_rounding():
     assert numpy_limit_price(previous, limits, up=False)[0] == pytest.approx(17.96)
 
 
-def test_matrix_uses_date_specific_st_limits_across_change(tmp_path):
-    root = tmp_path / "market"
+def test_matrix_uses_date_specific_st_limits_across_change(tmp_path, monkeypatch):
+    from app.indicators import price_quality
+
+    monkeypatch.setattr(
+        price_quality,
+        "require_active_token",
+        lambda *args, **kwargs: {"generation": "test"},
+    )
+    root = tmp_path / "kline_daily_enriched"
     rows = [
         (date(2026, 7, 2), 10.0),
         (date(2026, 7, 3), 10.5),
@@ -134,6 +141,7 @@ def test_matrix_uses_date_specific_st_limits_across_change(tmp_path):
             "name": ["*ST主板"],
         }),
         cache_root=tmp_path / "cache",
+        data_dir=tmp_path,
     )
     np.testing.assert_allclose(
         market.field("price_limit_pct")[:, 0],

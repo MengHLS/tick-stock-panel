@@ -31,6 +31,9 @@ _HEARTBEAT_INTERVAL_S = 30.0
 # 没有这层兜底时, 一次异常中断留下的 publishing 标记会永久驻留 —— 所有读取
 # 持续 fail-closed, 而停止实时行情 (运行期唯一频繁的写入方) 反而移除了自愈路径。
 CLAIM_STALE_SECONDS = 600.0
+_WINDOWS_PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+_WINDOWS_STILL_ACTIVE = 259
+_WINDOWS_ERROR_ACCESS_DENIED = 5
 
 
 def _marker_path(data_dir: Path, asset_type: str) -> Path:
@@ -141,6 +144,44 @@ def _process_is_alive(pid: Any) -> bool:
         return False
     if pid == os.getpid():
         return True
+    if os.name == "nt":
+        # Windows 没有 POSIX 的 signal-0 探测语义: os.kill(pid, 0) 是
+        # CTRL_C_EVENT, 会向目标控制台进程组广播 Ctrl+C。发布锁探测必须
+        # 使用只读的 OpenProcess/GetExitCodeProcess, 否则一次存活检查就可能
+        # 打断后端自身或同控制台的其他进程。
+        import ctypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.OpenProcess.argtypes = [
+            ctypes.c_ulong,
+            ctypes.c_int,
+            ctypes.c_ulong,
+        ]
+        kernel32.OpenProcess.restype = ctypes.c_void_p
+        kernel32.GetExitCodeProcess.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_ulong),
+        ]
+        kernel32.GetExitCodeProcess.restype = ctypes.c_int
+        kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+        kernel32.CloseHandle.restype = ctypes.c_int
+
+        handle = kernel32.OpenProcess(
+            _WINDOWS_PROCESS_QUERY_LIMITED_INFORMATION,
+            False,
+            pid,
+        )
+        if not handle:
+            # 拒绝访问只能说明当前进程无权查询, 不能证明目标已退出; 保守
+            # 视为存活, 避免抢占仍在运行的发布者。
+            return ctypes.get_last_error() == _WINDOWS_ERROR_ACCESS_DENIED
+        try:
+            exit_code = ctypes.c_ulong()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
+                return True
+            return exit_code.value == _WINDOWS_STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
@@ -148,9 +189,7 @@ def _process_is_alive(pid: Any) -> bool:
     except (OSError, PermissionError) as exc:
         # Windows 对不存在的 pid 返回 WinError 87 (ERROR_INVALID_PARAMETER),
         # 不会映射为 ProcessLookupError; 按存活处理会让孤儿发布锁永远无法恢复。
-        if getattr(exc, "winerror", None) == 87:
-            return False
-        return True
+        return getattr(exc, "winerror", None) != 87
     return True
 
 

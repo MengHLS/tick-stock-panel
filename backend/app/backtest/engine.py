@@ -55,6 +55,68 @@ def _score_tier_fraction(
     return fraction
 
 
+def _apply_position_policy(
+    config: MatcherConfig,
+    candidates: list[tuple[str, float]],
+    recent_returns: dict[str, np.ndarray],
+    trades: list[TradeRecord],
+    cash: float,
+    equity: float,
+    peak: float,
+    open_positions: int,
+    execution_stats: dict,
+) -> tuple[np.ndarray, float]:
+    """自定义仓位策略 → (候选权重, 总预算缩放)。矩阵/legacy 两路径共用。
+
+    fail-closed 兜底: compute 抛错或输出非法时当日回退等权、scale=1, 并计入
+    execution_stats["position_policy_fallback"] 供结果统计暴露 — 不中断整个回测,
+    也绝不静默给出未经校验的仓位 (normalize_result 内强校验)。
+    """
+    n = len(candidates)
+    fallback = (np.repeat(1.0 / n, n), 1.0)
+    compute = config.position_policy_compute
+    if n == 0 or compute is None:
+        return fallback
+    from app.backtest.position_sizing import (  # 按需导入: 默认路径零加载成本
+        Candidate,
+        PortfolioState,
+        PositionSizingContext,
+        TradeSnapshot,
+        normalize_result,
+    )
+
+    try:
+        snapshots = tuple(
+            TradeSnapshot(
+                symbol=str(t.symbol),
+                pnl_pct=float(t.pnl_pct),
+                duration=int(t.duration),
+                exit_reason=str(t.exit_reason),
+            )
+            for t in trades[-50:]
+        )
+        drawdown = (equity - peak) / peak if peak > 0 else 0.0
+        ctx = PositionSizingContext(
+            selected=tuple(Candidate(symbol=s, score=float(v)) for s, v in candidates),
+            recent_returns={s: [float(x) for x in r] for s, r in recent_returns.items()},
+            closed_trades=snapshots,
+            portfolio=PortfolioState(
+                cash=float(cash),
+                equity=float(equity),
+                drawdown=drawdown,
+                open_positions=int(open_positions),
+            ),
+            params=dict(config.position_policy_params or {}),
+        )
+        weights, scale = normalize_result(compute(ctx), n)
+        return np.asarray(weights, dtype=np.float64), scale
+    except Exception:  # noqa: BLE001 — 用户代码运行期异常 → 当日兜底等权
+        execution_stats["position_policy_fallback"] = (
+            execution_stats.get("position_policy_fallback", 0) + 1
+        )
+        return fallback
+
+
 # ================================================================
 # 数据结构
 # ================================================================
@@ -143,7 +205,7 @@ class MatcherConfig:
     score_min: float | None = None
     score_max: float | None = None
     initial_capital: float = 1_000_000.0
-    position_sizing: Literal["equal", "score_weight", "score_tier"] = "equal"
+    position_sizing: Literal["equal", "score_weight", "score_tier", "policy"] = "equal"
     score_tiers: tuple[tuple[float, float], ...] | None = None
     entry_open_gap_range: tuple[float, float] | None = None
     entry_prev_day_change_range: tuple[float, float] | None = None
@@ -155,6 +217,11 @@ class MatcherConfig:
     entry_price_basis: Literal["adjusted", "raw"] = "adjusted"
     block_limit_open: bool = False
     execution_costs: ExecutionCostPolicy | None = None
+    # 自定义仓位策略 (position_sizing="policy"): 运行期由 strategy 层解析注入,
+    # 引擎不接触注册表/磁盘 — compute 为纯函数, params 为 META 默认值合并请求值。
+    # 这两个字段不参与任何缓存键/序列化。
+    position_policy_compute: Callable[..., object] | None = None
+    position_policy_params: dict | None = None
     # 分钟K精确成交: 开启后, 信号触发日的成交价用当日分钟K优化
     # (有参考线→穿越价, 无参考线→VWAP)。数据缺失时降级为日K口径。
     minute_fill: bool = False
@@ -215,7 +282,7 @@ _FULL_UNSUPPORTED_RULES: tuple[tuple[str, str], ...] = (
     ("trailing_peak_price", "收盘峰值回撤"),
     ("plan_at_signal_close", "收盘计划买入"),
     ("max_daily_entries", "每日买入笔数上限"),
-    ("position_sizing", "评分分档仓位"),
+    ("position_sizing", "评分分档仓位/自定义仓位策略"),
     ("execution_costs", "执行费用策略"),
     ("entry_price_basis", "原始价入场口径"),
     ("block_limit_open", "开盘涨停门控"),
@@ -231,7 +298,7 @@ class FullExecutionCapabilities:
     trailing_peak_price: Literal["high", "close"] = "high"
     plan_at_signal_close: bool = False
     max_daily_entries: int | None = None
-    position_sizing: Literal["equal", "score_weight", "score_tier"] = "equal"
+    position_sizing: Literal["equal", "score_weight", "score_tier", "policy"] = "equal"
     execution_costs: ExecutionCostPolicy | None = None
     entry_price_basis: Literal["adjusted", "raw"] = "adjusted"
     block_limit_open: bool = False
@@ -247,7 +314,7 @@ def unsupported_full_execution_rules(
         "trailing_peak_price": config.trailing_peak_price == "close",
         "plan_at_signal_close": bool(config.plan_at_signal_close),
         "max_daily_entries": config.max_daily_entries is not None,
-        "position_sizing": config.position_sizing == "score_tier",
+        "position_sizing": config.position_sizing in {"score_tier", "policy"},
         "execution_costs": config.execution_costs is not None,
         "entry_price_basis": config.entry_price_basis == "raw",
         "block_limit_open": bool(config.block_limit_open),
@@ -569,11 +636,14 @@ class BacktestEngine:
     ) -> pl.DataFrame:
         """加载 enriched 数据面板，带缓存。asset_type='etf' 时读 ETF enriched。"""
         self._require_certified_load(asset_type, start=start, end=end)
-        attempts = 1 if expected_generation is not None else 2
+        # 快照世代路径也给一次重试 (issue #517): 盘中刷新每轮换新 generation,
+        # 读后校验失败时重读「现役世代」而不是死等已作废的旧世代。
+        attempts = 2
+        expected = expected_generation
         for attempt in range(attempts):
             generation = (
-                expected_generation
-                if expected_generation is not None
+                expected
+                if expected is not None
                 else self.data_generation(asset_type)
             )
             panel = self._cache.get_or_compute(
@@ -590,6 +660,7 @@ class BacktestEngine:
             except EnrichedGenerationUnavailableError:
                 if attempt + 1 >= attempts:
                     raise
+                expected = None
                 continue
             return panel
         raise EnrichedGenerationUnavailableError(
@@ -757,7 +828,9 @@ class BacktestEngine:
             if expected_generation is not None
             else self.data_generation_await(asset_type, cancel_event=cancel_event)
         )
-        attempts = 1 if expected_generation is not None else 2
+        # 快照世代路径也给第二次机会 (issue #517): 循环内撞换代时下方 except
+        # 已用 data_generation_await 刷新世代, 这里只需不再限定单次尝试。
+        attempts = 2
         for attempt in range(attempts):
             try:
                 market = load_market_data_matrix_from_parquet(
@@ -2560,19 +2633,51 @@ class BacktestEngine:
             if allocatable <= 0:
                 execution_stats["buy_exposure"] += len(selected)
                 return
-            equal_cash = allocatable / len(selected)
+            weights = np.repeat(1 / len(selected), len(selected))
+            if config.position_sizing == "score_weight":
+                raw_weights = np.array([max(score, 0.0) for _, score in selected])
+                if raw_weights.sum() > 0:
+                    weights = raw_weights / raw_weights.sum()
+            elif config.position_sizing == "policy" and config.position_policy_compute is not None:
+                policy_returns: dict[str, np.ndarray] = {}
+                for asset_id, _score in selected:
+                    closes = matrix.close[
+                        max(0, time_id - 59): time_id + 1, asset_id
+                    ].astype(np.float64)
+                    finite = closes[np.isfinite(closes)]
+                    if finite.size >= 2:
+                        policy_returns[str(matrix.symbols[asset_id])] = (
+                            np.diff(finite) / finite[:-1]
+                        )
+                weights, policy_scale = _apply_position_policy(
+                    config,
+                    [(str(matrix.symbols[asset_id]), float(score)) for asset_id, score in selected],
+                    policy_returns,
+                    trades,
+                    planning_cash,
+                    equity,
+                    peak,
+                    len(positions),
+                    execution_stats,
+                )
+                allocatable = max(0.0, allocatable * policy_scale)
             plans: list[dict] = []
-            for asset_id, score in selected:
-                budget = equal_cash
+            for (asset_id, score), weight in zip(selected, weights):
                 if config.position_sizing == "score_tier":
                     budget = min(
-                        budget,
+                        allocatable / len(selected),
                         equity * _score_tier_fraction(score, config.score_tiers),
                     )
                 elif config.position_sizing == "score_weight":
-                    total_score = sum(max(item[1], 0.0) for item in selected)
-                    if total_score > 0:
-                        budget = min(budget, allocatable * max(score, 0.0) / total_score)
+                    budget = min(
+                        allocatable * float(weight),
+                        allocatable / len(selected),
+                    )
+                else:
+                    budget = min(
+                        allocatable * float(weight),
+                        equity * max_exposure_pct / max_positions,
+                    )
                 if budget <= 0:
                     _count("buy_score_filter")
                     continue
@@ -2655,6 +2760,35 @@ class BacktestEngine:
                             if raw_weights.sum() > 0:
                                 weights = raw_weights / raw_weights.sum()
                         total_budget = min(cash, exposure_capacity, target_value * len(selected))
+                        if config.position_sizing == "policy" and config.position_policy_compute is not None:
+                            policy_returns: dict[str, np.ndarray] = {}
+                            for asset_id, _entry_score in selected:
+                                source_time = int(matrix.entry_signal_time[time_id, asset_id])
+                                if source_time < 0:
+                                    source_time = time_id
+                                closes = matrix.close[
+                                    max(0, source_time - 59): source_time + 1, asset_id
+                                ].astype(np.float64)
+                                finite = closes[np.isfinite(closes)]
+                                if finite.size >= 2:
+                                    policy_returns[str(matrix.symbols[asset_id])] = (
+                                        np.diff(finite) / finite[:-1]
+                                    )
+                            weights, policy_scale = _apply_position_policy(
+                                config,
+                                [
+                                    (str(matrix.symbols[asset_id]), float(entry_score))
+                                    for asset_id, entry_score in selected
+                                ],
+                                policy_returns,
+                                trades,
+                                cash,
+                                equity_before,
+                                peak,
+                                len(positions),
+                                execution_stats,
+                            )
+                            total_budget = max(0.0, total_budget * policy_scale)
                         allocations = [
                             (
                                 asset_id,
@@ -3253,6 +3387,13 @@ class BacktestEngine:
         trades: list[TradeRecord] = []
         # 每交易日拒卖计数去重: 同一持仓同日多次尝试(开盘/日内/收盘)只记首次。
         blocked_today: set[str] = set()
+        # 仓位策略 recent_returns 切片用: 面板按 symbol 连续排序, 记录每标的首行。
+        symbol_first_row: dict[str, int] = {}
+        if config.position_sizing == "policy" and config.position_policy_compute is not None:
+            uniq_syms, first_idx = np.unique(panel_symbols, return_index=True)
+            symbol_first_row = {
+                str(s): int(i) for s, i in zip(uniq_syms, first_idx, strict=True)
+            }
 
         # ── 分钟K精确成交预加载 ──
         # 信号触发日加载分钟K, 成交时用穿越价/VWAP替代收盘价
@@ -3699,7 +3840,32 @@ class BacktestEngine:
                 raw = np.array([max(x[2], 0.0) for x in selected], dtype=float)
                 if raw.sum() > 0:
                     weights = raw / raw.sum()
+            policy_scale = 1.0
+            if config.position_sizing == "policy" and config.position_policy_compute is not None:
+                policy_returns: dict[str, np.ndarray] = {}
+                for idx, sym, _score in selected:
+                    # 窗口截止到入场信号日 (与评分同时刻); open_t+1 时成交行 idx 的
+                    # 前一行才是信号行 — 成交日 K 线对决策是未来数据。
+                    sig_idx = int(idx) - 1 if config.entry_fill == "open_t+1" else int(idx)
+                    lo = max(symbol_first_row.get(str(sym), 0), sig_idx - 59)
+                    closes = close_prices[lo:sig_idx + 1].astype(np.float64)
+                    finite = closes[np.isfinite(closes)]
+                    if finite.size >= 2:
+                        policy_returns[str(sym)] = np.diff(finite) / finite[:-1]
+                weights, policy_scale = _apply_position_policy(
+                    config,
+                    [(str(sym), float(score)) for _idx, sym, score in selected],
+                    policy_returns,
+                    trades,
+                    cash,
+                    account_equity_before_buy,
+                    peak,
+                    len(positions),
+                    execution_stats,
+                )
             total_budget = min(cash, exposure_capacity, target_position_value * len(selected))
+            if policy_scale < 1.0:
+                total_budget = max(total_budget * policy_scale, 0.0)
 
             for (idx, sym, _score), weight in zip(selected, weights):
                 if len(positions) >= max_positions:

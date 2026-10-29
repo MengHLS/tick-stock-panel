@@ -15,11 +15,24 @@ from app.enriched_generation import (
     CLAIM_STALE_SECONDS,
     EnrichedGenerationUnavailableError,
     EnrichedPublication,
+    _process_is_alive,
     enriched_publication_incomplete,
     get_enriched_generation,
     recover_stale_publications,
 )
 from app.tickflow.repository import DataStore, KlineRepository
+
+
+@pytest.fixture(autouse=True)
+def _synthetic_price_certification(monkeypatch):
+    """本文件用临时 generation 夹具，不经过 enriched 发布认证。"""
+    monkeypatch.setattr(
+        "app.indicators.price_quality.require_active_token",
+        lambda *args, **kwargs: {
+            "generation": "synthetic",
+            "stamp_sha256": "synthetic",
+        },
+    )
 
 
 def _frame(value: float = 10.0) -> pl.DataFrame:
@@ -128,7 +141,7 @@ def test_recovery_replaces_stale_publication_but_not_active_owner(tmp_path) -> N
     assert pl.read_parquet(out)["close"].item() == pytest.approx(12.0)
 
 
-def test_recovery_takes_over_when_owner_pid_is_dead_on_windows(tmp_path, monkeypatch) -> None:
+def test_recovery_takes_over_when_owner_pid_is_dead_on_windows(tmp_path) -> None:
     # 跨进程孤儿锁: 属主进程已死, 但 Windows 的 os.kill(pid, 0) 对不存在的 pid
     # 抛 WinError 87 (ERROR_INVALID_PARAMETER) 而非 ProcessLookupError,
     # 存活探测若把它当"存活", recover 将永远报 another publication is active。
@@ -142,13 +155,6 @@ def test_recovery_takes_over_when_owner_pid_is_dead_on_windows(tmp_path, monkeyp
     (tmp_path / ".matrix_generation_stock.json").write_text(
         json.dumps(stale), encoding="utf-8"
     )
-
-    def probe(_pid: int, _sig: int) -> None:
-        error = OSError()
-        error.winerror = 87
-        raise error
-
-    monkeypatch.setattr("app.enriched_generation.os.kill", probe)
 
     out = tmp_path / "kline_daily_enriched" / "date=2026-08-14" / "part.parquet"
     recovered = EnrichedPublication(tmp_path, recover=True)
@@ -560,19 +566,26 @@ def test_fresh_heartbeat_still_blocks_takeover(tmp_path) -> None:
         )
 
 
-def test_recover_stale_publications_restores_orphan_on_startup(tmp_path, monkeypatch) -> None:
+def test_recover_stale_publications_restores_orphan_on_startup(tmp_path) -> None:
     """启动自检: 上一个进程异常退出的 publishing 标记应直接恢复为 ready。"""
     _write_stale_marker(tmp_path, owner_pid=999_999, age_seconds=5.0)
-
-    def probe(_pid: int, _sig: int) -> None:
-        raise ProcessLookupError
-
-    monkeypatch.setattr("app.enriched_generation.os.kill", probe)
 
     assert recover_stale_publications(tmp_path) == ["stock"]
     marker = json.loads((tmp_path / ".matrix_generation_stock.json").read_text())
     assert marker["state"] == "ready"
     assert enriched_publication_incomplete(tmp_path, "stock") is False
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows 控制台信号语义回归")
+def test_windows_process_probe_does_not_send_ctrl_c(monkeypatch) -> None:
+    """存活探测必须只读: 旧实现的 os.kill(pid, 0) 会向进程组广播 Ctrl+C。"""
+
+    def forbidden_kill(*_args, **_kwargs):
+        raise AssertionError("Windows 存活探测不得调用 os.kill")
+
+    monkeypatch.setattr("app.enriched_generation.os.kill", forbidden_kill)
+
+    assert _process_is_alive(os.getppid()) is True
 
 
 def test_recover_stale_publications_leaves_live_publication_alone(tmp_path) -> None:
