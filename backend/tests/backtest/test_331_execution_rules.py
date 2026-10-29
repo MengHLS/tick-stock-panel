@@ -204,6 +204,67 @@ def _original_config(**overrides) -> MatcherConfig:
     return MatcherConfig(**values)
 
 
+def test_planned_runner_decision_uses_fifth_holding_session():
+    panel = _panel(["A"], 10, overrides={
+        ("A", 5): {"high": 12.0, "close": 10.1},
+        ("A", 8): {"close": 9.5},
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 0)}), _mask(panel, {("A", 8)}),
+        _original_config(hold_extension_policy=HoldExtensionPolicy()),
+    )
+    trade = result.trades[0]
+    assert trade.entry_date == "2025-01-03"
+    assert trade.exit_reason == "signal"
+    assert trade.exit_signal_date == "2025-01-10"
+    assert trade.exit_date == "2025-01-11"
+
+
+@pytest.mark.parametrize(
+    ("horizon", "signal_date", "exit_date", "duration"),
+    [(5, "2025-01-07", "2025-01-08", 6),
+     (74, "2025-03-17", "2025-03-18", 75)],
+)
+def test_planned_time_exit_executes_after_inclusive_holding_horizon(
+    horizon, signal_date, exit_date, duration,
+):
+    overrides = {("A", 5): {"high": 12.0}} if horizon == 74 else {}
+    panel = _panel(["A"], 78, overrides=overrides, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 0)}), _mask(panel, set()),
+        _original_config(hold_extension_policy=HoldExtensionPolicy()),
+    )
+    trade = result.trades[0]
+    assert trade.exit_reason == "time_exit"
+    assert trade.exit_signal_date == signal_date
+    assert trade.exit_date == exit_date
+    assert trade.duration == duration
+
+
+def test_planned_strong_hold_exits_after_tenth_holding_session():
+    closes = [
+        10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0,
+        10.1, 10.2, 10.3, 10.5, 10.55, 10.6, 10.62, 10.64, 10.66, 10.68,
+    ]
+    panel = _panel(["A"], len(closes), overrides={
+        ("A", index): {
+            "price": close, "high": 10.8 if index == 7 else close + 0.08,
+            "low": close - 0.08,
+        }
+        for index, close in enumerate(closes)
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 5)}), _mask(panel, set()),
+        _original_config(hold_extension_policy=HoldExtensionPolicy()),
+    )
+    trade = result.trades[0]
+    assert trade.entry_date == "2025-01-08"
+    assert trade.exit_reason == "time_exit"
+    assert trade.exit_signal_date == "2025-01-17"
+    assert trade.exit_date == "2025-01-18"
+    assert trade.duration == 11
+
+
 def test_original_trailing_keeps_fixed_stop_and_uses_completed_close_peak() -> None:
     panel = _panel(["A"], 5, overrides={
         ("A", 2): {"close": 10.4, "high": 12.0},
@@ -390,6 +451,36 @@ def test_exit_signal_profit_gate_sells_next_open_when_signal_day_profitable() ->
     assert trade.exit_signal_date == "2025-01-03"  # 信号日, 不是成交日
     assert trade.exit_date == "2025-01-04"
     assert trade.exit_price == 10.2
+
+
+def test_exit_signal_stays_armed_after_prior_profitable_close_turns_to_loss():
+    panel = _panel(["A"], 6, overrides={
+        ("A", 1): {"open": 10.0, "high": 10.1, "low": 9.8, "close": 9.9},
+        ("A", 2): {"high": 10.4, "close": 10.2},
+        ("A", 3): {"low": 9.7, "close": 9.8},
+        ("A", 4): {"price": 9.5},
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 0)}), _mask(panel, {("A", 3)}),
+        _original_config(exit_signal_requires_profit=True),
+    )
+    trade = result.trades[0]
+    assert trade.exit_reason == "signal"
+    assert trade.exit_signal_date == "2025-01-05"
+    assert trade.exit_date == "2025-01-06"
+    assert trade.exit_price == 9.5
+
+
+def test_intraday_profit_without_profitable_close_does_not_arm_ma_exit():
+    panel = _panel(["A"], 5, overrides={
+        ("A", 1): {"open": 10.0, "high": 12.0, "low": 9.8, "close": 9.9},
+        ("A", 2): {"low": 9.5, "close": 9.6},
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 0)}), _mask(panel, {("A", 2)}),
+        _original_config(exit_signal_requires_profit=True),
+    )
+    assert result.trades[0].exit_reason == "end"
 
 
 def test_entry_day_completed_close_feeds_next_day_trailing_peak() -> None:

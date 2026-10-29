@@ -42,6 +42,7 @@ META = {
     "limit": 100,
 }
 EXECUTION_BACKEND = "minute_filter"
+BASIC_FILTER = {"exclude_st": False}
 
 
 def filter_minute_history(df, params, *, daily=None):

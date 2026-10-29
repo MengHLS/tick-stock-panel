@@ -165,6 +165,10 @@ class StrategyDataContext:
     # enriched 数据换代号 (repo.get_matrix_data_generation, 详见 enriched_generation):
     # 装配方填入, 消费方用作共享矩阵缓存的失效指纹 — 数据重建换代号变, 缓存自动失效。
     data_generation: str | None = None
+    # Historical stock scans must carry effective-dated status; None is only
+    # valid for realtime contexts or when ST exclusion is disabled.
+    st_history: pl.DataFrame | None = None
+    historical_st: bool = False
 
 
 @dataclass(frozen=True)
@@ -1092,6 +1096,21 @@ class StrategyEngine:
 
         # Stage 1: 基础过滤（enabled 默认开启; 显式 enabled=false 才跳过）
         if bf and bf.get("enabled", True):
+            if context.historical_st and bf.get("exclude_st"):
+                from app.tickflow.security_status import (
+                    MISSING_ST_HISTORY,
+                    attach_st_history,
+                )
+
+                if context.st_history is None or context.st_history.is_empty():
+                    raise ValueError(MISSING_ST_HISTORY)
+                if s.execution_backend == "minute_filter":
+                    raise ValueError(
+                        "历史分钟策略扫描尚不支持排除ST；"
+                        "不能用当前名称回看历史，请关闭本次排除ST选项"
+                    )
+                df = attach_st_history(df, context.st_history)
+                bf["_historical"] = True
             df = self._apply_basic_filter(df, bf)
 
         # Pool 过滤
@@ -1361,6 +1380,12 @@ class StrategyEngine:
         # (不同 lookback 的 history 不可混用)。generation 未知 (分钟/ETF/测试
         # Fake 数据) 时 fail-closed 不缓存, 保持每次重建的旧行为。
         generation = getattr(context, "data_generation", None)
+        from app.tickflow.security_status import st_history_fingerprint
+
+        status_fingerprint = (
+            st_history_fingerprint(context.st_history)
+            if context.historical_st else None
+        )
         fingerprint: tuple | None = None
         if generation and "date" in history.columns:
             window = (
@@ -1374,6 +1399,7 @@ class StrategyEngine:
                 tuple(sorted(field_columns)),
                 window,
                 generation,
+                status_fingerprint,
             )
             with self._realtime_matrix_lock:
                 cached_matrix = self._shared_matrix_cache.get(fingerprint)
@@ -1385,6 +1411,15 @@ class StrategyEngine:
 
         matrix_t0 = time.perf_counter()
         matrix = build_market_data_matrix(history, field_columns=field_columns)
+        if context.historical_st:
+            from app.tickflow.security_status import (
+                MISSING_ST_HISTORY,
+                attach_matrix_st_history,
+            )
+
+            if context.st_history is None or context.st_history.is_empty():
+                raise ValueError(MISSING_ST_HISTORY)
+            matrix = attach_matrix_st_history(matrix, context.st_history)
         logger.info(
             "run_all: shared matrix built in %.0fms (fields=%d)",
             (time.perf_counter() - matrix_t0) * 1000,
@@ -1459,6 +1494,21 @@ class StrategyEngine:
 
         source_panel = context.history
         market = context.market
+        basic_filter = dict(strategy.basic_filter or {})
+        if overrides.get("basic_filter"):
+            basic_filter.update(overrides["basic_filter"])
+        historical_st = (
+            context.historical_st
+            and basic_filter.get("enabled", True)
+            and bool(basic_filter.get("exclude_st"))
+        )
+        if historical_st:
+            from app.tickflow.security_status import MISSING_ST_HISTORY, attach_st_history
+
+            if context.st_history is None or context.st_history.is_empty():
+                raise ValueError(MISSING_ST_HISTORY)
+            if source_panel is not None and not source_panel.is_empty():
+                source_panel = attach_st_history(source_panel, context.st_history)
         if market is None:
             if source_panel is None:
                 raise ValueError(f"matrix strategy {strategy_id} requires history data")
@@ -1474,9 +1524,12 @@ class StrategyEngine:
         if source_panel is None or source_panel.is_empty():
             return StrategyResult(as_of=as_of, strategy_id=strategy_id)
 
-        basic_filter = dict(strategy.basic_filter or {})
-        if overrides.get("basic_filter"):
-            basic_filter.update(overrides["basic_filter"])
+        if historical_st:
+            from app.tickflow.security_status import attach_matrix_st_history
+
+            basic_filter["_historical"] = True
+            if "st_flag" not in market.fields:
+                market = attach_matrix_st_history(market, context.st_history)
         # 策略扫描的运行期过滤同样要按资产类型中和股票专属键 (boards/价格界),
         # 否则 ETF 候选在矩阵掩码阶段被静默清零 (#215); 函数级导入避免
         # engine ↔ backtest.strategy 的模块级循环依赖 (与上方 matrix 导入同模式)
@@ -1799,8 +1852,15 @@ class StrategyEngine:
             exprs.append(pl.col("turnover_rate") >= bf["turnover_min"])
         if bf.get("turnover_max") is not None and "turnover_rate" in df.columns:
             exprs.append(pl.col("turnover_rate") <= bf["turnover_max"])
-        if bf.get("exclude_st") and "name" in df.columns:
-            exprs.append(~pl.col("name").str.contains("(?i)ST|\\*ST|退"))
+        if bf.get("exclude_st"):
+            if bf.get("_historical"):
+                if "st_flag" not in df.columns:
+                    from app.tickflow.security_status import MISSING_ST_HISTORY
+
+                    raise ValueError(MISSING_ST_HISTORY)
+                exprs.append((pl.col("st_flag") == 0).fill_null(False))
+            elif "name" in df.columns:
+                exprs.append(~pl.col("name").str.contains("(?i)ST|\\*ST|退"))
         # 板块过滤
         boards = bf.get("boards")
         if boards and isinstance(boards, list) and len(boards) > 0:

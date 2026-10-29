@@ -3844,14 +3844,21 @@ def _build_basic_filter_mask_uncached(market: MarketDataMatrix, config: dict) ->
     _apply_bound(mask, _optional_field(market, "turnover_rate"), config, "turnover")
 
     if config.get("exclude_st"):
-        asset_mask = np.array(
-            [
-                not any(token in name.upper() for token in ("ST", "*ST", "退"))
-                for name in market.names
-            ],
-            dtype=bool,
-        )
-        mask &= asset_mask[None, :]
+        if config.get("_historical"):
+            if "st_flag" not in market.fields:
+                from app.tickflow.security_status import MISSING_ST_HISTORY
+
+                raise ValueError(MISSING_ST_HISTORY)
+            mask &= market.field("st_flag") == 0
+        else:
+            asset_mask = np.array(
+                [
+                    not any(token in name.upper() for token in ("ST", "*ST", "退"))
+                    for name in market.names
+                ],
+                dtype=bool,
+            )
+            mask &= asset_mask[None, :]
 
     boards = config.get("boards")
     if isinstance(boards, list) and boards:

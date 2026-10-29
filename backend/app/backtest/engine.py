@@ -692,6 +692,11 @@ class BacktestEngine:
         if df.is_empty():
             return df
 
+        if getattr(feature_plan, "historical_st", False):
+            from app.tickflow.security_status import attach_st_history
+
+            df = attach_st_history(df, self.repo.get_st_history())
+
         from app.backtest.fundamentals import (
             attach_fundamental_factors,
             load_fundamental_snapshot,
@@ -786,6 +791,15 @@ class BacktestEngine:
 
         parquet_root = self.repo.store.data_dir / enriched_dirname(asset_type)
         instruments = self.repo.get_instruments_asset(asset_type)
+        st_history = (
+            self.repo.get_st_history()
+            if getattr(feature_plan, "historical_st", False)
+            else None
+        )
+        if st_history is not None and st_history.is_empty():
+            from app.tickflow.security_status import MISSING_ST_HISTORY
+
+            raise ValueError(MISSING_ST_HISTORY)
         field_columns = (
             set(feature_plan.base_columns)
             | set(feature_plan.instrument_columns)
@@ -875,6 +889,10 @@ class BacktestEngine:
                         self.repo.store.data_dir if self.repo is not None else None,
                         ext_wanted,
                     )
+                if st_history is not None:
+                    from app.tickflow.security_status import attach_matrix_st_history
+
+                    market = attach_matrix_st_history(market, st_history)
                 return market
             except EnrichedGenerationUnavailableError:
                 if attempt + 1 >= attempts:
@@ -2294,12 +2312,15 @@ class BacktestEngine:
                 return bool(matrix.source_exit[time_id, asset_id])
             return bool(matrix.exit[time_id, asset_id])
 
-        def _signal_day_in_profit(time_id: int, asset_id: int, pos: dict) -> bool:
-            """盈利门槛按信号日已完成收盘判断; 未开启门槛时恒为 True。"""
+        def _exit_signal_profit_armed(time_id: int, asset_id: int, pos: dict) -> bool:
+            """A profitable completed holding close arms subsequent exit signals."""
             if not config.exit_signal_requires_profit:
                 return True
             close_price = float(matrix.close[time_id, asset_id])
-            return _valid_price(close_price) and close_price > float(pos["entry_price"])
+            if not _valid_price(close_price):
+                return False
+            peak_close = max(float(pos["max_close"]), close_price)
+            return peak_close > float(pos["entry_price"])
 
         def _can_buy(time_id: int, asset_id: int) -> tuple[bool, str]:
             if not matrix.tradable[time_id, asset_id]:
@@ -2569,6 +2590,7 @@ class BacktestEngine:
             positions[asset_id] = {
                 "entry_date": date_text,
                 "entry_signal_date": matrix.timestamp_labels[source_time][:10],
+                "entry_time_id": time_id,
                 "entry_signal_id": _signal_id(int(plan["signal_code"]), matrix.entry_signal_ids),
                 "entry_price": price,
                 "entry_value": entry_value,
@@ -2839,6 +2861,7 @@ class BacktestEngine:
                         cash -= entry_value
                         positions[asset_id] = {
                             "entry_date": date_text,
+                            "entry_time_id": time_id,
                             "entry_signal_date": _signal_date(
                                 int(matrix.entry_signal_time[time_id, asset_id]), date_text
                             ),
@@ -3013,7 +3036,7 @@ class BacktestEngine:
                         and not matrix.source_exit[time_id, asset_id]
                         and pos["entry_date"] == previous_date
                         and bool(matrix.source_exit[time_id - 1, asset_id])
-                        and _signal_day_in_profit(time_id - 1, asset_id, pos)
+                        and _exit_signal_profit_armed(time_id - 1, asset_id, pos)
                     ):
                         _try_sell(
                             time_id,
@@ -3117,7 +3140,7 @@ class BacktestEngine:
                     if (
                         exit_signal
                         and not pos.get("next_open_exit_reason")
-                        and _signal_day_in_profit(time_id, asset_id, pos)
+                        and _exit_signal_profit_armed(time_id, asset_id, pos)
                         and config.exit_fill in ("open_t+1", "signal_next_minute")
                     ):
                         pos["next_open_exit_reason"] = "signal"
@@ -3139,7 +3162,7 @@ class BacktestEngine:
                 signal_date = date_text
                 if (
                     _exit_signal_at(time_id, asset_id)
-                    and _signal_day_in_profit(time_id, asset_id, pos)
+                    and _exit_signal_profit_armed(time_id, asset_id, pos)
                 ):
                     if config.exit_fill == "open_t+1":
                         pos["next_open_exit_reason"] = "signal"
@@ -3148,7 +3171,9 @@ class BacktestEngine:
                     reason = "signal"
                     signal_date = date_text
                 elif hold_policy is not None:
-                    holding_day = int(pos["hold_days"]) + 1
+                    # Count market sessions from the actual fill, including
+                    # entry day, regardless of the entry phase's counter update.
+                    holding_day = time_id - int(pos["entry_time_id"]) + 1
                     plan = pos.get("hold_plan")
                     if not plan and holding_day == hold_policy.decision_days:
                         prior_highs = matrix.high[

@@ -781,7 +781,11 @@ def compute_limit_signals(
         )
     inst_subset = instruments.select(inst_cols).unique(subset=["symbol"])
 
-    if need_price_limits and "name" in instruments.columns:
+    if (
+        need_price_limits
+        and "name" in instruments.columns
+        and "st_flag" not in df.columns
+    ):
         st_flag = (
             instruments
             .select(
@@ -796,6 +800,12 @@ def compute_limit_signals(
         inst_subset = _attach_no_limit_window(inst_subset)
 
     df = df.join(inst_subset, on="symbol", how="left", suffix="_inst")
+    if need_price_limits and "st_flag" in df.columns:
+        # Historical backtests attach effective-dated status before this call;
+        # it must drive the exchange limit rule instead of the current name.
+        df = df.with_columns(
+            pl.col("st_flag").cast(pl.Boolean).alias("_is_st")
+        )
 
     if "turnover_rate" in want:
         df = apply_historical_float_shares(df, historical_shares, today=cn_today())

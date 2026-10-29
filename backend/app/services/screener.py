@@ -15,6 +15,7 @@ from pathlib import Path
 
 import polars as pl
 
+from app.market_time import cn_today
 from app.parquet import scan_enriched_parquet
 from app.tickflow.repository import KlineRepository
 
@@ -451,6 +452,24 @@ class ScreenerService:
 
         if current is None:
             current = self._load_enriched_for_date(as_of)
+        st_history = None
+        historical_st = self._needs_historical_st(
+            engine, as_of, strategy_ids, overrides_map
+        )
+        if historical_st:
+            from app.tickflow.security_status import (
+                MISSING_ST_HISTORY,
+                attach_st_history,
+            )
+
+            getter = getattr(self.repo, "get_st_history", None)
+            st_history = getter() if callable(getter) else pl.DataFrame()
+            if st_history.is_empty():
+                raise ValueError(MISSING_ST_HISTORY)
+            if current is not None and not current.is_empty():
+                if "date" not in current.columns:
+                    current = current.with_columns(pl.lit(as_of).alias("date"))
+                current = attach_st_history(current, st_history)
         if timeframe == "1m":
             # 分钟策略数据源是本地当日分钟K分区 (单分区文件直读), 与日线
             # enriched 历史窗口无关, 不走 required_history_bars 日线路径。
@@ -462,6 +481,10 @@ class ScreenerService:
                 daily_bars = engine.minute_daily_history_bars(strategy_ids)
                 if daily_bars > 0:
                     daily_history = self._load_enriched_history(as_of, daily_bars)
+                    if historical_st and not daily_history.is_empty():
+                        from app.tickflow.security_status import attach_st_history
+
+                        daily_history = attach_st_history(daily_history, st_history)
             return StrategyDataContext(
                 asset_type=self.asset_type,
                 timeframe=timeframe,
@@ -471,6 +494,8 @@ class ScreenerService:
                 daily_history=daily_history,
                 market=None,
                 cache_key=cache_key,
+                st_history=st_history,
+                historical_st=historical_st,
             )
         history_bars = engine.required_history_bars(
             strategy_ids,
@@ -480,6 +505,10 @@ class ScreenerService:
         history = None
         if history_bars > 1:
             history = self._load_enriched_history(as_of, history_bars)
+            if historical_st and not history.is_empty():
+                from app.tickflow.security_status import attach_st_history
+
+                history = attach_st_history(history, st_history)
         # enriched 换代号: 供 engine.build_shared_matrix 的矩阵缓存做失效指纹
         # (取不到时 None → 缓存 fail-closed 不启用)
         try:
@@ -495,7 +524,41 @@ class ScreenerService:
             market=market,
             cache_key=cache_key,
             data_generation=data_generation,
+            st_history=st_history,
+            historical_st=historical_st,
         )
+
+    def _needs_historical_st(
+        self,
+        engine,
+        as_of: date,
+        strategy_ids: list[str],
+        overrides_map: dict[str, dict] | None,
+    ) -> bool:
+        if self.asset_type != "stock" or as_of >= cn_today():
+            return False
+        getter = getattr(engine, "get", None)
+        if not callable(getter):
+            return False
+        overrides_map = overrides_map or {}
+
+        def needs(strategy) -> bool:
+            basic_filter = dict(strategy.basic_filter or {})
+            override_filter = (overrides_map.get(strategy.meta.get("id", "")) or {}).get(
+                "basic_filter"
+            )
+            if isinstance(override_filter, dict):
+                basic_filter.update(override_filter)
+            if basic_filter.get("enabled", True) and basic_filter.get("exclude_st"):
+                return True
+            if strategy.composite is not None:
+                return any(
+                    needs(engine.get(child.strategy_id))
+                    for child in strategy.composite.children
+                )
+            return False
+
+        return any(needs(getter(strategy_id)) for strategy_id in strategy_ids)
 
     def _load_minute_history(self, as_of: date, current: pl.DataFrame | None) -> pl.DataFrame:
         """分钟策略数据源: 优先 as_of 当日分钟分区, 缺失时回退全市场最近分区。

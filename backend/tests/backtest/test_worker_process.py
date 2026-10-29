@@ -110,6 +110,13 @@ def _approve_price_quality(data_dir) -> None:
 
 
 def _write_market_data(data_dir, start: date, days: int = 3) -> None:
+    status_dir = data_dir / "st_history"
+    status_dir.mkdir(parents=True, exist_ok=True)
+    pl.DataFrame({
+        "symbol": ["600000.SH"],
+        "flag_date": [start],
+        "st_flag": [False],
+    }).write_parquet(status_dir / "part.parquet")
     rows = []
     for offset in range(days):
         close = 10.0 + offset
@@ -196,6 +203,13 @@ def _write_mining_market_data(
     assets: int = 4,
 ) -> None:
     symbols = [f"60000{asset}.SH" for asset in range(assets)]
+    status_dir = data_dir / "st_history"
+    status_dir.mkdir(parents=True, exist_ok=True)
+    pl.DataFrame({
+        "symbol": symbols,
+        "flag_date": [start] * len(symbols),
+        "st_flag": [False] * len(symbols),
+    }).write_parquet(status_dir / "part.parquet")
     for offset in range(days):
         current = start + timedelta(days=offset)
         rows = []

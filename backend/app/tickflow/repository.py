@@ -385,6 +385,12 @@ def _read_concurrency_env() -> int:
 class KlineRepository:
     """日 K / 分钟 K 的读写入口。"""
 
+    def get_st_history(self) -> pl.DataFrame:
+        """Read effective-dated ST/normal records; absent records stay unknown."""
+        from app.tickflow.security_status import read_st_history
+
+        return read_st_history(self.store.data_dir)
+
     def __init__(self, store: DataStore) -> None:
         self.store = store
         self.db = store.db

@@ -113,6 +113,7 @@ class ResolvedFeaturePlan:
     execution_backend: str = "polars_expr"
     # 财务因子列不落 enriched 存储, 由 engine 在加载口按公告日门控附加。
     fundamental_columns: frozenset[str] = frozenset()
+    historical_st: bool = False
 
 
 def _merge_resolved_feature_plans(
@@ -141,6 +142,7 @@ def _merge_resolved_feature_plans(
         full_feature_fallback=any(plan.full_feature_fallback for plan in plans),
         execution_backend=backends.pop(),
         fundamental_columns=_union("fundamental_columns"),
+        historical_st=any(getattr(plan, "historical_st", False) for plan in plans),
     )
 
 
@@ -291,6 +293,7 @@ class StrategyDependencyResolver:
             instrument_columns=instrument_columns,
             warmup_bars=plan.warmup_bars,
             full_feature_fallback=full_fallback,
+            historical_st=bool(basic_filter.get("exclude_st") and basic_filter.get("enabled", True)),
             execution_backend=strategy.execution_backend,
             fundamental_columns=frozenset(
                 required_features & FUNDAMENTAL_FACTOR_NAMES
@@ -363,6 +366,7 @@ class StrategyDependencyResolver:
             instrument_columns=instrument_columns,
             warmup_bars=warmup_bars,
             full_feature_fallback=False,
+            historical_st=bool(basic_filter.get("exclude_st") and basic_filter.get("enabled", True)),
             execution_backend="matrix_native",
             fundamental_columns=frozenset(
                 required_features & FUNDAMENTAL_FACTOR_NAMES
@@ -586,6 +590,7 @@ _STOCK_ONLY_FILTER_KEYS = (
     "price_min",
     "price_max",
     "boards",
+    "exclude_st",
 )
 
 
@@ -2020,13 +2025,13 @@ class StrategyBacktestService:
             # basic_filter 只影响买入候选，不能删除持仓估值和卖出所需行情。
             basic_mask = pl.Series("_basic", [True] * len(panel), dtype=pl.Boolean)
             if basic_filter and basic_filter.get("enabled", True):
-                expr = StrategyEngine._basic_filter_expr(panel, basic_filter)
-                if expr is not None:
-                    try:
+                try:
+                    expr = StrategyEngine._basic_filter_expr(panel, basic_filter)
+                    if expr is not None:
                         basic_mask = panel.select(expr.alias("_basic"))["_basic"].fill_null(False).cast(pl.Boolean)
-                    except Exception as e:  # noqa: BLE001
-                        logger.warning("basic_filter mask failed: %s", e)
-                        return _err(f"基础过滤计算失败: {e}")
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("basic_filter mask failed: %s", e)
+                    return _err(f"基础过滤计算失败: {e}")
 
             candidate_filter_mask = self._build_candidate_filter_mask(panel, s, params)
             candidate_mask = basic_mask & candidate_filter_mask
@@ -2299,6 +2304,15 @@ class StrategyBacktestService:
 
         if config.asset_type != "stock":
             return _err("分钟策略回测当前仅支持 A 股 (stock)")
+        minute_basic_filter = self._effective_basic_filter(s, overrides)
+        if (
+            minute_basic_filter.get("enabled", True)
+            and minute_basic_filter.get("exclude_st")
+        ):
+            return _err(
+                "分钟策略回放尚不支持历史ST状态过滤；"
+                "请明确关闭本次回测的排除ST选项，不能用当前名称回看历史"
+            )
         if config.exit_fill == "signal_next_minute":
             return _err("分钟策略回测暂不支持「信号触发卖出」离场口径")
 
@@ -3001,6 +3015,7 @@ class StrategyBacktestService:
         override_filter = overrides.get("basic_filter")
         if isinstance(override_filter, dict):
             basic_filter.update(override_filter)
+        basic_filter["_historical"] = True
         return basic_filter
 
     @staticmethod
@@ -3228,8 +3243,9 @@ class StrategyBacktestService:
         basic_filter = _basic_filter_for_asset(
             self._effective_basic_filter(s, overrides), config.asset_type
         )
+        basic_filter.pop("_historical", None)
         return {
-            "algorithm_version": "strategy_backtest_v1",
+            "algorithm_version": "strategy_backtest_v2",
             "app_version": __version__,
             "strategy": {
                 "id": s.meta.get("id", config.strategy_id),
@@ -3277,6 +3293,10 @@ class StrategyBacktestService:
                 "exit_signal_requires_profit": (
                     matcher_config.exit_signal_requires_profit
                 ),
+                "exit_signal_profit_basis": (
+                    "holding_peak_close"
+                    if matcher_config.exit_signal_requires_profit else None
+                ),
                 # 有效风控: 取当次实际 matcher_config, 而不是请求里的默认 holding_days。
                 "stop_loss_pct": matcher_config.stop_loss_pct,
                 "take_profit_pct": matcher_config.take_profit_pct,
@@ -3297,6 +3317,11 @@ class StrategyBacktestService:
             },
             "data": {
                 "frozen": False,
+                "st_filter_basis": (
+                    "effective_date_known_normal_only"
+                    if basic_filter.get("enabled", True) and basic_filter.get("exclude_st")
+                    else None
+                ),
                 "generation": generation,
                 "generation_source": source,
                 "coverage": {"start": str(config.start), "end": str(config.end)},
