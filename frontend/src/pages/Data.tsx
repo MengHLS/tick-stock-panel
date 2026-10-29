@@ -319,6 +319,8 @@ export function Data() {
   }, [history.data?.active_id])
 
   const s = status.data
+  // busy 降级 (预热/同步/修复期间) 且冷启动缓存未热时 storage 为 null — 单独取别名,
+  // 各消费点用 storage?. 判空 (直接 s.storage.x 会在 status 非空时仍抛 TypeError)
   const storage = s?.storage
   const isLoading = status.isLoading
   const isRunning = job.data?.status === 'running' || job.data?.status === 'pending'
