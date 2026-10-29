@@ -104,13 +104,6 @@ def test_polars_and_numpy_limit_prices_use_identical_half_up_rounding():
 
 
 def test_matrix_uses_date_specific_st_limits_across_change(tmp_path, monkeypatch):
-    from app.indicators import price_quality
-
-    monkeypatch.setattr(
-        price_quality,
-        "require_active_token",
-        lambda *args, **kwargs: {"generation": "test"},
-    )
     root = tmp_path / "kline_daily_enriched"
     rows = [
         (date(2026, 7, 2), 10.0),

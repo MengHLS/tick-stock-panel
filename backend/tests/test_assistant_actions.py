@@ -79,6 +79,7 @@ async def _run_chat(
 ) -> list[dict[str, Any]]:
     monkeypatch.setattr(chat_service, "ai_configured", lambda: True)
     monkeypatch.setattr(chat_service, "is_codex_cli_provider", lambda provider=None: False)
+    monkeypatch.setattr(assistant_actions, "auto_approve_enabled", lambda: False)
     script = [{"tool_calls": tool_calls}, {"text_pieces": ["完成"]}]
     monkeypatch.setattr(chat_service, "stream_openai_round", _script_round(script))
     monkeypatch.setattr(assistant_tools, "execute_assistant_tool", fake_execute)

@@ -57,7 +57,8 @@ from app.backtest.strategy import (
 )
 from app.enriched_generation import (
     EnrichedGenerationUnavailableError,
-    enriched_publication_incomplete,
+    _exclusive_generation_lock,
+    get_enriched_generation,
 )
 from app.factors.event_chain import is_event_chain_factor
 from app.factors.registry import factor_columns_view, get_factor
@@ -90,11 +91,11 @@ _REGIME_FILTERS: dict[str, dict[str, list[str]]] = {
 # 面板/撮合矩阵读取期间 enriched 世代被并发发布打断时, 允许用新世代整体重读的次数
 # 与发布未完成时的等待秒数; 超过后以带指引的错误终止运行。
 _SNAPSHOT_MAX_ATTEMPTS = 3  # 已废弃: 任务固定入队版本, 首次漂移即失败
-MINING_QUALITY_FAILURE = (
-    "行情数据版本或复权认证已变化，本次挖掘已停止，未生成可用结果。"
-    "请等待数据完成完整校验后重新发起挖掘。"
+MINING_GENERATION_FAILURE = (
+    "行情数据版本已变化，本次挖掘已停止，未生成可用结果。"
+    "请等待数据更新完成后重新发起挖掘。"
 )
-_QUALITY_ERROR_MARKERS = ("复权认证", "认证未通过", "认证已失效", "版本令牌")
+_GENERATION_ERROR_MARKERS = ("行情数据版本", "enriched data is being published")
 _SNAPSHOT_PUBLISH_WAIT_SECONDS = 5.0
 
 # ── P2b 冠军权重精调 (docs/auto-strategy-lab-plan.md §4.2) ──────────────
@@ -246,7 +247,7 @@ class MatcherCandidateEvaluator:
                 prepared.compute_cache.close()
             self.backtest_count += 1
             if result.error:
-                if any(marker in result.error for marker in _QUALITY_ERROR_MARKERS):
+                if any(marker in result.error for marker in _GENERATION_ERROR_MARKERS):
                     raise ValueError(result.error)
                 return CandidateEvaluation(score=None, error=result.error)
             metrics = {
@@ -262,7 +263,7 @@ class MatcherCandidateEvaluator:
                 )
             return CandidateEvaluation(score=score, metrics=metrics)
         except ValueError as exc:
-            if any(marker in str(exc) for marker in _QUALITY_ERROR_MARKERS):
+            if any(marker in str(exc) for marker in _GENERATION_ERROR_MARKERS):
                 raise
             return CandidateEvaluation(score=None, error=str(exc))
         except (OSError, TypeError) as exc:
@@ -498,37 +499,29 @@ def run_mining_runtime(
     if not isinstance(expected_generation, str) or not expected_generation:
         raise ValueError("mining worker payload is missing its data generation")
 
-    from app.indicators.price_quality import (
-        AdjustmentIntegrityError,
-        certification_submission,
-        require_active_token,
-        verify_certification_for_generation,
-    )
-
-    def _quality_abort(stage: str, detail: str = "") -> ValueError:
+    def _snapshot_abort(stage: str, detail: str = "") -> ValueError:
         suffix = f"（阶段: {stage}{'; ' + detail if detail else ''}）"
-        return ValueError(MINING_QUALITY_FAILURE + suffix)
+        return ValueError(MINING_GENERATION_FAILURE + suffix)
 
     try:
-        verify_certification_for_generation(
-            data_dir, request.asset_type, expected_generation,
+        current_generation = get_enriched_generation(data_dir, request.asset_type)
+    except EnrichedGenerationUnavailableError as exc:
+        raise _snapshot_abort("入队版本校验", str(exc)) from exc
+    if current_generation != expected_generation:
+        raise _snapshot_abort(
+            "入队版本校验",
+            f"预期 {expected_generation}，实际 {current_generation}",
         )
-        quality_token = require_active_token(data_dir, request.asset_type)
-    except AdjustmentIntegrityError as exc:
-        raise _quality_abort("入队版本校验", str(exc)) from exc
 
     def _assert_snapshot(stage: str) -> None:
         try:
-            current = require_active_token(data_dir, request.asset_type)
-        except AdjustmentIntegrityError as exc:
-            raise _quality_abort(stage, str(exc)) from exc
-        if (
-            current.get("generation") != expected_generation
-            or current.get("stamp_sha256") != quality_token.get("stamp_sha256")
-        ):
-            raise _quality_abort(
+            current = get_enriched_generation(data_dir, request.asset_type)
+        except EnrichedGenerationUnavailableError as exc:
+            raise _snapshot_abort(stage, str(exc)) from exc
+        if current != expected_generation:
+            raise _snapshot_abort(
                 stage,
-                f"预期 {expected_generation}，实际 {current.get('generation')}",
+                f"预期 {expected_generation}，实际 {current}",
             )
 
     store = MiningRunStore(data_dir)
@@ -639,7 +632,7 @@ def run_mining_runtime(
                 "matrix_bytes": base_market.nbytes,
             })
         except EnrichedGenerationUnavailableError as exc:
-            raise _quality_abort("面板读取", str(exc)) from exc
+            raise _snapshot_abort("面板读取", str(exc)) from exc
     if panel is None or base_market is None or generation is None:
         raise RuntimeError("mining data snapshot did not settle")
 
@@ -702,7 +695,7 @@ def run_mining_runtime(
                 "total": 4,
             })
         # 最终核对与登记在发布读写协调锁内完成, 防止检查后写方插入。
-        with certification_submission(data_dir, request.asset_type):
+        with _exclusive_generation_lock(data_dir, request.asset_type):
             _assert_snapshot("产物提交前")
             store.register_artifacts(
                 request.run_id, [name for name, _path in written_paths],

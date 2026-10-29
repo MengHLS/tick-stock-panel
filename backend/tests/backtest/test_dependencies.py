@@ -8,16 +8,6 @@ import pytest
 
 
 from app.backtest.engine import BacktestEngine
-
-@pytest.fixture(autouse=True)
-def _bypass_engine_quality(monkeypatch):
-    """合成夹具不经过 enriched 发布; 加载保护由专门用例覆盖。"""
-    monkeypatch.setattr(
-        "app.backtest.engine.BacktestEngine._require_certified_load",
-        lambda self, asset_type="stock", **kwargs: None,
-    )
-
-
 from app.backtest.strategy import StrategyDependencyResolver
 from app.strategy.engine import StrategyDef
 

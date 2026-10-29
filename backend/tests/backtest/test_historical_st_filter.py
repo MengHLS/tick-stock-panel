@@ -162,7 +162,6 @@ def test_backtest_loaders_attach_status_even_when_price_matrix_is_cached(tmp_pat
     try:
         repo = KlineRepository(store)
         engine = BacktestEngine(repo)
-        monkeypatch.setattr(engine, "_require_certified_load", lambda *a, **kw: None)
         monkeypatch.setattr(engine, "load_panel", lambda *a, **kw: _panel().drop("st_flag"))
         monkeypatch.setattr(engine, "data_generation_await", lambda *a, **kw: "test")
         monkeypatch.setattr(engine, "assert_data_generation", lambda *a, **kw: None)

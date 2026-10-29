@@ -22,11 +22,6 @@ from app.services import config_backup
 @pytest.fixture(autouse=True)
 def _isolated_dirs(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(settings, "data_dir", tmp_path)
-    # 本用例验证“导入 → 回测”链路，不构造完整 enriched 发布认证。
-    monkeypatch.setattr(
-        "app.backtest.strategy.require_price_quality",
-        lambda *args, **kwargs: {"basis": "forward_adjusted"},
-    )
     # 注入迁移自内置的信号定义 (signal_limit_up 等) — 回测解析硬依赖
     from tests.signal_seeds import install_pipeline_caches
     install_pipeline_caches(monkeypatch)

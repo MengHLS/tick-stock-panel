@@ -5023,7 +5023,7 @@ export interface DataStatus {
     ext_data_files?: number
     ext_data_size_mb?: number
     total_size_mb: number
-  }
+  } | null
   next_pipeline_run: string | null
   next_instruments_run: string | null
   last_pipeline_run: string | null

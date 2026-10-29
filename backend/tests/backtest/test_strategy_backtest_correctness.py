@@ -14,15 +14,6 @@ from app.services import regime_builder
 from app.strategy.engine import StrategyDef
 
 
-@pytest.fixture(autouse=True)
-def _bypass_price_quality(monkeypatch):
-    """合成面板夹具不经过 enriched 发布; 复权校验由专门用例覆盖。"""
-    monkeypatch.setattr(
-        "app.backtest.strategy.require_price_quality",
-        lambda *args, **kwargs: {"basis": "forward_adjusted"},
-    )
-
-
 def _strategy(**kwargs) -> StrategyDef:
     defaults = dict(
         meta={"id": "test", "name": "test", "scoring": {}, "params": [], "limit": 100},

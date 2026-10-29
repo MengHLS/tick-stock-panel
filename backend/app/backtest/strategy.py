@@ -66,11 +66,6 @@ from app.indicators.pipeline import (
     LIMIT_SIGNAL_OUTPUTS,
     get_signal_dependencies,
 )
-from app.indicators.price_quality import (
-    AdjustmentIntegrityError,
-    require_active_token,
-    require_price_quality,
-)
 from app.strategy.engine import StrategyDataContext, StrategyDef, StrategyEngine
 from app.strategy.scoring import (
     SCORING_DIRECTION_LOW,
@@ -841,8 +836,6 @@ class PreparedMatrixBacktest:
     compute_cache: MatrixComputeCache
     # 准备该共享矩阵时的数据 generation (装载前后校验一致才非空); 无法证明为 None。
     source_generation: str | None = None
-    # 准备该矩阵时签发的复权认证令牌; 复用时必须与当前令牌一致。
-    quality_token: dict | None = None
 
 
 def _panel_backend(execution_backend: str) -> bool:
@@ -868,7 +861,6 @@ class PreparedPanelBacktest:
     # sim 半边的参数无关矩阵编码 (P2a-2); None = 未启用 (回退逐组建矩阵)
     sim_encoding: PanelMatrixEncoding | None = None
     source_generation: str | None = None
-    quality_token: dict | None = None
 
 
 class StrategyBacktestService:
@@ -927,68 +919,6 @@ class StrategyBacktestService:
         """装载前后版本一致才视为可绑定; 否则无法证明, 返回 None。"""
         if before is not None and after is not None and before == after:
             return before
-        return None
-
-    def _price_quality_error(self, config: StrategyBacktestConfig) -> str | None:
-        """回测入口的复权认证 fail-closed: 完整复核内容并签发版本令牌。
-
-        复核成本为 O(参与认证文件字节数); 同一次运行内的加载边界用令牌做低成本
-        版本复核, 发现发布中/ generation 变化/证据被替换即拒绝。
-        """
-        store = getattr(getattr(self.engine, "repo", None), "store", None)
-        data_dir = getattr(store, "data_dir", None)
-        if not isinstance(data_dir, (str, Path)):
-            return None
-        try:
-            require_price_quality(data_dir, config.asset_type)
-        except AdjustmentIntegrityError as exc:
-            return f"行情复权认证未通过，已拒绝回测：{exc}"
-        return None
-
-    def _quality_token_error(self, config: StrategyBacktestConfig) -> str | None:
-        """加载后复核: 同一次运行的版本令牌必须仍有效。"""
-        store = getattr(getattr(self.engine, "repo", None), "store", None)
-        data_dir = getattr(store, "data_dir", None)
-        if not isinstance(data_dir, (str, Path)):
-            return None
-        try:
-            require_active_token(data_dir, config.asset_type)
-        except AdjustmentIntegrityError as exc:
-            return f"行情复权认证已失效，已拒绝回测：{exc}"
-        return None
-
-    def _quality_data_dir(self, config: StrategyBacktestConfig):
-        store = getattr(getattr(self.engine, "repo", None), "store", None)
-        data_dir = getattr(store, "data_dir", None)
-        return data_dir if isinstance(data_dir, (str, Path)) else None
-
-    def _current_quality_token(self, config: StrategyBacktestConfig) -> dict | None:
-        data_dir = self._quality_data_dir(config)
-        if data_dir is None:
-            return None
-        try:
-            return require_active_token(data_dir, config.asset_type)
-        except AdjustmentIntegrityError:
-            return None
-
-    def _prepared_token_error(
-        self, config: StrategyBacktestConfig, prepared_token: dict | None,
-    ) -> str | None:
-        """复用共享基础矩阵前核对来源令牌, 防止旧 prepared 绕过认证。"""
-        data_dir = self._quality_data_dir(config)
-        if data_dir is None:
-            return None
-        try:
-            current = require_active_token(data_dir, config.asset_type)
-        except AdjustmentIntegrityError as exc:
-            return f"行情复权认证已失效，已拒绝回测：{exc}"
-        if prepared_token is None:
-            return "共享基础矩阵缺少复权认证令牌，拒绝复用"
-        if (
-            prepared_token.get("generation") != current["generation"]
-            or prepared_token.get("stamp_sha256") != current["stamp_sha256"]
-        ):
-            return "共享基础矩阵的复权认证令牌与当前数据版本不一致，拒绝复用"
         return None
 
     def _resolve_composite_feature_plan(
@@ -1136,9 +1066,6 @@ class StrategyBacktestService:
             raise ValueError("optimizer trials must share strategy, universe, range and overrides")
 
         first = configs[0]
-        quality_error = self._price_quality_error(first)
-        if quality_error:
-            raise ValueError(quality_error)
         strategy = self.strategy_engine.get(first.strategy_id)
         if strategy.execution_backend != "matrix_native":
             raise ValueError("shared MarketDataMatrix preparation requires matrix_native strategy")
@@ -1302,7 +1229,6 @@ class StrategyBacktestService:
             prepare_timing_ms=timing_ms,
             compute_cache=compute_cache,
             source_generation=prepared_generation,
-            quality_token=self._current_quality_token(first),
         )
 
     def prepare_panel_optimization(
@@ -1323,9 +1249,6 @@ class StrategyBacktestService:
             raise ValueError("optimizer trials must share strategy, universe, range and overrides")
 
         first = configs[0]
-        quality_error = self._price_quality_error(first)
-        if quality_error:
-            raise ValueError(quality_error)
         strategy = self.strategy_engine.get(first.strategy_id)
         if not _panel_backend(strategy.execution_backend):
             raise ValueError("shared feature panel preparation requires a panel-path strategy")
@@ -1406,7 +1329,6 @@ class StrategyBacktestService:
             sim_end=sim_end,
             sim_encoding=sim_encoding,
             source_generation=prepared_generation,
-            quality_token=self._current_quality_token(first),
         )
 
     def run(
@@ -1493,11 +1415,6 @@ class StrategyBacktestService:
             )
             if unsupported_rules:
                 return _err(full_execution_unsupported_message(unsupported_rules))
-        # 复权尺度 fail-closed: 行情未通过发布校验或因子已变化时拒绝回测,
-        # 不生成可保存的成功结果 (避免在混用尺度上产出虚假收益)。
-        quality_error = self._price_quality_error(config)
-        if quality_error:
-            return _err(quality_error)
         stop_loss = self._override_value(overrides, "stop_loss", s.stop_loss)
         take_profit = self._normalize_pct(
             self._override_value(overrides, "take_profit", getattr(s, "take_profit", None)),
@@ -1598,9 +1515,6 @@ class StrategyBacktestService:
                 return _err("共享基础矩阵只能用于 matrix_native 策略")
             if prepared.signature != self._matrix_prepare_signature(config):
                 return _err("共享基础矩阵与当前回测配置不匹配")
-            prepared_token_error = self._prepared_token_error(config, prepared.quality_token)
-            if prepared_token_error:
-                return _err(prepared_token_error)
             load_end = prepared.load_end
             sim_end = prepared.sim_end
             feature_width = prepared.feature_width
@@ -1686,11 +1600,6 @@ class StrategyBacktestService:
                     return _err("共享特征面板只能用于面板路径策略")
                 if prepared_panel.signature != self._matrix_prepare_signature(config):
                     return _err("共享特征面板与当前回测配置不匹配")
-                prepared_token_error = self._prepared_token_error(
-                    config, prepared_panel.quality_token,
-                )
-                if prepared_token_error:
-                    return _err(prepared_token_error)
                 required_columns = (
                     set(feature_plan.base_columns) | set(feature_plan.instrument_columns)
                     | set(feature_plan.signal_columns) | set(feature_plan.indicator_columns)

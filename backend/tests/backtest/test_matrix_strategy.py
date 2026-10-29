@@ -55,14 +55,6 @@ def _load_matrix(parquet_root, start, end, **kwargs):
     return _load_matrix_real(parquet_root, start, end, **kwargs)
 
 
-@pytest.fixture(autouse=True)
-def _synthetic_quality_token(monkeypatch):
-    monkeypatch.setattr(
-        "app.indicators.price_quality.require_active_token",
-        lambda *args, **kwargs: {"generation": "synthetic", "stamp_sha256": "synthetic"},
-    )
-
-
 def test_common_matrix_features_match_polars_indicator_pipeline():
     rows = []
     start = date(2024, 1, 1)

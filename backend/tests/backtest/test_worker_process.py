@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import pathlib
 import queue
 import threading
@@ -63,14 +62,7 @@ MATRIX_STRATEGY = AlwaysEntry()
     )
 
 
-def _approve_price_quality(data_dir) -> None:
-    """写入完整认证证据与可信覆盖, 让子进程回测入口的 fail-closed 校验通过。"""
-    from app.indicators.price_quality import (
-        certify_full_history,
-        coverage_path,
-        load_adj_factors_strict,
-    )
-
+def _ensure_factor_store(data_dir) -> None:
     factor_path = data_dir / "adj_factor" / "all.parquet"
     factor_path.parent.mkdir(parents=True, exist_ok=True)
     if not factor_path.exists():
@@ -79,33 +71,6 @@ def _approve_price_quality(data_dir) -> None:
             "trade_date": [date(2020, 1, 2)],
             "ex_factor": [1.0],
         }).write_parquet(factor_path)
-    coverage = {
-        "asset_type": "stock",
-        "basis_date": "2026-12-31",
-        "source": "test-fixture:trusted",
-        "acquired_at": "2026-10-28T00:00:00+00:00",
-        "records": [
-            {
-                "symbol": "600000.SH",
-                "start": "2018-01-01",
-                "end": "2026-12-31",
-                "status": "COMPLETE",
-                "source": "test-fixture:trusted",
-                "acquired_at": "2026-10-28T00:00:00+00:00",
-            }
-        ],
-    }
-    coverage_path(data_dir, "stock").write_text(json.dumps(coverage), encoding="utf-8")
-    bump_enriched_generation(data_dir, "stock")
-    dates = sorted(
-        part.name.split("=")[1]
-        for part in (data_dir / "kline_daily_enriched").glob("date=*")
-    )
-    certify_full_history(
-        data_dir, "stock",
-        symbols_with_dates={"600000.SH": (date.fromisoformat(dates[0]), date.fromisoformat(dates[-1]))},
-        factors=load_adj_factors_strict(factor_path),
-    )
 
 
 
@@ -150,50 +115,14 @@ def _write_market_data(data_dir, start: date, days: int = 3) -> None:
         "float_shares": [1_000_000_000.0],
     }).write_parquet(instruments_dir / "part.parquet")
 
-    _approve_price_quality(data_dir)
-
-
-def _approve_mining_quality(data_dir, symbols, start: date, days: int) -> None:
-    from app.indicators.price_quality import (
-        certify_full_history,
-        coverage_path,
-        load_adj_factors_strict,
-    )
-
-    factor_path = data_dir / "adj_factor" / "all.parquet"
-    factor_path.parent.mkdir(parents=True, exist_ok=True)
-    if not factor_path.exists():
-        pl.DataFrame({
-            "symbol": ["999999.SZ"],
-            "trade_date": [date(2020, 1, 2)],
-            "ex_factor": [1.0],
-        }).write_parquet(factor_path)
-    coverage = {
-        "asset_type": "stock",
-        "basis_date": "2026-12-31",
-        "source": "test-fixture:trusted",
-        "acquired_at": "2026-10-28T00:00:00+00:00",
-        "records": [
-            {
-                "symbol": symbol,
-                "start": "2018-01-01",
-                "end": "2026-12-31",
-                "status": "COMPLETE",
-                "source": "test-fixture:trusted",
-                "acquired_at": "2026-10-28T00:00:00+00:00",
-            }
-            for symbol in symbols
-        ],
-    }
-    coverage_path(data_dir, "stock").write_text(json.dumps(coverage), encoding="utf-8")
+    _ensure_factor_store(data_dir)
     bump_enriched_generation(data_dir, "stock")
-    certify_full_history(
-        data_dir, "stock",
-        symbols_with_dates={
-            symbol: (start, start + timedelta(days=days - 1)) for symbol in symbols
-        },
-        factors=load_adj_factors_strict(factor_path),
-    )
+
+
+def _ensure_mining_factor_store(data_dir, symbols, start: date, days: int) -> None:
+    del symbols, start, days
+    _ensure_factor_store(data_dir)
+    bump_enriched_generation(data_dir, "stock")
 
 def _write_mining_market_data(
     data_dir,
@@ -245,7 +174,7 @@ def _write_mining_market_data(
     }).write_parquet(instruments_dir / "part.parquet")
 
 
-    _approve_mining_quality(data_dir, symbols, start, days)
+    _ensure_mining_factor_store(data_dir, symbols, start, days)
 
 
 def test_spawn_worker_returns_compact_result_and_memory_metrics(tmp_path):
@@ -468,7 +397,7 @@ def test_spawn_mining_rejects_generation_change_after_queue(tmp_path):
 
     with pytest.raises(
         BacktestWorkerError,
-        match="行情数据版本或复权认证已变化",
+        match="行情数据版本已变化",
     ):
         run_worker_task(make_worker_task("mining", data_dir, payload))
 
@@ -706,7 +635,7 @@ def test_mining_rereads_snapshot_when_generation_commits_mid_read(
 
     events: list[dict] = []
 
-    with pytest.raises(ValueError, match="行情数据版本或复权认证已变化"):
+    with pytest.raises(ValueError, match="行情数据版本已变化"):
         run_mining_runtime(
             payload,
             data_dir=data_dir,
@@ -816,9 +745,10 @@ def test_mining_artifact_commit_drift_leaves_no_artifacts(monkeypatch, tmp_path)
     service, strategy_engine = _mining_runtime_services(data_dir)
 
     from app.backtest.mining_runtime import run_mining_runtime
-    from app.indicators import price_quality
+    from app.backtest import mining_runtime
+    from app.enriched_generation import EnrichedGenerationUnavailableError
 
-    original = price_quality.require_active_token
+    original = mining_runtime.get_enriched_generation
 
     def _flaky(data_dir_arg, asset_type="stock", **kwargs):
         # 产物文件已落盘 = 已到“提交前”阶段; 此时模拟发布插入使令牌失效。
@@ -827,12 +757,14 @@ def test_mining_artifact_commit_drift_leaves_no_artifacts(monkeypatch, tmp_path)
             for path in pathlib.Path(data_dir_arg).rglob("*.parquet")
         )
         if staged:
-            raise price_quality.PriceScaleError("simulated publish before artifact commit")
+            raise EnrichedGenerationUnavailableError(
+                "simulated publish before artifact commit"
+            )
         return original(data_dir_arg, asset_type, **kwargs)
 
-    monkeypatch.setattr(price_quality, "require_active_token", _flaky)
+    monkeypatch.setattr(mining_runtime, "get_enriched_generation", _flaky)
 
-    with pytest.raises(ValueError, match="行情数据版本或复权认证已变化"):
+    with pytest.raises(ValueError, match="行情数据版本已变化"):
         run_mining_runtime(
             payload,
             data_dir=data_dir,

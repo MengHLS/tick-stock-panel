@@ -264,6 +264,7 @@ def test_pro_tier_keeps_tickflow_minute_fallback(monkeypatch):
     tickflow.klines.batch.side_effect = RuntimeError("upstream unavailable")
     get_client = MagicMock(return_value=tickflow)
     monkeypatch.setattr("app.services.preferences.get_minute_data_provider", lambda: "tickflow")
+    monkeypatch.setattr("app.services.preferences.load", lambda: {"minute_data_provider": "tickflow"})
     monkeypatch.setattr("app.services.kline_sync.get_client", get_client)
 
     response = _client(_DetailRepo(pl.DataFrame()), capset).get(

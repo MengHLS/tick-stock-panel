@@ -715,21 +715,19 @@ def load_market_data_matrix_from_parquet(
     cancel_event: threading.Event | None = None,
 ) -> MarketDataMatrix:
 
-    from app.indicators.price_quality import require_active_token
     from app.tickflow.repository import enriched_dirname
 
     if data_dir is None:
         raise ValueError(
-            "矩阵磁盘加载必须提供明确的数据根与资产类型（用于复权认证），"
-            "不能用父目录推测或跳过认证"
+            "矩阵磁盘加载必须提供明确的数据根与资产类型，"
+            "不能用父目录推测"
         )
-    quality_root = Path(data_dir).resolve()
-    expected_root = (quality_root / enriched_dirname(asset_type)).resolve()
+    data_root = Path(data_dir).resolve()
+    expected_root = (data_root / enriched_dirname(asset_type)).resolve()
     if Path(parquet_root).resolve() != expected_root:
         raise ValueError(
-            "矩阵目录不属于该认证数据根的 enriched 根，拒绝读取"
+            "矩阵目录不属于该数据根的 enriched 根，拒绝读取"
         )
-    require_active_token(quality_root, asset_type)
 
     """Load a daily market matrix, reusing a covering read-only mmap when possible."""
     _raise_if_matrix_cancelled(cancel_event)

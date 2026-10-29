@@ -319,6 +319,7 @@ export function Data() {
   }, [history.data?.active_id])
 
   const s = status.data
+  const storage = s?.storage
   const isLoading = status.isLoading
   const isRunning = job.data?.status === 'running' || job.data?.status === 'pending'
   const isStarting = startSync.isPending
@@ -888,7 +889,7 @@ export function Data() {
               {isLoading ? (
                 <Skeleton w="w-12" />
               ) : (
-                <span className="font-mono text-xs text-muted">{s ? `${s.storage.total_size_mb} MB` : '—'}</span>
+                <span className="font-mono text-xs text-muted">{storage ? `${storage.total_size_mb} MB` : '—'}</span>
               )}
             </div>
             <div className="space-y-2">
@@ -903,12 +904,12 @@ export function Data() {
                   </div>
                 ))
               ) : [
-                { label: '个股维表', files: s?.storage.instruments_files, size: s?.storage.instruments_size_mb },
-                { label: '日 K',     files: s?.storage.daily_files,       size: s?.storage.daily_size_mb },
-                { label: '除权因子', files: s?.storage.adj_factor_files,  size: s?.storage.adj_factor_size_mb },
-                { label: 'Enriched', files: s?.storage.enriched_files,    size: s?.storage.enriched_size_mb },
-                { label: '分钟 K',   files: s?.storage.minute_files,      size: s?.storage.minute_size_mb },
-                { label: '财务数据', files: s?.storage.financials_files,   size: s?.storage.financials_size_mb },
+                { label: '个股维表', files: storage?.instruments_files, size: storage?.instruments_size_mb },
+                { label: '日 K',     files: storage?.daily_files,       size: storage?.daily_size_mb },
+                { label: '除权因子', files: storage?.adj_factor_files,  size: storage?.adj_factor_size_mb },
+                { label: 'Enriched', files: storage?.enriched_files,    size: storage?.enriched_size_mb },
+                { label: '分钟 K',   files: storage?.minute_files,      size: storage?.minute_size_mb },
+                { label: '财务数据', files: storage?.financials_files,   size: storage?.financials_size_mb },
               ].map((item) => (
                 <div key={item.label} className="flex items-center justify-between text-[11px]">
                   <span className="text-muted">{item.label}</span>
@@ -923,9 +924,9 @@ export function Data() {
                 <div className="flex items-center justify-between text-[11px] border-t border-border/50 pt-2 mt-1">
                   <span className="text-muted">扩展数据</span>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-secondary">{s?.storage.ext_data_files ?? extConfigs.data.items.length} 文件</span>
+                    <span className="font-mono text-secondary">{storage?.ext_data_files ?? extConfigs.data.items.length} 文件</span>
                     <span className="font-mono text-muted w-16 text-right">
-                      {s?.storage.ext_data_size_mb != null ? `${s.storage.ext_data_size_mb.toFixed(1)} MB` : '—'}
+                      {storage?.ext_data_size_mb != null ? `${storage.ext_data_size_mb.toFixed(1)} MB` : '—'}
                     </span>
                   </div>
                 </div>

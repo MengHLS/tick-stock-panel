@@ -23,18 +23,6 @@ from app.enriched_generation import (
 from app.tickflow.repository import DataStore, KlineRepository
 
 
-@pytest.fixture(autouse=True)
-def _synthetic_price_certification(monkeypatch):
-    """本文件用临时 generation 夹具，不经过 enriched 发布认证。"""
-    monkeypatch.setattr(
-        "app.indicators.price_quality.require_active_token",
-        lambda *args, **kwargs: {
-            "generation": "synthetic",
-            "stamp_sha256": "synthetic",
-        },
-    )
-
-
 def _frame(value: float = 10.0) -> pl.DataFrame:
     return pl.DataFrame({
         "symbol": ["000001.SZ"],

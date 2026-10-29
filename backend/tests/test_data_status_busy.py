@@ -116,3 +116,4 @@ def test_status_endpoint_busy_skips_aggregates(monkeypatch, clean_caches, tmp_pa
     assert res["indicators_ready"] is False
     assert res["checked_at"]
     assert res["daily"] is None and res["minute"] is None
+    assert res["storage"] is None

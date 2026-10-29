@@ -12,7 +12,6 @@ from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
-from pathlib import Path
 from typing import Literal
 
 import numpy as np
@@ -567,27 +566,6 @@ class BacktestEngine:
 
     # ── 数据加载 ──────────────────────────────────────
 
-    def _require_certified_load(
-        self, asset_type: str = "stock", *, start: date | None = None, end: date | None = None,
-    ) -> None:
-        """加载边界复核复权认证令牌 (发布中/版本漂移/未认证一律拒绝)。
-
-        只做数据加载保护, 不参与撮合计算; 认证本身由服务入口完成并签发令牌。
-        """
-        from app.indicators.price_quality import (
-            AdjustmentIntegrityError,
-            require_active_token,
-        )
-
-        store = getattr(self.repo, "store", None)
-        data_dir = getattr(store, "data_dir", None)
-        if not isinstance(data_dir, (str, Path)):
-            return
-        try:
-            require_active_token(data_dir, asset_type, start=start, end=end)
-        except AdjustmentIntegrityError as exc:
-            raise ValueError(f"复权认证校验未通过，拒绝加载行情：{exc}") from exc
-
     def data_generation(self, asset_type: str = "stock") -> str | None:
         loader = getattr(self.repo, "get_matrix_data_generation", None)
         return loader(asset_type) if callable(loader) else None
@@ -635,7 +613,6 @@ class BacktestEngine:
         expected_generation: str | None = None,
     ) -> pl.DataFrame:
         """加载 enriched 数据面板，带缓存。asset_type='etf' 时读 ETF enriched。"""
-        self._require_certified_load(asset_type, start=start, end=end)
         # 快照世代路径也给一次重试 (issue #517): 盘中刷新每轮换新 generation,
         # 读后校验失败时重读「现役世代」而不是死等已作废的旧世代。
         attempts = 2
@@ -784,7 +761,6 @@ class BacktestEngine:
         cancel_event: threading.Event | None = None,
     ) -> MarketDataMatrix:
         """Load a matrix-native backtest directly from projected parquet batches."""
-        self._require_certified_load(asset_type, start=start, end=end)
         if feature_plan.execution_backend != "matrix_native":
             raise ValueError("direct market matrix loading requires matrix_native backend")
         from app.tickflow.repository import enriched_dirname

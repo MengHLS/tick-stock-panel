@@ -192,23 +192,6 @@ class FactorBacktestService:
                 lambda: self._run(config, regime_by_date=regime_by_date)
             )
 
-    def _price_quality_error(self, config) -> str | None:
-        """因子回测/批量入口的复权认证 fail-closed (与策略回测同一证据)。"""
-        from app.indicators.price_quality import (
-            AdjustmentIntegrityError,
-            require_price_quality,
-        )
-
-        store = getattr(getattr(self.engine, "repo", None), "store", None)
-        data_dir = getattr(store, "data_dir", None)
-        if not isinstance(data_dir, (str, Path)):
-            return None
-        try:
-            require_price_quality(data_dir, config.asset_type)
-        except AdjustmentIntegrityError as exc:
-            return f"行情复权认证未通过，已拒绝因子回测：{exc}"
-        return None
-
     def _run(
         self,
         config: FactorConfig,
@@ -217,9 +200,6 @@ class FactorBacktestService:
     ) -> FactorResult:
         t0 = time.perf_counter()
         run_id = uuid.uuid4().hex[:10]
-        quality_error = self._price_quality_error(config)
-        if quality_error:
-            return self._error_result(config, run_id, t0, quality_error)
         generation = self._data_generation(config.asset_type)
         panel = self._load_factor_panel(
             config,
@@ -285,15 +265,6 @@ class FactorBacktestService:
                 run_id=run_id,
                 config=result_config,
                 error="至少选择一个因子",
-            )
-
-        quality_error = self._price_quality_error(config)
-        if quality_error:
-            return FactorBatchResult(
-                run_id=run_id,
-                config=result_config,
-                error=quality_error,
-                elapsed_ms=round((time.perf_counter() - t0) * 1000, 1),
             )
 
         generation = self._data_generation(config.asset_type)
