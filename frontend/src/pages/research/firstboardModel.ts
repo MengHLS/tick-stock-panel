@@ -75,6 +75,51 @@ export interface FbFactors {
   coverage_250: number | null
 }
 
+export type FbScaleState = 'CROSS_SCALE_VERIFIED' | 'CROSS_SCALE_FACTOR_RECORD' | 'CROSS_SCALE_UNVERIFIED' | 'NO_GAP_DETECTED'
+
+export interface FbScaleGap {
+  date: string
+  close: number | null
+  raw_close: number | null
+  prev_raw_close: number | null
+  adj_ratio_prev: number | null
+  adj_ratio: number | null
+  raw_change: number | null
+  kind: 'ADJ_RATIO_STEP' | 'RAW_PRICE_STEP'
+}
+
+/** 本地 adj_factor 只读核对到的窗口内因子事件；不是公告原件，也不代表完整覆盖。 */
+export interface FbFactorEvent {
+  date: string
+  ex_factor: number | null
+  dividend: number | null
+  bonus: number | null
+  prev_close: number | null
+  source: string
+  announcement_status: 'PENDING_ORIGINAL_ANNOUNCEMENT'
+  /** 是否落在 90 日回放窗口内；false 表示仅在锚点区间内。 */
+  in_short_window: boolean
+}
+
+/** 冻结材料内的价格尺度/公司行动核对结果；UNKNOWN 明确表示没有原始证据。 */
+export interface FbScaleCheck {
+  state: FbScaleState
+  judgment: 'INVALID_PENDING_REBUILD' | 'UNVERIFIED'
+  window_start: string
+  short_window_start: string
+  anchor_window_start: string
+  structure_window_start: string
+  window_end: string
+  gap_dates: string[]
+  gaps: FbScaleGap[]
+  reported_note: string | null
+  evidence: string[]
+  verification: 'VERIFIED_FROM_FROZEN_CSV' | 'LOCAL_FACTOR_RECORD_ONLY' | 'UNKNOWN'
+  /** 价格台阶只能证明尺度异常；公司行动类型需公告/因子来源。 */
+  cause_status: 'PRICE_SCALE_ONLY_PENDING_ANNOUNCEMENT' | 'LOCAL_FACTOR_RECORD_COVERAGE_UNVERIFIED' | 'UNKNOWN'
+  factor_events?: FbFactorEvent[]
+}
+
 export interface FbEvent {
   event_id: string
   code: string
@@ -96,6 +141,7 @@ export interface FbEvent {
   rules: Record<string, FbRuleResult>
   outcomes: FbOutcome[]
   tracking: Array<{ asof: string; step: number | null; relation: string | null; label: string | null; return_since_D: number | null; frozen_D_P: number | null }>
+  scale_check?: FbScaleCheck
 }
 
 export interface FbSymbol {
@@ -108,6 +154,20 @@ export interface FbSymbol {
   bars: Array<[string, number | null, number | null, number | null, number | null, number | null, number | null]>
 }
 
+export interface FbClassificationProvenance {
+  schema_version: string
+  calculation_version: string
+  source_version: string
+  source_path: string
+  source_sha256: string
+  output_path: string
+  output_sha256: string
+  added_null_keys: number
+  validation: string
+  legacy_v01: { path: string; sha256: string }
+  legacy_output?: { path: string; sha256: string | null }
+}
+
 export interface FbReplayData {
   schema: string
   generated_at: string
@@ -115,6 +175,7 @@ export interface FbReplayData {
   default_rule: string
   rules: string[]
   research_root: string
+  classification?: FbClassificationProvenance
   sources: Record<string, { path: string; sha256: string }>
   limitations: string[]
   symbols: FbSymbol[]
@@ -216,6 +277,90 @@ export function describeRule(rule: FbRuleResult | null | undefined): { text: str
   if (rule.path_state) parts.push(`路径状态 ${rule.path_state}`)
   if (rule.examined != null) parts.push(`共检查 ${rule.examined} 个锚点`)
   return { text: `${parts.join('；')}。`, dates }
+}
+
+export interface ScaleCheckDescription {
+  tone: 'danger' | 'warn' | 'muted'
+  title: string
+  summary: string
+  details: string[]
+  causeText: string
+  invalidatesJudgment: boolean
+}
+
+/** 把尺度核对翻译成页面文案；UNKNOWN 不能写成“已验证无除权”。 */
+export function describeScaleCheck(check: FbScaleCheck | null | undefined): ScaleCheckDescription {
+  if (!check) {
+    return {
+      tone: 'muted',
+      title: '未提供尺度核对状态',
+      summary: '该事件没有价格尺度/除权连续性状态，不能据此推断已认证。',
+      details: [],
+      causeText: '未提供',
+      invalidatesJudgment: false,
+    }
+  }
+  const dates = check.gap_dates.join('、')
+  if (check.state === 'CROSS_SCALE_VERIFIED') {
+    if (check.judgment === 'INVALID_PENDING_REBUILD') {
+      return {
+        tone: 'danger',
+        title: '结构判断作废/待重算：窗口跨价格台阶',
+        summary: `锚点区间 ${check.window_start} ~ ${check.window_end} 跨 ${dates} 的价格台阶，P/L 不在同一价格尺度；旧结构判断不能作为有效结论。价格台阶只证明尺度异常；本地因子记录日期与台阶日一致，但公告原件/公司行动类型仍待核对（UNKNOWN）。`,
+        details: [check.reported_note, ...check.evidence].filter((item): item is string => Boolean(item)),
+        causeText: '价格台阶已证实；公告原件/公司行动类型待核对',
+        invalidatesJudgment: true,
+      }
+    }
+    return {
+      tone: 'warn',
+      title: '窗口跨价格台阶：图表/指标跨尺度',
+      summary: `90日窗口 ${check.short_window_start} ~ ${check.window_end} 跨 ${dates} 的价格台阶；结构锚点均在 ${check.structure_window_start} 之后，结构判断不直接作废，但图表、收益、动量、位置指标仍跨尺度，需复核。`,
+      details: [check.reported_note, ...check.evidence].filter((item): item is string => Boolean(item)),
+      causeText: '价格台阶已证实；结构锚点在台阶后，公告原件/公司行动类型待核对',
+      invalidatesJudgment: false,
+    }
+  }
+  if (check.state === 'CROSS_SCALE_FACTOR_RECORD') {
+    const events = check.factor_events ?? []
+    const factorDate = events[0]?.date ?? '—'
+    const eventText = events.length > 1 ? `${events.length} 个因子事件（最近 ${factorDate}）` : `因子事件 ${factorDate}`
+    return {
+      tone: 'warn',
+      title: '跨尺度（本地因子记录，未认证覆盖）',
+      summary: `窗口 ${check.short_window_start} ~ ${check.window_end} 含 ${eventText}（非 D 日）；冻结 CSV 未见原始价台阶。该记录仅为本地 adj_factor，非公告权威、非完整覆盖（COMPLETE），跨尺度影响与结构判断仍待认证，不把转述当认证。`,
+      details: [check.reported_note, ...check.evidence].filter((item): item is string => Boolean(item)),
+      causeText: '本地因子记录；公告原件/完整覆盖未认证',
+      invalidatesJudgment: false,
+    }
+  }
+  if (check.state === 'CROSS_SCALE_UNVERIFIED') {
+    return {
+      tone: 'warn',
+      title: '跨尺度待核实（UNKNOWN）',
+      summary: '外部报告称该事件窗口跨除权日，但本地记录未匹配到因子行；冻结 CSV 未见可识别原始价台阶，跨尺度影响仍待核实（UNKNOWN），不把口述当已验证。',
+      details: [check.reported_note, ...check.evidence].filter((item): item is string => Boolean(item)),
+      causeText: '未匹配到本地因子记录；跨尺度影响待核实（UNKNOWN）',
+      invalidatesJudgment: false,
+    }
+  }
+  return {
+    tone: 'muted',
+    title: '未发现可识别除权台阶',
+    summary: '仅表示冻结 CSV 中没有可识别的复权比跳变或超限原始价台阶，不等于无除权。',
+    details: check.evidence,
+    causeText: '未核对（UNKNOWN）',
+    invalidatesJudgment: false,
+  }
+}
+
+export function scaleStateLabel(state: FbScaleState | undefined, judgment?: FbScaleCheck['judgment']): string | null {
+  if (state === 'CROSS_SCALE_VERIFIED') {
+    return judgment === 'INVALID_PENDING_REBUILD' ? '跨尺度·作废' : '跨尺度·窗口'
+  }
+  if (state === 'CROSS_SCALE_FACTOR_RECORD') return '跨尺度·因子记录'
+  if (state === 'CROSS_SCALE_UNVERIFIED') return '跨尺度·待核实'
+  return null
 }
 
 export function pctText(value: number | null | undefined, digits = 1): string {

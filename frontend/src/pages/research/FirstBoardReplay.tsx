@@ -9,9 +9,11 @@ import {
   barsUpToD,
   describeEvent,
   describeRule,
+  describeScaleCheck,
   futureWindow,
   pctText,
   replayWindow,
+  scaleStateLabel,
   toBars,
   type FbBar,
   type FbEvent,
@@ -19,7 +21,7 @@ import {
   type FbSymbol,
 } from './firstboardModel'
 
-const DATA_URL = '/research/firstboard/replay.json'
+const DATA_URL = '/research/firstboard/replay-v012.json'
 
 function loadReplay(): Promise<FbReplayData> {
   return fetch(DATA_URL).then(async res => {
@@ -71,7 +73,7 @@ function StatusChip({ text, tone = 'muted' }: { text: string; tone?: 'muted' | '
 }
 
 export function FirstBoardReplay() {
-  const meta = useQuery({ queryKey: ['firstboard-replay'], queryFn: loadReplay, staleTime: 300_000 })
+  const meta = useQuery({ queryKey: ['firstboard-replay', 'v012'], queryFn: loadReplay, staleTime: 300_000 })
   const [code, setCode] = useState<string | null>(null)
   const [eventId, setEventId] = useState<string | null>(null)
   const [rule, setRule] = useState<string | null>(null)
@@ -102,6 +104,7 @@ export function FirstBoardReplay() {
   const futureBars = useMemo(() => (event && showFuture && bars.length ? futureWindow(bars, event.date, 20) : []), [bars, event, showFuture])
   const narrative = useMemo(() => (event ? describeEvent(event) : null), [event])
   const ruleText = useMemo(() => describeRule(ruleResult), [ruleResult])
+  const scaleInfo = useMemo(() => describeScaleCheck(event?.scale_check), [event])
 
   const selectSymbol = (nextCode: string) => {
     setCode(nextCode)
@@ -174,13 +177,17 @@ export function FirstBoardReplay() {
   ]
 
   const shortMarkers: ChartMarker[] = []
-  if (ruleResult?.P_known_at) shortMarkers.push({ date: ruleResult.P_known_at, kind: 'neutral', label: 'P可知', above: false, color: '#8b5cf6' })
-  if (ruleResult?.first_break) shortMarkers.push({ date: ruleResult.first_break, kind: 'neutral', label: '首次突破', above: true, color: '#0ea5e9' })
-  if (ruleResult?.L_setup_date) shortMarkers.push({ date: ruleResult.L_setup_date, kind: 'neutral', label: 'L', above: false, color: '#10b981' })
+  if (!scaleInfo.invalidatesJudgment) {
+    if (ruleResult?.P_known_at) shortMarkers.push({ date: ruleResult.P_known_at, kind: 'neutral', label: 'P可知', above: false, color: '#8b5cf6' })
+    if (ruleResult?.first_break) shortMarkers.push({ date: ruleResult.first_break, kind: 'neutral', label: '首次突破', above: true, color: '#0ea5e9' })
+    if (ruleResult?.L_setup_date) shortMarkers.push({ date: ruleResult.L_setup_date, kind: 'neutral', label: 'L', above: false, color: '#10b981' })
+  }
 
   const shortPriceLines: ChartPriceLine[] = []
-  if (ruleResult?.P != null) shortPriceLines.push({ value: ruleResult.P, label: `P 锚点 ${ruleResult.P}`, color: '#8b5cf6', start: shortBars[0]?.date, end: event.date })
-  if (ruleResult?.L_setup != null) shortPriceLines.push({ value: ruleResult.L_setup, label: `L 结构低点 ${ruleResult.L_setup}`, color: '#10b981', start: shortBars[0]?.date, end: event.date })
+  if (!scaleInfo.invalidatesJudgment) {
+    if (ruleResult?.P != null) shortPriceLines.push({ value: ruleResult.P, label: `P 锚点 ${ruleResult.P}`, color: '#8b5cf6', start: shortBars[0]?.date, end: event.date })
+    if (ruleResult?.L_setup != null) shortPriceLines.push({ value: ruleResult.L_setup, label: `L 结构低点 ${ruleResult.L_setup}`, color: '#10b981', start: shortBars[0]?.date, end: event.date })
+  }
   shortPriceLines.push({ value: event.raw_close, label: `D 收盘 ${event.raw_close}`, color: '#f59e0b', start: shortBars[0]?.date, end: event.date })
 
   const futurePriceLines: ChartPriceLine[] = futureBars.length
@@ -224,6 +231,7 @@ export function FirstBoardReplay() {
             <div className="max-h-[26rem] space-y-0.5 overflow-y-auto pr-0.5">
               {symbol.first_boards.slice().reverse().map(date => {
                 const frozen = data.events.find(e => e.code === symbol.code && e.date === date)
+                const scaleLabel = frozen ? scaleStateLabel(frozen.scale_check?.state, frozen.scale_check?.judgment) : null
                 const active = date === event.date
                 return (
                   <button
@@ -235,8 +243,11 @@ export function FirstBoardReplay() {
                       : frozen ? 'text-secondary hover:bg-elevated' : 'text-muted hover:bg-elevated/60'}`}
                   >
                     <span className="font-mono">{date}</span>
-                    <span className={`text-[9px] ${frozen ? 'text-accent/80' : 'text-muted/70'}`}>
-                      {frozen ? '冻结回放' : '仅标注'}
+                    <span className="flex items-center gap-1">
+                      {scaleLabel && <span className="text-[9px] text-amber-500">{scaleLabel}</span>}
+                      <span className={`text-[9px] ${frozen ? 'text-accent/80' : 'text-muted/70'}`}>
+                        {frozen ? '冻结回放' : '仅标注'}
+                      </span>
                     </span>
                   </button>
                 )
@@ -254,6 +265,8 @@ export function FirstBoardReplay() {
               <StatusChip text="amount 未核验" tone="warn" />
               <StatusChip text="右截断不补零" tone="warn" />
               <StatusChip text="复权断裂已报告" />
+              <StatusChip text={`分类源 ${data.classification?.schema_version ?? 'v0.1'}`} />
+              <StatusChip text="跨尺度事件已标注" />
               <StatusChip text="暂定参考规则" />
             </div>
             <div className="mt-1.5">冻结版本 {data.rule_version}，冻结截断 2026-10-23；不构成收益或策略结论。</div>
@@ -262,6 +275,53 @@ export function FirstBoardReplay() {
 
         {/* 右: 行情为主体, 判断在后, 后续主动展开 */}
         <section className="min-w-0 space-y-3 lg:overflow-y-auto">
+          {scaleInfo.tone !== 'muted' && (
+            <div className={`rounded-card border p-3 ${scaleInfo.tone === 'danger'
+              ? 'border-danger/40 bg-danger/5'
+              : 'border-amber-400/40 bg-amber-400/10'}`}>
+              <div className={`flex items-center gap-2 text-xs font-medium ${scaleInfo.tone === 'danger' ? 'text-danger' : 'text-amber-500'}`}>
+                <AlertTriangle className="h-3.5 w-3.5" />{scaleInfo.title}
+              </div>
+              <p className="mt-1 text-[11px] leading-5 text-foreground/90">{scaleInfo.summary}</p>
+              <p className="mt-1 text-[10px] leading-4 text-foreground/80">公司行动原因：{scaleInfo.causeText}</p>
+              {scaleInfo.details.length > 0 && (
+                <details className="mt-1">
+                  <summary className="cursor-pointer text-[10px] text-muted">核对证据</summary>
+                  <ul className="mt-1 space-y-0.5 text-[10px] leading-4 text-muted">
+                    {scaleInfo.details.map((item, index) => <li key={index}>{item}</li>)}
+                  </ul>
+                </details>
+              )}
+              <p className="mt-1 text-[10px] leading-4 text-muted">
+                90日窗口 {event.scale_check?.short_window_start ?? event.scale_check?.window_start} ~ {event.scale_check?.window_end}；
+                锚点区间 {event.scale_check?.anchor_window_start ?? event.scale_check?.window_start} ~ {event.scale_check?.window_end}；
+                状态 {event.scale_check?.verification}
+              </p>
+              {event.scale_check?.factor_events?.map(factor => (
+                <p key={factor.date} className="mt-0.5 text-[10px] leading-4 text-muted">
+                  因子事件 {factor.date}：
+                  ex_factor={factor.ex_factor ?? '—'}、
+                  dividend={factor.dividend ?? '—'}、
+                  bonus={factor.bonus ?? '—'}、
+                  prev_close={factor.prev_close ?? '—'}
+                  （{factor.source}；{factor.in_short_window ? '90日窗口内' : '仅锚点区间'}；
+                  {factor.date !== event.date ? '非 D 日' : 'D 日'}；公告原件未归档）
+                </p>
+              ))}
+              {event.scale_check && event.scale_check.gap_dates.length > 0 && (
+                <p className="mt-0.5 text-[10px] leading-4 text-muted">
+                  价格台阶日 {event.scale_check.gap_dates.join('、')}
+                  {event.scale_check.gap_dates.every(d => d !== event.date) ? '，非 D 日' : '（含 D 日）'}。
+                </p>
+              )}
+              {(event.scale_check?.factor_events?.length ?? 0) > 0 && (
+                <p className="mt-0.5 text-[10px] leading-4 text-amber-500">
+                  窗口内因子事件未应用到冻结价；跨该日的收益/动量/P-L/位置指标均按未复权序列计算，不能当作已认证复权值。
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="rounded-card border border-border bg-surface p-3">
             <div className="mb-2 flex flex-wrap items-center gap-2">
               <span className="text-sm font-semibold text-foreground">{symbol.name}</span>
@@ -282,6 +342,11 @@ export function FirstBoardReplay() {
               <span className="text-[11px] text-muted">短周期：截至 D 日收盘（D 之后数据不进入本图）</span>
               <span className="ml-auto text-[10px] text-muted">{shortBars.length} 根</span>
             </div>
+            {scaleInfo.invalidatesJudgment && (
+              <p className="mb-1 text-[10px] leading-4 text-danger">
+                结构判断已作废：图上不绘制 P/L 参考线与结构标记，避免跨价格台阶误读；P/L 数值仅在上方文字中作为历史材料。
+              </p>
+            )}
             {shortBars.length > 0 ? (
               <EChartsCandlestick
                 data={toOhlc(shortBars)}
@@ -319,8 +384,18 @@ export function FirstBoardReplay() {
               <span className="rounded border border-amber-400/40 bg-amber-400/10 px-1.5 py-px text-[10px] text-amber-500">
                 {activeRule === data.default_rule ? '默认参考 · 暂定' : `对比口径 ${activeRule}`}
               </span>
+              {scaleInfo.invalidatesJudgment && (
+                <span className="rounded border border-danger/40 bg-danger/10 px-1.5 py-px text-[10px] text-danger">
+                  结构判断作废·待重算
+                </span>
+              )}
               <span className="text-[10px] text-muted">P/L 是研究里“锚点高点/结构低点”的价格位，不是盈亏</span>
             </div>
+            {scaleInfo.invalidatesJudgment && (
+              <p className="mt-1.5 rounded border border-danger/30 bg-danger/5 px-2 py-1 text-[11px] leading-5 text-danger">
+                该事件锚点 P/L 跨 {event.scale_check?.gap_dates.join('、')} 的价格台阶，下面的规则解释只保留为历史材料，不能作为有效判断。
+              </p>
+            )}
             <p className="mt-1.5 text-xs leading-5 text-foreground/90">{ruleText.text}</p>
             {ruleText.dates.length > 0 && (
               <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted">
@@ -330,6 +405,11 @@ export function FirstBoardReplay() {
             <p className="mt-2 text-[10px] leading-4 text-muted">
               判定只使用 D 日及以前可知的信息；后续结果默认折叠，需要你主动展开。
             </p>
+            {event.scale_check?.state === 'NO_GAP_DETECTED' && (
+              <p className="mt-1 text-[10px] leading-4 text-muted">
+                尺度核对：冻结 CSV 未发现可识别除权台阶；这不等于无除权（UNKNOWN）。
+              </p>
+            )}
           </div>
 
           {/* 后续结果: 主动展开 */}
@@ -421,6 +501,11 @@ export function FirstBoardReplay() {
             <div className="mt-2 text-[10px] text-muted">
               背景时点 {bgFactors.asof}，D 收盘时点 {closeFactors.asof}。位置口径为 position_highlow_250d，本批未与注册表逐位认证。
             </div>
+            {event.scale_check?.factor_events && event.scale_check.factor_events.length > 0 && (
+              <p className="mt-1 text-[10px] leading-4 text-amber-500">
+                该事件窗口含因子日 {event.scale_check.factor_events.map(item => item.date).join('、')}；下方位置/动量按未复权 close 计算，跨尺度，不能当已认证值。
+              </p>
+            )}
             <details className="mt-2 text-[11px] text-secondary">
               <summary className="cursor-pointer text-muted">原始因子数字（D-1 / D 收盘）</summary>
               <div className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -499,10 +584,31 @@ export function FirstBoardReplay() {
             <p>{narrative?.board}</p>
             <p className="mt-1">研究材料目录：<span className="font-mono">{data.research_root}</span>；页面只读冻结副本，不回写研究目录、不重算收益。</p>
             <p className="mt-1">
+              因子事件来自当前本地 adj_factor 只读核对（覆盖上界 2026-10-28）；价格序列来自冻结 CSV（截断 2026-10-23）。这是文档快照/当前数据差异；页面不据此重算收益。
+            </p>
+            {data.classification && (
+              <div className="mt-1 space-y-0.5">
+                <p>
+                  分类源 {data.classification.schema_version}（计算口径 {data.classification.calculation_version}）；
+                  v0.1.2 相对 {data.classification.source_version} 只补 {data.classification.added_null_keys} 个 null 键与 reason，不改分类计算值。
+                </p>
+                <p className="font-mono text-[9px]">Web 数据 schema {data.schema}</p>
+                <p className="font-mono text-[9px]">
+                  源 sha256 {data.classification.source_sha256.slice(0, 16)}… · 输出 {data.classification.output_sha256.slice(0, 16)}…
+                </p>
+                <p className="font-mono text-[9px]">
+                  旧 v0.1 源 {data.classification.legacy_v01.sha256.slice(0, 16)}…；旧页面输出 replay.json 保留未覆盖。
+                </p>
+              </div>
+            )}
+            <p className="mt-1">
               D 后后续数据（135 条期限结果、449 条逐日跟踪）已包含在公开静态 JSON 中；默认折叠只是回放展示约定，不是访问控制。
             </p>
             <p className="mt-1">
-              复权说明：材料为固定前复权快照，新增除权会回溯改变历史复权价；2020-05-08 的复权断裂已单独报告，本页不据此推断无除权。
+              复权说明：冻结序列全区间 adj_ratio=1.0 且 close==raw_close，属未复权/跨尺度序列，不能当已连续复权；2026-06-25 等台阶在 close 与 raw_close 两列都保留。跨台阶日的收益、动量、P-L、位置指标均跨尺度；正确复权须另用因子链重算并独立认证。本页用冻结 CSV 的原始价台阶识别跨尺度事件（已证实者标“作废/待重算”，仅有外部报告/因子记录者标“待核实 UNKNOWN”）；台阶不证明转增/除权类型，公告原件/公司行动原因仍待核对，不据此推断无除权。
+            </p>
+            <p className="mt-1">
+              已检索范围未发现可信覆盖来源；代码签名完整性不等于上游覆盖真实性。
             </p>
             <details className="mt-1.5">
               <summary className="cursor-pointer flex items-center gap-1 text-muted">

@@ -3,12 +3,15 @@ import {
   barsUpToD,
   describeEvent,
   describeRule,
+  describeScaleCheck,
   futureWindow,
   positionBucket,
   replayWindow,
+  scaleStateLabel,
   toBars,
   type FbBar,
   type FbEvent,
+  type FbScaleCheck,
   type FbSymbol,
 } from './firstboardModel'
 
@@ -156,5 +159,114 @@ describe('narrative', () => {
 
   it('returns an honest message when the rule found no anchor', () => {
     expect(describeRule(null).text).toContain('没有选出')
+  })
+})
+
+describe('scale check narrative', () => {
+  const base: FbScaleCheck = {
+    state: 'CROSS_SCALE_VERIFIED',
+    judgment: 'INVALID_PENDING_REBUILD',
+    window_start: '2026-02-03',
+    short_window_start: '2026-03-05',
+    anchor_window_start: '2026-02-03',
+    structure_window_start: '2026-02-03',
+    window_end: '2026-07-15',
+    gap_dates: ['2026-06-25'],
+    gaps: [],
+    reported_note: '外部报告称窗口跨 2026-06-25 转增',
+    evidence: ['2026-06-25 原始价台阶：前原始收盘 14.94 → 10.31（-30.99%）'],
+    verification: 'VERIFIED_FROM_FROZEN_CSV',
+    cause_status: 'PRICE_SCALE_ONLY_PENDING_ANNOUNCEMENT',
+    factor_events: [{
+      date: '2026-06-25',
+      ex_factor: 1.409434,
+      dividend: 0.1,
+      bonus: 0.4,
+      prev_close: 14.94,
+      source: 'adj_factor/all.parquet · 本地只读 · sha256 5a957525e43a9c07…',
+      announcement_status: 'PENDING_ORIGINAL_ANNOUNCEMENT',
+      in_short_window: true,
+    }],
+  }
+
+  it('invalidates the structure judgment for a verified cross-scale window', () => {
+    const explained = describeScaleCheck(base)
+    expect(explained.tone).toBe('danger')
+    expect(explained.invalidatesJudgment).toBe(true)
+    expect(explained.title).toContain('作废')
+    expect(explained.summary).toContain('2026-06-25')
+    expect(explained.summary).toContain('只证明尺度异常')
+    expect(explained.causeText).toContain('公告原件')
+  })
+
+  it('keeps externally reported ex-rights as UNKNOWN, not verified', () => {
+    const explained = describeScaleCheck({
+      ...base,
+      state: 'CROSS_SCALE_UNVERIFIED',
+      judgment: 'UNVERIFIED',
+      gap_dates: [],
+      evidence: ['冻结 CSV 的 adj_ratio 在本区间恒为 1'],
+      verification: 'UNKNOWN',
+      cause_status: 'UNKNOWN',
+    })
+    expect(explained.tone).toBe('warn')
+    expect(explained.invalidatesJudgment).toBe(false)
+    expect(explained.title).toContain('待核实')
+    expect(explained.title).toContain('UNKNOWN')
+    expect(explained.summary).toContain('不把口述当已验证')
+    expect(explained.causeText).toContain('UNKNOWN')
+    expect(explained.details.join(' ')).toContain('外部报告')
+  })
+
+  it('marks local factor records as cross-scale without claiming announcement authority', () => {
+    const explained = describeScaleCheck({
+      ...base,
+      state: 'CROSS_SCALE_FACTOR_RECORD',
+      judgment: 'UNVERIFIED',
+      gap_dates: [],
+      verification: 'LOCAL_FACTOR_RECORD_ONLY',
+      cause_status: 'LOCAL_FACTOR_RECORD_COVERAGE_UNVERIFIED',
+    })
+    expect(explained.tone).toBe('warn')
+    expect(explained.invalidatesJudgment).toBe(false)
+    expect(explained.title).toContain('本地因子记录')
+    expect(explained.summary).toContain('非公告权威')
+    expect(explained.causeText).toContain('未认证')
+  })
+
+  it('does not claim no corporate action when no gap is detected', () => {
+    const explained = describeScaleCheck({
+      ...base,
+      state: 'NO_GAP_DETECTED',
+      judgment: 'UNVERIFIED',
+      gap_dates: [],
+      reported_note: null,
+      verification: 'UNKNOWN',
+      cause_status: 'UNKNOWN',
+    })
+    expect(explained.tone).toBe('muted')
+    expect(explained.title).toContain('未发现')
+    expect(explained.summary).toContain('不等于无除权')
+    expect(explained.causeText).toContain('未核对')
+  })
+
+  it('does not invalidate structure when anchors are after the price step', () => {
+    const explained = describeScaleCheck({
+      ...base,
+      judgment: 'UNVERIFIED',
+      structure_window_start: '2026-07-16',
+    })
+    expect(explained.tone).toBe('warn')
+    expect(explained.invalidatesJudgment).toBe(false)
+    expect(explained.title).toContain('图表/指标')
+    expect(explained.summary).toContain('结构锚点')
+  })
+
+  it('labels only confirmed or pending cross-scale states', () => {
+    expect(scaleStateLabel('CROSS_SCALE_VERIFIED', 'INVALID_PENDING_REBUILD')).toContain('作废')
+    expect(scaleStateLabel('CROSS_SCALE_VERIFIED', 'UNVERIFIED')).toContain('窗口')
+    expect(scaleStateLabel('CROSS_SCALE_FACTOR_RECORD')).toContain('因子记录')
+    expect(scaleStateLabel('CROSS_SCALE_UNVERIFIED')).toContain('待核实')
+    expect(scaleStateLabel('NO_GAP_DETECTED')).toBeNull()
   })
 })
