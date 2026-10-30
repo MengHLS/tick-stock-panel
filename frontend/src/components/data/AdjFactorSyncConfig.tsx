@@ -4,6 +4,7 @@ import { Loader2, Download, Info } from 'lucide-react'
 import { api } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { MissingCapChip } from '@/lib/capability-labels'
+import { useDataSyncPrefs } from '@/lib/useSharedQueries'
 
 // 除权因子独立同步面板 (数据画像卡齿轮弹窗, 模式与 MinuteSyncConfig 一致)。
 // hasCap: 路由矩阵判定除权因子能力可用 (生效源含插件/自定义源);
@@ -15,9 +16,11 @@ export function AdjFactorSyncConfig({ hasCap, providerDisplay, onJobStart }: {
 }) {
   const qc = useQueryClient()
   const [starting, setStarting] = useState(false)
+  const dataSync = useDataSyncPrefs()
+  const disabled = !hasCap || starting || !dataSync.pipeline
 
   const handleSync = () => {
-    if (!hasCap || starting) return
+    if (disabled) return
     setStarting(true)
     api.pipelineAdjFactorRun().then((res) => {
       qc.invalidateQueries({ queryKey: QK.pipelineJobs })
@@ -47,7 +50,8 @@ export function AdjFactorSyncConfig({ hasCap, providerDisplay, onJobStart }: {
         </div>
         <button
           onClick={handleSync}
-          disabled={!hasCap || starting}
+          disabled={disabled}
+          title={!dataSync.pipeline ? '盘后数据同步已在设置中关闭' : undefined}
           className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-btn bg-accent/90 text-foreground text-xs font-medium hover:bg-accent disabled:opacity-40 transition-colors duration-150"
         >
           {starting ? (

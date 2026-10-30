@@ -702,6 +702,7 @@ def get_preferences() -> dict:
         "limit_ladder_monitor_enabled": preferences.get_limit_ladder_monitor_enabled(),
         "depth_polling_interval": preferences.get_depth_polling_interval(),
         "depth_finalize_time": preferences.get_depth_finalize_time(),
+        **preferences.get_data_sync_prefs(),
         "review_schedule": preferences.get_review_schedule(),
         "review_push_channels": preferences.get_review_push_channels(),
         "review_push_mode": preferences.get_review_push_mode(),
@@ -1470,6 +1471,26 @@ class SystemNotifyPrefsIn(BaseModel):
     enabled: bool
 
 
+class DataSyncPrefsIn(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    pipeline_enabled: bool
+    ext_pull_enabled: bool
+    financial_enabled: bool
+
+
+@router.put("/preferences/data-sync")
+def update_data_sync_prefs(req: DataSyncPrefsIn) -> dict:
+    """数据同步与调度开关。自动调度下次启动生效; 手动入口按新偏好立即拦截。"""
+    from app.services import preferences
+    saved = preferences.set_data_sync_prefs({
+        "data_sync_pipeline_enabled": req.pipeline_enabled,
+        "data_sync_ext_pull_enabled": req.ext_pull_enabled,
+        "data_sync_financial_enabled": req.financial_enabled,
+    })
+    return {**saved, "restart_required": True}
+
+
 @router.put("/preferences/system-notify")
 def update_system_notify(req: SystemNotifyPrefsIn) -> dict:
     """系统通知开关 — 开启后监控告警同时推送到操作系统通知中心。
@@ -2014,7 +2035,7 @@ def update_pipeline_schedule(req: PipelineScheduleIn, request: Request) -> dict:
     # 动态 reschedule
     from apscheduler.triggers.cron import CronTrigger
     scheduler = getattr(request.app.state, "scheduler", None)
-    if scheduler:
+    if scheduler and scheduler.get_job("daily_pipeline"):
         scheduler.reschedule_job(
             "daily_pipeline",
             trigger=CronTrigger(
@@ -2037,7 +2058,7 @@ def update_instruments_schedule(req: PipelineScheduleIn, request: Request) -> di
 
     from apscheduler.triggers.cron import CronTrigger
     scheduler = getattr(request.app.state, "scheduler", None)
-    if scheduler:
+    if scheduler and scheduler.get_job("pre_market_instruments"):
         scheduler.reschedule_job(
             "pre_market_instruments",
             trigger=CronTrigger(
@@ -2047,7 +2068,9 @@ def update_instruments_schedule(req: PipelineScheduleIn, request: Request) -> di
                 timezone="Asia/Shanghai",
             ),
         )
-        return sched
+        logger.info("instruments rescheduled to %02d:%02d mon-fri", sched["hour"], sched["minute"])
+
+    return sched
 
 
 class EnrichedBatchSizeIn(BaseModel):
@@ -2119,6 +2142,9 @@ def run_limit_ladder_fix(request: Request) -> dict:
     capset = request.app.state.capabilities
     capset.require(Cap.DEPTH5_BATCH)  # 无能力抛 CapabilityDenied(403)
 
+    from app.services.data_sync_gate import ensure_enabled
+    ensure_enabled("pipeline")
+
     depth_svc = getattr(request.app.state, "depth_service", None)
     if not depth_svc:
         raise HTTPException(status_code=503, detail="depth 服务未初始化")
@@ -2161,7 +2187,7 @@ def update_depth_finalize_time(req: DepthFinalizeTimeIn, request: Request) -> di
 
     from apscheduler.triggers.cron import CronTrigger
     scheduler = getattr(request.app.state, "scheduler", None)
-    if scheduler:
+    if scheduler and scheduler.get_job("depth_finalize"):
         scheduler.reschedule_job(
             "depth_finalize",
             trigger=CronTrigger(

@@ -678,16 +678,22 @@ class PullScheduler:
         self._tasks: dict[str, asyncio.Task] = {}
         self._running = False
         self._loop: asyncio.AbstractEventLoop | None = None
+        self._enabled = True
 
-    def start(self, data_dir) -> None:
-        """启动调度（在 lifespan startup 调用，主事件循环内）。"""
+    def start(self, data_dir, *, enabled: bool = True) -> None:
+        """启动调度（在 lifespan startup 调用，主事件循环内）。
+
+        enabled=False 时仍建立事件循环引用，保证后续 configure_pull 调用
+        refresh() 安全 no-op，而不是因 _loop 为空抛 500。
+        """
         self._running = True
         self._data_dir = data_dir
+        self._enabled = enabled
         try:
             self._loop = asyncio.get_running_loop()
         except RuntimeError:
             self._loop = None
-        logger.info("PullScheduler started")
+        logger.info("PullScheduler started (enabled=%s)", enabled)
 
     def _submit(self, fn, *args) -> None:
         """把一个 callable 提交到主事件循环执行 (线程安全)。
@@ -713,6 +719,16 @@ class PullScheduler:
     def refresh(self, data_dir) -> None:
         """重新加载配置，更新调度任务（增/删/改）。线程安全。"""
         self._data_dir = data_dir
+        if not self._enabled:
+            loop = self._loop
+            if loop is not None and not loop.is_closed():
+                def _cancel_all() -> None:
+                    for task in self._tasks.values():
+                        task.cancel()
+                    self._tasks.clear()
+
+                loop.call_soon_threadsafe(_cancel_all)
+            return
         store = ExtConfigStore(data_dir)
         configs = store.load_all()
 

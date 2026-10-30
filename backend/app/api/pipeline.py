@@ -7,7 +7,9 @@ import logging
 
 from fastapi import APIRouter, HTTPException, Request
 
+from app.api.data import invalidate_storage_cache
 from app.jobs import daily_pipeline
+from app.services.data_sync_gate import ensure_enabled
 from app.services.pipeline_jobs import (
     JobCancelledError,
     job_store,
@@ -15,7 +17,6 @@ from app.services.pipeline_jobs import (
     run_with_capacity,
     try_acquire_run_slot,
 )
-from app.api.data import invalidate_storage_cache
 
 # 长时间任务专用线程池（隔离于 FastAPI 默认线程池，防止阻塞请求处理）
 _long_task_executor = _cf.ThreadPoolExecutor(max_workers=2, thread_name_prefix="long-task")
@@ -41,6 +42,7 @@ async def trigger_pipeline_job(repo, capset, quote_service=None) -> dict:
     若已有任务在跑,**返回该任务 id 而不是开新任务**(防止并发拉数据撞限流)。
     卡死判定按「进度停滞」而非总时长(慢带宽下长任务不会被误杀), 见 reap_stale。
     """
+    ensure_enabled("pipeline")
     return await _submit_job(
         repo, quote_service,
         lambda progress: (lambda: daily_pipeline.run_now(repo, capset, on_progress=progress)),
@@ -123,6 +125,7 @@ async def run_adj_factor_now(request: Request) -> dict:
             status_code=400,
             detail="除权因子能力不可用: 请先在 设置 → 数据源 中配置可用数据源",
         )
+    ensure_enabled("pipeline")
     repo = request.app.state.repo
     return await _submit_job(
         repo,

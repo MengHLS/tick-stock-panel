@@ -98,8 +98,11 @@ class DepthService:
     # 生命周期
     # ================================================================
 
-    def boot_check(self) -> None:
-        """启动补跑: 当天 depth5 文件不存在则 finalize 一次; 已存在则恢复内存缓存。"""
+    def boot_check(self, *, allow_network: bool = True) -> None:
+        """启动补跑: 当天 depth5 文件不存在则 finalize 一次; 已存在则恢复内存缓存。
+
+        allow_network=False 时只恢复本地缓存, 不联网补拉 (数据同步开关关闭)。
+        """
         if not self._has_capability():
             logger.info("depth sealed: %s 不可用, 跳过启动补跑", self._capability_label())
             return
@@ -107,6 +110,9 @@ class DepthService:
         if self._persisted_for_date(today):
             # parquet 已存在: 恢复内存缓存(避免重启后每次查询都读 parquet)
             self._restore_from_parquet(today)
+            return
+        if not allow_network:
+            logger.info("depth sealed: 启动补跑已由数据同步开关关闭")
             return
         logger.info("depth sealed: 启动补跑今天定版")
         try:

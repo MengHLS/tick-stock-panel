@@ -2387,6 +2387,10 @@ export interface Preferences {
   limit_ladder_monitor_enabled: boolean
   depth_polling_interval: number
   depth_finalize_time: { hour: number; minute: number }
+  /** 数据同步与调度开关; 缺省视为 true (旧后端/旧缓存兼容) */
+  data_sync_pipeline_enabled?: boolean
+  data_sync_ext_pull_enabled?: boolean
+  data_sync_financial_enabled?: boolean
   review_schedule: { enabled: boolean; hour: number; minute: number }
   review_push_channels: string[]
   review_push_mode?: 'auto' | 'manual'
@@ -3006,6 +3010,21 @@ export const api = {
     request<{ system_notify_enabled: boolean }>('/api/settings/preferences/system-notify', {
       method: 'PUT',
       body: JSON.stringify({ enabled }),
+    }),
+  /** 数据同步与调度开关: 自动调度下次启动生效, 手动入口保存后立即拦截 */
+  updateDataSyncPrefs: (cfg: {
+    pipeline_enabled: boolean
+    ext_pull_enabled: boolean
+    financial_enabled: boolean
+  }) =>
+    request<{
+      data_sync_pipeline_enabled: boolean
+      data_sync_ext_pull_enabled: boolean
+      data_sync_financial_enabled: boolean
+      restart_required: boolean
+    }>('/api/settings/preferences/data-sync', {
+      method: 'PUT',
+      body: JSON.stringify(cfg),
     }),
   /** AI 助手「动作工具免确认」开关 (默认关闭) */
   updateAssistantAutoApprove: (enabled: boolean) =>

@@ -61,6 +61,7 @@ from app.extensions.loader import (
     start_backend_extensions,
 )
 from app.jobs import daily_pipeline
+from app.services.data_sync_gate import DataSyncDisabledError
 from app.services.matrix_prewarm_owner import MatrixCachePrewarmOwner
 from app.services.mining_process_lock import MiningProcessLock, MiningProcessLockError
 from app.services.quote_service import QuoteService
@@ -117,6 +118,10 @@ async def _application_lifespan(app: FastAPI):
     repo = KlineRepository(store)
     app.state.datastore = store
     app.state.repo = repo
+    # 数据同步与调度开关在启动时读取一次: 自动调度按本次快照注册,
+    # 手动入口由 data_sync_gate 按实时偏好拦截 (保存后立即生效)。
+    from app.services import preferences
+    data_sync_prefs = preferences.get_data_sync_prefs()
     # 去内置化种子迁移必须赶在下方 refresh_cache 之前: enriched 缓存构建时
     # 编译自定义信号表达式, 晚种会让本次启动的看板/梯队引用的 signal_limit_*
     # 列缺失 (跌停恒 0、连板梯队无数据), 直到下一次缓存刷新才自愈。
@@ -227,7 +232,10 @@ async def _application_lifespan(app: FastAPI):
     # 启动调度器(若 enriched 数据为空,首次启动可手动 POST /api/pipeline/run)
     try:
         daily_pipeline.set_app_state(app.state)  # 供 depth_finalize job 访问 depth_service
-        scheduler = daily_pipeline.start_scheduler(repo, capset)
+        scheduler = daily_pipeline.start_scheduler(
+            repo, capset,
+            data_jobs_enabled=data_sync_prefs["data_sync_pipeline_enabled"],
+        )
         app.state.scheduler = scheduler
     except Exception as e:  # noqa: BLE001
         logger.warning("scheduler not started: %s", e)
@@ -235,7 +243,9 @@ async def _application_lifespan(app: FastAPI):
 
     # depth sealed: 启动补跑(当天文件不存在) + 盘中轮询(有能力时)
     try:
-        depth_service.boot_check()
+        depth_service.boot_check(
+            allow_network=data_sync_prefs["data_sync_pipeline_enabled"],
+        )
         depth_service.start_polling()
     except Exception as e:  # noqa: BLE001
         logger.warning("depth_service init failed: %s", e)
@@ -257,9 +267,12 @@ async def _application_lifespan(app: FastAPI):
 
         from app.services.data_integrity import boot_integrity_check
 
-        timer = threading.Timer(30.0, boot_integrity_check, args=(app.state,))
-        timer.daemon = True  # 不阻塞进程退出
-        timer.start()
+        if data_sync_prefs["data_sync_pipeline_enabled"]:
+            timer = threading.Timer(30.0, boot_integrity_check, args=(app.state,))
+            timer.daemon = True  # 不阻塞进程退出
+            timer.start()
+        else:
+            logger.info("boot integrity check disabled by data sync preference")
     except Exception as e:  # noqa: BLE001
         logger.warning("integrity boot check scheduling failed: %s", e)
 
@@ -299,7 +312,10 @@ async def _application_lifespan(app: FastAPI):
 
     # 扩展数据定时拉取: 在预设配置就绪后启动, 自动调度 enabled 的预设。
     from app.services.ext_pull import pull_scheduler
-    pull_scheduler.start(store.data_dir)
+    pull_scheduler.start(
+        store.data_dir,
+        enabled=data_sync_prefs["data_sync_ext_pull_enabled"],
+    )
     pull_scheduler.refresh(store.data_dir)
     app.state.pull_scheduler = pull_scheduler
 
@@ -724,6 +740,14 @@ async def capability_denied_handler(request: Request, exc: CapabilityDenied) -> 
     return JSONResponse(
         status_code=403,
         content={"detail": str(exc), "suggestion": exc.suggestion},
+    )
+
+
+@app.exception_handler(DataSyncDisabledError)
+async def data_sync_disabled_handler(request: Request, exc: DataSyncDisabledError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,
+        content={"detail": str(exc), "code": "DATA_SYNC_DISABLED"},
     )
 
 # 生产期静态文件(前端 dist)

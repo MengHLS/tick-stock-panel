@@ -51,6 +51,16 @@ export function usePreferences() {
   })
 }
 
+/** 数据同步与调度开关 — 缺省视为开启, 兼容旧后端/旧缓存。 */
+export function useDataSyncPrefs() {
+  const prefs = usePreferences()
+  return {
+    pipeline: prefs.data?.data_sync_pipeline_enabled ?? true,
+    extPull: prefs.data?.data_sync_ext_pull_enabled ?? true,
+    financial: prefs.data?.data_sync_financial_enabled ?? true,
+  }
+}
+
 /** 行情状态 — SSE quotes_updated 自动刷新。
 
  * poll=true 时启用 60s 状态轮询兜底, 用于在交易时段边界

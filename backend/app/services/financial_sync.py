@@ -500,6 +500,8 @@ class FinancialScheduler:
         /status 已能看到 syncing=True,无竞态窗口;同时防止快速重复点击
         启动多个后台线程。后台线程复用 _run_body 执行真正的同步逻辑。
         """
+        from app.services.data_sync_gate import ensure_enabled
+        ensure_enabled("financial")
         if not self._capset or (not self._capset.has(Cap.FINANCIAL) and not _financial_is_custom()):
             return {"started": False, "reason": "no FINANCIAL capability"}
         with self._lock:

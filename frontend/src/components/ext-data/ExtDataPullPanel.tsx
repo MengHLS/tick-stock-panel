@@ -4,6 +4,7 @@ import { Loader2, Search, Check, Clock, Zap, Settings2, AlertCircle, CheckCircle
 import { api, type ExtDataBackfillResult, type ExtDataConfig, type ExtPullAuth } from '@/lib/api'
 import { toast } from '@/components/Toast'
 import { useDialogBackdrop } from '@/lib/useDialogBackdrop'
+import { useDataSyncPrefs } from '@/lib/useSharedQueries'
 import { SectionHead, INPUT_CLS } from './dialogShared'
 
 const AUTH_TYPE_LABELS: Record<ExtPullAuth['type'], string> = {
@@ -37,6 +38,8 @@ export function ExtDataPullPanel({ config, onSaved }: {
 }) {
   const pull = config.pull
   const [showConfig, setShowConfig] = useState(false)
+  const dataSync = useDataSyncPrefs()
+  const extPullDisabled = !dataSync.extPull
   const [toggling, setToggling] = useState(false)
   const [optimistic, setOptimistic] = useState<boolean | null>(null)
   const [running, setRunning] = useState(false)
@@ -96,6 +99,10 @@ export function ExtDataPullPanel({ config, onSaved }: {
 
   // 开关 toggle: 自动保存全量配置 (切换 enabled), 后端 refresh 后立即首次拉取
   const handleToggle = (next: boolean) => {
+    if (extPullDisabled) {
+      toast('扩展数据拉取已在设置中关闭', 'error')
+      return
+    }
     if (toggling) return
     if (next && !pull?.url?.trim()) {
       toast('请先在「拉取设置」中填写 URL', 'error')
@@ -114,6 +121,10 @@ export function ExtDataPullPanel({ config, onSaved }: {
   }
 
   const handleRun = () => {
+    if (extPullDisabled) {
+      setError('扩展数据拉取已在设置中关闭')
+      return
+    }
     setRunning(true); setError(''); setRunResult(null)
     api.extDataPullRun(config.id, effTimeoutSec)
       .then(r => {
@@ -138,7 +149,8 @@ export function ExtDataPullPanel({ config, onSaved }: {
             type="button"
             role="switch"
             aria-checked={enabled}
-            disabled={toggling}
+            disabled={toggling || extPullDisabled}
+            title={extPullDisabled ? '扩展数据拉取已在设置中关闭' : undefined}
             onClick={() => handleToggle(!enabled)}
             className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50 ${
               enabled ? 'bg-accent' : 'bg-border'
@@ -194,7 +206,8 @@ export function ExtDataPullPanel({ config, onSaved }: {
       <div className="grid grid-cols-2 gap-1.5">
         <button
           onClick={handleRun}
-          disabled={running || !pull?.url}
+          disabled={running || !pull?.url || extPullDisabled}
+          title={extPullDisabled ? '扩展数据拉取已在设置中关闭' : undefined}
           className="inline-flex items-center justify-center gap-1 h-9 rounded-lg bg-accent/15 border border-accent/25 text-accent text-xs font-medium hover:bg-accent/20 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 transition-colors"
         >
           {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
@@ -246,6 +259,8 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
   const backdrop = useDialogBackdrop(onClose)
   const pull = config.pull
   const fanout = pull?.fanout
+  const dataSync = useDataSyncPrefs()
+  const extPullDisabled = !dataSync.extPull
   const [url, setUrl] = useState(pull?.url ?? '')
   const [method, setMethod] = useState(pull?.method ?? 'GET')
   const [headerStr, setHeaderStr] = useState(
@@ -397,6 +412,10 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
   }
 
   const handleRun = () => {
+    if (extPullDisabled) {
+      setError('扩展数据拉取已在设置中关闭')
+      return
+    }
     setRunning(true); setError(''); setRunResult(null)
     api.extDataPullRun(config.id, effTimeoutSec)
       .then(r => {
@@ -409,6 +428,10 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
   }
 
   const handleBackfill = () => {
+    if (extPullDisabled) {
+      setError('扩展数据拉取已在设置中关闭')
+      return
+    }
     setBfRunning(true); setError(''); setBfResult(null)
     // 服务端逐日串行拉取, 前端超时按 天数×单日超时 估算 (+30s 写盘缓冲)
     const daySpan = Math.max(1, Math.round((Date.parse(bfEnd) - Date.parse(bfStart)) / 86400_000) + 1)
@@ -426,6 +449,10 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
   // 开关 toggle: 自动保存全量配置 (切换 enabled), 后端 refresh 后立即首次拉取
   const [toggling, setToggling] = useState(false)
   const handleToggle = (next: boolean) => {
+    if (extPullDisabled) {
+      toast('扩展数据拉取已在设置中关闭', 'error')
+      return
+    }
     if (toggling) return
     if (next && !url.trim()) {
       toast('请先填写拉取 URL', 'error')
@@ -591,10 +618,10 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
                 type="button"
                 role="switch"
                 aria-checked={enabled}
-                disabled={toggling}
+                disabled={toggling || extPullDisabled}
+                title={extPullDisabled ? '扩展数据拉取已在设置中关闭' : enabled ? '点击关闭定时拉取 (立即生效)' : '点击启用定时拉取 (保存当前编辑态并立即首次拉取)'}
                 onClick={() => handleToggle(!enabled)}
                 className="relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40"
-                title={enabled ? '点击关闭定时拉取 (立即生效)' : '点击启用定时拉取 (保存当前编辑态并立即首次拉取)'}
               >
                 <span className={`absolute inset-0 rounded-full ${enabled ? 'bg-accent' : 'bg-border'}`} />
                 <span
@@ -950,8 +977,8 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
                   />
                   <button
                     onClick={handleBackfill}
-                    disabled={bfRunning || !dateParam.trim() || !bfStart || !bfEnd}
-                    title="按本地交易日逐日拉取写入历史分区; 已有分区自动跳过, 可重复执行"
+                    disabled={bfRunning || !dateParam.trim() || !bfStart || !bfEnd || extPullDisabled}
+                    title={extPullDisabled ? '扩展数据拉取已在设置中关闭' : '按本地交易日逐日拉取写入历史分区; 已有分区自动跳过, 可重复执行'}
                     className="h-9 shrink-0 inline-flex items-center gap-1.5 px-4 rounded-lg bg-accent text-white text-xs font-medium hover:bg-accent/90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 transition-colors"
                   >
                     {bfRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <History className="h-3.5 w-3.5" />}
@@ -1030,7 +1057,8 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
           </button>
           <button
             onClick={handleRun}
-            disabled={running || !url}
+            disabled={running || !url || extPullDisabled}
+            title={extPullDisabled ? '扩展数据拉取已在设置中关闭' : undefined}
             className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-accent/15 border border-accent/25 text-accent text-xs font-medium hover:bg-accent/20 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 transition-colors"
           >
             {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}

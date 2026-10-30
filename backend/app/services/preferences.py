@@ -972,6 +972,35 @@ def set_system_notify_enabled(enabled: bool) -> bool:
     return bool(enabled)
 
 
+# 数据同步与调度开关: 缺失或非法值一律回退 True, 保持旧配置的现有行为。
+_DATA_SYNC_KEYS = (
+    "data_sync_pipeline_enabled",
+    "data_sync_ext_pull_enabled",
+    "data_sync_financial_enabled",
+)
+
+
+def get_data_sync_prefs() -> dict[str, bool]:
+    """返回数据同步与调度开关。只接受真正的布尔值, 避免 "false"/0 被误判。"""
+    data = load()
+    return {
+        key: data.get(key) if isinstance(data.get(key), bool) else True
+        for key in _DATA_SYNC_KEYS
+    }
+
+
+def set_data_sync_prefs(values: dict[str, bool]) -> dict[str, bool]:
+    """保存数据同步开关; 拒绝未知键和非布尔值, 其余键保持不变。"""
+    unknown = set(values) - set(_DATA_SYNC_KEYS)
+    if unknown:
+        raise ValueError(f"未知的数据同步开关: {sorted(unknown)}")
+    for key, value in values.items():
+        if not isinstance(value, bool):
+            raise ValueError(f"{key} 必须是布尔值")
+    save(values)
+    return get_data_sync_prefs()
+
+
 def get_feishu_webhook_url() -> str:
     """飞书自定义机器人 Webhook 地址 — 全局共用一处, 所有启用推送的规则都推到这一个群。"""
     return load().get("feishu_webhook_url", "")

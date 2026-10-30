@@ -11,6 +11,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Download, CheckCircle2, Hourglass, Clock, Table2 } from 'lucide-react'
 import { useFinancialStatus, useFinancialSync } from '@/lib/useFinancials'
+import { useDataSyncPrefs } from '@/lib/useSharedQueries'
 import { fmtBigNum } from '@/lib/format'
 import { toast } from '@/components/Toast'
 
@@ -27,6 +28,8 @@ const TABLE_ORDER = ['metrics', 'income', 'balance_sheet', 'cash_flow', 'shares'
 export function FinancialSyncPanel() {
   const { data: status, isLoading } = useFinancialStatus()
   const syncMut = useFinancialSync()
+  const dataSync = useDataSyncPrefs()
+  const syncDisabled = !dataSync.financial
 
   // 本次同步的起止追踪: 后端每张表完成即更新 last_sync, 用时间戳判断进度,
   // 与财务分析页同一套口径 (那里是全页 5 张卡, 这里是紧凑列表)。
@@ -112,6 +115,11 @@ export function FinancialSyncPanel() {
         5 张表同属「财务数据」这一个能力 (同一数据源 / 同一门禁), 可整体同步或单独更新某一张。
         财务不在盘后管道内, 需在此手动拉取。
       </div>
+      {syncDisabled && (
+        <div className="rounded-card border border-amber-400/40 bg-amber-400/5 px-3 py-2 text-[11px] text-amber-500">
+          财务数据同步已在「设置 → 系统设置 → 数据同步与调度」中关闭。
+        </div>
+      )}
 
       <div className="divide-y divide-border/50 rounded-card border border-border bg-base/20">
         {TABLE_ORDER.map(key => {
@@ -159,8 +167,8 @@ export function FinancialSyncPanel() {
 
               <button
                 onClick={() => handleSync(key)}
-                disabled={syncing}
-                title={syncing ? '正在同步…' : `仅更新${TABLE_LABELS[key]}`}
+                disabled={syncing || syncDisabled}
+                title={syncDisabled ? '财务数据同步已在设置中关闭' : syncing ? '正在同步…' : `仅更新${TABLE_LABELS[key]}`}
                 aria-label={`仅更新${TABLE_LABELS[key]}`}
                 className="shrink-0 rounded-btn p-1 text-muted transition-colors hover:bg-elevated hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-30"
               >
@@ -186,7 +194,8 @@ export function FinancialSyncPanel() {
         )}
         <button
           onClick={() => handleSync('all')}
-          disabled={syncing}
+          disabled={syncing || syncDisabled}
+          title={syncDisabled ? '财务数据同步已在设置中关闭' : undefined}
           className="ml-auto inline-flex h-7 shrink-0 items-center gap-1.5 rounded-btn border border-accent/30 bg-gradient-to-r from-accent/25 to-accent/10 px-3 text-xs font-medium text-accent transition-all duration-150 hover:from-accent/35 hover:to-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}

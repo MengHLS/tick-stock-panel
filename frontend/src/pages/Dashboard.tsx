@@ -7,7 +7,8 @@ import { DatePicker } from '@/components/DatePicker'
 import { api, type AlertEvent, type DataStatus } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { DimensionMembersDialog, type DimensionMembersTarget } from '@/components/DimensionMembersDialog'
-import { useDataStatus, useCapabilities, useSettings, usePreferences } from '@/lib/useSharedQueries'
+import { useDataStatus, useCapabilities, useSettings, usePreferences, useDataSyncPrefs } from '@/lib/useSharedQueries'
+import { toast } from '@/components/Toast'
 import { StockPreviewDialog } from '@/components/StockPreviewDialog'
 import type { NavItem } from '@/lib/listNav'
 import { SettingsModal } from '@/components/data/SettingsModal'
@@ -92,6 +93,14 @@ export function Dashboard() {
   // 空态引导文案按当前数据源分流: TickFlow 源提"免费服务器", 其他源提"当前数据源",
   // 弱化与默认 TickFlow 的隐式绑定 (None 档/免费 Key 等 TickFlow 概念仅在其被选中时出现)
   const prefs = usePreferences()
+  const dataSync = useDataSyncPrefs()
+  const startFetchIfEnabled = () => {
+    if (!dataSync.pipeline) {
+      toast('盘后数据同步已在设置中关闭', 'error')
+      return
+    }
+    startFetch.mutate()
+  }
   const dataSourceList = useQuery({
     queryKey: QK.dataSources,
     queryFn: api.dataSources,
@@ -230,7 +239,7 @@ export function Dashboard() {
           fetchFailed={fetchFailed}
           stage={fetchStatus.data?.stage}
           fetchPct={fetchStatus.data?.progress}
-          onStart={() => startFetch.mutate()}
+          onStart={startFetchIfEnabled}
           isTickflowProvider={isTickflowProvider}
           providerLabel={providerLabel}
         />
@@ -243,6 +252,10 @@ export function Dashboard() {
             providerLabel={providerLabel}
             onClose={() => setShowWelcomeModal(false)}
             onStart={() => {
+              if (!dataSync.pipeline) {
+                toast('盘后数据同步已在设置中关闭', 'error')
+                return
+              }
               adjGate.guard(() => {
                 startFetch.mutate()
                 setShowWelcomeModal(false)

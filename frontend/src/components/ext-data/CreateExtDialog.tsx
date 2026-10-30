@@ -19,6 +19,7 @@ import {
 import { api, type ExtDataDetectUrlResult, type ExtDataField } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { useDialogBackdrop } from '@/lib/useDialogBackdrop'
+import { useDataSyncPrefs } from '@/lib/useSharedQueries'
 import { SectionHead, INPUT_CLS, INPUT_SM_CLS } from './dialogShared'
 
 type SourceMode = 'url' | 'file' | 'manual'
@@ -35,6 +36,8 @@ const MONTHDAY_OPTS: [number, string][] = Array.from({ length: 31 }, (_, i) => [
 
 export function CreateExtDialog({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient()
+  const dataSync = useDataSyncPrefs()
+  const extPullEnabled = dataSync.extPull
   const backdrop = useDialogBackdrop(onClose)
   const [sourceMode, setSourceMode] = useState<SourceMode>('url')
   const [id, setId] = useState('')
@@ -161,11 +164,11 @@ export function CreateExtDialog({ onClose }: { onClose: () => void }) {
           schedule_period: scheduleMode === 'fixed' ? schedulePeriod : null,
           schedule_day: scheduleMode === 'fixed' && schedulePeriod !== 'daily' ? scheduleDay : null,
           schedule_trading_only: scheduleMode === 'fixed' ? scheduleTradingOnly : false,
-          enabled: enablePull,
+          enabled: enablePull && extPullEnabled,
           timeout_seconds: Number.isFinite(timeoutSec) && timeoutSec >= 5 && timeoutSec <= 300 ? timeoutSec : 30,
         })
 
-        if (importNow) {
+        if (importNow && extPullEnabled) {
           await api.extDataPullRun(config.id)
         }
       }

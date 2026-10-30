@@ -1242,6 +1242,8 @@ async def test_pull(request: Request, config_id: str):
 @router.post("/{config_id}/pull/run")
 async def run_pull(request: Request, config_id: str):
     """手动触发一次拉取并写入。"""
+    from app.services.data_sync_gate import ensure_enabled
+    ensure_enabled("ext_pull")
     store = _store(request)
     config = store.get(config_id)
     if not config:
@@ -1286,6 +1288,8 @@ async def backfill_history_ep(
     前提: 配置为 timeseries 模式且拉取配置了 date_param (接口支持按日期
     查询)。幂等 —— 已存在的分区跳过, 失败单日不中断, 结果逐项返回。
     """
+    from app.services.data_sync_gate import ensure_enabled
+    ensure_enabled("ext_pull")
     store = _store(request)
     config = store.get(config_id)
     if not config:

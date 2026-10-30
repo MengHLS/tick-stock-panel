@@ -1735,6 +1735,9 @@ async def repair_daily(request: Request):
         )
         from app.services.repair_daily import run_repair_daily
 
+        from app.services.data_sync_gate import ensure_enabled
+        ensure_enabled("pipeline")
+
         job_id, is_new = job_store.create()
         if not is_new:
             return {"status": "reused", "job_id": job_id}

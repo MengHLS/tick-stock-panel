@@ -1306,17 +1306,26 @@ def _register_review_job(scheduler, repo, hour: int, minute: int) -> None:
     )
 
 
-def start_scheduler(repo: KlineRepository, capset: CapabilitySet) -> AsyncIOScheduler:
+def start_scheduler(
+    repo: KlineRepository,
+    capset: CapabilitySet,
+    *,
+    data_jobs_enabled: bool = True,
+) -> AsyncIOScheduler:
     """启动调度器。
 
     工作日 09:10 — 同步个股维表
     工作日 HH:MM — 盘后管道（时间由用户偏好决定，默认 15:35）
+
+    data_jobs_enabled=False 时不注册数据作业（盘前维表/盘后管道/盘口定版），
+    能力重探与定时复盘照旧；开关在启动时读取，下次启动生效。
     """
     from app.services import preferences
     sched = preferences.get_pipeline_schedule()
     inst_sched = preferences.get_instruments_schedule()
 
     scheduler = AsyncIOScheduler(timezone="Asia/Shanghai")
+    add_data_job = scheduler.add_job if data_jobs_enabled else (lambda *args, **kwargs: None)
 
     # 盘前: 同步 instruments（时间由偏好决定）
     def _instruments_task(on_progress=None):
@@ -1326,7 +1335,7 @@ def start_scheduler(repo: KlineRepository, capset: CapabilitySet) -> AsyncIOSche
         emit("done", 100, f"个股维表同步完成,{result.get('instruments_rows', 0)} 只标的")
         return result
 
-    scheduler.add_job(
+    add_data_job(
         lambda: _run_tracked(_instruments_task, "instruments_sync"),
         trigger=CronTrigger(day_of_week="mon-fri",
                             hour=inst_sched["hour"], minute=inst_sched["minute"],
@@ -1360,7 +1369,7 @@ def start_scheduler(repo: KlineRepository, capset: CapabilitySet) -> AsyncIOSche
             repo.refresh_cache()
         return result
 
-    scheduler.add_job(
+    add_data_job(
         lambda: _scheduled_pipeline_task(_pipeline_then_refresh),
         trigger=CronTrigger(day_of_week="mon-fri",
                             hour=sched["hour"], minute=sched["minute"],
@@ -1378,7 +1387,7 @@ def start_scheduler(repo: KlineRepository, capset: CapabilitySet) -> AsyncIOSche
         if depth_svc:
             depth_svc.finalize()
 
-    scheduler.add_job(
+    add_data_job(
         _depth_finalize,
         trigger=CronTrigger(day_of_week="mon-fri",
                             hour=depth_sched["hour"], minute=depth_sched["minute"],
@@ -1429,9 +1438,12 @@ def start_scheduler(repo: KlineRepository, capset: CapabilitySet) -> AsyncIOSche
                     review_sched["hour"], review_sched["minute"])
 
     scheduler.start()
-    logger.info("scheduler started; instruments@%02d:%02d, pipeline@%02d:%02d, depth@%02d:%02d mon-fri",
-                inst_sched["hour"], inst_sched["minute"], sched["hour"], sched["minute"],
-                depth_sched["hour"], depth_sched["minute"])
+    if data_jobs_enabled:
+        logger.info("scheduler started; instruments@%02d:%02d, pipeline@%02d:%02d, depth@%02d:%02d mon-fri",
+                    inst_sched["hour"], inst_sched["minute"], sched["hour"], sched["minute"],
+                    depth_sched["hour"], depth_sched["minute"])
+    else:
+        logger.info("scheduler started; data jobs disabled by preference")
     return scheduler
 
 

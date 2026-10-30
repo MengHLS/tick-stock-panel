@@ -5,7 +5,7 @@
  */
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
-import { Settings2, Trash2, RefreshCw, Bell, Volume2, ExternalLink, ZoomIn, Minus, Plus, ShieldCheck, RotateCcw, ChevronDown, Layers, Upload } from 'lucide-react'
+import { Settings2, Trash2, RefreshCw, Bell, Volume2, ExternalLink, ZoomIn, Minus, Plus, ShieldCheck, RotateCcw, ChevronDown, Layers, Upload, Database } from 'lucide-react'
 import { usePreferences } from '@/lib/useSharedQueries'
 import { api } from '@/lib/api'
 import type { UpgradeGuardCategory } from '@/lib/api'
@@ -34,6 +34,10 @@ export function SettingsSystemPanel() {
   const [saving, setSaving] = useState(false)
 
   const screenerAutoRun = prefs?.screener_auto_run ?? true
+  const dataSyncPipeline = prefs?.data_sync_pipeline_enabled ?? true
+  const dataSyncExtPull = prefs?.data_sync_ext_pull_enabled ?? true
+  const dataSyncFinancial = prefs?.data_sync_financial_enabled ?? true
+  const [savingDataSync, setSavingDataSync] = useState(false)
   const [extTpl, setExtTpl] = useState(() => loadStockExternalTemplate())
   const [clearing, setClearing] = useState(false)
 
@@ -136,6 +140,24 @@ export function SettingsSystemPanel() {
     }
   }, [qc])
 
+  const saveDataSync = useCallback(async (patch: {
+    pipeline?: boolean
+    extPull?: boolean
+    financial?: boolean
+  }) => {
+    setSavingDataSync(true)
+    try {
+      await api.updateDataSyncPrefs({
+        pipeline_enabled: patch.pipeline ?? dataSyncPipeline,
+        ext_pull_enabled: patch.extPull ?? dataSyncExtPull,
+        financial_enabled: patch.financial ?? dataSyncFinancial,
+      })
+      qc.invalidateQueries({ queryKey: QK.preferences })
+    } finally {
+      setSavingDataSync(false)
+    }
+  }, [dataSyncPipeline, dataSyncExtPull, dataSyncFinancial, qc])
+
   // 批量上限: 保存成功后把新值同步进分块助手, 并刷新偏好缓存。
   // 已挂载页面的 query 不会立刻重跑, 但下一轮轮询/切换页面即用新分块。
   const saveDailyBatch = useMutation({
@@ -186,6 +208,38 @@ export function SettingsSystemPanel() {
           disabled={saving}
           onChange={(v) => save({ screener_auto_run: v })}
         />
+      </section>
+
+      <section className="rounded-card border border-border bg-surface p-5 mt-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Database className="h-4 w-4 text-accent" />
+          <h3 className="text-sm font-medium text-foreground">数据同步与调度</h3>
+        </div>
+
+        <ToggleRow
+          label="盘后数据流水线"
+          desc="盘前维表、盘后日K/enriched、盘口定版与启动完整性自检; 保存后重启生效"
+          checked={dataSyncPipeline}
+          disabled={savingDataSync}
+          onChange={(v) => saveDataSync({ pipeline: v })}
+        />
+        <ToggleRow
+          label="扩展数据定时拉取"
+          desc="含启动后首次拉取; 关闭后定时任务和手动执行/回补均不可用"
+          checked={dataSyncExtPull}
+          disabled={savingDataSync}
+          onChange={(v) => saveDataSync({ extPull: v })}
+        />
+        <ToggleRow
+          label="财务数据同步"
+          desc="关闭后财务页与 AI 助手的财务同步入口均不可用"
+          checked={dataSyncFinancial}
+          disabled={savingDataSync}
+          onChange={(v) => saveDataSync({ financial: v })}
+        />
+        <p className="mt-2 text-[11px] leading-5 text-muted">
+          自动调度在下次启动生效; 手动同步入口保存后立即禁用。不控制实时行情、分钟刷新、单标的按需查询和缓存预热。
+        </p>
       </section>
 
       <section className="rounded-card border border-border bg-surface p-5 mt-6">

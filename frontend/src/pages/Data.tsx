@@ -26,6 +26,7 @@ import {
   useCapabilityMatrix,
   useSettings,
   usePreferences,
+  useDataSyncPrefs,
   useQuoteStatus,
   useQuoteInterval,
   useDataStatus,
@@ -188,6 +189,7 @@ export function Data() {
   })
 
   const prefs = usePreferences()
+  const dataSync = useDataSyncPrefs()
 
   // 数据源列表 + 当前数据源 (顶部"切换数据源"按钮展示)
   const dataSources = useQuery({
@@ -607,8 +609,9 @@ export function Data() {
         right={
           <div className="flex items-center gap-3">
             <button
-              onClick={() => adjGate.guard(() => startSync.mutate())}
-              disabled={isStarting}
+              onClick={() => { if (dataSync.pipeline) adjGate.guard(() => startSync.mutate()) }}
+              disabled={isStarting || !dataSync.pipeline}
+              title={!dataSync.pipeline ? '盘后数据同步已在设置中关闭' : undefined}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-gradient-to-r from-accent/25 to-accent/10 border border-accent/30 text-accent text-xs font-medium hover:from-accent/35 hover:to-accent/20 disabled:opacity-40 transition-all duration-150 ${
                 !hasData && !isLoading && !isStarting && !isRunning ? 'animate-breath-sync' : ''
               }`}
@@ -837,12 +840,16 @@ export function Data() {
                     <span className="font-mono text-secondary">
                       {`${String(pipelineSched.hour).padStart(2, '0')}:${String(pipelineSched.minute).padStart(2, '0')}`}
                     </span>
-                    <button
-                      onClick={() => setShowScheduleEdit(v => !v)}
-                      className={`p-0.5 rounded hover:bg-elevated transition-colors ${showScheduleEdit ? 'text-accent' : 'text-secondary'}`}
-                    >
-                      <Clock className="h-3 w-3" />
-                    </button>
+                    {dataSync.pipeline ? (
+                      <button
+                        onClick={() => setShowScheduleEdit(v => !v)}
+                        className={`p-0.5 rounded hover:bg-elevated transition-colors ${showScheduleEdit ? 'text-accent' : 'text-secondary'}`}
+                      >
+                        <Clock className="h-3 w-3" />
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-amber-500">自动调度已关闭</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 font-mono text-secondary">
                     {s?.last_pipeline_run && (
