@@ -551,6 +551,32 @@ def test_attach_deviation_columns_star_fallback(tmp_path) -> None:
     assert abs(dev - 0.0) < 1e-9
 
 
+def test_benchmark_fallback_is_resolved_per_trading_day(tmp_path) -> None:
+    """首选指数只有尾部数据时, 早期交易日必须回退到次选而不是输出空值。"""
+    days = [
+        date(2026, 8, 11),
+        date(2026, 8, 12),
+        date(2026, 8, 13),
+        date(2026, 8, 14),
+        date(2026, 8, 15),
+        date(2026, 8, 18),
+    ]
+    _write_index_daily(
+        tmp_path,
+        [("399001.SZ", day, 10.0 + idx) for idx, day in enumerate(days)]
+        + [("399107.SZ", days[-1], 20.0)],
+    )
+
+    out = load_benchmark_momentum(tmp_path)
+
+    assert out is not None
+    sz = out.filter(pl.col("bench_key") == "SZ").sort("date")
+    assert sz.height == len(days)
+    assert sz["bench_mom3d"][3] is not None
+    assert sz["bench_close"][0] == 10.0
+    assert sz["bench_close"][-1] == 20.0
+
+
 def test_benchmark_momentum_today_gem_key(tmp_path) -> None:
     """盘中外推按板块键产出: 创业板综指行情只喂 GEM 键的实时涨跌。"""
     _write_index_daily(tmp_path, [("399102.SZ", d, 10.0 + i) for i, d in enumerate(_BENCH_DAYS)])

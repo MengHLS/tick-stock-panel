@@ -1173,12 +1173,10 @@ def load_benchmark_momentum(data_dir: Path) -> pl.DataFrame | None:
     try:
         index_glob = str(Path(data_dir) / "kline_index_daily" / "**" / "*.parquet")
         wanted: list[str] = []
-        bench_of: dict[str, str] = {}
-        for bench_key, candidates in _BENCHMARK_PREFERENCE.items():
+        for candidates in _BENCHMARK_PREFERENCE.values():
             for sym in candidates:
-                if sym not in bench_of:
+                if sym not in wanted:
                     wanted.append(sym)
-                    bench_of[sym] = bench_key
         lf = scan_daily_parquet(
             index_glob, cast_options=pl.ScanCastOptions(integer_cast="allow-float")
         )
@@ -1191,34 +1189,60 @@ def load_benchmark_momentum(data_dir: Path) -> pl.DataFrame | None:
         if not df_idx.is_empty():
             available = set(df_idx["symbol"].to_list())
             picked = [s for s in wanted if s in available]
-            # 每个板块取优先级最高的可用基准; 全缺时回退到任一可用基准。
-            # 同一基准可服务多个板块 (如科创50 缺失时科创板回退上证A指)。
-            pairs: list[tuple[str, str]] = []
-            for bench_key, candidates in _BENCHMARK_PREFERENCE.items():
-                hit = next((s for s in candidates if s in available), None)
-                if hit is None and picked:
-                    hit = picked[0]
-                if hit is not None:
-                    pairs.append((hit, bench_key))
-            df_bench = df_idx.filter(pl.col("symbol").is_in([p[0] for p in pairs]))
-            if not df_bench.is_empty():
-                df_bench = df_bench.with_columns(
-                    pl.col("close").cast(pl.Float64, strict=False)
-                ).with_columns([
-                    (pl.col("close") / pl.col("close").shift(n).over("symbol") - 1).alias(f"_bm{n}")
+            priority_rows = [
+                {"symbol": symbol, "bench_key": bench_key, "_priority": priority}
+                for bench_key, candidates in _BENCHMARK_PREFERENCE.items()
+                for priority, symbol in enumerate(candidates)
+            ]
+            scored = (
+                df_idx.unique(subset=["symbol", "date"], keep="last")
+                .sort(["symbol", "date"])
+                .with_columns(pl.col("close").cast(pl.Float64, strict=False))
+                .with_columns([
+                    (
+                        pl.col("close")
+                        / pl.col("close").shift(n).over("symbol")
+                        - 1
+                    ).alias(f"_bm{n}")
                     for n in DEVIATION_WINDOWS
-                ]).rename({f"_bm{n}": f"bench_mom{n}d" for n in DEVIATION_WINDOWS})
-                key_map = pl.DataFrame({
-                    "symbol": [p[0] for p in pairs],
-                    "bench_key": [p[1] for p in pairs],
-                })
-                frame = (
-                    df_bench.join(key_map, on="symbol", how="inner")
-                    .select(["date", "bench_key", "close",
-                             *[f"bench_mom{n}d" for n in DEVIATION_WINDOWS]])
-                    .rename({"close": "bench_close"})
-                    .unique(subset=["date", "bench_key"])
+                ])
+                .rename({f"_bm{n}": f"bench_mom{n}d" for n in DEVIATION_WINDOWS})
+            )
+            selected = (
+                scored.join(pl.DataFrame(priority_rows), on="symbol", how="inner")
+                .sort(["bench_key", "date", "_priority"])
+                .group_by(["bench_key", "date"], maintain_order=True)
+                .first()
+                .drop(["_priority", "symbol"])
+            )
+            missing_keys = [
+                bench_key
+                for bench_key in _BENCHMARK_PREFERENCE
+                if bench_key not in set(selected["bench_key"].to_list())
+            ]
+            if missing_keys and picked:
+                fallback = (
+                    scored.filter(pl.col("symbol") == picked[0])
+                    .join(
+                        pl.DataFrame({"bench_key": missing_keys}),
+                        how="cross",
+                    )
+                    .drop("symbol")
                 )
+                selected = pl.concat(
+                    [selected, fallback.select(selected.columns)],
+                    how="vertical_relaxed",
+                )
+            frame = (
+                selected.select([
+                    "date",
+                    "bench_key",
+                    "close",
+                    *[f"bench_mom{n}d" for n in DEVIATION_WINDOWS],
+                ])
+                .rename({"close": "bench_close"})
+                .unique(subset=["date", "bench_key"])
+            )
     except Exception as exc:  # noqa: BLE001
         logger.warning("基准指数偏离数据加载失败: %s", exc)
         frame = None
