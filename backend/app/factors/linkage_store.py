@@ -21,7 +21,7 @@ from app.enriched_generation import EnrichedPublication, get_enriched_generation
 from app.factors.linkage import LINKAGE_FACTOR_IDS, compute_linkage_fields
 from app.indicators.pipeline import filter_halt_days, load_benchmark_momentum
 from app.market_time import CN_TZ
-from app.services.ext_data import ExtConfigStore
+from app.services.ext_data import ExtConfig, ExtConfigStore
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,28 @@ _WARMUP_TRADING_DAYS = 61
 _FINAL_CUTOFF = time(15, 30)
 _PRICE_TOLERANCE = 0.005
 _READ_RETRIES = 3
+_INDUSTRY_CONFIG_METADATA_KEYS = frozenset({
+    "created_at",
+    "description",
+    "label",
+    "updated_at",
+})
+_INDUSTRY_PULL_RUNTIME_KEYS = frozenset({
+    "enabled",
+    "last_message",
+    "last_rows",
+    "last_run",
+    "last_status",
+    "next_run",
+    "schedule_day",
+    "schedule_minutes",
+    "schedule_period",
+    "schedule_time",
+    "schedule_trading_only",
+    "time_window_end",
+    "time_window_start",
+    "timeout_seconds",
+})
 
 
 class LinkageReadUnstableError(RuntimeError):
@@ -278,7 +300,33 @@ def _industry_source_signature(
     return digest.hexdigest()
 
 
-def _load_industry_source(data_dir: Path) -> _IndustrySource:
+def _industry_config_identity(config: ExtConfig) -> dict[str, Any]:
+    payload = config.to_dict()
+    for key in _INDUSTRY_CONFIG_METADATA_KEYS:
+        payload.pop(key, None)
+    payload["fields"] = [
+        {"name": field["name"], "dtype": field["dtype"]}
+        for field in payload.get("fields", [])
+    ]
+    pull = payload.get("pull")
+    if isinstance(pull, dict):
+        pull = {
+            key: value
+            for key, value in pull.items()
+            if key not in _INDUSTRY_PULL_RUNTIME_KEYS
+        }
+        fanout = pull.get("fanout")
+        if isinstance(fanout, dict):
+            pull["fanout"] = {
+                key: value
+                for key, value in fanout.items()
+                if key not in {"concurrency", "retries"}
+            }
+        payload["pull"] = pull
+    return payload
+
+
+def _load_industry_source(data_dir: Path, *, through: date) -> _IndustrySource:
     configs = ExtConfigStore(data_dir).load_all()
     industry_timeseries = [
         config
@@ -319,16 +367,21 @@ def _load_industry_source(data_dir: Path) -> _IndustrySource:
 
     config = candidates[0]
     timeseries_root = data_dir / "ext_data" / config.id / "timeseries"
-    part_dirs = sorted(
-        part for part in timeseries_root.glob("date=*") if part.is_dir()
-    )
-    frames: list[pl.DataFrame] = []
-    partition_files: list[Path] = []
-    for part in part_dirs:
+    part_dirs: list[tuple[date, Path]] = []
+    for part in timeseries_root.glob("date=*"):
+        if not part.is_dir():
+            continue
         try:
             snapshot_date = date.fromisoformat(part.name[5:])
         except ValueError:
             continue
+        if snapshot_date <= through:
+            part_dirs.append((snapshot_date, part))
+    part_dirs.sort()
+
+    frames: list[pl.DataFrame] = []
+    partition_files: list[Path] = []
+    for snapshot_date, part in part_dirs:
         files = sorted(part.glob("*.parquet"))
         if not files:
             continue
@@ -360,7 +413,7 @@ def _load_industry_source(data_dir: Path) -> _IndustrySource:
     )
     signature = _industry_source_signature(
         {
-            "config": config.to_dict(),
+            "config": _industry_config_identity(config),
             "industry_field": _INDUSTRY_FIELD,
             "industry_level": _INDUSTRY_LEVEL,
         },
@@ -769,7 +822,7 @@ def _rebuild_linkage_sidecar(
     if not requested:
         return 0
 
-    industry = _load_industry_source(data_dir)
+    industry = _load_industry_source(data_dir, through=finalized[-1])
     benchmark_frame = load_benchmark_momentum(data_dir)
     benchmarks = benchmark_frame if benchmark_frame is not None else pl.DataFrame()
     current_signatures = _source_signatures(data_dir, finalized)

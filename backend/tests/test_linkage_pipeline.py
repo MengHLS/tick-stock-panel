@@ -250,6 +250,70 @@ def test_index_benchmark_change_forces_full_rebuild(
     ).columns
 
 
+def test_future_industry_snapshot_and_runtime_config_keep_incremental_idempotent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    dates = _business_dates(date(2025, 4, 1), 4)
+    for day in dates:
+        _write_enriched(tmp_path, day)
+    monkeypatch.setattr(
+        linkage_store,
+        "finalized_trading_dates",
+        lambda *_args, **_kwargs: dates,
+    )
+    monkeypatch.setattr(
+        linkage_store,
+        "load_benchmark_momentum",
+        lambda _data_dir: _benchmarks(dates),
+    )
+    store = ExtConfigStore(tmp_path)
+    industry_fields = [
+        ExtField("symbol"),
+        ExtField("所属同花顺行业"),
+    ]
+
+    def config(last_run: str) -> ExtConfig:
+        return ExtConfig(
+            id="ext_hy_ths_pit",
+            label="行业时点",
+            mode="timeseries",
+            fields=industry_fields,
+            pull=PullConfig(
+                fanout={"require_complete": True},
+                last_run=last_run,
+                last_status="success",
+            ),
+        )
+
+    store.upsert(config("2025-04-01T00:00:00"))
+    rebuild_linkage_sidecar(tmp_path, mode="full")
+    generation = get_enriched_generation(tmp_path, "linkage")
+    sentinel_path = _sidecar_partition(tmp_path, dates[0])
+    pl.read_parquet(sentinel_path).with_columns(
+        pl.lit("keep").alias("_sentinel")
+    ).write_parquet(sentinel_path)
+
+    future_day = dates[-1] + timedelta(days=1)
+    future_part = (
+        tmp_path / "ext_data" / "ext_hy_ths_pit" / "timeseries"
+        / f"date={future_day.isoformat()}" / "part.parquet"
+    )
+    future_part.parent.mkdir(parents=True)
+    pl.DataFrame({
+        "symbol": ["600000.SH"],
+        "所属同花顺行业": ["一级-银行-三级"],
+    }).write_parquet(future_part)
+    store.upsert(config("2025-04-02T00:00:00"))
+
+    assert rebuild_linkage_sidecar(tmp_path, mode="incremental") == 0
+
+    manifest = _manifest(tmp_path)
+    assert get_enriched_generation(tmp_path, "linkage") == generation
+    assert "_sentinel" in pl.read_parquet(sentinel_path).columns
+    assert manifest["industry_coverage_start"] is None
+    assert "尚无完整日分区" in manifest["unavailable_reason"]
+
+
 def test_failed_rebuild_recovery_keeps_previous_complete_snapshot(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
