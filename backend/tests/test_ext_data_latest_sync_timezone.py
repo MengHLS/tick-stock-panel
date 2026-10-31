@@ -12,9 +12,12 @@ import types
 from datetime import datetime
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
-from app.api.ext_data import _latest_sync_date
+from app.api.ext_data import _latest_sync_date, router
 from app.market_time import CN_TZ
+from app.services.ext_data import ExtConfig, ExtConfigStore, ExtField
 
 # 固定 epoch 秒 = 北京时间 2026-09-04 22:13:20
 _MTIME = 1_788_531_200
@@ -56,6 +59,59 @@ def test_timeseries_latest_sync_is_beijing_wall_clock(tmp_path, timeseries_confi
     got = _latest_sync_date(timeseries_config, tmp_path)
 
     assert got == f"2026-09-04 {_beijing('%H:%M:%S')}"
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_timeseries_latest_date_does_not_regress_after_backfill(
+    tmp_path, timeseries_config, legacy,
+):
+    base = (
+        tmp_path / "kline_ext"
+        if legacy
+        else tmp_path / "ext_data" / timeseries_config.id / "timeseries"
+    )
+    _touch(base / "date=2026-09-04" / "part.parquet", _MTIME)
+    _touch(base / "date=2019-01-02" / "part.parquet", _MTIME + 86400 + 60)
+    (base / "date=2026-09-07").mkdir()
+
+    got = _latest_sync_date(timeseries_config, tmp_path)
+
+    assert got == f"2026-09-04 {_beijing('%H:%M:%S')}"
+
+
+def test_latest_sync_uses_newest_file_within_latest_partition(tmp_path, timeseries_config):
+    base = tmp_path / "ext_data" / timeseries_config.id / "timeseries"
+    _touch(base / "date=2026-09-04" / "part.parquet", _MTIME - 60)
+    _touch(base / "date=2026-09-04" / "extra.parquet", _MTIME)
+    _touch(base / "date=2026-09-03" / "part.parquet", _MTIME + 120)
+
+    assert _latest_sync_date(timeseries_config, tmp_path) == (
+        f"2026-09-04 {_beijing('%H:%M:%S')}"
+    )
+
+
+def test_list_configs_latest_matches_data_range_after_backfill(tmp_path):
+    config = ExtConfig(
+        id="limit_board_events",
+        label="Limit board events",
+        mode="timeseries",
+        fields=[ExtField("symbol", "string")],
+    )
+    ExtConfigStore(tmp_path).upsert(config)
+    base = tmp_path / "ext_data" / config.id / "timeseries"
+    _touch(base / "date=2026-09-04" / "part.parquet", _MTIME)
+    _touch(base / "date=2019-01-02" / "part.parquet", _MTIME + 86400 + 60)
+    app = FastAPI()
+    app.state.repo = types.SimpleNamespace(store=types.SimpleNamespace(data_dir=tmp_path))
+    app.include_router(router)
+
+    with TestClient(app) as client:
+        response = client.get("/api/ext-data")
+
+    assert response.status_code == 200
+    item = response.json()["items"][0]
+    assert item["latest_sync_date"] == f"2026-09-04 {_beijing('%H:%M:%S')}"
+    assert item["date_range"] == ["2019-01-02", "2026-09-04"]
 
 
 def test_latest_sync_is_none_without_any_data(tmp_path, snapshot_config):

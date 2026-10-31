@@ -350,10 +350,10 @@ def _with_instrument_name(df: pl.DataFrame, data_dir: Path) -> pl.DataFrame:
 
 
 def _latest_sync_date(config: ExtConfig, data_dir: Path) -> str | None:
-    """扫描数据文件，返回该扩展配置的最新同步时间（北京墙钟, 含时分秒）。
+    """返回最新数据日期及该分区的写入时刻（北京墙钟, 含时分秒）。
 
     - snapshot: 直接取 ext_data/{id}/part.parquet 的 mtime
-    - timeseries: 扫描 ext_data/{id}/timeseries/date=xxx 分区目录
+    - timeseries: 取最新交易日分区, 附该分区的 mtime 时刻; 补历史不回退日期
 
     用北京时间而非宿主机时钟: 前端 ExtDataStatCard 原样展示这串裸时间,
     容器默认 UTC 时会比同一页拉取面板里的 pull.last_run(带时区 ISO,
@@ -384,21 +384,16 @@ def _latest_sync_date(config: ExtConfig, data_dir: Path) -> str | None:
 
 
 def _latest_sync_from_partitions(base: Path) -> str | None:
-    """从 date=xxx 分区目录中找到最新分区的修改时间 (北京墙钟)。"""
+    """按数据日期选最新非空分区, 附该分区最新文件的北京写入时刻。"""
     from datetime import datetime
-    latest_ts: float = 0
-    latest_date: str | None = None
-    for d in base.iterdir():
+
+    for d in sorted(base.iterdir(), key=lambda path: path.name, reverse=True):
         if d.is_dir() and d.name.startswith("date="):
-            for f in d.glob("*.parquet"):
-                mtime = f.stat().st_mtime
-                if mtime > latest_ts:
-                    latest_ts = mtime
-                    latest_date = d.name[5:]
-    if latest_date and latest_ts > 0:
-        ts = datetime.fromtimestamp(latest_ts, tz=CN_TZ).strftime("%H:%M:%S")
-        return f"{latest_date} {ts}"
-    return latest_date
+            latest_ts = max((f.stat().st_mtime for f in d.glob("*.parquet")), default=None)
+            if latest_ts is not None:
+                ts = datetime.fromtimestamp(latest_ts, tz=CN_TZ).strftime("%H:%M:%S")
+                return f"{d.name[5:]} {ts}"
+    return None
 
 
 def _date_range(config: ExtConfig, data_dir: Path) -> list[str] | None:
