@@ -2275,6 +2275,8 @@ def _limit_lock_matrices(
             & np.isfinite(previous_adjustment)
             & (np.abs(current_adjustment - previous_adjustment) > 1e-6)
         )
+        # 除权日交易所参考价 = 前复权昨收还原到当日口径 (prev_qfq / 当日复权比例)。
+        # 本地公式直接由 raw_prev × F(prev) / F(today) 计算，避免维护重复的昨收状态。
         adjusted_previous_raw = np.divide(
             previous_raw * previous_adjustment,
             current_adjustment,

@@ -27,6 +27,7 @@ def _spy_json_loads(monkeypatch) -> dict:
     """统计 JSON 解析次数 — 镜像命中时不应发生解析。"""
     calls = {"n": 0}
     real = strategy_cache.json.loads
+    monkeypatch.setattr(strategy_cache, "current_linkage_generation", lambda _data_dir: None)
 
     def counting(text):
         calls["n"] += 1
@@ -49,6 +50,7 @@ def test_read_returns_shared_mirror_object_without_reparse(tmp_path, monkeypatch
 
 
 def test_second_write_merges_via_mirror_then_reads_fresh(tmp_path, monkeypatch):
+    monkeypatch.setattr(strategy_cache, "current_linkage_generation", lambda _data_dir: None)
     strategy_cache.write_cache(tmp_path, "2026-10-19", {"s1": _result("000001.SZ")})
     calls = _spy_json_loads(monkeypatch)
 

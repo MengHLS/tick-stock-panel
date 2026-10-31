@@ -121,7 +121,10 @@ def test_research_factor_catalog_matches_matrix_features():
                 ),
             })
     panel = pl.DataFrame(rows)
-    factor_names = {item["id"] for item in FACTOR_COLUMNS}
+    from app.factors.linkage import LINKAGE_FACTOR_IDS
+
+    # 联动因子由 linkage store 物化, 不能从这段无外部状态的合成面板推导。
+    factor_names = {item["id"] for item in FACTOR_COLUMNS} - LINKAGE_FACTOR_IDS
     expected = FactorBacktestService._compute_missing_factors(panel, factor_names)
     from app.backtest.fundamentals import (
         FUNDAMENTAL_FACTOR_NAMES,

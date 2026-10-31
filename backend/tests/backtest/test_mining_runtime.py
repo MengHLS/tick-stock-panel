@@ -282,6 +282,7 @@ def test_prepare_base_market_forwards_cancel_event(monkeypatch, tmp_path) -> Non
         full_feature_fallback=False,
         execution_backend="matrix_native",
         fundamental_columns=frozenset(),
+        linkage_columns=frozenset(),
     )
     research = SimpleNamespace(entry_signals=[], exit_signals=[])
     strategy_engine = SimpleNamespace(get=lambda _strategy_id: research)

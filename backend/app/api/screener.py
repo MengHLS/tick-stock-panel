@@ -548,6 +548,8 @@ def run_preset(req: PresetRequest, request: Request):
 def _cached_with_realtime(request: Request) -> dict:
     """读取盘后缓存，并用监控引擎的实时结果覆盖同策略。"""
     data_dir = request.app.state.repo.store.data_dir
+    from app.services.daily_health import assert_usable
+    assert_usable(data_dir)
     cached = strategy_cache.read_cache(data_dir)
     if cached is not None and not strategy_cache.linkage_generation_is_current(
         data_dir,

@@ -200,6 +200,7 @@ class StrategyDependencyResolver:
         overrides: dict | None = None,
         minute_fill: bool = False,
         asset_type: str = "stock",
+        allow_unresolved_signals: bool = False,
     ) -> ResolvedFeaturePlan:
         overrides = overrides or {}
         basic_filter = _basic_filter_for_asset(basic_filter, asset_type)
@@ -217,7 +218,6 @@ class StrategyDependencyResolver:
             for signal in [*entry_signals, *exit_signals]
             if signal
         }
-        required_signals.update({"signal_limit_up", "signal_limit_down"})
 
         scoring = effective_scoring(strategy.meta.get("scoring"), overrides)
         required_features.update(scoring_dependencies(scoring))
@@ -239,6 +239,13 @@ class StrategyDependencyResolver:
         full_fallback = bool(strategy.filter_history_fn and not strategy.required_features)
         full_fallback = full_fallback or not filter_resolved
         signal_dependencies = get_signal_dependencies()
+        # 默认涨跌停信号可能被用户删除；执行层仍可直接使用引擎判定价列。
+        # 仅在定义存在时补默认依赖，显式引用不存在信号仍由下方 fail-closed。
+        required_signals.update(
+            signal
+            for signal in ("signal_limit_up", "signal_limit_down")
+            if signal in signal_dependencies
+        )
         if full_fallback:
             logger.warning(
                 "strategy %s has dynamic Python dependencies without REQUIRED_FEATURES; "
@@ -253,7 +260,7 @@ class StrategyDependencyResolver:
             required_signals.update(LIMIT_SIGNAL_OUTPUTS)
 
         unknown_signals = required_signals - set(signal_dependencies) - set(LIMIT_SIGNAL_OUTPUTS)
-        if unknown_signals:
+        if unknown_signals and not allow_unresolved_signals:
             raise ValueError(f"策略引用了不存在的信号: {sorted(unknown_signals)}")
         for signal in required_signals:
             required_features.update(signal_dependencies.get(signal, ()))

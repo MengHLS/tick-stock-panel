@@ -890,6 +890,9 @@ class StrategyEngine:
             raise ValueError("realtime matrix timestamp cannot be converted to date")
         symbols = tuple(current["symbol"].cast(pl.Utf8).unique().sort().to_list())
         fingerprint = (
+            context.asset_type,
+            context.timeframe,
+            context.data_generation,
             tuple(sorted(field_columns)),
             max_warmup,
             symbols,
@@ -1308,6 +1311,7 @@ class StrategyEngine:
                 overrides=overrides,
                 minute_fill=timeframe == "1m",
                 asset_type=asset_type,
+                allow_unresolved_signals=True,
             )
             names.update(plan.linkage_columns & LINKAGE_FACTOR_IDS)
         return frozenset(names)
