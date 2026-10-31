@@ -23,13 +23,11 @@ export function MinuteSyncConfig({ hasCap, onJobStart }: { hasCap: boolean; onJo
   const enabled = prefs.data?.minute_sync_enabled ?? false
   const days = prefs.data?.minute_sync_days ?? 5
   const segmentDays = prefs.data?.minute_sync_segment_days ?? 20
-  const [localDays, setLocalDays] = useState(days)
+  const maxDays = Math.max(1, Math.min(30, prefs.data?.minute_history_days ?? 30))
+  const [localDays, setLocalDays] = useState(Math.min(days, maxDays))
   const [localSegment, setLocalSegment] = useState(segmentDays)
 
-  useEffect(() => { setLocalDays(days) }, [days])
-  useEffect(() => { setLocalSegment(segmentDays) }, [segmentDays])
-
-  useEffect(() => { setLocalDays(days) }, [days])
+  useEffect(() => { setLocalDays(Math.min(days, maxDays)) }, [days, maxDays])
   useEffect(() => { setLocalSegment(segmentDays) }, [segmentDays])
 
   const handleToggle = () => {
@@ -38,7 +36,7 @@ export function MinuteSyncConfig({ hasCap, onJobStart }: { hasCap: boolean; onJo
   }
 
   const setDays = (v: number) => {
-    const clamped = Math.max(1, Math.min(30, v))
+    const clamped = Math.max(1, Math.min(maxDays, v))
     setLocalDays(clamped)
     update.mutate({ enabled, days: clamped })
   }
@@ -110,11 +108,14 @@ export function MinuteSyncConfig({ hasCap, onJobStart }: { hasCap: boolean; onJo
             </div>
             <button
               onClick={() => setDays(localDays + 1)}
-              disabled={!hasMinuteCap || !enabled || localDays >= 30}
+              disabled={!hasMinuteCap || !enabled || localDays >= maxDays}
               className="h-6 w-6 flex items-center justify-center rounded-r-btn bg-elevated border border-border text-secondary hover:bg-border/50 disabled:opacity-30 transition-colors text-xs"
             >+</button>
           </div>
           <span className="text-[10px] text-muted">天</span>
+          {maxDays < 30 && (
+            <span className="text-[10px] text-warning/80">当前源最多 {maxDays} 日</span>
+          )}
           {!hasMinuteCap && (
             <MissingCapChip capKey="kline.minute.batch" />
           )}

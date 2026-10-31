@@ -39,7 +39,15 @@ def _matrix_entry_score(matrix: MarketMatrix, time_id: int, asset_id: int) -> fl
     source_time = int(matrix.entry_signal_time[time_id, asset_id])
     if source_time < 0:
         return 0.0
+    if matrix.ranking_score is not None:
+        return float(matrix.ranking_score[source_time, asset_id])
     return float(matrix.score[source_time, asset_id])
+
+
+def _ratio_in_closed_range(value: float, low: float, high: float) -> bool:
+    # The source execution primitive ignores only IEEE boundary noise.
+    tolerance = 1e-12
+    return low - tolerance <= value <= high + tolerance
 
 
 def _score_tier_fraction(
@@ -1326,7 +1334,7 @@ class BacktestEngine:
                     return False, "buy_open_gap"
                 open_gap = open_price / previous_close - 1.0
                 low, high = config.entry_open_gap_range
-                if not low <= open_gap <= high:
+                if not _ratio_in_closed_range(open_gap, low, high):
                     return False, "buy_open_gap"
             if config.entry_prev_day_change_range is not None:
                 if time_id < 2:
@@ -1337,7 +1345,7 @@ class BacktestEngine:
                     return False, "buy_prev_day_change"
                 previous_day_change = previous_close / prior_close - 1.0
                 low, high = config.entry_prev_day_change_range
-                if not low <= previous_day_change <= high:
+                if not _ratio_in_closed_range(previous_day_change, low, high):
                     return False, "buy_prev_day_change"
             if config.entry_fill == "close_t" and bool(matrix.limit_up_locked[time_id, asset_id]):
                 # close_t 按信号日收盘价成交: 收盘封板(含一字)在收盘价的买队排队
@@ -2385,8 +2393,8 @@ class BacktestEngine:
                 if time_id < 1:
                     return False, "buy_open_gap"
                 previous_close = (
-                    float(matrix.raw_close[time_id - 1, asset_id])
-                    if config.entry_price_basis == "raw" and matrix.raw_close is not None
+                    float(matrix.raw_pre_close[time_id, asset_id])
+                    if config.entry_price_basis == "raw" and matrix.raw_pre_close is not None
                     else float(matrix.close[time_id - 1, asset_id])
                 )
                 open_price = (
@@ -2398,19 +2406,22 @@ class BacktestEngine:
                     return False, "buy_open_gap"
                 open_gap = open_price / previous_close - 1.0
                 low, high = config.entry_open_gap_range
-                if not low <= open_gap <= high:
+                if not _ratio_in_closed_range(open_gap, low, high):
                     return False, "buy_open_gap"
             if config.entry_prev_day_change_range is not None:
                 if time_id < 2:
                     return False, "buy_prev_day_change"
-                closes = matrix.raw_close if config.entry_price_basis == "raw" and matrix.raw_close is not None else matrix.close
-                previous_close = float(closes[time_id - 1, asset_id])
-                prior_close = float(closes[time_id - 2, asset_id])
+                if config.entry_price_basis == "raw" and matrix.raw_pre_close is not None:
+                    previous_close = float(matrix.raw_close[time_id - 1, asset_id])
+                    prior_close = float(matrix.raw_pre_close[time_id - 1, asset_id])
+                else:
+                    previous_close = float(matrix.close[time_id - 1, asset_id])
+                    prior_close = float(matrix.close[time_id - 2, asset_id])
                 if not _valid_price(previous_close) or not _valid_price(prior_close):
                     return False, "buy_prev_day_change"
                 previous_day_change = previous_close / prior_close - 1.0
                 low, high = config.entry_prev_day_change_range
-                if not low <= previous_day_change <= high:
+                if not _ratio_in_closed_range(previous_day_change, low, high):
                     return False, "buy_prev_day_change"
             if config.entry_fill == "close_t" and bool(matrix.limit_up_locked[time_id, asset_id]):
                 # close_t 按信号日收盘价成交: 收盘封板(含一字)在收盘价的买队排队
@@ -2420,10 +2431,14 @@ class BacktestEngine:
             if _one_price_limit(time_id, asset_id, "up"):
                 return False, "buy_limit_up"
             if config.block_limit_open:
-                closes = matrix.raw_close if config.entry_price_basis == "raw" and matrix.raw_close is not None else matrix.close
                 opens = matrix.raw_open if config.entry_price_basis == "raw" and matrix.raw_open is not None else matrix.open
                 if time_id >= 1 and matrix.price_limit_pct is not None:
-                    previous_close = float(closes[time_id - 1, asset_id])
+                    previous_close = (
+                        float(matrix.raw_pre_close[time_id, asset_id])
+                        if config.entry_price_basis == "raw"
+                        and matrix.raw_pre_close is not None
+                        else float(matrix.close[time_id - 1, asset_id])
+                    )
                     open_price = float(opens[time_id, asset_id])
                     limit_pct = float(matrix.price_limit_pct[time_id, asset_id])
                     if _valid_price(previous_close) and _valid_price(open_price) and np.isfinite(limit_pct):
@@ -2678,19 +2693,24 @@ class BacktestEngine:
             source = matrix.source_entry
             if source is None:
                 return
-            candidates: list[tuple[int, float]] = []
+            candidates: list[tuple[int, float, float]] = []
             for asset_id in np.flatnonzero(source[time_id]):
                 asset = int(asset_id)
                 if asset in positions or asset in sold_today:
                     continue
                 score = float(matrix.score[time_id, asset])
-                if config.score_min is not None and score < config.score_min:
+                tier_score = (
+                    float(matrix.ranking_score[time_id, asset])
+                    if matrix.ranking_score is not None
+                    else score
+                )
+                if config.score_min is not None and tier_score < config.score_min:
                     _count("buy_score_filter")
                     continue
-                if config.score_max is not None and score > config.score_max:
+                if config.score_max is not None and tier_score > config.score_max:
                     _count("buy_score_filter")
                     continue
-                candidates.append((asset, score))
+                candidates.append((asset, score, tier_score))
             candidates.sort(key=lambda item: (-item[1], matrix.symbols[item[0]]))
             slots = max_positions - len(positions)
             if slots <= 0:
@@ -2711,12 +2731,12 @@ class BacktestEngine:
                 return
             weights = np.repeat(1 / len(selected), len(selected))
             if config.position_sizing == "score_weight":
-                raw_weights = np.array([max(score, 0.0) for _, score in selected])
+                raw_weights = np.array([max(tier_score, 0.0) for _, _, tier_score in selected])
                 if raw_weights.sum() > 0:
                     weights = raw_weights / raw_weights.sum()
             elif config.position_sizing == "policy" and config.position_policy_compute is not None:
                 policy_returns: dict[str, np.ndarray] = {}
-                for asset_id, _score in selected:
+                for asset_id, _score, _tier_score in selected:
                     closes = matrix.close[
                         max(0, time_id - 59): time_id + 1, asset_id
                     ].astype(np.float64)
@@ -2727,7 +2747,10 @@ class BacktestEngine:
                         )
                 weights, policy_scale = _apply_position_policy(
                     config,
-                    [(str(matrix.symbols[asset_id]), float(score)) for asset_id, score in selected],
+                    [
+                        (str(matrix.symbols[asset_id]), float(tier_score))
+                        for asset_id, _score, tier_score in selected
+                    ],
                     policy_returns,
                     trades,
                     planning_cash,
@@ -2738,11 +2761,11 @@ class BacktestEngine:
                 )
                 allocatable = max(0.0, allocatable * policy_scale)
             plans: list[dict] = []
-            for (asset_id, score), weight in zip(selected, weights):
+            for (asset_id, score, tier_score), weight in zip(selected, weights):
                 if config.position_sizing == "score_tier":
                     budget = min(
                         allocatable / len(selected),
-                        equity * _score_tier_fraction(score, config.score_tiers),
+                        equity * _score_tier_fraction(tier_score, config.score_tiers),
                     )
                 elif config.position_sizing == "score_weight":
                     budget = min(

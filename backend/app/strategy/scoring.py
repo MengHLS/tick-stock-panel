@@ -320,6 +320,24 @@ def materialize_scoring_columns(
     if event_chain_names:
         frame = materialize_event_chain_columns(frame, event_chain_names)
 
+    # A composite evaluates member factors by name. Materialize custom/composite
+    # members first so strategies and factor research share the same path.
+    composite_members: list[str] = []
+    for name in names:
+        spec = _registry_get_factor(str(name))
+        if spec is None or spec.kind != "composite":
+            continue
+        for member_id, _ in spec.components:
+            member = _registry_get_factor(member_id)
+            if member is not None and member.kind in {"custom", "composite"}:
+                composite_members.append(member_id)
+    composite_members = [
+        member_id for member_id in dict.fromkeys(composite_members)
+        if member_id not in frame.columns and member_id not in names
+    ]
+    if composite_members:
+        frame = materialize_scoring_columns(frame, composite_members)
+
     # custom (DSL) 因子先物化: frame_transform 可能需要多阶段临时列 (嵌套窗口规避),
     # 与单表达式路径不同, 必须整体走帧变换 —— 与检验/试算共用同一条计算路径 (P3)。
     # P2b: 物化结果走内容寻址缓存 (键 = 定义 + 依赖列内容), 重复求值零成本;

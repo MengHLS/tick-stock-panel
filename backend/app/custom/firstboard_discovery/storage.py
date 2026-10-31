@@ -15,6 +15,7 @@ from typing import Any
 import polars as pl
 
 _RUN_ID = re.compile(r"^[0-9A-Za-z_-]{8,80}$")
+_LEGACY_DATE_FIELDS = ("date", "entry_date", "outcome_end")
 
 
 class FirstboardDiscoveryStore:
@@ -67,19 +68,30 @@ class FirstboardDiscoveryStore:
             raise FileNotFoundError(run_id)
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def load_events(self, run_id: str) -> list[dict[str, Any]]:
+    def load_events(
+        self,
+        run_id: str,
+        *,
+        end_date: date | None = None,
+    ) -> list[dict[str, Any]]:
         run_dir = self._run_dir(run_id)
         parquet = run_dir / "events.parquet"
         if parquet.is_file():
-            return pl.read_parquet(parquet).to_dicts()
+            frame = pl.scan_parquet(parquet)
+            if end_date is not None:
+                frame = frame.filter(pl.col("date") <= end_date)
+            return frame.collect().to_dicts()
         path = run_dir / "events.jsonl.gz"
         if not path.is_file():
             raise FileNotFoundError(run_id)
         rows: list[dict[str, Any]] = []
         with gzip.open(path, "rt", encoding="utf-8") as handle:
             for line in handle:
-                if line.strip():
-                    rows.append(json.loads(line))
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                if end_date is None or _row_date(row) <= end_date:
+                    rows.append(_normalize_legacy_dates(row))
         return rows
 
     def load_event_page(
@@ -179,3 +191,25 @@ def _json_default(value: Any) -> str:
     if isinstance(value, Path):
         return str(value)
     raise TypeError(f"unsupported JSON value: {type(value).__name__}")
+
+
+def _row_date(row: dict[str, Any]) -> date:
+    value = row.get("date")
+    if isinstance(value, date):
+        return value
+    return date.fromisoformat(str(value)[:10])
+
+
+def _normalize_legacy_dates(row: dict[str, Any]) -> dict[str, Any]:
+    result = dict(row)
+    for field in _LEGACY_DATE_FIELDS:
+        value = result.get(field)
+        if value is None:
+            continue
+        if isinstance(value, datetime):
+            result[field] = value.date()
+        elif isinstance(value, date):
+            continue
+        else:
+            result[field] = date.fromisoformat(str(value)[:10])
+    return result

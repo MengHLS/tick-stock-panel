@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sys
 import threading
 import time
@@ -182,7 +183,16 @@ class DataStore:
 
         # DuckDB 内存模式 — 不建 .db 文件(§7.1)
         self.db = duckdb.connect(database=":memory:")
+        # 视图 DDL 互斥: 启动绑定、按需绑定与运行期 refresh_view/rebuild_views
+        # 共享同一把锁, 避免并发 CREATE OR REPLACE VIEW 的 catalog 冲突。
+        self._ddl_lock = threading.RLock()
+        self._deferred_views: dict[str, str] = {}
         self._register_views()
+
+    @property
+    def view_lock(self) -> threading.RLock:
+        """视图 DDL 互斥锁 (repository 的 refresh_view 等复用同一把)。"""
+        return self._ddl_lock
 
     def _migrate_legacy_data_dir(self) -> None:
         """把旧版数据目录迁移到当前位置 (打包桌面版, 首次启动自动搬迁)。
@@ -257,63 +267,153 @@ class DataStore:
             logger.warning("legacy data migration failed (startup continues): %s", e)
 
     def _register_views(self) -> None:
-        """把 Parquet 目录挂载为 DuckDB 视图(§7.3)。"""
+        """把 Parquet 目录挂载为 DuckDB 视图(§7.3)。
+
+        小视图 (维表/复权/财务/扩展) 启动时同步绑定; 大表视图延后到首次查询,
+        避免启动被 union_by_name 的逐文件 schema 绑定拖住。
+        """
         d = self.data_dir.as_posix()
         statements = [
-            f"""CREATE OR REPLACE VIEW kline_daily AS
-                SELECT * FROM read_parquet('{d}/kline_daily/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_enriched AS
-                SELECT * FROM read_parquet('{d}/kline_daily_enriched/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_index_daily AS
-                SELECT * FROM read_parquet('{d}/kline_index_daily/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_index_enriched AS
-                SELECT * FROM read_parquet('{d}/kline_index_enriched/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_etf_daily AS
-                SELECT * FROM read_parquet('{d}/kline_etf_daily/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_etf_enriched AS
-                SELECT * FROM read_parquet('{d}/kline_etf_enriched/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_etf_minute AS
-                SELECT * FROM read_parquet('{d}/kline_etf_minute/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_minute AS
-                SELECT * FROM read_parquet('{d}/kline_minute/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW adj_factor AS
-                SELECT * FROM read_parquet('{d}/adj_factor/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW adj_factor_etf AS
-                SELECT * FROM read_parquet('{d}/adj_factor_etf/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW instruments AS
-                SELECT * FROM read_parquet('{d}/instruments/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW instruments_index AS
-                SELECT * FROM read_parquet('{d}/instruments_index/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW instruments_etf AS
-                SELECT * FROM read_parquet('{d}/instruments_etf/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW instruments_ext AS
-                SELECT * FROM read_parquet('{d}/instruments_ext/**/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW kline_ext AS
-                SELECT * FROM read_parquet('{d}/kline_ext/**/*.parquet', union_by_name=true)""",
+            ("kline_enriched", f"""CREATE OR REPLACE VIEW kline_enriched AS
+                SELECT * FROM read_parquet('{d}/kline_daily_enriched/**/*.parquet', union_by_name=true)"""),
+            ("kline_daily", f"""CREATE OR REPLACE VIEW kline_daily AS
+                SELECT * FROM read_parquet('{d}/kline_daily/**/*.parquet', union_by_name=true)"""),
+            ("kline_index_daily", f"""CREATE OR REPLACE VIEW kline_index_daily AS
+                SELECT * FROM read_parquet('{d}/kline_index_daily/**/*.parquet', union_by_name=true)"""),
+            ("kline_index_enriched", f"""CREATE OR REPLACE VIEW kline_index_enriched AS
+                SELECT * FROM read_parquet('{d}/kline_index_enriched/**/*.parquet', union_by_name=true)"""),
+            ("kline_etf_daily", f"""CREATE OR REPLACE VIEW kline_etf_daily AS
+                SELECT * FROM read_parquet('{d}/kline_etf_daily/**/*.parquet', union_by_name=true)"""),
+            ("kline_etf_enriched", f"""CREATE OR REPLACE VIEW kline_etf_enriched AS
+                SELECT * FROM read_parquet('{d}/kline_etf_enriched/**/*.parquet', union_by_name=true)"""),
+            ("kline_etf_minute", f"""CREATE OR REPLACE VIEW kline_etf_minute AS
+                SELECT * FROM read_parquet('{d}/kline_etf_minute/**/*.parquet', union_by_name=true)"""),
+            ("kline_minute", f"""CREATE OR REPLACE VIEW kline_minute AS
+                SELECT * FROM read_parquet('{d}/kline_minute/**/*.parquet', union_by_name=true)"""),
+            ("adj_factor", f"""CREATE OR REPLACE VIEW adj_factor AS
+                SELECT * FROM read_parquet('{d}/adj_factor/**/*.parquet', union_by_name=true)"""),
+            ("adj_factor_etf", f"""CREATE OR REPLACE VIEW adj_factor_etf AS
+                SELECT * FROM read_parquet('{d}/adj_factor_etf/**/*.parquet', union_by_name=true)"""),
+            ("instruments", f"""CREATE OR REPLACE VIEW instruments AS
+                SELECT * FROM read_parquet('{d}/instruments/**/*.parquet', union_by_name=true)"""),
+            ("instruments_index", f"""CREATE OR REPLACE VIEW instruments_index AS
+                SELECT * FROM read_parquet('{d}/instruments_index/**/*.parquet', union_by_name=true)"""),
+            ("instruments_etf", f"""CREATE OR REPLACE VIEW instruments_etf AS
+                SELECT * FROM read_parquet('{d}/instruments_etf/**/*.parquet', union_by_name=true)"""),
+            ("instruments_ext", f"""CREATE OR REPLACE VIEW instruments_ext AS
+                SELECT * FROM read_parquet('{d}/instruments_ext/**/*.parquet', union_by_name=true)"""),
+            ("kline_ext", f"""CREATE OR REPLACE VIEW kline_ext AS
+                SELECT * FROM read_parquet('{d}/kline_ext/**/*.parquet', union_by_name=true)"""),
             # 财务数据视图
-            f"""CREATE OR REPLACE VIEW financials_metrics AS
-                SELECT * FROM read_parquet('{d}/financials/metrics/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW financials_income AS
-                SELECT * FROM read_parquet('{d}/financials/income/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW financials_balance_sheet AS
-                SELECT * FROM read_parquet('{d}/financials/balance_sheet/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW financials_cash_flow AS
-                SELECT * FROM read_parquet('{d}/financials/cash_flow/*.parquet', union_by_name=true)""",
-            f"""CREATE OR REPLACE VIEW financials_shares AS
-                SELECT * FROM read_parquet('{d}/financials/shares/*.parquet', union_by_name=true)""",
+            ("financials_metrics", f"""CREATE OR REPLACE VIEW financials_metrics AS
+                SELECT * FROM read_parquet('{d}/financials/metrics/*.parquet', union_by_name=true)"""),
+            ("financials_income", f"""CREATE OR REPLACE VIEW financials_income AS
+                SELECT * FROM read_parquet('{d}/financials/income/*.parquet', union_by_name=true)"""),
+            ("financials_balance_sheet", f"""CREATE OR REPLACE VIEW financials_balance_sheet AS
+                SELECT * FROM read_parquet('{d}/financials/balance_sheet/*.parquet', union_by_name=true)"""),
+            ("financials_cash_flow", f"""CREATE OR REPLACE VIEW financials_cash_flow AS
+                SELECT * FROM read_parquet('{d}/financials/cash_flow/*.parquet', union_by_name=true)"""),
+            ("financials_shares", f"""CREATE OR REPLACE VIEW financials_shares AS
+                SELECT * FROM read_parquet('{d}/financials/shares/*.parquet', union_by_name=true)"""),
             # 五档盘口 sealed 真假涨停(独立旁路存储,不进 enriched)
-            f"""CREATE OR REPLACE VIEW depth5 AS
-                SELECT * FROM read_parquet('{d}/depth5/**/*.parquet', union_by_name=true)""",
+            ("depth5", f"""CREATE OR REPLACE VIEW depth5 AS
+                SELECT * FROM read_parquet('{d}/depth5/**/*.parquet', union_by_name=true)"""),
         ]
-        for sql in statements:
-            try:
-                self.db.execute(sql)
-            except Exception as e:  # noqa: BLE001
-                # 空数据目录(首次启动)或权限问题时 DuckDB 会抛 IOException;
-                # 跨版本/平台也可能抛 CatalogException 等。空目录缺视图不影响启动
-                # (后续同步写入数据后会重新刷新视图),这里一律降级为 debug 日志。
-                logger.debug("view registration skipped (no parquet yet): %s", sql[:60])
-        self._register_unified_views()
+        for name, sql in statements:
+            if name in self._DEFERRED_VIEWS:
+                self._deferred_views[name] = sql
+                continue
+            self._create_view(self.db, sql)
+        if not self._deferred_views:
+            self._register_unified_views()
+
+    # 大表视图: union_by_name 绑定必须逐个打开 parquet 读 schema, 文件数随
+    # 数据量线性增长 (2026-10-31 实测: 日线 39098 个 + 分钟 2367 个文件,
+    # 冷缓存下绑定日线 130s、分钟 97s, 整次启动超过 20 分钟; 期间 uvicorn
+    # 尚未监听, 前端表现为"后台连不上")。这些视图改为首次查询时按需绑定:
+    # execute_* 捕获 CatalogException 后调用 bind_missing_view 并重试一次。
+    _DEFERRED_VIEWS = (
+        "kline_enriched",
+        "kline_daily",
+        "kline_index_daily",
+        "kline_index_enriched",
+        "kline_etf_daily",
+        "kline_etf_enriched",
+        "kline_etf_minute",
+        "kline_minute",
+    )
+    # 依赖上面大表视图的 all-asset 聚合视图 → 查询前需补齐的基视图。
+    _UNIFIED_VIEW_DEPENDENCIES = {
+        "kline_daily_all": ("kline_daily", "kline_index_daily", "kline_etf_daily"),
+        "kline_enriched_all": ("kline_enriched", "kline_index_enriched", "kline_etf_enriched"),
+        "kline_minute_all": ("kline_minute", "kline_etf_minute"),
+        "instruments_all": (),  # 维表视图启动时已绑定
+    }
+
+    @staticmethod
+    def _create_view(con, sql: str) -> bool:
+        try:
+            con.execute(sql)
+            return True
+        except Exception as e:  # noqa: BLE001
+            # 空数据目录(首次启动)或权限问题时 DuckDB 会抛 IOException;
+            # 跨版本/平台也可能抛 CatalogException 等。空目录缺视图不影响启动
+            # (后续同步写入数据后会重新刷新视图),这里一律降级为 debug 日志。
+            logger.debug("view registration skipped (no parquet yet): %s (%s)", sql[:60], e)
+            return False
+
+    def bind_missing_view(self, name: str | None) -> bool:
+        """按需绑定大表/聚合视图; 返回 True 表示原查询可重试。
+
+        只处理本模块声明的视图名; 其余缺失对象返回 False, 由调用方 fail-closed。
+        """
+        if not name:
+            return False
+        with self._ddl_lock:
+            if name in self._deferred_views:
+                sql = self._deferred_views[name]
+                cursor = self.db.cursor()
+                try:
+                    bound = self._create_view(cursor, sql)
+                finally:
+                    cursor.close()
+                if bound:
+                    self._deferred_views.pop(name, None)
+                    self._register_unified_views_locked()
+                return True
+            if name in self._DEFERRED_VIEWS:
+                # 已被其他线程按需绑定 (或正在绑定后失败): 交给重试判定
+                return True
+            if name in self._UNIFIED_VIEW_DEPENDENCIES:
+                # 聚合视图只补齐自己依赖的基视图, 不牵连无关大表
+                for dep in self._UNIFIED_VIEW_DEPENDENCIES[name]:
+                    sql = self._deferred_views.get(dep)
+                    if sql is None:
+                        continue
+                    cursor = self.db.cursor()
+                    try:
+                        bound = self._create_view(cursor, sql)
+                    finally:
+                        cursor.close()
+                    if bound:
+                        self._deferred_views.pop(dep, None)
+                self._register_unified_views_locked()
+                return True
+        return False
+
+    def _register_unified_views_locked(self) -> None:
+        """调用方需已持有 _ddl_lock。"""
+        cursor = self.db.cursor()
+        try:
+            self._register_unified_views(cursor)
+        finally:
+            cursor.close()
+
+    def mark_views_bound(self, names) -> None:
+        """显式 refresh/rebuild 已绑定这些视图, 取消按需绑定。"""
+        with self._ddl_lock:
+            for name in names:
+                self._deferred_views.pop(name, None)
 
     def _has_parquet(self, subdir: str) -> bool:
         return any((self.data_dir / subdir).rglob("*.parquet"))
@@ -402,6 +502,15 @@ class DataStore:
                 logger.debug("unified view %s skipped: %s", name, e)
 
 
+_MISSING_VIEW_RE = re.compile(r"(?:View|Table) with name (\w+) does not exist")
+
+
+def _missing_view_name(exc: Exception) -> str | None:
+    """从 DuckDB CatalogException 提取缺失对象名 (视图按需绑定用)。"""
+    match = _MISSING_VIEW_RE.search(str(exc))
+    return match.group(1) if match else None
+
+
 def _read_concurrency_env() -> int:
     """DuckDB 并发读上限 (默认 3)。
 
@@ -433,7 +542,8 @@ class KlineRepository:
         self._read_limiter = threading.Semaphore(_read_concurrency_env())
         # DDL (视图重建) 互斥: 并发 CREATE OR REPLACE VIEW 同名视图会抛
         # Catalog write-write conflict (1.5.3 实测), 必须串行; 与读不互斥。
-        self._ddl_lock = threading.RLock()
+        # 与 DataStore 的按需绑定共用同一把锁。
+        self._ddl_lock = store.view_lock
         # 根连接运行期只作连接工厂, 不直接执行 SQL (跨线程共用一个
         # Connection 对象没有契约保证, cursor 各自独立)
         self._cursor_lock = threading.Lock()
@@ -498,20 +608,30 @@ class KlineRepository:
 
         cursor 是同一库实例的独立连接: 读与读并发、读与视图重建并发 (MVCC,
         运行中的查询继续用旧定义) 均安全; _read_limiter 只限制同时扫描数。
+        大表视图按需绑定 (见 DataStore.bind_missing_view): 首次命中时绑定后重试一次。
         """
-        with self._read_limiter:
-            cursor = self._new_cursor()
-            try:
-                return cursor.execute(sql, params or []).fetchall()
-            finally:
-                cursor.close()
+        try:
+            return self._execute_select(sql, params, one=False)
+        except duckdb.CatalogException as exc:
+            if not self.store.bind_missing_view(_missing_view_name(exc)):
+                raise
+            return self._execute_select(sql, params, one=False)
 
     def execute_one(self, sql: str, params: list | None = None) -> tuple | None:
-        """并发安全的 SELECT → fetchone。"""
+        """并发安全的 SELECT → fetchone (大表视图按需绑定语义同 execute_all)。"""
+        try:
+            return self._execute_select(sql, params, one=True)
+        except duckdb.CatalogException as exc:
+            if not self.store.bind_missing_view(_missing_view_name(exc)):
+                raise
+            return self._execute_select(sql, params, one=True)
+
+    def _execute_select(self, sql: str, params: list | None, *, one: bool):
         with self._read_limiter:
             cursor = self._new_cursor()
             try:
-                return cursor.execute(sql, params or []).fetchone()
+                result = cursor.execute(sql, params or [])
+                return result.fetchone() if one else result.fetchall()
             finally:
                 cursor.close()
 
@@ -533,12 +653,14 @@ class KlineRepository:
                     f"CREATE OR REPLACE VIEW {name} AS "
                     f"SELECT * FROM read_parquet('{glob}', union_by_name=true)"
                 )
-                return True
             except Exception as e:  # noqa: BLE001 — 空目录/权限问题降级为警告, 与既有刷新行为一致
                 logger.warning("refresh view %s failed: %s", name, e)
                 return False
             finally:
                 cursor.close()
+            # 显式刷新成功后取消按需绑定, 避免首查再绑定一次
+            self.store.mark_views_bound([name])
+            return True
 
     # ================================================================
     # Polars 缓存管理
@@ -2207,6 +2329,29 @@ class KlineRepository:
             if latest is None or value > latest:
                 latest = value
         return latest
+
+    def list_enriched_dates(
+        self,
+        start: date,
+        end: date,
+        asset_type: str = "stock",
+    ) -> list[date]:
+        """List market dates backed by a complete enriched partition."""
+        dirname = enriched_dirname(asset_type)
+        root = self.store.data_dir / dirname
+        if not root.is_dir():
+            return []
+        dates: list[date] = []
+        for partition in root.glob("date=*"):
+            if not (partition / "part.parquet").is_file():
+                continue
+            try:
+                value = date.fromisoformat(partition.name.removeprefix("date="))
+            except ValueError:
+                continue
+            if start <= value <= end:
+                dates.append(value)
+        return sorted(set(dates))
 
     def get_matrix_data_generation(self, asset_type: str = "stock") -> str:
         """Return the stable generation for managed enriched readers."""

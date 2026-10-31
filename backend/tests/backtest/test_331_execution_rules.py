@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 import pytest
 
@@ -12,7 +13,14 @@ from app.backtest.engine import (
     HoldExtensionPolicy,
     MatcherConfig,
 )
-from app.backtest.matrix import build_market_matrix
+from app.backtest.matrix import (
+    apply_time_masks,
+    build_market_data_matrix,
+    build_market_matrix,
+    build_market_matrix_from_signals,
+    make_signal_matrix,
+    slice_signal_matrix,
+)
 from app.backtest.strategy import StrategyBacktestConfig, StrategyBacktestService
 from app.strategy.engine import StrategyEngine
 
@@ -83,6 +91,42 @@ def test_score_tier_sizes_positions_at_twenty_and_twenty_five_percent() -> None:
     assert by_symbol["B"].entry_value == 20_000.0
     assert by_symbol["A"].position_pct == 0.25
     assert by_symbol["B"].position_pct == 0.20
+
+
+def test_score_tier_uses_full_precision_ranking_score() -> None:
+    panel = _panel(["A"], days=4)
+    market_data = build_market_data_matrix(panel)
+    entry = np.zeros(market_data.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    score = np.zeros(market_data.shape, dtype=np.float32)
+    score[0, 0] = np.float32(0.5499999999999999)
+    ranking_score = np.zeros(market_data.shape, dtype=np.float64)
+    ranking_score[0, 0] = 0.5499999999999999
+    signals = make_signal_matrix(
+        market_data.shape,
+        entry=entry,
+        score=score,
+        ranking_score=ranking_score,
+    )
+    signals = slice_signal_matrix(signals, 0, market_data.shape[0])
+    signals = apply_time_masks(
+        signals,
+        np.ones(market_data.shape[0], dtype=bool),
+        np.ones(market_data.shape[0], dtype=bool),
+    )
+    matrix = build_market_matrix_from_signals(
+        market_data,
+        signals,
+        entry_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(),
+    )
+
+    assert result.trades == []
+    assert result.stats["execution"]["buy_score_filter"] == 1
 
 
 def test_entry_open_gap_blocks_buy_without_backfill() -> None:
@@ -322,10 +366,9 @@ def test_no_buy_deferred_past_a_missing_execution_day() -> None:
     assert result.stats["execution"]["buy_suspended"] == 1
 
 
-def test_raw_price_entry_gate_rejects_ex_right_change_despite_flat_adjusted_price() -> None:
+def test_raw_previous_day_change_gate_rejects_out_of_range_move() -> None:
     panel = _panel(["A"], 5, overrides={
-        ("A", 0): {"raw_close": 20.0},
-        ("A", 1): {"raw_close": 10.0},
+        ("A", 1): {"price": 10.6, "raw_close": 10.6},
     }, scores={"A": 0.8})
     result = BacktestEngine(repo=None).simulate_portfolio(
         panel, _mask(panel, {("A", 1)}), _mask(panel, {("A", 3)}),
@@ -333,6 +376,62 @@ def test_raw_price_entry_gate_rejects_ex_right_change_despite_flat_adjusted_pric
     )
     assert not result.trades
     assert result.stats["execution"]["buy_prev_day_change"] == 1
+
+
+def test_raw_open_gap_uses_exchange_pre_close_on_ex_right_day() -> None:
+    panel = _panel(["A"], 5, overrides={
+        ("A", 0): {"raw_close": 20.0},
+        ("A", 1): {"open": 10.0, "raw_close": 10.0},
+        ("A", 2): {"open": 10.0, "raw_close": 10.0},
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 1)}), _mask(panel, {("A", 2)}),
+        _original_config(
+            entry_price_basis="raw",
+            entry_open_gap_range=(-0.04, 0.04),
+        ),
+    )
+
+    assert [trade.symbol for trade in result.trades] == ["A"]
+    assert result.stats["execution"]["buy_open_gap"] == 0
+
+
+def test_raw_previous_day_change_uses_exchange_pre_close() -> None:
+    panel = _panel(["A"], 5, overrides={
+        ("A", 0): {"raw_close": 20.0},
+        ("A", 1): {"open": 10.0, "raw_close": 10.0},
+        ("A", 2): {"open": 10.0, "close": 10.2, "raw_close": 10.2},
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 2)}), _mask(panel, {("A", 3)}),
+        _original_config(
+            entry_price_basis="raw",
+            entry_prev_day_change_range=(-0.05, 0.05),
+        ),
+    )
+
+    # Day 2's 10.2 / pre-close 10.0 = +2%, not 10.2 / raw day-1 close 20.
+    trade = result.trades[0]
+    assert trade.entry_date == "2025-01-05"
+    assert result.stats["execution"]["buy_prev_day_change"] == 0
+
+
+def test_previous_day_change_includes_exact_negative_five_percent_boundary() -> None:
+    panel = _panel(["A"], 5, overrides={
+        ("A", 0): {"price": 10.0, "raw_close": 10.0},
+        ("A", 1): {"price": 9.5, "raw_close": 9.5},
+        ("A", 2): {"price": 9.5, "raw_close": 9.5},
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(
+        panel, _mask(panel, {("A", 1)}), _mask(panel, {("A", 3)}),
+        _original_config(
+            entry_price_basis="raw",
+            entry_prev_day_change_range=(-0.05, 0.05),
+        ),
+    )
+
+    assert [trade.symbol for trade in result.trades] == ["A"]
+    assert result.stats["execution"]["buy_prev_day_change"] == 0
 
 
 def test_open_at_limit_up_is_blocked_even_if_it_trades_lower_later() -> None:

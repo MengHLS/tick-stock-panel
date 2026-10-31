@@ -1,0 +1,12 @@
+name: tencent
+display_name: "腾讯行情"
+runtime: none
+entry: app.plugins.tencent.provider:TencentProvider
+check: app.plugins.tencent.provider:availability
+datasets: [minute]
+description: "腾讯公开 1 分钟 K 线，仅支持沪深股票、ETF 与指数；最多返回最近 800 根，分钟成交额不提供。"
+install_hint: "无需额外依赖"
+homepage: "https://gu.qq.com/"
+usage_notes:
+  - "分钟 K: 每标的单次请求最近 800 根（约 3 个完整交易日），不支持 BJ 与长期历史回补"
+  - "成交额字段留空；成交量单位为手，价格为原始价"

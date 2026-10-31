@@ -545,7 +545,7 @@ def _ensure_ext_factors() -> None:
         from app.factors.ext_factors import ensure_synced
 
         ensure_synced()
-    except Exception:
+    except Exception:  # noqa: BLE001 — 扩展因子同步失败不得阻断注册表读取
         import logging
 
         logging.getLogger(__name__).debug("ext factor sync skipped", exc_info=True)

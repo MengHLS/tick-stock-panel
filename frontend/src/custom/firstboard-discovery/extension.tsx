@@ -4,10 +4,11 @@ import { AlertTriangle, ArrowRight, History, Loader2, Search, SlidersHorizontal 
 import { PageHeader } from '@/components/PageHeader'
 import { fmtPct } from '@/lib/format'
 import type { FrontendExtension } from '@/extensions/types'
+import { NegativeResearch, type NegativeResearchReport } from './NegativeResearch'
 
 type SnapshotMode = 'D_minus_1' | 'D_close' | 'both'
 type OutcomeHorizon = 5 | 10 | 20
-interface Params { start: string; end: string; snapshot_mode: SnapshotMode }
+interface Params { start: string; end: string; snapshot_mode: SnapshotMode; train_end?: string | null }
 interface Condition {
   factor_id: string
   snapshot: string
@@ -32,6 +33,7 @@ interface Rule {
 }
 interface Report {
   run_id?: string; saved_at?: string
+  data_as_of?: string | null
   generation: string; algorithm_version: string; elapsed_ms: number
   sample: {
     status: string; total_events: number; eligible_events: number; excluded_events: number
@@ -43,6 +45,12 @@ interface Report {
     train_base_rate: number | null; validation_base_rate: number | null; purged_count?: number
   }
   factors: FactorRow[]; rules: Rule[]; warnings: string[]
+  negative_research?: NegativeResearchReport
+  candidate_policy?: {
+    factor_count: number; allowed_kinds: string[]; allowed_languages: string[]
+    require_scale_free: boolean; require_stable: boolean; excluded_factor_ids: string[]
+    allowed_extension_factor_ids?: string[]
+  }
 }
 interface EventRow {
   event_id: string; symbol: string; name: string | null; date: string
@@ -51,6 +59,8 @@ interface EventRow {
   mfe_10d: number | null; close_return_10d: number | null; mae_10d: number | null
   mfe_20d: number | null; close_return_20d: number | null; mae_20d: number | null
   strong: boolean | null; split: string; rule_ids: string[]
+  early_fail_5d?: boolean | null; early_fail_probability?: number | null
+  negative_veto?: boolean | null; frozen_main_hit?: boolean | null
   right_censored?: boolean; entry_unavailable?: boolean; entry_limit_locked?: boolean
   outcome_unavailable?: boolean; scale_break_suspected?: boolean; feature_unavailable?: boolean
 }
@@ -66,7 +76,10 @@ interface Runs { items: RunSummary[] }
 // Extension-specific API and cache namespace. All callers share this contract.
 const client = {
   async get<T>(path: string, params?: Params | Record<string, string>): Promise<T> {
-    const query = params ? `?${new URLSearchParams(Object.entries(params))}` : ''
+    const entries = params
+      ? Object.entries(params).filter(([, value]) => value != null && value !== '')
+      : []
+    const query = entries.length ? `?${new URLSearchParams(entries as [string, string][])}` : ''
     const response = await fetch(`/api/custom/firstboard-discovery/${path}${query}`, {
       signal: AbortSignal.timeout(300_000),
     })
@@ -140,6 +153,14 @@ function outcomeValue(
   return (row as unknown as Record<string, number | null>)[`${metric}_${horizon}d`] ?? null
 }
 
+function ruleOutcomeValue(
+  rule: Rule,
+  horizon: OutcomeHorizon,
+  metric: 'mfe' | 'close_return' | 'mae',
+): number | null {
+  return rule[`mean_${metric}_${horizon}d`] ?? null
+}
+
 function formatSavedAt(value: string | undefined): string {
   if (!value) return '尚未保存'
   const parsed = new Date(value)
@@ -156,7 +177,7 @@ export function FirstboardDiscovery() {
   const syncedRun = useRef('')
   const [draft, setDraft] = useState<Params>({
     start: `${Number(today.slice(0, 4)) - 3}${today.slice(4)}`,
-    end: today, snapshot_mode: 'both',
+    end: today, snapshot_mode: 'both', train_end: '',
   })
   const [active, setActive] = useState<Params | null>(null)
   const [selectedRunId, setSelectedRunId] = useState('')
@@ -175,11 +196,12 @@ export function FirstboardDiscovery() {
     queryFn: client.runs,
     enabled: !!report.data, retry: false, staleTime: 0, refetchOnWindowFocus: false,
   })
+  const eventsRunId = selectedRunId || report.data?.run_id || ''
   const events = useQuery({
-    queryKey: client.eventsKey(active, selectedRunId, report.data?.generation, ruleId, page, revision),
+    queryKey: client.eventsKey(active, eventsRunId, report.data?.generation, ruleId, page, revision),
     queryFn: () => {
       const extra = { page: String(page), page_size: '50', ...(ruleId ? { rule_id: ruleId } : {}) }
-      return selectedRunId ? client.savedEvents(selectedRunId, extra) : client.events(active!, extra)
+      return eventsRunId ? client.savedEvents(eventsRunId, extra) : client.events(active!, extra)
     },
     enabled: !!active && !!report.data && !report.isFetching,
     retry: false, staleTime: Infinity, refetchOnWindowFocus: false,
@@ -206,7 +228,7 @@ export function FirstboardDiscovery() {
     setRuleId(''); setPage(1); setOutcomeHorizon(20)
     const selected = runs.data?.items.find(item => item.run_id === runId)
     if (selected) {
-      setDraft(selected.params)
+      setDraft({ ...selected.params, train_end: selected.params.train_end ?? '' })
       setActive(selected.params)
     }
   }
@@ -217,8 +239,8 @@ export function FirstboardDiscovery() {
     <PageHeader title="首板因子区分" subtitle="T 日及以前的特征 → 次日开盘后的 5 / 10 / 20 日价格机会" />
     <main className="mx-auto max-w-[1600px] space-y-4 p-3 lg:p-5">
       <aside className="rounded-card border border-amber-400/40 bg-amber-400/5 px-4 py-3 text-xs leading-6 text-secondary">
-        <div className="flex items-center gap-2 font-medium text-amber-500"><AlertTriangle size={14} />试验结果待验证</div>
-        <p>当前用于检查页面与交互。数据时点、复权口径和交易日覆盖仍在复核，所示规则与收益尚未通过研究验收。</p>
+        <div className="flex items-center gap-2 font-medium text-amber-500"><AlertTriangle size={14} />按当前数据库进行研究</div>
+        <p>按所选事件日期使用当前数据库计算，数据更新后可直接重新计算。行情数据截至日仅用于说明数据来源。早损研究用于比较风险与机会保留，结果属于回顾性研究。</p>
       </aside>
       <section className="rounded-card border border-border bg-surface p-4">
         <div className="flex items-center gap-2 text-sm font-medium"><SlidersHorizontal size={16} className="text-accent" />自动发现研究</div>
@@ -226,25 +248,30 @@ export function FirstboardDiscovery() {
           主标签：T+1 开盘至后续 20 个交易日最高价上涨 ≥20%。同时观察 5、10、20 日窗口的最高收益、期末收益与最大不利波动。
           每次先在较早日期训练，再用较晚日期验证。
         </p>
-        <div className="mt-3 flex flex-wrap items-end gap-3">
-          <label className="space-y-1 text-xs text-secondary"><span className="block">事件开始</span>
+        <div className="mt-3 grid grid-cols-1 items-end gap-3 sm:flex sm:flex-wrap">
+          <label className="w-full space-y-1 text-xs text-secondary sm:w-auto"><span className="block">事件开始</span>
             <input aria-label="事件开始" className={inputClass} type="date" value={draft.start} onChange={e => setDraft({ ...draft, start: e.target.value })} />
           </label>
-          <label className="space-y-1 text-xs text-secondary"><span className="block">事件截止</span>
+          <label className="w-full space-y-1 text-xs text-secondary sm:w-auto"><span className="block">事件截止</span>
             <input aria-label="事件截止" className={inputClass} type="date" max={today} value={draft.end} onChange={e => setDraft({ ...draft, end: e.target.value })} />
           </label>
-          <label className="space-y-1 text-xs text-secondary"><span className="block">特征时点</span>
+          <label className="w-full space-y-1 text-xs text-secondary sm:w-auto"><span className="block">特征时点</span>
             <select aria-label="特征时点" className={inputClass} value={draft.snapshot_mode} onChange={e => setDraft({ ...draft, snapshot_mode: e.target.value as SnapshotMode })}>
               <option value="both">T-1 与 T 收盘分别筛选</option><option value="D_minus_1">T-1 收盘</option><option value="D_close">T 日收盘</option>
             </select>
           </label>
-          <button type="button" disabled={busy || !draft.start || !draft.end || draft.start > draft.end || draft.end > today}
+          <label className="w-full space-y-1 text-xs text-secondary sm:w-auto"><span className="block">预注册训练截止</span>
+            <input aria-label="预注册训练截止" className={inputClass} type="date" value={draft.train_end ?? ''}
+              min={draft.start} max={draft.end} onChange={e => setDraft({ ...draft, train_end: e.target.value })} />
+          </label>
+          <button type="button" disabled={busy || !draft.start || !draft.end || draft.start > draft.end || draft.end > today
+            || (!!draft.train_end && (draft.train_end <= draft.start || draft.train_end >= draft.end))}
             onClick={run} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-btn bg-accent px-4 text-xs font-medium text-white disabled:opacity-50 sm:w-auto">
             {busy ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
             {busy ? '正在计算…' : '开始自动发现'}
           </button>
         </div>
-        <p className="mt-2 text-[11px] leading-5 text-muted">按需计算，可能需要数分钟。近期事件不足 20 日时单列；修改日期后点击按钮才更新结果。</p>
+        <p className="mt-2 text-[11px] leading-5 text-muted">按需计算，可能需要数分钟。填写训练截止日后，训练/验证边界将固定，便于预注册复验；留空则使用探索性的 70/30 时间切分。</p>
       </section>
 
       {!active && <div className="rounded-card border border-dashed border-border py-14 text-center text-sm text-muted">
@@ -270,7 +297,7 @@ export function FirstboardDiscovery() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-sm font-medium"><History size={15} className="text-accent" />已保存结果</div>
             <p className="mt-1 text-[11px] leading-5 text-muted">
-              每次新计算都会自动保存完整报告和全部事件；切换历史记录无需重新计算。
+              每次计算会保存报告和事件供历史查看；开始自动发现始终按当前数据库计算。
             </p>
           </div>
           <label className="min-w-[240px] flex-1 space-y-1 text-[11px] text-muted sm:max-w-xl">
@@ -293,11 +320,22 @@ export function FirstboardDiscovery() {
             验证 {data.split.validation_start ?? '—'} ～ {data.split.validation_end ?? '—'}
             {data.split.purged_count ? ` · 边界隔离 ${data.split.purged_count} 个事件` : ''}</div>
           <div>排除原因可重叠：{Object.entries(data.sample.excluded).map(([k, v]) => `${EXCLUSIONS[k] ?? k} ${v}`).join(' · ') || '无'}</div>
-          <div className="text-[10px] text-muted">{data.algorithm_version} · 数据版本 {data.generation?.slice(0, 12)} · 耗时 {(data.elapsed_ms / 1000).toFixed(1)}s</div>
+          <div>行情数据截至 {data.data_as_of ?? '—'}</div>
+          <div className="text-[10px] text-muted">
+            {data.algorithm_version} · 候选 {data.candidate_policy?.factor_count ?? '—'} 个
+            {data.candidate_policy?.require_scale_free
+              ? ` · ${data.candidate_policy.allowed_extension_factor_ids?.length
+                ? '内置无量纲稳定因子 · 封板炸板白名单仅 T 日收盘'
+                : '仅无量纲稳定因子'}`
+              : ''}
+            {' · '}数据版本 {data.generation?.slice(0, 12)} · 耗时 {(data.elapsed_ms / 1000).toFixed(1)}s
+          </div>
         </div>
         {data.sample.status !== 'ok' && <div role="status" className="rounded-card border border-amber-400/40 bg-amber-400/5 p-3 text-xs leading-6 text-amber-500">
           {data.sample.status === 'no_data' ? '所选区间没有可用首板事件。' : '样本不足，暂不生成自动规则。需训练 ≥120、验证 ≥60，且两侧强弱样本均 ≥10。可扩大事件日期区间。'}
         </div>}
+
+        <NegativeResearch report={data.negative_research} labels={labels} />
 
         <section className="overflow-hidden rounded-card border border-border bg-surface">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border p-3">
@@ -350,9 +388,9 @@ export function FirstboardDiscovery() {
               {HORIZONS.map(horizon => <div key={horizon} className="rounded-input border border-border/70 bg-base/40 px-2.5 py-2">
                 <div className="text-[10px] font-medium text-muted">{horizon} 日窗口</div>
                 <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] tabular-nums">
-                  <span>最高 {fmtPct(outcomeValue(r, horizon, 'mfe'))}</span>
-                  <span>期末 {fmtPct(outcomeValue(r, horizon, 'close_return'))}</span>
-                  <span>不利 {fmtPct(outcomeValue(r, horizon, 'mae'))}</span>
+                  <span>最高 {fmtPct(ruleOutcomeValue(r, horizon, 'mfe'))}</span>
+                  <span>期末 {fmtPct(ruleOutcomeValue(r, horizon, 'close_return'))}</span>
+                  <span>不利 {fmtPct(ruleOutcomeValue(r, horizon, 'mae'))}</span>
                 </div>
               </div>)}
             </div>
@@ -373,11 +411,11 @@ export function FirstboardDiscovery() {
           </div>
           {events.isFetching ? <p role="status" className="p-8 text-center text-xs text-muted">正在读取事件…</p>
             : events.isError ? <ErrorBox error={events.error} retry={() => void events.refetch()} />
-            : events.data?.generation !== data.generation ? <p className="p-4 text-xs text-amber-500">数据版本已变化，请重新发现后查看事件。</p>
+            : !events.data ? <p className="p-4 text-xs text-muted">正在读取事件…</p>
             : <div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-xs">
               <thead className="bg-elevated text-muted"><tr>
                 <th className="sticky left-0 z-20 min-w-[220px] bg-elevated px-3 py-2 font-normal">股票 / 事件日</th>
-                {['参考入场日', `${outcomeHorizon} 日最高收益`, `${outcomeHorizon} 日期末收益`, '最大不利波动', '归属 / 状态'].map(s => <th key={s} className="whitespace-nowrap px-3 py-2 font-normal">{s}</th>)}
+                {['参考入场日', `${outcomeHorizon} 日最高收益`, `${outcomeHorizon} 日期末收益`, '最大不利波动', '预测早损风险', '实际 5 日早损', '归属 / 状态'].map(s => <th key={s} className="whitespace-nowrap px-3 py-2 font-normal">{s}</th>)}
               </tr></thead>
               <tbody>{events.data.rows.map(row => <tr key={row.event_id} className="border-t border-border">
                 <td className="sticky left-0 z-10 min-w-[220px] bg-surface px-3 py-2">{row.name || row.symbol}<span className="ml-2 text-muted">{row.symbol}</span><div className="mt-1 font-mono text-muted">{row.date}</div></td>
@@ -385,6 +423,13 @@ export function FirstboardDiscovery() {
                 <td className="px-3 py-2 font-mono">{fmtPct(outcomeValue(row, outcomeHorizon, 'mfe'))}</td>
                 <td className="px-3 py-2 font-mono">{fmtPct(outcomeValue(row, outcomeHorizon, 'close_return'))}</td>
                 <td className="px-3 py-2 font-mono">{fmtPct(outcomeValue(row, outcomeHorizon, 'mae'))}</td>
+                <td className="whitespace-nowrap px-3 py-2 font-mono">{formatRatio(row.early_fail_probability)}
+                  <div className={`mt-1 text-[10px] ${row.negative_veto ? 'text-amber-500' : 'text-muted'}`}>
+                    {row.negative_veto == null ? '风险未知' : row.negative_veto ? '风险否决' : '风险保留'}
+                  </div>
+                </td>
+                <td className="whitespace-nowrap px-3 py-2">{row.early_fail_5d == null ? '未标注'
+                  : row.early_fail_5d ? '已触及 -8%' : '未触及 -8%'}</td>
                 <td className="px-3 py-2"><div>{row.split === 'train' ? '训练' : row.split === 'validation' ? '验证' : row.split === 'purged' ? '边界隔离' : '排除'} · {row.strong == null ? '未标注' : row.strong ? '≥20%' : '<20%'}</div><div className="mt-1 text-[10px] text-amber-500">{qualityFlags(row).join(' · ')}</div></td>
               </tr>)}</tbody>
             </table>{!events.data.rows.length && <p className="p-8 text-center text-xs text-muted">没有命中事件</p>}</div>}

@@ -174,6 +174,11 @@ def load_into_registry(data_dir: Path) -> list[str]:
     字母序加载, cf_* 先于 uf_*), 失败的 composite 延后重试, 覆盖链式引用;
     重试用尽仍失败的只告警不阻塞启动。
     """
+    # 自定义公式可以引用 ext_ 扩展字段. 扩展因子必须先注册, 否则这些公式
+    # 会在启动时被判为未知标识符, 之后虽然完成了惰性同步也不会自动重试.
+    from app.factors.ext_factors import ensure_synced
+
+    ensure_synced(data_dir)
     loaded: list[str] = []
     pending = list(load_all(data_dir))
     for round_index in range(3):
