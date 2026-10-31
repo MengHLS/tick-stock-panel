@@ -1187,8 +1187,6 @@ def load_benchmark_momentum(data_dir: Path) -> pl.DataFrame | None:
             .collect()
         )
         if not df_idx.is_empty():
-            available = set(df_idx["symbol"].to_list())
-            picked = [s for s in wanted if s in available]
             priority_rows = [
                 {"symbol": symbol, "bench_key": bench_key, "_priority": priority}
                 for bench_key, candidates in _BENCHMARK_PREFERENCE.items()
@@ -1215,22 +1213,40 @@ def load_benchmark_momentum(data_dir: Path) -> pl.DataFrame | None:
                 .first()
                 .drop(["_priority", "symbol"])
             )
-            missing_keys = [
-                bench_key
-                for bench_key in _BENCHMARK_PREFERENCE
-                if bench_key not in set(selected["bench_key"].to_list())
-            ]
-            if missing_keys and picked:
-                fallback = (
-                    scored.filter(pl.col("symbol") == picked[0])
-                    .join(
-                        pl.DataFrame({"bench_key": missing_keys}),
-                        how="cross",
-                    )
-                    .drop("symbol")
+            global_priority = pl.DataFrame([
+                {"symbol": symbol, "_global_priority": priority}
+                for priority, symbol in enumerate(wanted)
+            ])
+            global_pick = (
+                scored.join(global_priority, on="symbol", how="inner")
+                .sort(["date", "_global_priority"])
+                .group_by("date", maintain_order=True)
+                .first()
+                .drop(["_global_priority", "symbol"])
+            )
+            grid = (
+                scored.select("date")
+                .unique()
+                .join(
+                    pl.DataFrame({"bench_key": list(_BENCHMARK_PREFERENCE)}),
+                    how="cross",
                 )
+            )
+            missing = (
+                grid.join(
+                    selected.select("bench_key", "date").with_columns(
+                        pl.lit(True).alias("_present")
+                    ),
+                    on=["bench_key", "date"],
+                    how="left",
+                )
+                .filter(pl.col("_present").is_null())
+                .select("bench_key", "date")
+                .join(global_pick, on="date", how="inner")
+            )
+            if not missing.is_empty():
                 selected = pl.concat(
-                    [selected, fallback.select(selected.columns)],
+                    [selected, missing.select(selected.columns)],
                     how="vertical_relaxed",
                 )
             frame = (
