@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 import threading
 import time
 from collections import OrderedDict
@@ -2617,17 +2618,32 @@ class BacktestEngine:
         def _buy_planned(time_id: int, date_text: str, plan: dict, sold_today: set[int]) -> None:
             nonlocal cash
             asset_id = int(plan["asset_id"])
+            debug_symbol = matrix.symbols[asset_id]
+            debug_target = (
+                os.environ.get("TSP_DEBUG_331_DATE") == date_text
+                and os.environ.get("TSP_DEBUG_331_SYMBOL") == debug_symbol
+            )
+            if debug_target:
+                print("DEBUG_PLAN", date_text, debug_symbol, plan, flush=True)
             if asset_id in positions:
+                if debug_target:
+                    print("DEBUG_REJECT already_held", flush=True)
                 return
             if asset_id in sold_today:
                 _count("buy_same_day_reentry")
+                if debug_target:
+                    print("DEBUG_REJECT same_day_reentry", flush=True)
                 return
             if len(positions) >= max_positions:
                 _count("buy_no_slot")
+                if debug_target:
+                    print("DEBUG_REJECT no_slot", len(positions), flush=True)
                 return
             ok, blocked = _can_buy(time_id, asset_id)
             if not ok:
                 _count(blocked)
+                if debug_target:
+                    print("DEBUG_REJECT", blocked, flush=True)
                 return
 
             price = _fill_price(
@@ -2636,6 +2652,8 @@ class BacktestEngine:
             )
             if not _valid_price(price):
                 _count("buy_invalid_price")
+                if debug_target:
+                    print("DEBUG_REJECT invalid_price", price, flush=True)
                 return
             market_value = _market_value()
             equity = cash + market_value
@@ -2650,6 +2668,15 @@ class BacktestEngine:
                 shares -= 100
             if shares <= 0:
                 _count("buy_cash" if budget > 0 else "buy_exposure")
+                if debug_target:
+                    print(
+                        "DEBUG_REJECT budget",
+                        budget,
+                        capacity,
+                        cash,
+                        price,
+                        flush=True,
+                    )
                 return
 
             gross = shares * price
