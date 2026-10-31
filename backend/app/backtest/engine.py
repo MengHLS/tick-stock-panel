@@ -651,13 +651,38 @@ class BacktestEngine:
         end: date,
         feature_plan,
         asset_type: str = "stock",
+        *,
+        _linkage_generation: str | None = None,
+        _linkage_retry: int = 0,
     ) -> pl.DataFrame:
         """按解析后的依赖加载窄基础列并计算回测所需特征。"""
+        from app.enriched_generation import get_enriched_generation
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.linkage_store import (
+            LinkageReadUnstableError,
+            attach_linkage_columns,
+        )
         from app.indicators.pipeline import (
             compute_indicators,
             compute_limit_signals,
             compute_signals,
         )
+
+        linkage_names = (
+            getattr(feature_plan, "linkage_columns", frozenset())
+            & LINKAGE_FACTOR_IDS
+        )
+        data_dir = (
+            self.repo.store.data_dir
+            if self.repo is not None and self.repo.store is not None
+            else None
+        )
+        expected_linkage = _linkage_generation
+        if linkage_names:
+            if data_dir is None:
+                raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+            if expected_linkage is None:
+                expected_linkage = get_enriched_generation(data_dir, "linkage")
 
         df = self.load_panel(
             symbols,
@@ -692,6 +717,28 @@ class BacktestEngine:
                 ),
                 fundamental_names,
             )
+
+        if linkage_names:
+            try:
+                df = attach_linkage_columns(
+                    df,
+                    linkage_names,
+                    data_dir,
+                    expected_generation=expected_linkage,
+                    require_complete=True,
+                )
+            except LinkageReadUnstableError:
+                if _linkage_retry + 1 >= 3:
+                    raise
+                return self.load_panel_for_backtest(
+                    symbols,
+                    start,
+                    end,
+                    feature_plan,
+                    asset_type,
+                    _linkage_generation=get_enriched_generation(data_dir, "linkage"),
+                    _linkage_retry=_linkage_retry + 1,
+                )
 
         instruments = (
             self.repo.get_instruments_asset(asset_type)
@@ -729,6 +776,7 @@ class BacktestEngine:
 
         required_columns = set(feature_plan.base_columns) | set(feature_plan.instrument_columns)
         required_columns |= set(feature_plan.signal_columns)
+        required_columns |= set(linkage_names)
         if not matrix_native:
             required_columns |= set(feature_plan.indicator_columns)
         missing_columns = required_columns - set(df.columns)
@@ -763,9 +811,25 @@ class BacktestEngine:
         """Load a matrix-native backtest directly from projected parquet batches."""
         if feature_plan.execution_backend != "matrix_native":
             raise ValueError("direct market matrix loading requires matrix_native backend")
+        from app.enriched_generation import get_enriched_generation
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.linkage_store import LinkageReadUnstableError
         from app.tickflow.repository import enriched_dirname
 
-        parquet_root = self.repo.store.data_dir / enriched_dirname(asset_type)
+        data_dir = self.repo.store.data_dir
+        linkage_names = (
+            set(getattr(feature_plan, "matrix_columns", frozenset()))
+            | set(getattr(feature_plan, "linkage_columns", frozenset()))
+        ) & LINKAGE_FACTOR_IDS
+        if linkage_names and data_dir is None:
+            raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+        linkage_generation = (
+            get_enriched_generation(data_dir, "linkage")
+            if linkage_names
+            else None
+        )
+
+        parquet_root = data_dir / enriched_dirname(asset_type)
         instruments = self.repo.get_instruments_asset(asset_type)
         st_history = (
             self.repo.get_st_history()
@@ -781,6 +845,7 @@ class BacktestEngine:
             | set(feature_plan.instrument_columns)
             | set(feature_plan.matrix_columns)
         )
+        field_columns -= linkage_names
         # 扩展时序数值字段不进 parquet 解析 (enriched 只落 14 存储列), 矩阵构建后
         # 按 (日期, 标的) 对齐现场注入 — 与财务因子 attach 同构。快照模式/字符串
         # 字段/未注册名在此拦截 (快照回看历史 = 未来函数)。
@@ -807,7 +872,7 @@ class BacktestEngine:
             if cache_profile is not None
             else frozenset(field_columns)
         )
-        cache_fields = frozenset(cache_fields) - ext_wanted
+        cache_fields = frozenset(cache_fields) - ext_wanted - linkage_names
         cache_max_bytes = (
             cache_profile.max_disk_bytes
             if cache_profile is not None
@@ -820,8 +885,9 @@ class BacktestEngine:
         )
         # 快照世代路径也给第二次机会 (issue #517): 循环内撞换代时下方 except
         # 已用 data_generation_await 刷新世代, 这里只需不再限定单次尝试。
-        attempts = 2
-        for attempt in range(attempts):
+        stock_attempts = 0
+        linkage_attempts = 0
+        while True:
             try:
                 market = load_market_data_matrix_from_parquet(
                     parquet_root,
@@ -862,8 +928,17 @@ class BacktestEngine:
 
                     market = attach_matrix_ext_fields(
                         market,
-                        self.repo.store.data_dir if self.repo is not None else None,
+                        data_dir if self.repo is not None else None,
                         ext_wanted,
+                    )
+                if linkage_names:
+                    from app.factors.linkage_store import attach_matrix_linkage_fields
+
+                    market = attach_matrix_linkage_fields(
+                        market,
+                        data_dir,
+                        linkage_names,
+                        expected_generation=linkage_generation,
                     )
                 if st_history is not None:
                     from app.tickflow.security_status import attach_matrix_st_history
@@ -871,16 +946,19 @@ class BacktestEngine:
                     market = attach_matrix_st_history(market, st_history)
                 return market
             except EnrichedGenerationUnavailableError:
-                if attempt + 1 >= attempts:
+                stock_attempts += 1
+                if stock_attempts >= 2:
                     raise
                 source_generation = self.data_generation_await(
                     asset_type, cancel_event=cancel_event
                 )
+            except LinkageReadUnstableError:
+                linkage_attempts += 1
+                if linkage_attempts >= 3:
+                    raise
+                linkage_generation = get_enriched_generation(data_dir, "linkage")
             except pa.ArrowException as exc:
                 raise ValueError(f"direct market matrix parquet scan failed: {exc}") from exc
-        raise EnrichedGenerationUnavailableError(
-            "unable to read a stable enriched matrix snapshot"
-        )
 
     def cache_stats(self) -> dict:
         """暴露 PanelCache 遥测快照 (扫盘耗时/次数/命中/复用), 供上层量化 IO 占比。"""

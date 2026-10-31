@@ -223,6 +223,17 @@ def list_rules(request: Request):
         _reconcile_index_asset_type(r, repo)
         for r in monitor_rules.load_all(_data_dir(request))
     ]
+    monitor_engine = getattr(request.app.state, "monitor_engine", None)
+    unavailable_reasons = (
+        monitor_engine.unavailable_reasons
+        if monitor_engine is not None
+        else {}
+    )
+    for rule in rules:
+        reason = unavailable_reasons.get(str(rule.get("id")))
+        if reason:
+            rule["unavailable_reason"] = reason
+            rule["runtime_warning"] = "行业联动因子仅日频可用, 当前盘中监控已降级"
     from app.services.kline_sync import intraday_monitor_support
 
     support = intraday_monitor_support(getattr(request.app.state, "capabilities", None))

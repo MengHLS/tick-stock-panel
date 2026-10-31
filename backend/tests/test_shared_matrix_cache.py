@@ -11,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 import polars as pl
+import pytest
 
 from app.strategy.engine import StrategyDataContext, StrategyDef, StrategyEngine
 
@@ -74,6 +75,16 @@ def _ctx(history: pl.DataFrame, generation: str | None) -> StrategyDataContext:
     )
 
 
+def _linkage_ctx(
+    history: pl.DataFrame,
+    generation: str | None,
+    linkage_generation: str,
+) -> StrategyDataContext:
+    context = _ctx(history, generation)
+    context.linkage_generation = linkage_generation
+    return context
+
+
 def test_same_fingerprint_returns_cached_matrix():
     engine = _engine_with("m1", {"close", "volume"})
     hist = _history()
@@ -123,6 +134,25 @@ def test_generation_change_rebuilds():
     m1 = engine.build_shared_matrix(_ctx(hist, "g1"), [("m1", engine.get("m1"))])
     m2 = engine.build_shared_matrix(_ctx(hist, "g2"), [("m1", engine.get("m1"))])
     assert m1 is not m2, "enriched 换代后旧矩阵必须失效"
+
+
+def test_linkage_generation_change_rebuilds():
+    factor = "industry_relative_momentum_20d"
+    engine = _engine_with("m1", {factor})
+    old = _history().with_columns(pl.lit(0.9).alias(factor))
+    new = _history().with_columns(pl.lit(-0.9).alias(factor))
+
+    m1 = engine.build_shared_matrix(
+        _linkage_ctx(old, "stock-g1", "linkage-g1"),
+        [("m1", engine.get("m1"))],
+    )
+    m2 = engine.build_shared_matrix(
+        _linkage_ctx(new, "stock-g1", "linkage-g2"),
+        [("m1", engine.get("m1"))],
+    )
+
+    assert m1 is not m2
+    assert float(m2.fields[factor][0, 0]) == pytest.approx(-0.9)
 
 
 def test_window_change_rebuilds():

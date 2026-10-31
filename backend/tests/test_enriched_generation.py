@@ -60,6 +60,49 @@ def test_commit_twice_is_idempotent_issue417(tmp_path) -> None:
     assert publication.commit() is not None
 
 
+def test_write_json_marks_publication_changed_and_bumps_generation(tmp_path) -> None:
+    publication = EnrichedPublication(tmp_path, "linkage", recover=True)
+    out = tmp_path / "kline_daily_linkage" / "manifest.json"
+    before = get_enriched_generation(tmp_path, "linkage")
+
+    publication.write_json(
+        {"version": 1, "finalized_through": "2026-11-01"},
+        out,
+    )
+    after = publication.commit()
+
+    assert json.loads(out.read_text(encoding="utf-8"))["version"] == 1
+    assert after != before
+    assert get_enriched_generation(tmp_path, "linkage") == after
+
+
+def test_write_json_replace_failure_keeps_publication_closed(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    publication = EnrichedPublication(tmp_path, "linkage", recover=True)
+    out = tmp_path / "kline_daily_linkage" / "manifest.json"
+    original_replace = os.replace
+
+    def fail_manifest_replace(src, dst):
+        if str(dst) == str(out):
+            raise OSError("injected manifest replace failure")
+        return original_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", fail_manifest_replace)
+
+    with pytest.raises(OSError, match="injected manifest replace failure"):
+        publication.write_json({"version": 1}, out)
+
+    marker = json.loads(
+        (tmp_path / ".matrix_generation_linkage.json").read_text(encoding="utf-8")
+    )
+    assert marker["state"] == "publishing"
+    assert not out.exists()
+    with pytest.raises(EnrichedGenerationUnavailableError, match="being published"):
+        get_enriched_generation(tmp_path, "linkage")
+
+
 def test_repository_changed_partition_before_unchanged_issue417(tmp_path) -> None:
     """Issue #417 回归: 一次写多个日期分区且「有变化在前、无变化在后」,
     修复前第二个 (无变化) 分区的空提交必然抛 ownership was lost, 整批失败。"""

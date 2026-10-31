@@ -450,6 +450,22 @@ class ScreenerService:
         """按调用方要求装配标准策略数据上下文，不解释策略公式。"""
         from app.strategy.engine import StrategyDataContext
 
+        linkage_generation = None
+        if engine is not None and hasattr(engine, "linkage_columns_for"):
+            linkage_names = engine.linkage_columns_for(
+                strategy_ids,
+                timeframe=timeframe,
+                asset_type=self.asset_type,
+                params_map=params_map,
+                overrides_map=overrides_map,
+            )
+            if linkage_names:
+                from app.enriched_generation import get_enriched_generation
+
+                linkage_generation = get_enriched_generation(
+                    self.repo.store.data_dir,
+                    "linkage",
+                )
         if current is None:
             current = self._load_enriched_for_date(as_of)
         st_history = None
@@ -496,6 +512,7 @@ class ScreenerService:
                 cache_key=cache_key,
                 st_history=st_history,
                 historical_st=historical_st,
+                linkage_generation=linkage_generation,
             )
         history_bars = engine.required_history_bars(
             strategy_ids,
@@ -526,6 +543,7 @@ class ScreenerService:
             data_generation=data_generation,
             st_history=st_history,
             historical_st=historical_st,
+            linkage_generation=linkage_generation,
         )
 
     def _needs_historical_st(

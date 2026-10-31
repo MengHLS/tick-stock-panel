@@ -1551,13 +1551,22 @@ def run_pipeline(data_dir: Path | None = None,
         d, "stock", recover=True, claim_wait_s=_PUBLICATION_CLAIM_WAIT_S,
     )
     try:
-        return _run_pipeline_impl(
+        written = _run_pipeline_impl(
             data_dir=data_dir,
             symbols=symbols,
             new_dates_only=new_dates_only,
             on_batch_done=on_batch_done,
             publication=publication,
         )
+        from app.factors.linkage_store import rebuild_linkage_sidecar
+
+        sidecar_mode = (
+            "incremental"
+            if new_dates_only and symbols is None
+            else "full"
+        )
+        rebuild_linkage_sidecar(d, mode=sidecar_mode)
+        return written
     except BaseException:
         publication.abandon()
         raise

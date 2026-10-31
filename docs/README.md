@@ -57,6 +57,7 @@
 | [backend-data-performance-plan.md](backend-data-performance-plan.md) | 性能专项计划 |
 | [tickflow-pro-phase1-probe.md](tickflow-pro-phase1-probe.md) | 专项探针记录 |
 | [tickflow-pro-shared-rate-limit.md](tickflow-pro-shared-rate-limit.md) | 限频专项说明 |
+| [superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md](superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md) | 历史计划（已实现，现行口径见 [features.md](features.md)） |
 
 ## 本地研究与过程文档
 

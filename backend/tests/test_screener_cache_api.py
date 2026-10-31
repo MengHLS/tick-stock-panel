@@ -23,6 +23,30 @@ def _request(tmp_path, monitor_results=None, live=None, live_date=None):
     return SimpleNamespace(app=SimpleNamespace(state=state))
 
 
+def test_cached_summary_hides_results_after_linkage_generation_change(tmp_path):
+    from app.enriched_generation import bump_enriched_generation
+    from app.services import strategy_cache
+
+    bump_enriched_generation(tmp_path, "linkage")
+    strategy_cache.write_cache(
+        tmp_path,
+        "2026-07-20",
+        {
+            "strategy_a": {
+                "as_of": "2026-07-20",
+                "total": 1,
+                "rows": [{"symbol": "000001.SZ"}],
+            },
+        },
+    )
+    bump_enriched_generation(tmp_path, "linkage")
+
+    payload = screener_api.get_cached_summary(_request(tmp_path))
+
+    assert payload["as_of"] is None
+    assert payload["results"] == {}
+
+
 def test_cached_summary_omits_rows_and_counts_realtime_expirations(monkeypatch, tmp_path):
     cached = {
         "as_of": "2026-07-20",

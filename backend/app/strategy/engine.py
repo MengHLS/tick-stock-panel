@@ -165,6 +165,7 @@ class StrategyDataContext:
     # enriched 数据换代号 (repo.get_matrix_data_generation, 详见 enriched_generation):
     # 装配方填入, 消费方用作共享矩阵缓存的失效指纹 — 数据重建换代号变, 缓存自动失效。
     data_generation: str | None = None
+    linkage_generation: str | None = None
     # Historical stock scans must carry effective-dated status; None is only
     # valid for realtime contexts or when ST exclusion is disabled.
     st_history: pl.DataFrame | None = None
@@ -833,6 +834,13 @@ class StrategyEngine:
         """Build once, then update only the latest live bar for matrix strategies."""
         from app.backtest.matrix import RealtimeMarketDataMatrix
 
+        selected = [(strategy_id, self.get(strategy_id)) for strategy_id in strategy_ids]
+        context = self._attach_context_linkage(
+            context,
+            selected,
+            params_map,
+            overrides_map,
+        )
         current = context.current
         if current is None:
             raise ValueError("realtime matrix context requires current data")
@@ -843,8 +851,7 @@ class StrategyEngine:
         field_columns: set[str] = set()
         max_warmup = 1
         matrix_ids: list[str] = []
-        for strategy_id in strategy_ids:
-            strategy = self.get(strategy_id)
+        for strategy_id, strategy in selected:
             self.validate_context(strategy, context)
             if strategy.execution_backend != "matrix_native":
                 continue
@@ -886,6 +893,7 @@ class StrategyEngine:
             tuple(sorted(field_columns)),
             max_warmup,
             symbols,
+            context.linkage_generation,
         )
 
         with self._realtime_matrix_lock:
@@ -967,6 +975,12 @@ class StrategyEngine:
             raise ValueError(
                 f"strategy {strategy_id}: 叠加条件不支持 {s.execution_backend} 策略"
             )
+        context = self._attach_context_linkage(
+            context,
+            [(strategy_id, s)],
+            {strategy_id: params},
+            {strategy_id: overrides},
+        )
 
         if s.execution_backend == "matrix_native":
             return self._run_matrix_strategy(
@@ -997,6 +1011,8 @@ class StrategyEngine:
             context.current,
             context.history,
             scoring,
+            data_dir=self._user_data_dir(),
+            expected_linkage_generation=context.linkage_generation,
         )
 
         signal_df = current if current is not None else history
@@ -1255,6 +1271,140 @@ class StrategyEngine:
             for row in hit_df.iter_rows(named=True)
         ]
 
+    def linkage_columns_for(
+        self,
+        strategy_ids: list[str],
+        *,
+        timeframe: str = "1d",
+        asset_type: str = "stock",
+        params_map: dict[str, dict] | None = None,
+        overrides_map: dict[str, dict] | None = None,
+    ) -> frozenset[str]:
+        """Resolve linkage dependencies for a batch without loading market data."""
+        from app.backtest.strategy import StrategyDependencyResolver
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+
+        params_map = params_map or {}
+        overrides_map = overrides_map or {}
+        resolver = StrategyDependencyResolver()
+        names: set[str] = set()
+        for strategy_id in strategy_ids:
+            strategy = self.get(strategy_id)
+            overrides = overrides_map.get(strategy_id) or {}
+            plan = resolver.resolve(
+                strategy,
+                params=params_map.get(strategy_id) or {},
+                basic_filter=strategy.basic_filter,
+                entry_signals=self._effective_signals(
+                    overrides,
+                    "entry_signals",
+                    strategy.entry_signals,
+                ),
+                exit_signals=self._effective_signals(
+                    overrides,
+                    "exit_signals",
+                    strategy.exit_signals,
+                ),
+                overrides=overrides,
+                minute_fill=timeframe == "1m",
+                asset_type=asset_type,
+            )
+            names.update(plan.linkage_columns & LINKAGE_FACTOR_IDS)
+        return frozenset(names)
+
+    def _attach_context_linkage(
+        self,
+        context: StrategyDataContext,
+        selected: list[tuple[str, StrategyDef]],
+        params_map: dict[str, dict] | None,
+        overrides_map: dict[str, dict] | None,
+    ) -> StrategyDataContext:
+        names = self.linkage_columns_for(
+            [strategy_id for strategy_id, _strategy in selected],
+            timeframe=context.timeframe,
+            asset_type=context.asset_type,
+            params_map=params_map,
+            overrides_map=overrides_map,
+        )
+        if not names:
+            return context
+        data_dir = self._user_data_dir()
+        if data_dir is None:
+            raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+        from app.enriched_generation import get_enriched_generation
+        from app.factors.linkage import DEVIATION_FACTOR_IDS
+        from app.factors.linkage_store import (
+            attach_linkage_columns,
+            linkage_finalized_through,
+        )
+
+        expected = context.linkage_generation
+        if expected is None:
+            expected = get_enriched_generation(data_dir, "linkage")
+        deviation_names = frozenset(names) & DEVIATION_FACTOR_IDS
+        finalized_through = (
+            linkage_finalized_through(
+                data_dir,
+                expected_generation=expected,
+            )
+            if deviation_names
+            else None
+        )
+
+        def _attach(frame: pl.DataFrame | None) -> pl.DataFrame | None:
+            if frame is None or frame.is_empty() or "date" not in frame.columns:
+                return frame
+            requested = frozenset(names)
+            if deviation_names and finalized_through is not None:
+                indexed = frame.with_row_index("_linkage_row")
+                covered = indexed.filter(pl.col("date") <= finalized_through)
+                beyond = indexed.filter(pl.col("date") > finalized_through)
+                industry_names = requested - deviation_names
+                if industry_names and not beyond.is_empty():
+                    attach_linkage_columns(
+                        beyond,
+                        industry_names,
+                        data_dir,
+                        expected_generation=expected,
+                        require_complete=True,
+                    )
+                if covered.is_empty():
+                    attached_covered = covered
+                else:
+                    attached_covered = attach_linkage_columns(
+                        covered,
+                        requested,
+                        data_dir,
+                        expected_generation=expected,
+                        require_complete=True,
+                    )
+                if not beyond.is_empty():
+                    beyond = beyond.with_columns([
+                        pl.lit(None, dtype=pl.Float64).alias(name)
+                        for name in requested
+                        if name not in beyond.columns
+                    ])
+                attached = pl.concat(
+                    [attached_covered, beyond],
+                    how="diagonal_relaxed",
+                ).sort("_linkage_row")
+                return attached.drop("_linkage_row")
+            return attach_linkage_columns(
+                frame,
+                requested,
+                data_dir,
+                expected_generation=expected,
+                require_complete=True,
+            )
+
+        return replace(
+            context,
+            current=_attach(context.current),
+            history=_attach(context.history),
+            daily_history=_attach(context.daily_history),
+            linkage_generation=expected,
+        )
+
     def run_all(
         self,
         context: StrategyDataContext,
@@ -1280,6 +1430,12 @@ class StrategyEngine:
         selected = [(sid, self.get(sid)) for sid in selected_ids]
         for _, strategy in selected:
             self.validate_context(strategy, context)
+        context = self._attach_context_linkage(
+            context,
+            selected,
+            params_map,
+            overrides_map,
+        )
 
         history_strats = [
             (sid, strategy)
@@ -1399,6 +1555,7 @@ class StrategyEngine:
                 tuple(sorted(field_columns)),
                 window,
                 generation,
+                context.linkage_generation,
                 status_fingerprint,
             )
             with self._realtime_matrix_lock:
@@ -1439,6 +1596,14 @@ class StrategyEngine:
         params: dict | None = None,
     ) -> set[str]:
         fields = set(strategy.matrix_strategy.required_fields())
+        fields.update(
+            scoring_dependencies(
+                {
+                    str(name): 1.0
+                    for name in getattr(strategy, "required_features", frozenset())
+                }
+            )
+        )
         # 参数评分字段 (如挖掘策略的因子组合) 需展开为实际数据依赖,
         # 与 backtest._resolve_matrix_native 保持同一语义, 否则虚拟因子
         # (limit_up_count_* -> consecutive_limit_ups) 在矩阵里缺字段。
@@ -2009,10 +2174,39 @@ class StrategyEngine:
         current: pl.DataFrame | None,
         history: pl.DataFrame | None,
         scoring: Mapping[str, Any],
+        *,
+        data_dir: Path | None = None,
+        expected_linkage_generation: str | None = None,
     ) -> tuple[pl.DataFrame | None, pl.DataFrame | None]:
         names = [str(name) for name, weight in scoring.items() if weight]
         if not names:
             return current, history
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.linkage_store import attach_linkage_columns
+        from app.factors.registry import factor_dependencies
+
+        linkage_names = (
+            frozenset(names) | factor_dependencies(names)
+        ) & LINKAGE_FACTOR_IDS
+
+        def _attach(frame: pl.DataFrame | None) -> pl.DataFrame | None:
+            if frame is None or frame.is_empty() or not linkage_names:
+                return frame
+            missing = linkage_names - set(frame.columns)
+            if not missing:
+                return frame
+            if data_dir is None:
+                raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+            return attach_linkage_columns(
+                frame,
+                missing,
+                data_dir,
+                expected_generation=expected_linkage_generation,
+                require_complete=True,
+            )
+
+        current = _attach(current)
+        history = _attach(history)
         if history is None or history.is_empty():
             return (
                 materialize_scoring_columns(current, names) if current is not None else None,
