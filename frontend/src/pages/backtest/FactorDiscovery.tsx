@@ -59,13 +59,14 @@ const hasServerVerdict = (results: FactorBatchItem[]): boolean =>
 
 // 预设场景: 纯前端选择集, 数量按 columns 数据实时计算 (分组名缺失时该项自动为空并禁用)
 type PresetDef = { id: string; label: string; hint: string; groups?: string[]; quick?: boolean }
-const PRESETS: PresetDef[] = [
+export const PRESETS: PresetDef[] = [
   { id: 'all', label: '全面体检', hint: '全部因子，耗时最长' },
   { id: 'quick', label: '快速体检', hint: '除财务组外每组各取 1 个代表因子' , quick: true },
   { id: 'trend', label: '趋势动量', hint: '动量组 + 趋势组', groups: ['动量', '趋势'] },
   { id: 'reversal', label: '超跌反转', hint: '超买超卖组 + 价格位置组', groups: ['超买超卖', '价格位置'] },
   { id: 'volume', label: '量价资金', hint: '量价组 + 流动性组', groups: ['量价', '流动性'] },
   { id: 'fundamental', label: '财务价值', hint: '财务组（需财务数据）', groups: ['财务'] },
+  { id: 'linkage', label: '截面联动', hint: '基准偏离与行业联动', groups: ['截面联动'] },
 ]
 const QUICK_PRESET = PRESETS.find(preset => preset.quick) ?? PRESETS[0]
 

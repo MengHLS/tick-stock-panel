@@ -52,9 +52,13 @@ _FUYAO_BOARD_RETRIES = 1
 _FUYAO_KEY_REF = "fuyao_api_key"
 
 _PRESET_IDS = ("ext_gn_ths", "ext_hy_ths")
+_INDUSTRY_PIT_PRESET_ID = "ext_hy_ths_pit"
 
 # 播种标记: 出厂预设只在标记缺失 (首次安装/老库首次升级到播种机制) 时创建。
 _SEED_MARKER = ".builtin_presets_seeded"
+# 新增预设使用独立标记: 老库已有旧播种标记时仍需收到一次新预设; 用户删除后
+# 该标记保留, 后续启动不复活。
+_INDUSTRY_PIT_SEED_MARKER = ".industry_pit_seeded_v1"
 
 
 # ---------------------------------------------------------------------------
@@ -114,8 +118,49 @@ def _concept_preset() -> ExtConfig:
     )
 
 
+def _industry_fields() -> list[ExtField]:
+    return [
+        ExtField("symbol", "string", "标的代码"),
+        ExtField("code", "string", "代码"),
+        ExtField("股票代码", "string", "股票代码"),
+        ExtField("股票简称", "string", "股票简称"),
+        ExtField("所属同花顺行业", "string", "所属同花顺行业"),
+    ]
+
+
+def _industry_pull(*, require_complete: bool = False) -> PullConfig:
+    """fuyao 同花顺行业目录 → 成分股拉取配方。"""
+    fanout = {
+        "url": f"{_FUYAO_BASE}{_FUYAO_CONSTITUENTS_PATH}",
+        "param": "thscode",
+        "id_field": "thscode",
+        "label_field": "name",
+        "items_path": "data.item",
+        "member_id_field": "thscode",
+        "member_label_field": "name",
+        "symbol_col": "股票代码",
+        "name_col": "股票简称",
+        "value_col": "所属同花顺行业",
+        "separator": "-",
+        "concurrency": _FUYAO_CONCURRENCY,
+        "retries": _FUYAO_BOARD_RETRIES,
+    }
+    if require_complete:
+        fanout["require_complete"] = True
+    return PullConfig(
+        url=f"{_FUYAO_BASE}{_FUYAO_CATALOG_PATH}?tag=industry",
+        method="GET",
+        response_path="data.item",
+        auth=_fuyao_auth(),
+        timeout_seconds=int(_FUYAO_TIMEOUT_S),
+        schedule_minutes=1440,
+        enabled=True,
+        fanout=fanout,
+    )
+
+
 def _industry_preset() -> ExtConfig:
-    """扩展行业 (ext_hy_ths)。
+    """扩展行业快照 (ext_hy_ths)。
 
     fuyao 为扁平板块清单, 无一/二/三级层级路径, 单级粒度。
     输出 schema: 股票代码 / 股票简称 / 所属同花顺行业 / symbol / code
@@ -124,45 +169,34 @@ def _industry_preset() -> ExtConfig:
         id="ext_hy_ths",
         label="扩展行业",
         mode="snapshot",
-        fields=[
-            ExtField("symbol", "string", "标的代码"),
-            ExtField("code", "string", "代码"),
-            ExtField("股票代码", "string", "股票代码"),
-            ExtField("股票简称", "string", "股票简称"),
-            ExtField("所属同花顺行业", "string", "所属同花顺行业"),
-        ],
+        fields=_industry_fields(),
         description="同花顺行业分类 (fuyao 同花顺指数接口, 扁平板块无层级; 拉取配方见「拉取」页)",
         symbol_map={"type": "mapped", "col": "股票代码"},
         code_map={"type": "computed", "from": "symbol", "method": "strip_exchange"},
-        pull=PullConfig(
-            url=f"{_FUYAO_BASE}{_FUYAO_CATALOG_PATH}?tag=industry",
-            method="GET",
-            response_path="data.item",
-            auth=_fuyao_auth(),
-            timeout_seconds=int(_FUYAO_TIMEOUT_S),
-            schedule_minutes=1440,
-            enabled=True,
-            fanout={
-                "url": f"{_FUYAO_BASE}{_FUYAO_CONSTITUENTS_PATH}",
-                "param": "thscode",
-                "id_field": "thscode",
-                "label_field": "name",
-                "items_path": "data.item",
-                "member_id_field": "thscode",
-                "member_label_field": "name",
-                "symbol_col": "股票代码",
-                "name_col": "股票简称",
-                "value_col": "所属同花顺行业",
-                "separator": "-",
-                "concurrency": _FUYAO_CONCURRENCY,
-                "retries": _FUYAO_BOARD_RETRIES,
-            },
-        ),
+        pull=_industry_pull(),
+    )
+
+
+def _industry_pit_preset() -> ExtConfig:
+    """按日时点保存的行业分类 (ext_hy_ths_pit)。
+
+    与快照预设共用拉取配方, 但写入 timeseries 日分区; fanout 要求全部二级
+    条目成功, 任一板块失败即拒绝写出残缺分区。
+    """
+    return ExtConfig(
+        id=_INDUSTRY_PIT_PRESET_ID,
+        label="扩展行业（时点）",
+        mode="timeseries",
+        fields=_industry_fields(),
+        description="同花顺行业分类按日时点快照 (严格完整拉取, 供截面联动因子使用)",
+        symbol_map={"type": "mapped", "col": "股票代码"},
+        code_map={"type": "computed", "from": "symbol", "method": "strip_exchange"},
+        pull=_industry_pull(require_complete=True),
     )
 
 
 def _presets() -> list[ExtConfig]:
-    return [_concept_preset(), _industry_preset()]
+    return [_concept_preset(), _industry_preset(), _industry_pit_preset()]
 
 
 def get_preset(config_id: str) -> ExtConfig | None:
@@ -171,6 +205,27 @@ def get_preset(config_id: str) -> ExtConfig | None:
         if c.id == config_id:
             return c
     return None
+
+
+def _ensure_industry_pit_preset(store: ExtConfigStore, data_dir: Path) -> None:
+    """一次性补建时序行业预设; 标记存在后绝不复活用户已删除的配置。"""
+    marker = data_dir / "ext_data" / _INDUSTRY_PIT_SEED_MARKER
+    if marker.exists():
+        return
+    try:
+        if store.get(_INDUSTRY_PIT_PRESET_ID) is None:
+            store.upsert(_industry_pit_preset())
+            logger.info(
+                "内置扩展表 %s 配置已就绪 (时序行业来源)",
+                _INDUSTRY_PIT_PRESET_ID,
+            )
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_text(marker, "")
+    except Exception as e:  # noqa: BLE001 — 启动契约: 迁移失败不阻断
+        logger.warning(
+            "内置扩展表 %s 迁移失败 (不影响启动, 下次启动会重试): %s",
+            _INDUSTRY_PIT_PRESET_ID, e,
+        )
 
 
 # 历代出厂 pull 配方指纹 — 仅比对 url + fanout 是否存在, 命中即视为未改过的出厂值。
@@ -243,11 +298,13 @@ async def ensure_builtin_presets(data_dir: Path) -> None:
             if _is_retired_factory_pull(config.id, existing.pull):
                 existing.pull = config.pull
                 changed = True
-            if not (existing.description or "").strip() or \
-                    (existing.description or "").startswith(_FACTORY_DESC_PREFIXES):
-                if existing.description != config.description:
-                    existing.description = config.description
-                    changed = True
+            description = existing.description or ""
+            if (
+                (not description.strip() or description.startswith(_FACTORY_DESC_PREFIXES))
+                and existing.description != config.description
+            ):
+                existing.description = config.description
+                changed = True
 
             if changed:
                 store.upsert(existing)
@@ -261,3 +318,4 @@ async def ensure_builtin_presets(data_dir: Path) -> None:
             atomic_write_text(marker, "")
         except Exception as e:  # noqa: BLE001 — 启动契约: 标记失败不阻断
             logger.warning("内置预设播种标记写入失败 (下次启动会重试创建): %s", e)
+    _ensure_industry_pit_preset(store, data_dir)

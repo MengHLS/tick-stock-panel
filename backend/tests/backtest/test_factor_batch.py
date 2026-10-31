@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 from datetime import date, timedelta
+from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import polars as pl
@@ -13,6 +16,8 @@ from app.backtest.factor import (
     FactorBatchConfig,
     FactorConfig,
 )
+from app.enriched_generation import bump_enriched_generation
+from app.factors.linkage import LINKAGE_FACTOR_IDS
 
 
 def _panel() -> pl.DataFrame:
@@ -35,20 +40,38 @@ def _panel() -> pl.DataFrame:
 
 
 class _Engine:
-    def __init__(self, panel: pl.DataFrame) -> None:
+    def __init__(self, panel: pl.DataFrame, data_dir: Path | None = None) -> None:
         self.panel = panel
         self.calls: list[dict] = []
+        if data_dir is not None:
+            self.repo = SimpleNamespace(
+                store=SimpleNamespace(data_dir=Path(data_dir))
+            )
 
-    def load_panel(self, symbols, start, end, columns, asset_type):
+    def load_panel(self, symbols, start, end, columns, asset_type, **kwargs):
         self.calls.append({
             "symbols": symbols,
             "start": start,
             "end": end,
             "columns": columns,
             "asset_type": asset_type,
+            **kwargs,
         })
         selected = [column for column in columns if column in self.panel.columns]
-        return self.panel.select(selected)
+        frame = self.panel.select(selected)
+        if frame.is_empty():
+            return frame
+        if symbols is not None:
+            frame = frame.filter(pl.col("symbol").is_in(symbols))
+        return frame
+
+    @staticmethod
+    def data_generation(_asset_type: str) -> None:
+        return None
+
+    @staticmethod
+    def assert_data_generation(_asset_type: str, _expected: str | None) -> None:
+        return None
 
 
 def _batch_config(factor_names: list[str]) -> FactorBatchConfig:
@@ -60,6 +83,45 @@ def _batch_config(factor_names: list[str]) -> FactorBatchConfig:
         n_groups=3,
         rebalance="daily",
     )
+
+
+def _write_linkage_sidecar(
+    data_dir: Path,
+    panel: pl.DataFrame,
+    *,
+    factor_name: str,
+    values: dict[tuple[str, date], float | None],
+) -> None:
+    root = data_dir / "kline_daily_linkage"
+    for day in sorted(panel["date"].unique().to_list()):
+        rows = []
+        for symbol in ("000001.SZ", "000002.SZ", "600000.SH"):
+            rows.append({
+                "symbol": symbol,
+                "date": day,
+                factor_name: values.get((symbol, day), 0.4),
+            })
+        out = root / f"date={day.isoformat()}" / "part.parquet"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        pl.DataFrame(rows).with_columns(
+            pl.col(factor_name).cast(pl.Float64)
+        ).write_parquet(out)
+    manifest = {
+        "version": 1,
+        "methodology_version": "linkage_v1",
+        "factor_ids": sorted(LINKAGE_FACTOR_IDS),
+        "min_peers": 10,
+        "industry_source": "ext_hy_ths_pit",
+        "industry_level": 2,
+        "industry_pit": True,
+        "coverage_start": panel["date"].min().isoformat(),
+        "finalized_through": panel["date"].max().isoformat(),
+    }
+    (root / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    bump_enriched_generation(data_dir, "linkage")
 
 
 def test_batch_loads_panel_once_and_deduplicates_factors():
@@ -200,3 +262,102 @@ def test_derived_factors_are_computed_from_shared_base_panel():
     assert last["intraday_return"] == pytest.approx(1 / 0.99 - 1)
     assert last["close_position"] == pytest.approx(2 / 3)
     assert last["distance_to_high_60d"] == pytest.approx(0.0)
+
+
+def test_linkage_factor_uses_materialized_full_market_value_for_small_pool(
+    tmp_path: Path,
+) -> None:
+    panel = _panel()
+    target = "000001.SZ"
+    _write_linkage_sidecar(
+        tmp_path,
+        panel,
+        factor_name="industry_relative_momentum_20d",
+        values={
+            (target, day): 0.42
+            for day in panel["date"].unique().to_list()
+        },
+    )
+    engine = _Engine(panel, data_dir=tmp_path)
+    service = FactorBacktestService(engine)
+    config = FactorBatchConfig(
+        factor_names=["industry_relative_momentum_20d"],
+        symbols=[target],
+        start=date(2026, 1, 1),
+        end=date(2026, 1, 8),
+        n_groups=1,
+        rebalance="daily",
+    )
+
+    loaded = service._load_factor_panel(
+        config,
+        ["industry_relative_momentum_20d"],
+    )
+
+    assert loaded["symbol"].unique().to_list() == [target]
+    assert loaded["industry_relative_momentum_20d"].to_list() == pytest.approx(
+        [0.42] * loaded.height
+    )
+
+
+def test_linkage_factor_missing_date_returns_coverage_error(
+    tmp_path: Path,
+) -> None:
+    panel = _panel()
+    _write_linkage_sidecar(
+        tmp_path,
+        panel,
+        factor_name="deviate_10d",
+        values={},
+    )
+    missing_day = panel["date"].max()
+    (
+        tmp_path
+        / "kline_daily_linkage"
+        / f"date={missing_day.isoformat()}"
+        / "part.parquet"
+    ).unlink()
+    engine = _Engine(panel, data_dir=tmp_path)
+    result = FactorBacktestService(engine).run(FactorConfig(
+        factor_name="deviate_10d",
+        symbols=None,
+        start=date(2026, 1, 1),
+        end=date(2026, 1, 8),
+        n_groups=3,
+        rebalance="daily",
+    ))
+
+    assert result.error is not None
+    assert "联动因子覆盖不足" in result.error
+
+
+def test_linkage_factor_null_row_is_legal_value_not_read_failure(
+    tmp_path: Path,
+) -> None:
+    panel = _panel()
+    target = "000001.SZ"
+    _write_linkage_sidecar(
+        tmp_path,
+        panel,
+        factor_name="industry_relative_momentum_20d",
+        values={
+            (target, day): None
+            for day in panel["date"].unique().to_list()
+        },
+    )
+    service = FactorBacktestService(_Engine(panel, data_dir=tmp_path))
+    config = FactorBatchConfig(
+        factor_names=["industry_relative_momentum_20d"],
+        symbols=[target],
+        start=date(2026, 1, 1),
+        end=date(2026, 1, 8),
+        n_groups=1,
+        rebalance="daily",
+    )
+
+    loaded = service._load_factor_panel(
+        config,
+        ["industry_relative_momentum_20d"],
+    )
+
+    assert loaded["industry_relative_momentum_20d"].null_count() == loaded.height

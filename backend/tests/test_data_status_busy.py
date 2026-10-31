@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,15 +17,28 @@ from app.api import data as data_api
 from app.services.pipeline_jobs import job_store
 
 
+def _wait_storage_ready(timeout: float = 10.0) -> None:
+    """等后台存储扫描完成 (冷缓存不再阻塞请求, 改后台计算)。"""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        with data_api._storage_lock:
+            if not data_api._storage_scanning and data_api._storage_cache_stale is not None:
+                return
+        time.sleep(0.02)
+    raise AssertionError("storage scan did not finish")
+
+
 @pytest.fixture()
 def clean_caches():
     data_api.invalidate_data_cache(None)
     data_api._table_cache_stale.clear()
     data_api._storage_cache_stale = None
+    data_api._storage_scanning = False
     yield
     data_api.invalidate_data_cache(None)
     data_api._table_cache_stale.clear()
     data_api._storage_cache_stale = None
+    data_api._storage_scanning = False
 
 
 # ---------- _get_table_stats: busy 语义 ----------
@@ -70,10 +84,42 @@ def test_not_busy_still_refetches_after_invalidation(clean_caches):
 
 
 def test_get_storage_busy_serves_stale(clean_caches, tmp_path):
-    data_api._get_storage(tmp_path)          # 首次计算并缓存
+    data_api._get_storage(tmp_path)          # 冷缓存 → 后台扫描, 本次返回 None
+    _wait_storage_ready()
     data_api.invalidate_data_cache(None)     # 全清 (storage 一并清空)
     got = data_api._get_storage(tmp_path, busy=True)
     assert got is not None                   # stale 兜底仍在
+
+
+def test_get_storage_cold_returns_immediately_and_fills_in_background(clean_caches, tmp_path):
+    """冷启动的目录扫描不得阻塞 /status: 先回 None, 后台算完再提供。"""
+    (tmp_path / "kline_daily").mkdir()
+    (tmp_path / "kline_daily" / "part.parquet").write_bytes(b"\0" * (1024 * 1024))
+
+    started = time.perf_counter()
+    assert data_api._get_storage(tmp_path) is None
+    assert time.perf_counter() - started < 0.5
+
+    _wait_storage_ready()
+    with data_api._storage_lock:
+        assert data_api._storage_cache_stale["total_size_mb"] == 1.0
+
+
+def test_get_storage_scan_failure_keeps_stale(clean_caches, tmp_path, monkeypatch):
+    data_api._get_storage(tmp_path)
+    _wait_storage_ready()
+    data_api.invalidate_data_cache(None)
+
+    def boom(_path):
+        raise OSError("disk gone")
+
+    monkeypatch.setattr(data_api, "_compute_storage", boom)
+    assert data_api._get_storage(tmp_path) is not None  # 返回上一次的值
+    deadline = time.time() + 5
+    while time.time() < deadline and data_api._storage_scanning:
+        time.sleep(0.02)
+    with data_api._storage_lock:
+        assert data_api._storage_cache_stale is not None
 
 
 def test_get_storage_busy_cold_start_returns_none(clean_caches, tmp_path):
@@ -111,23 +157,36 @@ def test_busy_follows_active_job(monkeypatch, clean_caches):
 
 # ---------- status 端点: busy 接线 ----------
 
-def test_status_endpoint_busy_skips_aggregates(monkeypatch, clean_caches, tmp_path):
-    """indicators_ready=False → busy: 聚合全部跳过 (不触碰 repo), 轻字段照常返回。"""
+def test_status_warming_still_computes_stats(monkeypatch, clean_caches, tmp_path):
+    """指标预热期间统计照常计算 (不再整页空白), storage 仍退化为缓存读。"""
     repo = SimpleNamespace(store=SimpleNamespace(data_dir=Path(tmp_path)))
     req = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(
         repo=repo, scheduler=None, indicators_ready=False,
     )))
-    # 任何聚合尝试都算失败 — busy 下不应被调用
-    def _boom(*_a, **_k):
-        raise AssertionError("busy 下不应重算聚合")
-    for fn in ("daily", "enriched", "index_daily", "minute", "financials"):
-        monkeypatch.setattr(data_api, f"_safe_aggregate_{fn}", _boom)
+    calls: list[str] = []
+
+    def _stats(table):
+        def fetch(_repo):
+            calls.append(table)
+            return {"rows": 1, "trading_days": 10}
+        return fetch
+
+    for fn in (
+        "daily", "enriched", "index_daily", "index_enriched", "index_instruments",
+        "etf_daily", "etf_enriched", "etf_instruments", "minute", "adj_factor",
+        "instruments", "financials",
+    ):
+        monkeypatch.setattr(data_api, f"_safe_aggregate_{fn}", _stats(fn))
+    monkeypatch.setattr(job_store, "active_id", lambda: None)
+
     res = data_api.status(req)
+
     assert res["indicators_ready"] is False
     assert res["stats_pending"] is True
-    assert res["checked_at"]
-    assert res["daily"] is None and res["minute"] is None
-    assert res["storage"] is None
+    assert res["daily"] == {"rows": 1, "trading_days": 10}
+    for fn in ("daily", "enriched", "index_daily", "minute"):
+        assert fn in calls  # 预热期间统计照常计算
+    assert res["storage"] is None  # 目录扫描仍不在预热期抢 IO
 
 
 @pytest.mark.parametrize("job_status", ["pending", "running"])

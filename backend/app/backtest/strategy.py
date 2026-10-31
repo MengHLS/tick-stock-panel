@@ -108,6 +108,8 @@ class ResolvedFeaturePlan:
     execution_backend: str = "polars_expr"
     # 财务因子列不落 enriched 存储, 由 engine 在加载口按公告日门控附加。
     fundamental_columns: frozenset[str] = frozenset()
+    # 截面联动因子由独立 sidecar 提供, 不进入 enriched 物理列加载。
+    linkage_columns: frozenset[str] = frozenset()
     historical_st: bool = False
 
 
@@ -137,6 +139,7 @@ def _merge_resolved_feature_plans(
         full_feature_fallback=any(plan.full_feature_fallback for plan in plans),
         execution_backend=backends.pop(),
         fundamental_columns=_union("fundamental_columns"),
+        linkage_columns=_union("linkage_columns"),
         historical_st=any(getattr(plan, "historical_st", False) for plan in plans),
     )
 
@@ -256,6 +259,18 @@ class StrategyDependencyResolver:
             required_features.update(signal_dependencies.get(signal, ()))
 
         indicator_columns = frozenset(required_features & set(INDICATOR_COLUMNS))
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.registry import get_factor
+
+        linkage_columns = frozenset(required_features & LINKAGE_FACTOR_IDS)
+        linkage_warmup = max(
+            (
+                spec.warmup_bars
+                for name in linkage_columns
+                if (spec := get_factor(name)) is not None
+            ),
+            default=1,
+        )
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         # 涨跌停族: 显式请求连板/判定价列, 或引用了判定价的自定义信号
         # (signal_limit_* 等迁移定义) → 统一加载不复权三价。
@@ -269,6 +284,7 @@ class StrategyDependencyResolver:
         instrument_columns = frozenset(required_features & set(_INSTRUMENT_COLUMNS))
         instrument_columns = frozenset(set(instrument_columns) | {"name"})
         matrix_columns = set(_EXECUTION_COLUMNS) | required_signals
+        matrix_columns.update(linkage_columns)
         if minute_fill:
             indicator_columns = frozenset(set(indicator_columns) | {"ma5", "ma10", "ma20"})
             matrix_columns.update({"ma5", "ma10", "ma20"})
@@ -277,7 +293,12 @@ class StrategyDependencyResolver:
         plan = FeaturePlan(
             required_features=frozenset(required_features),
             required_signals=frozenset(required_signals),
-            warmup_bars=max(60, int(strategy.lookback_days or 1), scoring_warmup_bars(scoring)),
+            warmup_bars=max(
+                60,
+                int(strategy.lookback_days or 1),
+                scoring_warmup_bars(scoring),
+                linkage_warmup,
+            ),
         )
         return ResolvedFeaturePlan(
             base_columns=base_columns,
@@ -293,6 +314,7 @@ class StrategyDependencyResolver:
             fundamental_columns=frozenset(
                 required_features & FUNDAMENTAL_FACTOR_NAMES
             ),
+            linkage_columns=linkage_columns,
         )
 
     @staticmethod
@@ -335,6 +357,20 @@ class StrategyDependencyResolver:
         overlay_sources = _overlay_numeric_fields(overrides)
         overlay_scoring = {name: 1.0 for name in overlay_sources}
         overlay_fields = scoring_dependencies(overlay_scoring)
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.registry import get_factor
+
+        linkage_columns = frozenset(
+            (required_features | overlay_fields) & LINKAGE_FACTOR_IDS
+        )
+        linkage_warmup = max(
+            (
+                spec.warmup_bars
+                for name in linkage_columns
+                if (spec := get_factor(name)) is not None
+            ),
+            default=1,
+        )
 
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         base_columns = frozenset(set(base_columns) | set(_LIMIT_BASE_COLUMNS))
@@ -346,12 +382,19 @@ class StrategyDependencyResolver:
             scoring_warmup_bars(scoring),
             scoring_warmup_bars(parameter_scoring),
             scoring_warmup_bars(overlay_scoring),
+            linkage_warmup,
         )
-        matrix_columns = set(base_columns) | set(instrument_columns) | overlay_fields | {
+        matrix_columns = (
+            set(base_columns)
+            | set(instrument_columns)
+            | overlay_fields
+            | set(linkage_columns)
+            | {
             "signal_limit_up",
             "signal_limit_down",
             "price_limit_pct",
-        }
+            }
+        )
         return ResolvedFeaturePlan(
             base_columns=base_columns,
             intermediate_columns=frozenset(),
@@ -366,6 +409,7 @@ class StrategyDependencyResolver:
             fundamental_columns=frozenset(
                 required_features & FUNDAMENTAL_FACTOR_NAMES
             ),
+            linkage_columns=linkage_columns,
         )
 
 
@@ -428,7 +472,7 @@ def build_matrix_cache_profile(
         set(merged.base_columns)
         | set(merged.instrument_columns)
         | set(merged.matrix_columns)
-    )
+    ) - set(merged.linkage_columns)
     generation_payload = json.dumps(
         {
             "asset_type": asset_type,

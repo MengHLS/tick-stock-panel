@@ -109,19 +109,40 @@ def trial_formula(req: FormulaTrialRequest, request: Request) -> dict:
     if "consecutive_limit_ups" in compiled.dependencies:
         base_columns.append("consecutive_limit_ups")
     engine = _get_engine(request)
+    data_dir = _optional_data_dir(request)
     panel = engine.load_panel(None, start, cn_today(), columns=base_columns, asset_type=req.asset_type)
     if panel.is_empty():
         raise HTTPException(status_code=400, detail="当前数据目录无可用历史数据, 无法试算")
 
     # 复用检验引擎同一条补算路径 (compute_indicators + 虚拟因子物化), 禁止第二套计算逻辑
     from app.backtest.factor import FactorBacktestService
+    from app.factors.linkage import LINKAGE_FACTOR_IDS
+    from app.factors.linkage_store import (
+        LinkageCoverageError,
+        LinkageReadUnstableError,
+    )
 
     physical = set(panel.columns)
     to_compute = set(compiled.referenced_factors) | {
         dep for dep in compiled.dependencies if dep not in physical
     }
+    linkage_names = (
+        set(compiled.referenced_factors) | set(compiled.dependencies)
+    ) & LINKAGE_FACTOR_IDS
+    if linkage_names and data_dir is None:
+        raise HTTPException(
+            status_code=400,
+            detail="联动因子需要稳定的数据目录 (data_dir)",
+        )
     if to_compute:
-        panel = FactorBacktestService._compute_missing_factors(panel, to_compute)
+        try:
+            panel = FactorBacktestService._compute_missing_factors(
+                panel,
+                to_compute,
+                data_dir=data_dir,
+            )
+        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if compiled.frame_transform is None:
         raise HTTPException(status_code=500, detail="编译产物缺少帧变换")
@@ -235,6 +256,13 @@ def _data_dir(request: Request):
     return Path(root)
 
 
+def _optional_data_dir(request: Request):
+    try:
+        return _data_dir(request)
+    except HTTPException:
+        return None
+
+
 def _slugify_id(label: str, prefix: str) -> str:
     base = "".join(ch if ch.isascii() and (ch.isalnum() or ch == "_") else "_" for ch in label.lower())
     candidate = f"{prefix}_{base}".strip("_")[:44]
@@ -262,17 +290,38 @@ def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -
         raise HTTPException(status_code=400, detail={"errors": [e.to_dict() for e in compiled.errors]})
     from app.api.backtest import _get_engine
     from app.backtest.factor import FactorBacktestService
+    from app.factors.linkage import LINKAGE_FACTOR_IDS
+    from app.factors.linkage_store import (
+        LinkageCoverageError,
+        LinkageReadUnstableError,
+    )
 
     calendar_days = int((compiled.warmup_bars + 40) * 1.6) + 15
     base_columns = ["symbol", "date", "open", "high", "low", "close", "volume", "amount", "turnover_rate"]
     engine = _get_engine(request)
+    data_dir = _optional_data_dir(request)
     panel = engine.load_panel(None, cn_today() - timedelta(days=calendar_days), cn_today(), columns=base_columns, asset_type=asset_type)
     if panel.is_empty():
         raise HTTPException(status_code=400, detail="当前无历史数据, 无法完成保存前试算 (fail-closed)")
     physical = set(panel.columns)
     to_compute = set(compiled.referenced_factors) | {d for d in compiled.dependencies if d not in physical}
+    linkage_names = (
+        set(compiled.referenced_factors) | set(compiled.dependencies)
+    ) & LINKAGE_FACTOR_IDS
+    if linkage_names and data_dir is None:
+        raise HTTPException(
+            status_code=400,
+            detail="联动因子需要稳定的数据目录 (data_dir)",
+        )
     if to_compute:
-        panel = FactorBacktestService._compute_missing_factors(panel, to_compute)
+        try:
+            panel = FactorBacktestService._compute_missing_factors(
+                panel,
+                to_compute,
+                data_dir=data_dir,
+            )
+        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
     prepared = compiled.frame_transform(panel) if compiled.frame_transform else None
     if prepared is None or prepared[FACTOR_COLUMN].is_not_null().sum() == 0:
         raise HTTPException(status_code=400, detail="公式在最近 40 个交易日输出全为空, 拒绝保存")

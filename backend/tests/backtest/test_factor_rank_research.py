@@ -18,7 +18,10 @@ from app.backtest.matrix import (
     validate_signal_matrix,
 )
 from app.backtest.optimizer import expand_param_grid
-from app.backtest.strategy import StrategyDependencyResolver
+from app.backtest.strategy import (
+    StrategyDependencyResolver,
+    build_matrix_cache_profile,
+)
 from app.strategy.engine import StrategyEngine
 
 STRATEGY_PATH = (
@@ -277,3 +280,74 @@ def test_strategy_rejects_uncontrolled_or_invalid_research_params(params, messag
 
     with pytest.raises(ValueError, match=message):
         strategy.compute_signals(_market(), params)
+
+
+def test_factor_rank_research_resolves_and_scores_linkage_field():
+    from app.factors.linkage import LINKAGE_FACTOR_IDS
+    from app.strategy.research.factor_rank_research import (
+        FactorRankResearchMatrixStrategy,
+    )
+
+    linkage = "industry_relative_momentum_20d"
+    assert linkage in LINKAGE_FACTOR_IDS
+    matrix_strategy = FactorRankResearchMatrixStrategy(
+        {linkage: 1.0},
+        {linkage: "high"},
+    )
+    strategy = SimpleNamespace(
+        meta={
+            "id": "linkage_factor_rank",
+            "asset_types": ["stock"],
+            "timeframes": ["1d"],
+            "scoring": {},
+        },
+        basic_filter={"enabled": False},
+        entry_signals=[],
+        exit_signals=[],
+        stop_loss=None,
+        trailing_stop=None,
+        max_hold_days=1,
+        execution_backend="matrix_native",
+        matrix_strategy=matrix_strategy,
+        required_features=frozenset({linkage}),
+    )
+
+    plan = StrategyDependencyResolver().resolve(
+        strategy,
+        params={"scoring": {linkage: 1.0}},
+        basic_filter={"enabled": False},
+        entry_signals=[],
+        exit_signals=[],
+    )
+    assert plan.linkage_columns == frozenset({linkage})
+    assert linkage in plan.matrix_columns
+    assert linkage not in plan.base_columns
+    profile = build_matrix_cache_profile(
+        SimpleNamespace(strategy_definitions=lambda: ()),
+        "stock",
+        requested_plan=plan,
+    )
+    assert linkage not in profile.field_columns
+
+    panel = pl.DataFrame({
+        "symbol": ["000001.SZ", "000002.SZ", "000003.SZ", "000004.SZ"] * 2,
+        "date": [date(2024, 1, 2)] * 4 + [date(2024, 1, 3)] * 4,
+        "open": [10.0] * 8,
+        "high": [10.5] * 8,
+        "low": [9.5] * 8,
+        "close": [10.0] * 8,
+        "volume": [1000.0] * 8,
+        "amount": [1.0] * 8,
+        "turnover_rate": [1.0] * 8,
+        linkage: [0.1, 0.2, 0.3, 0.4, 0.9, 0.1, 0.8, 0.2],
+    })
+    market = build_market_data_matrix(
+        panel,
+        field_columns={linkage},
+    )
+    signals = matrix_strategy.compute_signals(
+        market,
+        {"entry_score": 70.0, "exit_score": 20.0, "top_rank": 2},
+    )
+    assert signals.entry.any()
+    assert signals.exit.any()

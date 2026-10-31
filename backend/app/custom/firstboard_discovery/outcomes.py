@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
+from datetime import date
 from typing import Any
 
 import numpy as np
@@ -33,6 +35,7 @@ _OUTCOME_SCHEMA: dict[str, pl.DataType] = {
     "mfe_20d": pl.Float64,
     "close_return_20d": pl.Float64,
     "mae_20d": pl.Float64,
+    "early_fail_5d": pl.Boolean,
     "stop_touched": pl.Boolean,
     "strong": pl.Boolean,
 }
@@ -47,6 +50,7 @@ def build_event_samples(
     *,
     horizon: int = 20,
     strong_threshold: float = 0.20,
+    sessions: Sequence[date] | None = None,
 ) -> pl.DataFrame:
     """Build first-board outcomes using the next observed bar as entry.
 
@@ -75,19 +79,35 @@ def build_event_samples(
         return empty_event_samples()
 
     ordered = panel.sort(["symbol", "date"]).with_row_index("__row_index")
-    sessions = ordered["date"].unique().sort().to_list()
-    session_index = {day: index for index, day in enumerate(sessions)}
+    market_sessions = _market_sessions(ordered, sessions)
+    session_index = {day: index for index, day in enumerate(market_sessions)}
     records: list[dict[str, Any]] = []
     for group in ordered.partition_by("symbol", maintain_order=True):
         records.extend(
             _symbol_events(
                 group, horizon=horizon, strong_threshold=strong_threshold,
-                sessions=sessions, session_index=session_index,
+                sessions=market_sessions, session_index=session_index,
             )
         )
     if not records:
         return empty_event_samples()
     return pl.DataFrame(records, schema=_OUTCOME_SCHEMA)
+
+
+def _market_sessions(
+    panel: pl.DataFrame,
+    sessions: Sequence[date] | None,
+) -> list[date]:
+    panel_dates = set(panel["date"].to_list())
+    if sessions is None:
+        return sorted(panel_dates)
+    market_sessions = sorted(set(sessions))
+    if not market_sessions:
+        raise ValueError("全市场交易日序列为空，无法构造 T+1 收益标签")
+    missing = sorted(panel_dates - set(market_sessions))
+    if missing:
+        raise ValueError(f"行情日期不在全市场交易日序列中: {missing[0]}")
+    return market_sessions
 
 
 def _symbol_events(
@@ -146,6 +166,7 @@ def _symbol_events(
             "mfe_20d": None,
             "close_return_20d": None,
             "mae_20d": None,
+            "early_fail_5d": None,
             "stop_touched": None,
             "strong": None,
         }
@@ -225,6 +246,15 @@ def _symbol_events(
         record["stop_touched"] = (
             mae <= -0.08 if isinstance(mae, float) and math.isfinite(mae) else None
         )
+        early_mae = record["mae_5d"]
+        if (
+            not record["entry_unavailable"]
+            and not record["entry_limit_locked"]
+            and not record["scale_break_suspected"]
+            and isinstance(early_mae, float)
+            and math.isfinite(early_mae)
+        ):
+            record["early_fail_5d"] = early_mae <= -0.08 + 1e-12
         eligible = (
             not record["right_censored"]
             and not record["entry_limit_locked"]

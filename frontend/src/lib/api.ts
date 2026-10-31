@@ -1130,6 +1130,7 @@ export interface MonitorRule {
   webhook_channels?: string[]  // 合法值: feishu | wecom | custom | email
   created_at?: string
   runtime_warning?: string
+  unavailable_reason?: string
   // ladder 专属: 封单监控; volume_delta 复用 metric 表示阈值口径 (volume=手数, amount=金额)
   metric?: 'sealed_vol' | 'sealed_amount' | 'volume' | 'amount'
   threshold?: number                        // 封单 <= 此值时报警

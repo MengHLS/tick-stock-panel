@@ -549,6 +549,12 @@ def _cached_with_realtime(request: Request) -> dict:
     """读取盘后缓存，并用监控引擎的实时结果覆盖同策略。"""
     data_dir = request.app.state.repo.store.data_dir
     cached = strategy_cache.read_cache(data_dir)
+    if cached is not None and not strategy_cache.linkage_generation_is_current(
+        data_dir,
+        cached,
+    ):
+        logger.info("策略缓存联动代际已变化, 丢弃旧候选结果")
+        cached = None
     if cached is None:
         cached = {"as_of": None, "results": {}, "updated_at": None}
 

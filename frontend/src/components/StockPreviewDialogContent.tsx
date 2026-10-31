@@ -57,7 +57,7 @@ interface PriceAlertDraft {
   targetPrice: number
   currentPrice: number
 }
-const INTRADAY_DAY_OPTIONS = [1, 5, 10, 20] as const
+const INTRADAY_DAY_OPTIONS = [1, 3, 5, 10, 20] as const
 
 function loadIntradayDays(): number {
   const saved = storage.stockPreviewIntradayDays.get(DEFAULT_INTRADAY_DAYS)
@@ -210,14 +210,14 @@ export function StockPreviewDialogContent({ symbol, name, onClose, triggerInfo, 
   const { data: prefs } = usePreferences()
   const intradayRefetchMs = (prefs?.minute_intraday_refresh_interval ?? 6) * 1000
 
-  // 分时档位按分钟源历史深度收窄: 浅源(如仅 5 日)只显示可行档位、默认 5日;
+  // 分时档位按分钟源历史深度收窄: 浅源(如仅 3/5 日)只显示可行档位;
   // 深源(tickflow/未声明)全档位、默认 20日。用户已保存的可行选择优先保留。
   const minuteHistoryDays = prefs?.minute_history_days ?? null
   const dayOptions = useMemo<number[]>(
     () => INTRADAY_DAY_OPTIONS.filter(d => minuteHistoryDays == null || d <= minuteHistoryDays),
     [minuteHistoryDays],
   )
-  const defaultIntradayDays = minuteHistoryDays != null && minuteHistoryDays < 20 ? 5 : 20
+  const defaultIntradayDays = dayOptions[dayOptions.length - 1] ?? 1
   const effectiveIntradayDays = intradayDays ?? defaultIntradayDays
   useEffect(() => {
     if (!dayOptions.includes(effectiveIntradayDays)) {

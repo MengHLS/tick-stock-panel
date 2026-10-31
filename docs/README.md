@@ -24,7 +24,7 @@
 
 | 文档 | 用途 |
 | --- | --- |
-| [features.md](features.md) | 功能手册，面向使用者 |
+| [features.md](features.md) | 功能手册，面向使用者；含首板因子区分与截面联动因子的数据口径 |
 | [configuration.md](configuration.md) | `.env` 配置项与优先级 |
 | [deployment.md](deployment.md) | Docker / 本机 / 桌面部署 |
 | [deploy-password.md](deploy-password.md) | 公网访问密码 |
@@ -57,6 +57,7 @@
 | [backend-data-performance-plan.md](backend-data-performance-plan.md) | 性能专项计划 |
 | [tickflow-pro-phase1-probe.md](tickflow-pro-phase1-probe.md) | 专项探针记录 |
 | [tickflow-pro-shared-rate-limit.md](tickflow-pro-shared-rate-limit.md) | 限频专项说明 |
+| [superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md](superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md) | 历史计划（已实现，现行口径见 [features.md](features.md)） |
 
 ## 本地研究与过程文档
 

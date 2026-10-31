@@ -216,6 +216,67 @@ def test_historical_status_drives_daily_five_percent_limit_rule():
     assert result["consecutive_limit_ups"][-1] == 1
 
 
+def test_matrix_limit_lock_uses_historical_st_not_latest_name():
+    from app.tickflow.security_status import attach_matrix_st_history
+
+    panel = pl.DataFrame({
+        "symbol": ["603429.SH", "603429.SH"],
+        "name": ["*ST集友", "*ST集友"],
+        "date": [date(2025, 1, 2), date(2025, 1, 3)],
+        "open": [10.0, 10.5],
+        "high": [10.0, 10.5],
+        "low": [10.0, 10.5],
+        "close": [10.0, 10.5],
+        "raw_close": [10.0, 10.5],
+        "volume": [1000.0, 1000.0],
+    })
+    market = build_market_data_matrix(
+        panel,
+        field_columns={"raw_close"},
+    )
+    not_st = pl.DataFrame({
+        "symbol": ["603429.SH"],
+        "flag_date": [date(2025, 1, 2)],
+        "st_flag": [False],
+    })
+    historical_not_st = attach_matrix_st_history(market, not_st)
+    assert historical_not_st.limit_up_locked[:, 0].tolist() == [0, 0]
+
+    historical_st = attach_matrix_st_history(
+        market,
+        not_st.with_columns(pl.lit(True).alias("st_flag")),
+    )
+    assert historical_st.limit_up_locked[:, 0].tolist() == [0, 1]
+
+
+def test_matrix_limit_lock_does_not_treat_ex_right_drop_as_limit_up():
+    from app.tickflow.security_status import attach_matrix_st_history
+
+    panel = pl.DataFrame({
+        "symbol": ["603127.SH", "603127.SH"],
+        "name": ["康龙化成", "康龙化成"],
+        "date": [date(2019, 4, 9), date(2019, 4, 10)],
+        "open": [12.35, 12.26],
+        "high": [12.44, 12.89],
+        "low": [12.18, 12.17],
+        "close": [12.264, 12.433],
+        "raw_close": [68.50, 49.38],
+        "volume": [16933.0, 21227.0],
+    })
+    market = build_market_data_matrix(
+        panel,
+        field_columns={"raw_close"},
+    )
+    history = pl.DataFrame({
+        "symbol": ["603127.SH"],
+        "flag_date": [date(2019, 4, 9)],
+        "st_flag": [False],
+    })
+
+    adjusted = attach_matrix_st_history(market, history)
+    assert adjusted.limit_up_locked[:, 0].tolist() == [0, 0]
+
+
 def _historical_engine(basic_filter=None, matrix_strategy=None) -> StrategyEngine:
     engine = StrategyEngine(strategy_dirs=[])
     engine._strategies = {

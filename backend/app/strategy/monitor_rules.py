@@ -251,6 +251,11 @@ def validate(rule: dict) -> None:
                 raise ValueError(f"第 {i+1} 个条件格式错误")
             field = c.get("field", "")
             op = c.get("op", "")
+            if str(field).startswith("industry_"):
+                raise ValueError(
+                    f"第 {i+1} 个条件: daily_close_only — "
+                    "行业联动因子仅支持日收盘回测/扫描, 盘中监控不可用"
+                )
             if op == "truth":
                 # 布尔信号: field 必须是 signal_/csg_ 前缀
                 if not _is_signal_field(field):

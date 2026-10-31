@@ -365,6 +365,7 @@ class MonitorRuleEngine:
         # abnormal 规则边缘触发状态: (rule_id, symbol) → 上一轮是否已达阈值。
         # 只在 False → True 跳变时告警 (首轮观测不触发, 防止新建规则瞬间刷屏)。
         self._abnormal_condition_state: dict[tuple[str, str], bool] = {}
+        self._unavailable_reasons: dict[str, str] = {}
 
     def set_strategy_engine(self, engine) -> None:
         """注入 StrategyEngine, type=strategy 规则据此跑策略。"""
@@ -539,6 +540,10 @@ class MonitorRuleEngine:
         return dict(self._rules)
 
     @property
+    def unavailable_reasons(self) -> dict[str, str]:
+        return dict(self._unavailable_reasons)
+
+    @property
     def rule_count(self) -> int:
         return len(self._rules)
 
@@ -616,6 +621,7 @@ class MonitorRuleEngine:
         if reset_strategy_results:
             self._building_strategy_results = {}
             self._latest_strategy_result_ids.clear()
+            self._unavailable_reasons = {}
 
         matrix_rules: list[dict] = []
         params_map: dict[str, dict] = {}
@@ -1071,6 +1077,14 @@ class MonitorRuleEngine:
 
     def _evaluate_rule(self, df: pl.DataFrame, rule: dict, now: float) -> list[dict]:
         """评估单条规则,返回触发的 events。"""
+        industry_fields = [
+            str(condition.get("field", ""))
+            for condition in rule.get("conditions", [])
+            if str(condition.get("field", "")).startswith("industry_")
+        ]
+        if industry_fields:
+            self._unavailable_reasons[str(rule["id"])] = "daily_close_only"
+            return []
         # 1. 按 scope 过滤作用域
         scoped = self._apply_scope(df, rule)
         if scoped.is_empty():

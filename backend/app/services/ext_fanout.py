@@ -196,6 +196,10 @@ async def _fetch_fanout_rows(config: ExtConfig, target_date=None) -> list[dict]:
             "fanout 第二级失败 %d/%d (重试与 %d 轮补拉后仍失败, 已跳过): %s",
             len(failed), len(entries), _REPLENISH_ROUNDS, "、".join(failed[:5]),
         )
+        if fanout.get("require_complete") is True:
+            raise ValueError(
+                f"fanout 拉取不完整: {len(failed)}/{len(entries)} 个条目失败"
+            )
     if not agg:
         hint = " (疑似限流 429, 稍后重新执行即可重试全部条目)" if rate_limited[0] else ""
         raise ValueError(f"fanout 全部条目第二级拉取失败{hint}")

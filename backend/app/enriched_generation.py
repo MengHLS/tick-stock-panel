@@ -6,7 +6,7 @@ import threading
 import time
 import uuid
 import weakref
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, BinaryIO
@@ -312,7 +312,7 @@ def get_enriched_generation(
 
 def recover_stale_publications(
     data_dir: Path,
-    asset_types: tuple[str, ...] = ("stock", "etf"),
+    asset_types: tuple[str, ...] = ("stock", "etf", "linkage"),
 ) -> list[str]:
     """启动自检: 恢复上次进程异常退出留下的 publishing 标记。
 
@@ -504,6 +504,25 @@ class EnrichedPublication:
         try:
             df.write_parquet(temporary)
             with temporary.open("r+b") as stream:
+                stream.flush()
+                os.fsync(stream.fileno())
+            self._locked_claim(_replace)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def write_json(self, payload: Mapping[str, Any], out: Path) -> None:
+        """Atomic JSON write under the same publication ownership as parquet."""
+        out.parent.mkdir(parents=True, exist_ok=True)
+        temporary = out.with_name(f".{out.name}.{uuid.uuid4().hex}.tmp")
+
+        def _replace() -> None:
+            os.replace(temporary, out)
+            _fsync_directory(out.parent)
+            self._changed = True
+
+        try:
+            with temporary.open("x", encoding="utf-8", newline="\n") as stream:
+                json.dump(payload, stream, ensure_ascii=False, separators=(",", ":"))
                 stream.flush()
                 os.fsync(stream.fileno())
             self._locked_claim(_replace)

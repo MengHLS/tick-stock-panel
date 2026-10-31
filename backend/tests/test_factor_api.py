@@ -1,7 +1,10 @@
 """因子 API (validate / trial) 契约测试 (P2)。"""
 from __future__ import annotations
 
+import json
 from datetime import date, timedelta
+from pathlib import Path
+from types import SimpleNamespace
 
 import polars as pl
 import pytest
@@ -9,6 +12,8 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.api.factors import router
+from app.enriched_generation import bump_enriched_generation
+from app.factors.linkage import LINKAGE_FACTOR_IDS
 
 
 @pytest.fixture()
@@ -49,12 +54,47 @@ class _FakeEngine:
         return frame.filter((pl.col("date") >= start) & (pl.col("date") <= end))
 
 
-def _client(with_engine: bool = False) -> TestClient:
+def _client(
+    with_engine: bool = False,
+    data_dir: Path | None = None,
+) -> TestClient:
     app = FastAPI()
     app.include_router(router)
     if with_engine:
         app.state.backtest_engine = _FakeEngine()
+    if data_dir is not None:
+        app.state.repo = SimpleNamespace(
+            store=SimpleNamespace(data_dir=data_dir)
+        )
     return TestClient(app)
+
+
+def _write_trial_linkage_sidecar(
+    data_dir: Path,
+    panel: pl.DataFrame,
+) -> None:
+    root = data_dir / "kline_daily_linkage"
+    for day in sorted(panel["date"].unique().to_list()):
+        rows = [
+            {"symbol": symbol, "date": day, "deviate_10d": score}
+            for symbol, score in (("A", 1.0), ("B", 2.0), ("C", 3.0))
+        ]
+        out = root / f"date={day.isoformat()}" / "part.parquet"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        pl.DataFrame(rows).write_parquet(out)
+    manifest = {
+        "version": 1,
+        "methodology_version": "linkage_v1",
+        "factor_ids": sorted(LINKAGE_FACTOR_IDS),
+        "min_peers": 10,
+        "coverage_start": panel["date"].min().isoformat(),
+        "finalized_through": panel["date"].max().isoformat(),
+    }
+    (root / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    bump_enriched_generation(data_dir, "linkage")
 
 
 def test_validate_ok_formula() -> None:
@@ -113,6 +153,35 @@ def test_trial_computes_virtual_factor_via_shared_path() -> None:
     assert payload["ok"] is True
     assert payload["n_dates"] == 20
     assert payload["ic_mean"] is not None
+
+
+def test_trial_attaches_linkage_sidecar(tmp_path: Path) -> None:
+    engine = _FakeEngine()
+    _write_trial_linkage_sidecar(tmp_path, engine.panel)
+    client = _client(with_engine=True, data_dir=tmp_path)
+
+    response = client.post(
+        "/api/factors/trial",
+        json={"formula": "deviate_10d", "days": 20},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["ok"] is True
+    assert payload["n_dates"] > 0
+    assert payload["ic_mean"] == pytest.approx(1.0)
+
+
+def test_trial_missing_linkage_sidecar_returns_400(tmp_path: Path) -> None:
+    client = _client(with_engine=True, data_dir=tmp_path)
+
+    response = client.post(
+        "/api/factors/trial",
+        json={"formula": "deviate_10d", "days": 20},
+    )
+
+    assert response.status_code == 400
+    assert "联动因子覆盖不足" in str(response.json()["detail"])
 
 
 @pytest.mark.parametrize(

@@ -38,8 +38,12 @@ def setup(registrar: BackendExtensionRegistrar) -> None:
         snapshot_mode: Literal["D_minus_1", "D_close", "both"] = "both",
         horizon: int = 20,
         strong_threshold: float = 0.20,
+        train_end: date | None = None,
     ) -> dict:
-        return _call("report", start, end, snapshot_mode, horizon, strong_threshold)
+        return _call(
+            "report", start, end, snapshot_mode, horizon, strong_threshold,
+            train_end=train_end,
+        )
 
     @router.get("/events")
     def events(
@@ -48,13 +52,14 @@ def setup(registrar: BackendExtensionRegistrar) -> None:
         snapshot_mode: Literal["D_minus_1", "D_close", "both"] = "both",
         horizon: int = 20,
         strong_threshold: float = 0.20,
+        train_end: date | None = None,
         page: int = Query(1, ge=1),
         page_size: int = Query(100, ge=1, le=200),
         rule_id: str | None = Query(None, max_length=64),
     ) -> dict:
         return _call(
             "events", start, end, snapshot_mode, horizon, strong_threshold,
-            page=page, page_size=page_size, rule_id=rule_id,
+            train_end=train_end, page=page, page_size=page_size, rule_id=rule_id,
         )
 
     @router.get("/runs")
@@ -101,9 +106,14 @@ def _call(method, start, end, snapshot_mode, horizon, strong_threshold, **kwargs
     if _service is None:
         raise HTTPException(503, "首板因子区分扩展尚未初始化")
     try:
-        params = DiscoveryParams(start, end, horizon, strong_threshold, snapshot_mode)
+        params = DiscoveryParams(
+            start, end, horizon, strong_threshold, snapshot_mode,
+            kwargs.pop("train_end", None),
+        )
         return getattr(_service, method)(params, **kwargs)
     except EnrichedGenerationUnavailableError as exc:
-        raise HTTPException(409, "行情数据版本已变化，请等待更新完成后重新发现") from exc
+        raise HTTPException(
+            503, "行情正在更新，自动重试后仍未就绪，请稍后重试",
+        ) from exc
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc

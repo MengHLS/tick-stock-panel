@@ -67,6 +67,23 @@ def _get_enriched_mtime(data_dir: Path, as_of: str) -> float | None:
         return None
 
 
+def current_linkage_generation(data_dir: Path) -> str | None:
+    try:
+        from app.enriched_generation import get_enriched_generation
+
+        return get_enriched_generation(data_dir, "linkage")
+    except Exception:  # noqa: BLE001 - 缓存不应因代际标记不可得而中断
+        return None
+
+
+def linkage_generation_is_current(data_dir: Path, cached: dict) -> bool:
+    stored = cached.get("linkage_generation")
+    if not isinstance(stored, str) or not stored:
+        return True
+    current = current_linkage_generation(data_dir)
+    return current is not None and current == stored
+
+
 def read_cache(data_dir: Path) -> dict | None:
     """读取策略缓存文件。返回 None 表示无缓存或读取失败。
 
@@ -166,6 +183,12 @@ def _write_cache_locked(
     """持 _file_lock 后的实际写入逻辑 (read-merge-write + 原子替换)。"""
     # 读取旧缓存 (已持锁, 走不重入的 _read_cache_unlocked)
     old = _read_cache_unlocked(data_dir)
+    current_generation = current_linkage_generation(data_dir)
+    if (
+        old is not None
+        and old.get("linkage_generation") != current_generation
+    ):
+        old = None
     old_as_of = old.get("as_of") if old else None
     old_ever_rows: dict[str, dict[str, dict]] = old.get("today_ever_rows", {}) if old else {}
 
@@ -207,6 +230,7 @@ def _write_cache_locked(
         "today_ever_matched": today_ever_matched,
         "today_ever_rows": today_ever_rows,
         "enriched_mtime": enriched_mtime,
+        "linkage_generation": current_generation,
         "updated_at": int(time.time() * 1000),
     }
     try:

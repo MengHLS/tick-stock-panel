@@ -425,6 +425,84 @@ _CATALOG: tuple[FactorSpec, ...] = (
         stability="experimental",
         tags=("首板", "事件链", "实验"),
     ),
+    # --- 截面联动 (日频物化, 仅股票) ---
+    _base(
+        "deviate_3d",
+        "3日基准偏离",
+        "截面联动",
+        "个股3日收益减所属板块基准3日收益",
+        unit="ratio",
+        warmup_bars=4,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "基准"),
+    ),
+    _base(
+        "deviate_10d",
+        "10日基准偏离",
+        "截面联动",
+        "个股10日收益减所属板块基准10日收益",
+        unit="ratio",
+        warmup_bars=11,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "基准"),
+    ),
+    _base(
+        "deviate_30d",
+        "30日基准偏离",
+        "截面联动",
+        "个股30日收益减所属板块基准30日收益",
+        unit="ratio",
+        warmup_bars=31,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "基准"),
+    ),
+    _base(
+        "industry_relative_momentum_20d",
+        "行业相对动量(20日)",
+        "截面联动",
+        "个股20日动量减同业均值",
+        unit="ratio",
+        warmup_bars=21,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "行业"),
+    ),
+    _base(
+        "industry_rank_momentum_20d",
+        "行业内动量排名(20日)",
+        "截面联动",
+        "个股20日动量在所属行业内的平均排名百分位",
+        unit="score",
+        warmup_bars=21,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "行业"),
+    ),
+    _base(
+        "industry_corr_60d",
+        "行业收益相关(60日)",
+        "截面联动",
+        "个股日收益与同业等权组合日收益的60日相关系数",
+        unit="ratio",
+        warmup_bars=61,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "行业"),
+    ),
+    _base(
+        "industry_beta_60d",
+        "行业Beta(60日)",
+        "截面联动",
+        "个股日收益对同业等权组合日收益的60日Beta",
+        unit="ratio",
+        warmup_bars=61,
+        asset_types=_STOCK_ONLY,
+        incremental_safe=False,
+        tags=("联动", "行业"),
+    ),
 )
 
 _REGISTRY: dict[str, FactorSpec] = {}
@@ -467,7 +545,7 @@ def _ensure_ext_factors() -> None:
         from app.factors.ext_factors import ensure_synced
 
         ensure_synced()
-    except Exception:
+    except Exception:  # noqa: BLE001 — 扩展因子同步失败不得阻断注册表读取
         import logging
 
         logging.getLogger(__name__).debug("ext factor sync skipped", exc_info=True)

@@ -40,6 +40,8 @@ from app.factors.event_chain import (
     compute_event_chain_outputs,
 )
 from app.price_limits import (
+    LEGACY_MAIN_BOARD_ST_LIMIT,
+    MAIN_BOARD_LIMIT,
     MAIN_BOARD_ST_LIMIT_CHANGE_DATE,
     numpy_limit_pct_vectors,
     numpy_limit_price,
@@ -519,6 +521,9 @@ class SignalMatrix:
     exit_signal_code: np.ndarray
     entry_signal_ids: tuple[str, ...] = ()
     exit_signal_ids: tuple[str, ...] = ()
+    # Optional full-precision values used only for boundary-safe candidate
+    # ranking. The executable score remains float32.
+    ranking_score: np.ndarray | None = None
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -567,7 +572,9 @@ class MarketMatrix:
     entry_price: np.ndarray | None = None
     source_entry: np.ndarray | None = None
     source_exit: np.ndarray | None = None
+    ranking_score: np.ndarray | None = None
     raw_close: np.ndarray | None = None
+    raw_pre_close: np.ndarray | None = None
     raw_open: np.ndarray | None = None
     price_limit_pct: np.ndarray | None = None
     amount: np.ndarray | None = None
@@ -2218,6 +2225,7 @@ def _limit_lock_matrices(
     names: list[str],
     latest_limits: Mapping[str, np.ndarray],
     *,
+    historical_st: np.ndarray | None = None,
     out_up: np.ndarray | None = None,
     out_down: np.ndarray | None = None,
     apply_latest_limits: bool = True,
@@ -2232,16 +2240,26 @@ def _limit_lock_matrices(
     up_locked.fill(0)
     down_locked.fill(0)
     legacy_pct, current_pct = numpy_limit_pct_vectors(symbols, names)
+    main_board = current_pct == MAIN_BOARD_LIMIT
 
-    previous_close = np.full(shape[1], np.nan, dtype=np.float64)
     previous_raw = np.full(shape[1], np.nan, dtype=np.float64)
     previous_adjustment = np.full(shape[1], np.nan, dtype=np.float64)
     for time_id in range(shape[0]):
-        limit_pct = (
-            legacy_pct
-            if trading_dates[time_id] < MAIN_BOARD_ST_LIMIT_CHANGE_DATE
-            else current_pct
+        before_st_rule_change = (
+            trading_dates[time_id] < MAIN_BOARD_ST_LIMIT_CHANGE_DATE
         )
+        if historical_st is None:
+            limit_pct = legacy_pct if before_st_rule_change else current_pct
+        else:
+            st_flags = (
+                np.isfinite(historical_st[time_id])
+                & (historical_st[time_id] > 0.5)
+            )
+            limit_pct = np.where(
+                before_st_rule_change & main_board & st_flags,
+                LEGACY_MAIN_BOARD_ST_LIMIT,
+                current_pct,
+            )
         present = seen[time_id]
         current_close = close[time_id].astype(np.float64, copy=False)
         current_raw = raw_close[time_id].astype(np.float64, copy=False)
@@ -2257,7 +2275,22 @@ def _limit_lock_matrices(
             & np.isfinite(previous_adjustment)
             & (np.abs(current_adjustment - previous_adjustment) > 1e-6)
         )
-        reference = np.where(adjustment_changed, previous_close, previous_raw)
+        adjusted_previous_raw = np.divide(
+            previous_raw * previous_adjustment,
+            current_adjustment,
+            out=np.full(shape[1], np.nan, dtype=np.float64),
+            where=(
+                np.isfinite(previous_raw)
+                & np.isfinite(previous_adjustment)
+                & np.isfinite(current_adjustment)
+                & (current_adjustment > 0)
+            ),
+        )
+        reference = np.where(
+            adjustment_changed,
+            adjusted_previous_raw,
+            previous_raw,
+        )
         valid = (
             present
             & np.isfinite(reference)
@@ -2282,7 +2315,6 @@ def _limit_lock_matrices(
                 current_raw[valid] <= down_price[valid] + 0.005
             ).astype(np.uint8)
 
-        previous_close[present] = current_close[present]
         previous_raw[present] = current_raw[present]
         previous_adjustment[present] = current_adjustment[present]
     return up_locked, down_locked
@@ -2298,6 +2330,7 @@ def make_signal_matrix(
     exit_signal_code: np.ndarray | None = None,
     entry_signal_ids: tuple[str, ...] = (),
     exit_signal_ids: tuple[str, ...] = (),
+    ranking_score: np.ndarray | None = None,
 ) -> SignalMatrix:
     """Create a compact read-only signal matrix with canonical dtypes."""
     entry_array = _coerce_array(entry, shape, np.uint8, 0)
@@ -2305,6 +2338,11 @@ def make_signal_matrix(
     score_array = _coerce_array(score, shape, np.float32, 0.0)
     entry_codes = _coerce_array(entry_signal_code, shape, np.int16, -1)
     exit_codes = _coerce_array(exit_signal_code, shape, np.int16, -1)
+    ranking_array = (
+        _coerce_array(ranking_score, shape, np.float64, 0.0)
+        if ranking_score is not None
+        else None
+    )
     return _finalize_signal_matrix(
         entry_array,
         exit_array,
@@ -2313,6 +2351,7 @@ def make_signal_matrix(
         exit_codes,
         entry_signal_ids=entry_signal_ids,
         exit_signal_ids=exit_signal_ids,
+        ranking_score=ranking_array,
     )
 
 
@@ -2325,9 +2364,13 @@ def _finalize_signal_matrix(
     *,
     entry_signal_ids: tuple[str, ...] = (),
     exit_signal_ids: tuple[str, ...] = (),
+    ranking_score: np.ndarray | None = None,
 ) -> SignalMatrix:
     shape = entry.shape
-    _make_read_only(entry, exit_, score, entry_signal_code, exit_signal_code)
+    arrays = [entry, exit_, score, entry_signal_code, exit_signal_code]
+    if ranking_score is not None:
+        arrays.append(ranking_score)
+    _make_read_only(*arrays)
     result = SignalMatrix(
         entry=entry,
         exit=exit_,
@@ -2336,6 +2379,7 @@ def _finalize_signal_matrix(
         exit_signal_code=exit_signal_code,
         entry_signal_ids=tuple(entry_signal_ids),
         exit_signal_ids=tuple(exit_signal_ids),
+        ranking_score=ranking_score,
     )
     validate_signal_matrix(result, shape)
     return result
@@ -2363,6 +2407,21 @@ def validate_signal_matrix(signals: SignalMatrix, shape: tuple[int, int]) -> Non
             raise ValueError(f"SignalMatrix.{name} must be read-only")
     if not np.isfinite(signals.score).all():
         raise ValueError("SignalMatrix.score must contain only finite values")
+    ranking_score = signals.ranking_score
+    if ranking_score is not None:
+        if ranking_score.shape != shape:
+            raise ValueError(
+                "SignalMatrix.ranking_score shape does not match market shape"
+            )
+        if ranking_score.dtype != np.dtype(np.float64):
+            raise TypeError(
+                "SignalMatrix.ranking_score must use float64, "
+                f"got {ranking_score.dtype}"
+            )
+        if ranking_score.flags.writeable:
+            raise ValueError("SignalMatrix.ranking_score must be read-only")
+        if not np.isfinite(ranking_score).all():
+            raise ValueError("SignalMatrix.ranking_score must contain only finite values")
 
 
 def build_market_matrix_from_signals(
@@ -2439,6 +2498,7 @@ def build_market_matrix_from_signals(
         exit_signal_code,
     )
     raw_close = market.fields.get("raw_close")
+    raw_pre_close = None
     raw_open = None
     if raw_close is not None:
         # Daily equity quotes have a one-cent tick. Undo the same-day price
@@ -2447,6 +2507,14 @@ def build_market_matrix_from_signals(
             raw_open = np.round(
                 market.open.astype(np.float64) * raw_close / market.close, 2,
             )
+            raw_pre_close = np.full(market.shape, np.nan, dtype=np.float64)
+            raw_pre_close[1:] = (
+                raw_close[1:].astype(np.float64)
+                * market.close[:-1].astype(np.float64)
+                / market.close[1:].astype(np.float64)
+            )
+        raw_pre_close = np.round(raw_pre_close, 2)
+        _make_read_only(raw_pre_close)
         _make_read_only(raw_open)
 
     return MarketMatrix(
@@ -2480,7 +2548,9 @@ def build_market_matrix_from_signals(
         ),
         source_entry=signals.entry,
         source_exit=signals.exit,
+        ranking_score=signals.ranking_score,
         raw_close=raw_close,
+        raw_pre_close=raw_pre_close,
         raw_open=raw_open,
         price_limit_pct=market.fields.get("price_limit_pct"),
         amount=market.fields.get("amount"),
@@ -2687,6 +2757,11 @@ def slice_signal_matrix(signals: SignalMatrix, start: int, stop: int) -> SignalM
         signals.exit_signal_code[start:stop],
         entry_signal_ids=signals.entry_signal_ids,
         exit_signal_ids=signals.exit_signal_ids,
+        ranking_score=(
+            signals.ranking_score[start:stop]
+            if signals.ranking_score is not None
+            else None
+        ),
     )
 
 
@@ -3732,11 +3807,32 @@ class MatrixStrategyPipeline:
                 fallback=signals.score,
                 directions=config.scoring_directions,
             )
+            ranking_score = (
+                signals.ranking_score
+                if signals.ranking_score is not None
+                and not config.scoring
+                and (config.order_by is None or config.order_by == "score")
+                else score
+            )
             candidate_limit = getattr(strategy, "daily_candidate_limit", None)
             if callable(candidate_limit):
                 limit = candidate_limit(params)
                 if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1:
                     raise ValueError("daily_candidate_limit must return a positive integer")
+                sort_key = getattr(strategy, "daily_candidate_sort_key", None)
+                if callable(sort_key):
+                    candidate_keys = sort_key(market.symbols, params)
+                    if (
+                        not isinstance(candidate_keys, tuple)
+                        or len(candidate_keys) != len(market.symbols)
+                    ):
+                        raise ValueError(
+                            "daily_candidate_sort_key must return one key per asset"
+                        )
+                    preserve_rank = tuple(candidate_keys) != market.symbols
+                else:
+                    candidate_keys = market.symbols
+                    preserve_rank = False
                 # Apply universe gates before ranking so excluded assets do not
                 # consume the strategy's daily candidate slots.
                 for time_id in range(market.shape[0]):
@@ -3744,14 +3840,39 @@ class MatrixStrategyPipeline:
                     ranked = sorted(
                         candidates,
                         key=lambda asset_id: (
-                            -float(score[time_id, asset_id]),
-                            market.symbols[asset_id],
+                            -float(ranking_score[time_id, asset_id]),
+                            candidate_keys[asset_id],
                         ),
                     )
+                    if preserve_rank:
+                        # The matcher applies the daily-buy cap again by score.
+                        # Preserve custom source ranking without changing buckets.
+                        for rank, asset_id in enumerate(ranked[:limit], start=1):
+                            score[time_id, asset_id] = np.float32(
+                                score[time_id, asset_id]
+                                + 1e-6 * (min(limit, len(ranked)) - rank + 1)
+                            )
                     entry[time_id, ranked[limit:]] = 0
                 score = np.where(entry != 0, score, np.float32(0.0))
+            exit_signal = signals.exit
+            refine_exit = getattr(
+                strategy,
+                "exit_signal_for_selected_entries",
+                None,
+            )
+            if callable(refine_exit):
+                exit_signal = _coerce_array(
+                    refine_exit(market, entry.astype(bool), params),
+                    market.shape,
+                    np.uint8,
+                    0,
+                )
             entry_codes = np.where(entry != 0, signals.entry_signal_code, -1).astype(np.int16)
-            exit_codes = np.where(signals.exit != 0, signals.exit_signal_code, -1).astype(np.int16)
+            exit_codes = np.where(
+                exit_signal != 0,
+                signals.exit_signal_code,
+                -1,
+            ).astype(np.int16)
         if timing_ms is not None:
             timing_ms["filter_score"] = round(
                 (time.perf_counter() - filter_started) * 1000,
@@ -3760,12 +3881,13 @@ class MatrixStrategyPipeline:
         return make_signal_matrix(
             market.shape,
             entry=entry,
-            exit=signals.exit,
+            exit=exit_signal,
             score=score,
             entry_signal_code=entry_codes,
             exit_signal_code=exit_codes,
             entry_signal_ids=signals.entry_signal_ids,
             exit_signal_ids=signals.exit_signal_ids,
+            ranking_score=ranking_score,
         )
 
 
@@ -4440,6 +4562,7 @@ def apply_time_masks(
         exit_codes,
         entry_signal_ids=signals.entry_signal_ids,
         exit_signal_ids=signals.exit_signal_ids,
+        ranking_score=signals.ranking_score,
     )
 
 

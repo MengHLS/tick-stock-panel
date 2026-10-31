@@ -7,7 +7,6 @@ from app.backtest.matrix import (
     MarketDataMatrix,
     SignalMatrix,
     make_signal_matrix,
-    matrix_feature,
 )
 
 META = {
@@ -125,6 +124,7 @@ TRAILING_TAKE_PROFIT_DRAWDOWN = 0.08
 # Full-mode loading needs data through the longest runner horizon. The
 # engine's hold-extension policy still controls the actual exit day.
 MAX_HOLD_DAYS = 74
+RAW_PRICE_DECIMALS = 2
 
 
 class FirstLimitPullback3FRunnerT74MatrixStrategy:
@@ -135,7 +135,9 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             "low",
             "close",
             "volume",
-            "consecutive_limit_ups",
+            "raw_high",
+            "raw_low",
+            "raw_close",
         })
 
     def required_warmup_bars(self, params: dict) -> int:
@@ -144,6 +146,28 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
 
     def daily_candidate_limit(self, params: dict) -> int:
         return _bounded_int(params.get("daily_candidates", 3), "daily_candidates", 1, 3)
+
+    def daily_candidate_sort_key(
+        self,
+        symbols: tuple[str, ...],
+        params: dict,
+    ) -> tuple[str, ...]:
+        legacy = params.get("legacy_security_ids")
+        if not isinstance(legacy, dict):
+            return symbols
+        return tuple(str(legacy.get(symbol, symbol)) for symbol in symbols)
+
+    def exit_signal_for_selected_entries(
+        self,
+        market: MarketDataMatrix,
+        selected_entry: np.ndarray,
+        params: dict,
+    ) -> np.ndarray:
+        return _event_relative_ma_breakdown(
+            market,
+            entry=selected_entry,
+            event_start=params.get("_event_start"),
+        )
 
     def compute_signals(self, market: MarketDataMatrix, params: dict) -> SignalMatrix:
         ready, pullback, max_amplitude, mean_amplitude, volume_ratio = (
@@ -160,25 +184,16 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             1.0,
             30.0,
         ) / 100.0
-        min_score_limit = _bounded_float(
-            params.get("min_score_pct", 55.0),
-            "min_score_pct",
-            0.0,
-            100.0,
-        ) / 100.0
-        score = np.where(
+        score64 = np.where(
             ready_mask,
             (
                 _max_amplitude_bucket_score(max_amplitude)
                 + _amplitude_bucket_score(mean_amplitude)
                 + _volume_bucket_score(volume_ratio)
             )
-            / np.float32(3.0),
-            np.float32(0.0),
-        ).astype(np.float32, copy=False)
-        # 评分下限作用于入场候选: 分桶均值以 float32 存储, 边界分数可能带
-        # ~1e-7 舍入误差, 用远小于分桶步长 (0.2/3) 的容差避免把恰好等于下限
-        # 的标的误杀。
+            / np.float64(3.0),
+            np.float64(0.0),
+        ).astype(np.float64, copy=False)
         eligible = (
             ready_mask
             & pullback_ok
@@ -186,21 +201,20 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             & (max_amplitude < max_amplitude_limit)
             & np.isfinite(mean_amplitude)
             & np.isfinite(volume_ratio)
-            & (score >= np.float32(min_score_limit - 1e-6))
         )
         entry = eligible.astype(np.uint8)
 
-        score = np.where(entry.astype(bool), score, np.float32(0.0)).astype(
+        score64 = np.where(
+            entry.astype(bool), score64, np.float64(0.0)
+        ).astype(np.float64, copy=False)
+        score = score64.astype(
             np.float32,
             copy=False,
         )
-        ma5 = matrix_feature(market, "ma5")
-        ma10 = matrix_feature(market, "ma10")
-        exit_ = (
-            np.isfinite(ma5)
-            & np.isfinite(ma10)
-            & (market.close < ma5)
-            & (market.close < ma10)
+        exit_ = _event_relative_ma_breakdown(
+            market,
+            entry=entry.astype(bool, copy=False),
+            event_start=params.get("_event_start"),
         )
         return make_signal_matrix(
             market.shape,
@@ -211,6 +225,7 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             exit_signal_code=np.where(exit_, 0, -1).astype(np.int16),
             entry_signal_ids=("signal_first_limit_pullback_3f",),
             exit_signal_ids=("signal_t74_ma5_ma10_breakdown",),
+            ranking_score=score64,
         )
 
 
@@ -219,27 +234,30 @@ def _first_board_t5_observations(
     *,
     event_start: str | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Observe a first board five trading bars ago using existing fields."""
+    """Observe a first board five trading bars ago using source-raw prices."""
     shape = market.shape
-    ready = np.full(shape, np.nan, dtype=np.float32)
-    pullback = np.full(shape, np.nan, dtype=np.float32)
-    max_amplitude = np.full(shape, np.nan, dtype=np.float32)
-    mean_amplitude = np.full(shape, np.nan, dtype=np.float32)
-    volume_ratio = np.full(shape, np.nan, dtype=np.float32)
+    high = _raw_price_field(market, "high")
+    low = _raw_price_field(market, "low")
+    close = _raw_price_field(market, "close")
+    ready = np.full(shape, np.nan, dtype=np.float64)
+    pullback = np.full(shape, np.nan, dtype=np.float64)
+    max_amplitude = np.full(shape, np.nan, dtype=np.float64)
+    mean_amplitude = np.full(shape, np.nan, dtype=np.float64)
+    volume_ratio = np.full(shape, np.nan, dtype=np.float64)
     valid = (
         np.isfinite(market.open)
-        & np.isfinite(market.high)
-        & np.isfinite(market.low)
-        & np.isfinite(market.close)
+        & np.isfinite(high)
+        & np.isfinite(low)
+        & np.isfinite(close)
         & np.isfinite(market.volume)
         & (market.open > 0)
-        & (market.high > 0)
-        & (market.low > 0)
-        & (market.close > 0)
+        & (high > 0)
+        & (low > 0)
+        & (close > 0)
         & (market.volume > 0)
-        & (market.high >= market.low)
+        & (high >= low)
     )
-    consecutive = market.field("consecutive_limit_ups")
+    first_board = _first_board_mask(market)
     for asset_id in range(shape[1]):
         for signal_id in range(5, shape[0]):
             seed_id = signal_id - 5
@@ -247,9 +265,7 @@ def _first_board_t5_observations(
                 continue
             if not bool(valid[seed_id : signal_id + 1, asset_id].all()):
                 continue
-            if not np.isfinite(consecutive[seed_id, asset_id]):
-                continue
-            if consecutive[seed_id, asset_id] != np.float64(1.0):
+            if not first_board[seed_id, asset_id]:
                 ready[signal_id, asset_id] = 0.0
                 continue
             if not market.open[seed_id, asset_id] < market.high[seed_id, asset_id] - 1e-9:
@@ -257,18 +273,20 @@ def _first_board_t5_observations(
                 continue
 
             observation = slice(signal_id - 4, signal_id + 1)
-            previous_close = market.close[signal_id - 5 : signal_id, asset_id]
+            previous_close = close[signal_id - 5 : signal_id, asset_id]
             amplitudes = (
-                market.high[observation, asset_id] - market.low[observation, asset_id]
+                high[observation, asset_id] - low[observation, asset_id]
             ) / previous_close
             ready[signal_id, asset_id] = 1.0
             pullback[signal_id, asset_id] = (
-                float(market.close[observation, asset_id].min())
-                / float(market.close[seed_id, asset_id])
+                float(close[observation, asset_id].min())
+                / float(close[seed_id, asset_id])
                 - 1.0
             )
             max_amplitude[signal_id, asset_id] = float(amplitudes.max())
-            mean_amplitude[signal_id, asset_id] = float(amplitudes.mean())
+            mean_amplitude[signal_id, asset_id] = (
+                sum(float(value) for value in amplitudes) / 5.0
+            )
             volume_ratio[signal_id, asset_id] = (
                 float(market.volume[signal_id - 4, asset_id])
                 / float(market.volume[seed_id, asset_id])
@@ -276,9 +294,76 @@ def _first_board_t5_observations(
     return ready, pullback, max_amplitude, mean_amplitude, volume_ratio
 
 
+def _event_relative_ma_breakdown(
+    market: MarketDataMatrix,
+    *,
+    entry: np.ndarray,
+    event_start: str | None = None,
+) -> np.ndarray:
+    """Evaluate MA5/MA10 on each selected event's own close history.
+
+    The source simulator keys price history by event security id. Its rows start
+    at the first-board event (relative day 0). An unrelated later first board
+    must neither reset nor borrow rows from the selected event's history.
+    """
+    out = np.zeros(market.shape, dtype=bool)
+    close = market.close.astype(np.float64, copy=False)
+    for asset_id in range(market.shape[1]):
+        closes: list[float] = []
+        for time_id in range(market.shape[0]):
+            if entry[time_id, asset_id]:
+                seed_id = time_id - 5
+                if seed_id < 0:
+                    closes = []
+                    continue
+                if (
+                    event_start is not None
+                    and market.timestamp_labels[seed_id][:10] < event_start
+                ):
+                    closes = []
+                    continue
+                closes = [
+                    float(value)
+                    for value in close[seed_id : time_id + 1, asset_id]
+                    if np.isfinite(value) and value > 0
+                ]
+            elif closes:
+                current_close = float(close[time_id, asset_id])
+                if np.isfinite(current_close) and current_close > 0:
+                    closes.append(current_close)
+            if len(closes) < 10:
+                continue
+            current_close = closes[-1]
+            ma5 = sum(closes[-5:]) / 5.0
+            ma10 = sum(closes[-10:]) / 10.0
+            if current_close < ma5 and current_close < ma10:
+                out[time_id, asset_id] = True
+    return out
+
+
+def _raw_price_field(market: MarketDataMatrix, name: str) -> np.ndarray:
+    """Prefer unadjusted OHLC and fall back for lightweight test matrices."""
+    try:
+        values = market.field(f"raw_{name}")
+    except ValueError:
+        values = market.field(name)
+    return np.round(values.astype(np.float64), RAW_PRICE_DECIMALS)
+
+
+def _first_board_mask(market: MarketDataMatrix) -> np.ndarray:
+    """Derive first-board events from the matcher's exchange-limit judgment."""
+    locked = market.limit_up_locked.astype(bool, copy=False)
+    first_board = np.zeros(market.shape, dtype=bool)
+    first_board[0] = locked[0]
+    # A suspension day has no bar. The source dataset treats that day as
+    # "not limit-up yesterday" and keeps the next available first board.
+    first_board[1:] = locked[1:] & ~locked[:-1]
+    return first_board
+
+
 def _max_amplitude_bucket_score(values: np.ndarray) -> np.ndarray:
     """LOW-direction two-bucket score for observation max amplitude."""
-    out = np.full(values.shape, np.nan, dtype=np.float32)
+    out = np.full(values.shape, np.nan, dtype=np.float64)
     finite = np.isfinite(values)
     out[finite & (values < 0.08)] = 0.75
     out[finite & (values >= 0.08)] = 0.25
@@ -287,7 +372,7 @@ def _max_amplitude_bucket_score(values: np.ndarray) -> np.ndarray:
 
 def _amplitude_bucket_score(values: np.ndarray) -> np.ndarray:
     """LOW-direction bucket scores used by the frozen 3F definition."""
-    out = np.full(values.shape, np.nan, dtype=np.float32)
+    out = np.full(values.shape, np.nan, dtype=np.float64)
     finite = np.isfinite(values)
     out[finite & (values < 0.02)] = 0.90
     out[finite & (values >= 0.02) & (values < 0.04)] = 0.70
@@ -299,7 +384,7 @@ def _amplitude_bucket_score(values: np.ndarray) -> np.ndarray:
 
 def _volume_bucket_score(values: np.ndarray) -> np.ndarray:
     """HIGH-direction bucket scores for T+1 volume / T volume."""
-    out = np.full(values.shape, np.nan, dtype=np.float32)
+    out = np.full(values.shape, np.nan, dtype=np.float64)
     finite = np.isfinite(values)
     out[finite & (values < 0.5)] = 0.10
     out[finite & (values >= 0.5) & (values < 0.8)] = 0.30

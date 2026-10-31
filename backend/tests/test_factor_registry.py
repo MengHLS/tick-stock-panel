@@ -108,6 +108,13 @@ GOLDEN_COLUMNS: list[dict] = [
     {"id": "first_board_chain_recovered_not_breakout", "label": "事件链回攻未过前高", "group": "首板事件链", "desc": "结构有效且目标首板收盘未突破前高 P"},
     {"id": "first_board_chain_seed_close_preserved", "label": "事件链锚点收盘守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板收盘价"},
     {"id": "first_board_chain_seed_low_preserved", "label": "事件链锚点低点守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板最低价"},
+    {"id": "deviate_3d", "label": "3日基准偏离", "group": "截面联动", "desc": "个股3日收益减所属板块基准3日收益"},
+    {"id": "deviate_10d", "label": "10日基准偏离", "group": "截面联动", "desc": "个股10日收益减所属板块基准10日收益"},
+    {"id": "deviate_30d", "label": "30日基准偏离", "group": "截面联动", "desc": "个股30日收益减所属板块基准30日收益"},
+    {"id": "industry_relative_momentum_20d", "label": "行业相对动量(20日)", "group": "截面联动", "desc": "个股20日动量减同业均值"},
+    {"id": "industry_rank_momentum_20d", "label": "行业内动量排名(20日)", "group": "截面联动", "desc": "个股20日动量在所属行业内的平均排名百分位"},
+    {"id": "industry_corr_60d", "label": "行业收益相关(60日)", "group": "截面联动", "desc": "个股日收益与同业等权组合日收益的60日相关系数"},
+    {"id": "industry_beta_60d", "label": "行业Beta(60日)", "group": "截面联动", "desc": "个股日收益对同业等权组合日收益的60日Beta"},
 ]
 
 GOLDEN_VIRTUAL_DEPS: dict[str, frozenset[str]] = {
@@ -257,14 +264,23 @@ def test_scoring_warmup_snapshot() -> None:
 
 def test_catalog_counts_and_kinds() -> None:
     specs = all_factors()
-    assert len(specs) == 86
-    assert len({spec.id for spec in specs}) == 86  # id 唯一
+    assert len(specs) == 93
+    assert len({spec.id for spec in specs}) == 93  # id 唯一
     virtual = [spec for spec in specs if spec.kind == "virtual"]
     assert len(virtual) == 61  # ma/ema 10 + 原有 26 + 扩充批次 16 + 事件链 9
     financial = [spec for spec in specs if spec.pit]
     assert len(financial) == 7
     assert all(spec.pit_source == "financial_announce" for spec in financial)
     assert all(spec.asset_types == frozenset({"stock"}) for spec in financial)
+    linkage = [spec for spec in specs if spec.group == "截面联动"]
+    assert {spec.id for spec in linkage} == {
+        "deviate_3d", "deviate_10d", "deviate_30d",
+        "industry_relative_momentum_20d", "industry_rank_momentum_20d",
+        "industry_corr_60d", "industry_beta_60d",
+    }
+    assert all(spec.kind == "base" for spec in linkage)
+    assert all(spec.asset_types == frozenset({"stock"}) for spec in linkage)
+    assert all(spec.incremental_safe is False for spec in linkage)
 
 
 def test_mining_schedule_order_prefix_unchanged() -> None:
@@ -288,7 +304,7 @@ def test_get_factor_and_dependencies() -> None:
 def test_asset_type_filter() -> None:
     stock = all_factors(asset_type="stock")
     etf = all_factors(asset_type="etf")
-    assert len(stock) == 86
+    assert len(stock) == 93
     assert len(etf) == 70  # 财务 7 项仅股票
 
 
@@ -336,7 +352,7 @@ def test_factors_api_contract() -> None:
     assert response.status_code == 200
     payload = response.json()
     factors = payload["factors"]
-    assert len(factors) == 86
+    assert len(factors) == 93
     first = factors[0]
     assert first["id"] == "momentum_5d"
     assert first["kind"] == "base"
@@ -351,6 +367,9 @@ def test_factors_api_contract() -> None:
     mv = next(item for item in factors if item["id"] == "log_float_mv")
     assert mv["kind"] == "virtual"
     assert mv["scale_free"] is False
+    linkage = next(item for item in factors if item["id"] == "industry_beta_60d")
+    assert linkage["group"] == "截面联动"
+    assert linkage["asset_types"] == ["stock"]
 
 
 def test_factors_api_asset_filter_and_validation() -> None:

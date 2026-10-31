@@ -201,11 +201,19 @@ class FactorBacktestService:
         t0 = time.perf_counter()
         run_id = uuid.uuid4().hex[:10]
         generation = self._data_generation(config.asset_type)
-        panel = self._load_factor_panel(
-            config,
-            [config.factor_name],
-            expected_generation=generation,
+        from app.factors.linkage_store import (
+            LinkageCoverageError,
+            LinkageReadUnstableError,
         )
+
+        try:
+            panel = self._load_factor_panel(
+                config,
+                [config.factor_name],
+                expected_generation=generation,
+            )
+        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+            return self._error_result(config, run_id, t0, str(exc))
         if panel.is_empty():
             return self._error_result(config, run_id, t0, "无数据, 请检查日期范围或先运行盘后管道")
 
@@ -268,11 +276,48 @@ class FactorBacktestService:
             )
 
         generation = self._data_generation(config.asset_type)
-        panel = self._load_factor_panel(
-            config,
-            factor_names,
-            expected_generation=generation,
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.linkage_store import (
+            LinkageCoverageError,
+            LinkageReadUnstableError,
         )
+
+        linkage_names = set(factor_names) & LINKAGE_FACTOR_IDS
+        linkage_error: str | None = None
+        try:
+            panel = self._load_factor_panel(
+                config,
+                factor_names,
+                expected_generation=generation,
+            )
+        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+            if not linkage_names:
+                raise
+            linkage_error = str(exc)
+            non_linkage = [
+                name for name in factor_names if name not in LINKAGE_FACTOR_IDS
+            ]
+            if not non_linkage:
+                metadata = {item["id"]: item for item in FACTOR_COLUMNS}
+                return FactorBatchResult(
+                    run_id=run_id,
+                    config=result_config,
+                    results=[
+                        FactorBatchItem(
+                            factor_name=name,
+                            label=str(metadata.get(name, {}).get("label", name)),
+                            group=str(metadata.get(name, {}).get("group", "")),
+                            error=linkage_error,
+                        )
+                        for name in factor_names
+                    ],
+                    elapsed_ms=round((time.perf_counter() - t0) * 1000, 1),
+                )
+            panel = self._load_factor_panel(
+                config,
+                non_linkage,
+                expected_generation=generation,
+            )
         if panel.is_empty():
             return FactorBatchResult(
                 run_id=run_id,
@@ -313,6 +358,15 @@ class FactorBacktestService:
                 asset_type=config.asset_type,
             )
             meta = metadata.get(factor_name, {})
+            if factor_name in LINKAGE_FACTOR_IDS and linkage_error is not None:
+                items.append(FactorBatchItem(
+                    factor_name=factor_name,
+                    label=str(meta.get("label", factor_name)),
+                    group=str(meta.get("group", "")),
+                    elapsed_ms=round((time.perf_counter() - item_t0) * 1000, 1),
+                    error=linkage_error,
+                ))
+                continue
             if factor_name in FUNDAMENTAL_FACTOR_NAMES and fundamentals_missing:
                 items.append(FactorBatchItem(
                     factor_name=factor_name,
@@ -464,27 +518,62 @@ class FactorBacktestService:
         }
         if expected_generation is not None:
             load_kwargs["expected_generation"] = expected_generation
-        panel = self.engine.load_panel(
-            config.symbols,
-            load_start,
-            config.end,
-            **load_kwargs,
+        from app.enriched_generation import get_enriched_generation
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.linkage_store import (
+            LinkageCoverageError,
+            LinkageReadUnstableError,
         )
-        if panel.is_empty():
-            return panel
+        from app.factors.registry import factor_dependencies
 
-        missing = set(factor_names) - set(panel.columns)
-        if missing:
-            panel = self._compute_missing_factors(panel, missing)
-        fundamental_names = [name for name in factor_names if name in FUNDAMENTAL_FACTOR_NAMES]
-        if fundamental_names:
-            # 点时财务因子: 公告日门控, 无数据标的保持 null (不参与该日截面)。
-            panel = attach_fundamental_factors(
-                panel,
-                load_fundamental_snapshot(self._fundamentals_data_dir()),
-                fundamental_names,
+        data_dir = self._fundamentals_data_dir()
+        linkage_names = (
+            set(factor_names) | factor_dependencies(factor_names)
+        ) & LINKAGE_FACTOR_IDS
+        if linkage_names and data_dir is None:
+            raise LinkageCoverageError("联动因子需要稳定的数据目录 (data_dir)")
+        expected_linkage = (
+            get_enriched_generation(data_dir, "linkage")
+            if linkage_names and data_dir is not None
+            else None
+        )
+        for attempt in range(self._SNAPSHOT_MAX_ATTEMPTS):
+            panel = self.engine.load_panel(
+                config.symbols,
+                load_start,
+                config.end,
+                **load_kwargs,
             )
-        return panel
+            if panel.is_empty():
+                return panel
+            try:
+                missing = set(factor_names) - set(panel.columns)
+                if missing:
+                    panel = self._compute_missing_factors(
+                        panel,
+                        missing,
+                        data_dir=data_dir,
+                        expected_linkage_generation=expected_linkage,
+                    )
+                fundamental_names = [
+                    name for name in factor_names
+                    if name in FUNDAMENTAL_FACTOR_NAMES
+                ]
+                if fundamental_names:
+                    # 点时财务因子: 公告日门控, 无数据标的保持 null。
+                    panel = attach_fundamental_factors(
+                        panel,
+                        load_fundamental_snapshot(data_dir),
+                        fundamental_names,
+                    )
+                return panel
+            except LinkageReadUnstableError:
+                if attempt + 1 >= self._SNAPSHOT_MAX_ATTEMPTS:
+                    raise
+                if data_dir is None:
+                    raise
+                expected_linkage = get_enriched_generation(data_dir, "linkage")
+        raise RuntimeError("联动因子面板重读未返回结果")
 
     def _global_trading_dates(
         self,
@@ -713,6 +802,8 @@ class FactorBacktestService:
         factor_cols: set[str],
         *,
         assume_sorted: bool = False,
+        data_dir: Path | None = None,
+        expected_linkage_generation: str | None = None,
     ) -> pl.DataFrame:
         required = {"symbol", "date", "open", "high", "low", "close", "volume"}
         if not required.issubset(panel.columns):
@@ -723,9 +814,38 @@ class FactorBacktestService:
         # 扩展表因子 (ext_ base 条目) = 外部物化列, 指标补算管线不认识;
         # 请求的因子集合命中时在此按 (symbol, date) 时序对齐注入 (与
         # compute_signals 同一原语, 历史帧不含快照 → 无未来函数)。
+        from app.enriched_generation import get_enriched_generation
         from app.factors import ext_factors
+        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.factors.linkage_store import (
+            LinkageCoverageError,
+            attach_linkage_columns,
+        )
+        from app.factors.registry import factor_dependencies
 
-        if factor_cols & ext_factors.ext_factor_ids():
+        linkage_cols = (
+            factor_cols | factor_dependencies(factor_cols)
+        ) & LINKAGE_FACTOR_IDS
+        if linkage_cols:
+            if data_dir is None:
+                raise LinkageCoverageError("联动因子需要稳定的数据目录 (data_dir)")
+            expected = expected_linkage_generation
+            if expected is None:
+                expected = get_enriched_generation(data_dir, "linkage")
+            panel = attach_linkage_columns(
+                panel,
+                linkage_cols,
+                data_dir,
+                expected_generation=expected,
+                require_complete=True,
+            )
+            factor_cols = factor_cols - linkage_cols
+            if not factor_cols:
+                return panel
+
+        requested_ext = factor_cols & ext_factors.ext_factor_ids()
+        transitive_ext = factor_dependencies(factor_cols) & ext_factors.ext_factor_ids()
+        if requested_ext or transitive_ext:
             panel = ext_factors.attach_ext_columns(panel, include_snapshot=False)
 
         from app.factors.event_chain import is_event_chain_factor
@@ -753,10 +873,18 @@ class FactorBacktestService:
                 spec = get_factor(name)
                 if spec is not None:
                     base_deps.update(spec.dependencies)
+                    # Composite evaluates member factors by name. A custom member
+                    # that depends on ext_* must be materialized before the composite.
+                    if spec.kind == "composite":
+                        base_deps.update(member_id for member_id, _ in spec.components)
             base_deps -= set(panel.columns) | registry_names
             if base_deps:
                 panel = FactorBacktestService._compute_missing_factors(
-                    panel, base_deps, assume_sorted=assume_sorted,
+                    panel,
+                    base_deps,
+                    assume_sorted=assume_sorted,
+                    data_dir=data_dir,
+                    expected_linkage_generation=expected_linkage_generation,
                 )
             panel = materialize_scoring_columns(panel, registry_names)
             factor_cols = factor_cols - registry_names

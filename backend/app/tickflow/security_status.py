@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import replace
+from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -78,7 +79,37 @@ def attach_matrix_st_history(
         known = indices >= 0
         flags[known, asset_id] = group["st_flag"].to_numpy()[indices[known]]
     flags.flags.writeable = False
-    return replace(market, fields={**market.fields, "st_flag": flags})
+    from app.backtest.matrix import _limit_lock_matrices
+
+    raw_close = market.fields.get("raw_close", market.close)
+    seen = (
+        np.isfinite(market.open)
+        & np.isfinite(market.high)
+        & np.isfinite(market.low)
+        & np.isfinite(market.close)
+        & np.isfinite(raw_close)
+        & (market.volume > 0)
+    )
+    trading_dates = tuple(date.fromisoformat(label[:10]) for label in market.timestamp_labels)
+    limit_up_locked, limit_down_locked = _limit_lock_matrices(
+        market.close,
+        raw_close,
+        seen,
+        trading_dates,
+        list(market.symbols),
+        list(market.names),
+        {},
+        historical_st=flags,
+        apply_latest_limits=False,
+    )
+    limit_up_locked.flags.writeable = False
+    limit_down_locked.flags.writeable = False
+    return replace(
+        market,
+        limit_up_locked=limit_up_locked,
+        limit_down_locked=limit_down_locked,
+        fields={**market.fields, "st_flag": flags},
+    )
 
 
 def st_history_fingerprint(history: pl.DataFrame | None) -> str | None:

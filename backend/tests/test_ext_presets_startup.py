@@ -19,6 +19,7 @@ from app.services.ext_data import ExtConfigStore, PullConfig
 from app.services.ext_presets import (
     _RETIRED_FACTORY_PULLS,
     _concept_preset,
+    _industry_pit_preset,
     _industry_preset,
     ensure_builtin_presets,
 )
@@ -44,6 +45,41 @@ def test_builtin_presets_ship_with_complete_pull() -> None:
                     "symbol_col", "name_col", "value_col"):
             assert fanout.get(key), f"{preset.id} fanout 缺少 {key}"
         assert fanout.get("separator"), f"{preset.id} fanout 缺少拼接符"
+
+
+def test_industry_pit_preset_is_strict_timeseries() -> None:
+    """时点行业来源按日分区, 且任一板块失败时拒绝写出残缺分区。"""
+    preset = _industry_pit_preset()
+    assert preset.id == "ext_hy_ths_pit"
+    assert preset.mode == "timeseries"
+    assert any(f.name == "所属同花顺行业" for f in preset.fields)
+    assert preset.pull is not None
+    assert preset.pull.fanout is not None
+    assert preset.pull.fanout["separator"] == "-"
+    assert preset.pull.fanout["require_complete"] is True
+
+    snapshot = _industry_preset()
+    assert snapshot.mode == "snapshot"
+    assert snapshot.pull is not None and snapshot.pull.fanout is not None
+    assert "require_complete" not in snapshot.pull.fanout
+
+
+def test_upgrade_adds_industry_pit_preset_once(tmp_path: Path) -> None:
+    """老库已有旧播种标记时仍补建新预设, 但用户删除后不复活。"""
+    seed_marker = tmp_path / "ext_data" / ".builtin_presets_seeded"
+    seed_marker.parent.mkdir(parents=True)
+    seed_marker.write_text("", encoding="utf-8")
+
+    asyncio.run(ensure_builtin_presets(tmp_path))
+
+    pit_marker = tmp_path / "ext_data" / ".industry_pit_seeded_v1"
+    assert pit_marker.exists()
+    config = ExtConfigStore(tmp_path).get("ext_hy_ths_pit")
+    assert config is not None and config.mode == "timeseries"
+
+    assert ExtConfigStore(tmp_path).delete("ext_hy_ths_pit") is True
+    asyncio.run(ensure_builtin_presets(tmp_path))
+    assert ExtConfigStore(tmp_path).get("ext_hy_ths_pit") is None
 
 
 def test_ensure_builtin_presets_writes_complete_configs(tmp_path: Path) -> None:

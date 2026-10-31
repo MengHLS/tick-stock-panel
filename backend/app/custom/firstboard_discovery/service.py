@@ -5,6 +5,7 @@ import copy
 import math
 import threading
 import time
+from bisect import bisect_right
 from collections import OrderedDict
 from dataclasses import asdict, dataclass
 from datetime import date, timedelta
@@ -19,16 +20,37 @@ from app.custom.firstboard_discovery.discovery import (
     score_factor,
     search_rules,
 )
+from app.custom.firstboard_discovery.negative import (
+    MAIN_COLUMN,
+    MAIN_THRESHOLD,
+    build_negative_research,
+    predict_negative_risk,
+    prepare_research_cohorts,
+)
 from app.custom.firstboard_discovery.outcomes import build_event_samples
 from app.custom.firstboard_discovery.storage import FirstboardDiscoveryStore
 from app.enriched_generation import EnrichedGenerationUnavailableError
 from app.factors.registry import all_factors, get_factor
 
-ALGORITHM_VERSION = "firstboard-discovery-v2"
+ALGORITHM_VERSION = "firstboard-discovery-v6"
 _EXCLUDED_DEPS = {
     "turnover_rate", "float_shares", "total_shares",
     "pb_latest", "roe_latest", "gross_margin_latest", "net_margin_latest",
     "revenue_yoy_latest", "net_income_yoy_latest", "debt_ratio_latest",
+}
+_EXCLUDED_FACTOR_IDS = {"vwap_bias"}
+_ALLOWED_EXTENSION_FACTOR_IDS = (
+    "ext_limit_board_events_first_seal_minute",
+    "ext_limit_board_events_observed_open",
+    "ext_limit_board_events_limit_up_pool_open_times",
+)
+_CANDIDATE_POLICY = {
+    "allowed_kinds": ["base", "virtual"],
+    "allowed_languages": ["dsl"],
+    "require_scale_free": True,
+    "require_stable": True,
+    "excluded_factor_ids": sorted(_EXCLUDED_FACTOR_IDS),
+    "allowed_extension_factor_ids": list(_ALLOWED_EXTENSION_FACTOR_IDS),
 }
 WARNINGS = [
     "平台口径首板，历史 ST/板块制度未认证；事件数为候选数量。",
@@ -36,6 +58,9 @@ WARNINGS = [
     "最大不利波动不是持有期最大回撤；-8% 低点触及不等于实际止损成交。",
     "因子、方向和阈值只在训练期选择；验证期证据不足时不会替换训练规则。",
     "同日事件和重叠收益窗口并非独立样本；q 值为探索性诊断，不构成有效性认证。",
+    "确认性候选含内置 DSL 无量纲稳定因子，以及首次封板、是否开板、涨停池开板次数；自定义/复合、原始价位、VWAP乖离、实验因子、炸板池次数和最后封板时间不参与。",
+    "早损定义为 T+1 开盘后前 5 个交易日低点触及 -8%，不等于实际亏损或可成交止损；预测风险与观察标签分别报告。",
+    "按所选事件日期与当前数据库计算；行情数据截至日仅说明来源。风险阈值只在训练内校准段选择。",
 ]
 
 
@@ -46,6 +71,7 @@ class DiscoveryParams:
     horizon: int = 20
     strong_threshold: float = 0.20
     snapshot_mode: Literal["D_minus_1", "D_close", "both"] = "both"
+    train_end: date | None = None
 
     def __post_init__(self) -> None:
         if self.start > self.end:
@@ -56,6 +82,8 @@ class DiscoveryParams:
             raise ValueError("首版强首板阈值固定为 20%")
         if self.snapshot_mode not in ("D_minus_1", "D_close", "both"):
             raise ValueError("未知特征时点")
+        if self.train_end is not None and not self.start < self.train_end < self.end:
+            raise ValueError("预注册训练截止日必须位于事件区间内部")
 
 
 @dataclass(frozen=True)
@@ -162,15 +190,40 @@ class FirstboardDiscoveryService:
     def _candidate_factor_columns(self, snapshot_mode: str) -> list[tuple[str, str]]:
         specs = {spec.id: spec for spec in all_factors(asset_type="stock")}
 
-        def safe(name: str, seen: frozenset[str] = frozenset()) -> bool:
-            if name.startswith("ext_") or name in _EXCLUDED_DEPS or name in seen:
+        def safe(
+            spec,
+            seen: frozenset[str] = frozenset(),
+            *,
+            root: bool = True,
+        ) -> bool:
+            if spec.id in seen:
                 return False
-            spec = specs.get(name)
-            if spec is None:
-                return True
+            allowed_extension = spec.id in _ALLOWED_EXTENSION_FACTOR_IDS
+            if (
+                (spec.id.startswith("ext_") and not allowed_extension)
+                or spec.id in _EXCLUDED_DEPS
+                or spec.id in _EXCLUDED_FACTOR_IDS
+                or spec.kind not in _CANDIDATE_POLICY["allowed_kinds"]
+                or getattr(spec, "lang", "dsl") not in _CANDIDATE_POLICY["allowed_languages"]
+                or (root and not spec.scale_free and not allowed_extension)
+                or spec.stability != "stable"
+            ):
+                return False
             if spec.pit or spec.group in ("财务", "规模"):
                 return False
-            return all(safe(dep, seen | {name}) for dep in spec.dependencies)
+            for dependency in spec.dependencies:
+                if (
+                    (dependency.startswith("ext_") and not allowed_extension)
+                    or dependency in _EXCLUDED_DEPS
+                    or dependency in _EXCLUDED_FACTOR_IDS
+                ):
+                    return False
+                dependency_spec = specs.get(dependency)
+                if dependency_spec is not None and not safe(
+                    dependency_spec, seen | {spec.id}, root=False,
+                ):
+                    return False
+            return True
 
         snapshots = (
             ["D_minus_1", "D_close"]
@@ -179,19 +232,43 @@ class FirstboardDiscoveryService:
         return [
             (spec.id, snapshot)
             for spec in specs.values()
-            if safe(spec.id) and spec.stability != "deprecated"
+            if safe(spec)
             for snapshot in snapshots
             if not (snapshot == "D_close" and spec.id == "change_pct")
+            and not (
+                snapshot == "D_minus_1"
+                and spec.id in _ALLOWED_EXTENSION_FACTOR_IDS
+            )
         ]
 
     def _snapshot(self, params: DiscoveryParams) -> _Snapshot:
+        for attempt in range(3):
+            try:
+                return self._current_snapshot(params)
+            except EnrichedGenerationUnavailableError:
+                if attempt == 2:
+                    raise EnrichedGenerationUnavailableError(
+                        "行情正在更新，自动重试后仍未就绪，请稍后重试",
+                    ) from None
+                time.sleep(0.2)
+        raise AssertionError("unreachable")
+
+    def _current_snapshot(self, params: DiscoveryParams) -> _Snapshot:
         columns = self._candidate_factor_columns(params.snapshot_mode)
-        generation = self.engine.data_generation("stock")
+        wait_for_generation = getattr(self.engine, "data_generation_await", None)
+        generation = (
+            wait_for_generation("stock", timeout_s=10.0)
+            if callable(wait_for_generation) else self.engine.data_generation("stock")
+        )
         versions = tuple(
             (s.id, s.version, s.formula_text, s.components)
             for s in all_factors(asset_type="stock")
         )
-        key = (generation, params, tuple(columns), versions, ALGORITHM_VERSION)
+        extension_signature = self._extension_signature({column[0] for column in columns})
+        key = (
+            generation, params, tuple(columns), versions, ALGORITHM_VERSION,
+            extension_signature,
+        )
         with self._lock:
             cached = self._cache.get(key)
             if cached is not None:
@@ -200,7 +277,6 @@ class FirstboardDiscoveryService:
             self._assert_generation(generation)
             return cached
         snapshot = self._build(params, columns, generation)
-        self._assert_generation(generation)
         if self.storage is not None:
             run_id, saved_at = self.storage.save(snapshot.report, snapshot.events)
             snapshot = _Snapshot(
@@ -244,6 +320,70 @@ class FirstboardDiscoveryService:
             panel, factor_ids - set(panel.columns),
         )
 
+    def _attach_extension_factors(self, panel: pl.DataFrame, factor_ids: set[str]) -> pl.DataFrame:
+        requested = factor_ids & set(_ALLOWED_EXTENSION_FACTOR_IDS)
+        if not requested:
+            return panel
+        from app.factors import ext_factors
+
+        data_dir = self._data_dir()
+        if data_dir is None:
+            raise ValueError("缺少数据目录，无法加载封板炸板扩展因子")
+        config = next(
+            (cfg for cfg in ext_factors._load_configs(data_dir)
+             if cfg.id == "limit_board_events"),
+            None,
+        )
+        if config is None:
+            raise ValueError("缺少涨停封板与炸板扩展表，无法进行本次因子研究")
+        field_by_column = {
+            ext_factors.ext_column_name(config.id, field.name): field
+            for field in config.fields
+        }
+        missing_config = sorted(requested - set(field_by_column))
+        if missing_config:
+            raise ValueError(f"涨停封板与炸板扩展配置缺少字段: {missing_config}")
+        fields = [field_by_column[name] for name in requested]
+        ext = ext_factors._timeseries_frame(data_dir, config, fields)
+        if ext.is_empty():
+            raise ValueError("涨停封板与炸板扩展表暂无数据，无法进行本次因子研究")
+        missing = requested - set(ext.columns)
+        if missing:
+            raise ValueError(f"涨停封板与炸板扩展表缺少字段: {sorted(missing)}")
+        value_columns = sorted(requested - set(panel.columns))
+        ext = (
+            ext.select("symbol", "_ext_date", *value_columns)
+            .rename({"_ext_date": "date"})
+            .with_columns(pl.col("date").str.to_date())
+        )
+        return panel.join(ext, on=["symbol", "date"], how="left")
+
+    def _data_dir(self):
+        return getattr(getattr(self.repository, "store", None), "data_dir", None)
+
+    def _extension_signature(self, factor_ids: set[str]) -> tuple | None:
+        if not factor_ids & set(_ALLOWED_EXTENSION_FACTOR_IDS):
+            return None
+        data_dir = self._data_dir()
+        if data_dir is None:
+            return None
+        from app.factors import ext_factors
+
+        config_path = data_dir / "ext_data" / "limit_board_events" / "config.json"
+        try:
+            stat = config_path.stat()
+            config_signature = (stat.st_mtime_ns, stat.st_size)
+        except FileNotFoundError:
+            config_signature = None
+        except OSError:
+            config_signature = None
+        return (
+            config_signature,
+            ext_factors._timeseries_signature(
+                data_dir / "ext_data" / "limit_board_events" / "timeseries",
+            ),
+        )
+
     def _build(self, params: DiscoveryParams, columns: list[tuple[str, str]], generation) -> _Snapshot:
         started = time.perf_counter()
         latest = getattr(self.repository, "latest_enriched_date", lambda _: params.end)("stock")
@@ -259,7 +399,9 @@ class FirstboardDiscoveryService:
             columns=physical, asset_type="stock", expected_generation=generation,
         )
         if panel.is_empty():
+            self._assert_generation(generation)
             return self._empty(params, generation, started)
+        data_as_of = panel["date"].max()
         panel = panel.sort(["symbol", "date"])
         keys = panel.select(
             pl.struct("symbol", "date").n_unique(),
@@ -272,13 +414,21 @@ class FirstboardDiscoveryService:
             (pl.col("open") * pl.col("raw_close") / pl.col("close")).alias("raw_open"),
         )
         panel = self._attach_limit_prices(panel).sort(["symbol", "date"])
+        market_sessions = self._market_sessions(panel)
+        # All database inputs are now in memory. Later publications do not
+        # invalidate a calculation using this internally consistent read.
+        self._assert_generation(generation)
         samples = build_event_samples(
             panel, horizon=params.horizon, strong_threshold=params.strong_threshold,
+            sessions=market_sessions,
         ).filter(pl.col("date").is_between(params.start, params.end))
         if samples.is_empty():
-            return self._empty(params, generation, started)
+            return self._empty(params, generation, started, data_as_of=data_as_of)
         # Future rows belong solely to outcomes, never to factor transforms.
         feature_panel = panel.filter(pl.col("date") <= params.end)
+        feature_panel = self._attach_extension_factors(
+            feature_panel, {c[0] for c in columns},
+        )
         feature_panel = self._materialize_factors(feature_panel, {c[0] for c in columns})
         feature_panel = feature_panel.sort(["symbol", "date"])
         available = [(fid, snap) for fid, snap in columns if fid in feature_panel.columns]
@@ -290,21 +440,54 @@ class FirstboardDiscoveryService:
             expressions.append(value.alias(f"{snapshot}__{factor_id}"))
         values = feature_panel.select("symbol", "date", *expressions)
         samples = samples.join(values, on=["symbol", "date"], how="left")
-        self._assert_generation(generation)
-        return self._summarize(params, samples, available, generation, started)
+        return self._summarize(
+            params, samples, available, generation, started, data_as_of=data_as_of,
+        )
 
-    def _summarize(self, params, samples, columns, generation, started) -> _Snapshot:
+    def _market_sessions(self, panel: pl.DataFrame) -> list[date]:
+        start = panel["date"].min()
+        end = panel["date"].max()
+        loader = getattr(self.repository, "list_enriched_dates", None)
+        if not callable(loader):
+            raise ValueError("数据仓库不支持全市场交易日序列，无法安全构造 T+1 标签")
+        sessions = loader(start, end, "stock")
+        if not sessions:
+            raise ValueError("缺少全市场 enriched 交易日分区，无法构造 T+1 标签")
+        return sessions
+
+    def _summarize(
+        self, params, samples, columns, generation, started, *, data_as_of=None,
+    ) -> _Snapshot:
         eligible = samples.filter(pl.col("strong").is_not_null())
         dates = sorted(eligible["date"].unique().to_list())
-        split_index = min(max(1, int(len(dates) * 0.7)), max(len(dates) - 1, 1))
-        train_end = dates[split_index - 1] if dates else None
-        validation_start = dates[split_index] if len(dates) > split_index else None
-        train = eligible.filter(pl.col("date") <= train_end) if train_end else eligible.head(0)
-        validation = eligible.filter(pl.col("date") >= validation_start) if validation_start else eligible.head(0)
-        unpurged_count = train.height
-        if validation_start is not None:
-            train = train.filter(pl.col("outcome_end") < validation_start)
-        purged_count = unpurged_count - train.height
+        if params.train_end is not None:
+            split_index = bisect_right(dates, params.train_end)
+            if split_index == 0 or split_index >= len(dates):
+                raise ValueError("预注册训练截止日两侧均需存在可评估事件")
+            train_end = params.train_end
+            validation_start = dates[split_index]
+        else:
+            split_index = min(max(1, int(len(dates) * 0.7)), max(len(dates) - 1, 1))
+            train_end = dates[split_index - 1] if dates else None
+            validation_start = dates[split_index] if len(dates) > split_index else None
+        if train_end is None:
+            train = eligible.head(0)
+            validation = eligible.head(0)
+            purged_count = 0
+        elif validation_start is None:
+            # A single eligible date has no future cohort to purge against.
+            train = eligible.filter(pl.col("date") <= train_end)
+            validation = eligible.head(0)
+            purged_count = 0
+        else:
+            cohorts = prepare_research_cohorts(
+                samples,
+                train_end=train_end,
+                validation_start=validation_start,
+            )
+            train = cohorts.train
+            validation = cohorts.validation
+            purged_count = cohorts.purged_count
         training_ids = set(train["event_id"].to_list())
         research_events = pl.concat([train, validation])
         scores = _factor_scores(train, columns) if train.height else []
@@ -321,6 +504,19 @@ class FirstboardDiscoveryService:
         )
         factor_rows = [self._factor_row(s, validation) for s in scores]
         factor_rows.sort(key=lambda row: -abs((row["auc"] if row["auc"] is not None else .5) - .5))
+        negative = (
+            build_negative_research(
+                train,
+                validation,
+                columns, train_end=train_end,
+            ) if train_end is not None else
+            {"status": "insufficient_sample", "groups": [], "model": {"status": "insufficient_sample"}}
+        )
+        negative["evaluation_cutoff"] = params.end
+        negative["lockbox_excluded_count"] = 0
+        risks = predict_negative_risk(samples, negative["model"])
+        risk_by_id = dict(zip(samples["event_id"].to_list(), risks, strict=True))
+        threshold = negative["model"].get("decision_threshold")
         event_rows = samples.sort(["date", "symbol"], descending=[True, False]).to_dicts()
         hits: dict[str, list[str]] = {row["event_id"]: [] for row in event_rows}
         for rule in rules:
@@ -329,6 +525,17 @@ class FirstboardDiscoveryService:
                 hits[event_id].append(rule["id"])
         for row in event_rows:
             row["rule_ids"] = hits[row["event_id"]]
+            probability = risk_by_id[row["event_id"]]
+            row["early_fail_probability"] = float(probability) if math.isfinite(probability) else None
+            row["negative_veto"] = (
+                bool(probability >= threshold)
+                if math.isfinite(probability) and threshold is not None else None
+            )
+            main_value = row.get(MAIN_COLUMN)
+            row["frozen_main_hit"] = (
+                bool(main_value >= MAIN_THRESHOLD)
+                if main_value is not None and math.isfinite(main_value) else None
+            )
             row["split"] = (
                 "excluded" if row["strong"] is None
                 else "train" if row["event_id"] in training_ids
@@ -350,7 +557,9 @@ class FirstboardDiscoveryService:
             "algorithm_version": ALGORITHM_VERSION,
             "generation": generation,
             "params": asdict(params),
-            "data_as_of": max(samples["entry_date"].drop_nulls().to_list(), default=None),
+            "data_as_of": data_as_of,
+            "research_cutoff": params.end,
+            "lockbox_excluded_count": 0,
             "elapsed_ms": round((time.perf_counter() - started) * 1000, 1),
             "sample": {
                 "status": "ok" if sufficient else "insufficient_sample",
@@ -373,6 +582,11 @@ class FirstboardDiscoveryService:
             },
             "factors": factor_rows,
             "rules": rules,
+            "negative_research": negative,
+            "candidate_policy": {
+                **_CANDIDATE_POLICY,
+                "factor_count": len(columns),
+            },
             "warnings": WARNINGS,
         }
         return _Snapshot(report=report, events=event_rows)
@@ -394,11 +608,20 @@ class FirstboardDiscoveryService:
         }
 
     @staticmethod
-    def _empty(params, generation, started) -> _Snapshot:
+    def _empty(
+        params,
+        generation,
+        started,
+        *,
+        data_as_of: date | None = None,
+    ) -> _Snapshot:
         return _Snapshot({
             "algorithm_version": ALGORITHM_VERSION,
             "generation": generation,
             "params": asdict(params),
+            "data_as_of": data_as_of,
+            "research_cutoff": params.end,
+            "lockbox_excluded_count": 0,
             "elapsed_ms": round((time.perf_counter() - started) * 1000, 1),
             "sample": {
                 "status": "no_data", "total_events": 0, "eligible_events": 0,
@@ -409,7 +632,10 @@ class FirstboardDiscoveryService:
                 "validation_end": None, "train_count": 0, "validation_count": 0,
                 "train_base_rate": None, "validation_base_rate": None,
             },
-            "factors": [], "rules": [], "warnings": WARNINGS,
+            "factors": [], "rules": [],
+            "negative_research": {"status": "no_data", "groups": []},
+            "candidate_policy": {**_CANDIDATE_POLICY, "factor_count": 0},
+            "warnings": WARNINGS,
         }, [])
 
 

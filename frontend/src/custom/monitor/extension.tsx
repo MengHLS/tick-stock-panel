@@ -48,6 +48,10 @@ const SOURCE_BADGE_STYLE: Record<string, string> = {
   date:     'bg-violet-500/10 text-violet-500 border-violet-500/20 dark:text-violet-300',
 }
 
+export function unavailableReasonLabel(reason: string): string {
+  return reason === 'daily_close_only' ? '仅日频可用' : reason
+}
+
 /**
  * 渲染策略类消息 — 策略名黄色、进入红/移出绿 (A 股红涨绿跌惯例)、其余白色。
  */
@@ -927,10 +931,14 @@ function RulesList({ rulesQuery, onEdit }: {
                 </div>
               </div>
 
-              {r.runtime_warning && (
+              {(r.unavailable_reason || r.runtime_warning) && (
                 <div className="mt-1 flex items-center gap-1 text-[9px] text-warning">
                   <AlertTriangle className="h-3 w-3 shrink-0" />
-                  <span className="truncate" title={r.runtime_warning}>{r.runtime_warning}</span>
+                  <span className="truncate" title={r.unavailable_reason || r.runtime_warning}>
+                    {r.unavailable_reason
+                      ? unavailableReasonLabel(r.unavailable_reason)
+                      : r.runtime_warning}
+                  </span>
                 </div>
               )}
 

@@ -115,8 +115,8 @@ def mock_http(monkeypatch: pytest.MonkeyPatch):
     同时注入测试 Key: _apply_auth 在缺凭据时 fail-closed 报错, 这是生产要的
     行为, 测 fanout 逻辑时需补上凭据。
     """
-    import app.services.ext_pull as ext_pull
     import app.services.ext_data as ext_data
+    import app.services.ext_pull as ext_pull
 
     monkeypatch.setattr(
         ext_data, "get_ext_api_key", lambda config_id: "test-key"
@@ -127,7 +127,11 @@ def mock_http(monkeypatch: pytest.MonkeyPatch):
 
         async def patched(pull, config_id, day=None, extra_params=None, *, url_override=None):
             # 复用真实实现的 URL/鉴权拼装, 只把 transport 换成 Mock
-            from app.services.ext_pull import _apply_auth, _append_query_params, _with_date_param
+            from app.services.ext_pull import (
+                _append_query_params,
+                _apply_auth,
+                _with_date_param,
+            )
             url = url_override or (
                 _with_date_param(pull.url, pull.date_param, day, pull.date_format) if day else pull.url
             )
@@ -207,6 +211,36 @@ def test_fanout_tolerates_entry_failure(mock_http) -> None:
     by_symbol = {r["股票代码"]: r for r in rows}
     assert set(by_symbol) == {"600519.SH", "000858.SZ"}  # B2 成员被跳过
     assert by_symbol["600519.SH"]["所属概念"] == "白酒概念"
+
+
+def test_require_complete_rejects_partial_fanout(mock_http) -> None:
+    """严格来源: 任一二级条目最终失败时不得返回部分结果。"""
+    mock_http(
+        _mock_transport(
+            {"cn_concept": _CATALOG_CN_CONCEPT},
+            _CONSTITUENTS_BY_CODE,
+            fail_codes=("B2.TI",),
+        )
+    )
+    with pytest.raises(ValueError, match="不完整"):
+        asyncio.run(fetch_fanout_rows(_concept_config(require_complete=True)))
+
+
+def test_require_complete_accepts_complete_catalog_after_real_removal(mock_http) -> None:
+    """所有请求都成功时, 快照中少一只股票是真实移除, 不是拉取不完整。"""
+    mock_http(
+        _mock_transport(
+            {"cn_concept": _CATALOG_CN_CONCEPT},
+            {
+                "B1.TI": [{"thscode": "600519.SH", "name": "贵州茅台"}],
+                "B2.TI": [{"thscode": "300750.SZ", "name": "宁德时代"}],
+            },
+        )
+    )
+
+    rows = asyncio.run(fetch_fanout_rows(_concept_config(require_complete=True)))
+
+    assert {r["股票代码"] for r in rows} == {"600519.SH", "300750.SZ"}
 
 
 def test_fanout_all_entries_failed_raises(mock_http) -> None:

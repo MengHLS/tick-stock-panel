@@ -47,3 +47,31 @@ def test_new_date_resets_results_and_ever_rows(tmp_path):
     assert cached["as_of"] == "2026-07-21"
     assert set(cached["results"]) == {"strategy_b"}
     assert set(cached["today_ever_rows"]) == {"strategy_b"}
+
+
+def test_linkage_generation_change_discards_old_cached_results(tmp_path):
+    from app.enriched_generation import bump_enriched_generation
+
+    bump_enriched_generation(tmp_path, "linkage")
+    strategy_cache.write_cache(
+        tmp_path,
+        "2026-07-20",
+        {"strategy_a": _result("000001.SZ")},
+    )
+    first = strategy_cache.read_cache(tmp_path)
+    assert first is not None
+    assert first["linkage_generation"]
+    assert strategy_cache.linkage_generation_is_current(tmp_path, first)
+
+    bump_enriched_generation(tmp_path, "linkage")
+    assert not strategy_cache.linkage_generation_is_current(tmp_path, first)
+
+    strategy_cache.write_cache(
+        tmp_path,
+        "2026-07-20",
+        {"strategy_b": _result("600000.SH")},
+    )
+    refreshed = strategy_cache.read_cache(tmp_path)
+    assert refreshed is not None
+    assert set(refreshed["results"]) == {"strategy_b"}
+    assert set(refreshed["today_ever_rows"]) == {"strategy_b"}
