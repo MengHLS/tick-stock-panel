@@ -605,6 +605,26 @@ def analyze(events: pl.DataFrame, samples: int) -> dict:
                 }
             )
 
+    # --- mechanism: amplitude quintiles (descriptive, full sample) ---
+    amplitude = []
+    labels = ["1", "2", "3", "4", "5"]
+    for feature in ("max_amplitude", "mean_amplitude"):
+        bucketed = auction.with_columns(
+            pl.col(feature).qcut([0.2, 0.4, 0.6, 0.8], labels=labels).alias("bucket")
+        )
+        for row in (
+            bucketed.group_by("bucket")
+            .agg(
+                pl.len().alias("n"),
+                pl.col("tail20").mean().alias("tail20"),
+                pl.col("mae20").mean().alias("mae20"),
+                pl.col("ret20").mean().alias("ret20"),
+            )
+            .sort("bucket")
+            .to_dicts()
+        ):
+            amplitude.append({"feature": feature, **row})
+
     # --- experiment B: within-day auction TailStrength ranking ---
     ranked = preopen.with_columns(pl.len().over("signal_date").alias("day_n")).filter(
         (pl.col("day_n") >= 4)
@@ -895,6 +915,7 @@ def analyze(events: pl.DataFrame, samples: int) -> dict:
         "baseline": baseline,
         "score_gradient": score_gradient,
         "score_tests": score_tests,
+        "amplitude_quintiles": amplitude,
         "selection_tests": selection,
         "tail_rule_vs_rest": rule_vs_rest,
         "gap_buckets": gap,
@@ -966,6 +987,18 @@ def write_summary(results: dict, path: Path) -> None:
         lines.append(
             f"| {row['period']} | {row['bucket']} | {row['n']} | {_pct(row['tail'])} | "
             f"{row['diff_vs_rest']:+.2%} | [{row['ci_low']:+.2%}, {row['ci_high']:+.2%}] |"
+        )
+    lines += [
+        "",
+        "### Amplitude quintiles (descriptive)",
+        "",
+        "| feature | quintile | n | tail20 | mae20 | ret20 |",
+        "| --- | --- | ---: | ---: | ---: | ---: |",
+    ]
+    for row in results["amplitude_quintiles"]:
+        lines.append(
+            f"| {row['feature']} | {row['bucket']} | {row['n']} | "
+            f"{_pct(row['tail20'])} | {_pct(row['mae20'])} | {_pct(row['ret20'])} |"
         )
     lines += [
         "",
