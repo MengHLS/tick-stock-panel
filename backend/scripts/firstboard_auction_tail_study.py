@@ -526,6 +526,11 @@ def analyze(events: pl.DataFrame, samples: int) -> dict:
         & (pl.col("last_time") <= 92500000)
         & (pl.col("last_age_ms") <= 30000)
     )
+    if auction.filter(pl.col("period") == "development").height == 0:
+        raise ValueError(
+            "development period (2020-2022) has no samples; run the full 2018-2026 range "
+            "so score buckets and thresholds can be fitted"
+        )
     coverage = {
         "candidates": events.height,
         "executable": executable.height,

@@ -253,3 +253,4 @@ uv run python scripts/firstboard_auction_tail_study.py \
 
 输出：`events.parquet`、`panel.parquet`、`events_aggregated.parquet`、
 `results.json`、`SUMMARY.md`。脚本只读数据目录，不写入 `data/`。
+分析阶段需要 2020–2022 开发期样本，分年调试时请保留完整区间，否则脚本会明确报错。
