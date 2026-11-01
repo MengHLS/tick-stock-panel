@@ -12,6 +12,7 @@
 | [firstboard-confirmatory-20261030/](firstboard-confirmatory-20261030/RESULTS.md) | 首板布林带宽规则确认性研究（进行中） |
 | [firstboard-negative-20261030/](firstboard-negative-20261030/RESULTS.md) | 首板早损否决研究（进行中） |
 | [auction-tail-strength-20261031/](auction-tail-strength-20261031/RESULTS.md) | 竞价尾端强势与多因子准入研究 |
+| [firstboard-auction-tail-20261101/](firstboard-auction-tail-20261101/RESULTS.md) | 首板回踩候选的竞价/开盘两端尾部实验与因子测试 |
 | [auction-multifactor-20261101/](auction-multifactor-20261101/RESULTS.md) | 竞价多因子排序与组合门槛研究 |
 | [auction-portfolio-construction-20261101/](auction-portfolio-construction-20261101/RESULTS.md) | 竞价信号组合构建与逐日盯市研究 |
 | [auction-tail-stability-20261101/](auction-tail-stability-20261101/RESULTS.md) | 竞价分数尾部稳定性研究 |
