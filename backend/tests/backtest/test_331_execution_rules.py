@@ -159,6 +159,7 @@ def test_new_high_three_extends_time_exit_to_runner_horizon() -> None:
         ["A"],
         days=10,
         overrides={
+            ("A", 4): {"high": None},
             ("A", 5): {"high": 12.0, "close": 10.1},
             ("A", 8): {"close": 9.5},
         },
@@ -328,6 +329,68 @@ def test_original_trailing_keeps_fixed_stop_and_uses_completed_close_peak() -> N
     assert trade.exit_reason == "trailing_take_profit"
 
 
+def test_raw_trailing_peak_remaps_after_adjustment_scale_change() -> None:
+    start = date(2025, 1, 2)
+    bars = [
+        (9.90, 9.90, 9.90, 9.90, 10.0, 10.0, 10.0, 10.0),
+        (9.90, 10.00, 9.90, 9.90, 10.0, 10.1, 10.0, 10.0),
+        (10.69, 10.89, 10.59, 10.89, 10.8, 11.0, 10.7, 11.0),
+        (10.89, 11.19, 10.39, 11.09, 11.0, 11.3, 10.5, 11.2),
+        (10.4, 10.6, 10.25, 10.4, 10.40, 10.60, 10.25, 10.40),
+        (10.6, 10.8, 10.5, 10.7, 10.60, 10.80, 10.50, 10.70),
+    ]
+    rows = []
+    for index, (adj_o, adj_h, adj_l, adj_c, raw_o, raw_h, raw_l, raw_c) in enumerate(bars):
+        rows.append({
+            "symbol": "A",
+            "name": "A",
+            "date": start + timedelta(days=index),
+            "open": adj_o,
+            "high": adj_h,
+            "low": adj_l,
+            "close": adj_c,
+            "raw_open": raw_o,
+            "raw_high": raw_h,
+            "raw_low": raw_l,
+            "raw_close": raw_c,
+            "volume": 100_000.0,
+        })
+
+    market = build_market_data_matrix(
+        pl.DataFrame(rows).sort(["date", "symbol"]),
+        field_columns={"raw_close", "raw_high", "raw_low"},
+    )
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    score = np.zeros(market.shape, dtype=np.float32)
+    score[0, 0] = np.float32(0.8)
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        score=score,
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+    )
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(
+            entry_price_basis="raw",
+            stop_loss_pct=-0.06,
+            trailing_peak_price="close",
+            trailing_take_profit_activate_pct=0.03,
+            trailing_take_profit_drawdown_pct=0.08,
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.exit_reason == "trailing_take_profit"
+    assert trade.exit_date == "2025-01-06"
+    assert trade.exit_price == pytest.approx(11.2 * 0.92, abs=1e-4)
+
+
 def test_top_three_plan_two_does_not_replace_rejected_order() -> None:
     panel = _panel(["A", "B", "C"], 4, overrides={("A", 1): {"open": 11.0}},
                    scores={"A": 0.85, "B": 0.8, "C": 0.7})
@@ -418,9 +481,9 @@ def test_raw_previous_day_change_uses_exchange_pre_close() -> None:
 
 def test_previous_day_change_includes_exact_negative_five_percent_boundary() -> None:
     panel = _panel(["A"], 5, overrides={
-        ("A", 0): {"price": 10.0, "raw_close": 10.0},
-        ("A", 1): {"price": 9.5, "raw_close": 9.5},
-        ("A", 2): {"price": 9.5, "raw_close": 9.5},
+        ("A", 0): {"price": 3.20, "raw_close": 3.20},
+        ("A", 1): {"price": 3.04, "raw_close": 3.04},
+        ("A", 2): {"price": 3.04, "raw_close": 3.04},
     }, scores={"A": 0.8})
     result = BacktestEngine(repo=None).simulate_portfolio(
         panel, _mask(panel, {("A", 1)}), _mask(panel, {("A", 3)}),
@@ -479,18 +542,77 @@ def test_costs_use_signal_day_amount_and_do_not_double_charge_slippage(amount, e
 def test_same_day_risk_exit_takes_priority_over_planned_open_exit() -> None:
     """风控先于计划出场: 次日开盘既触发止损又有开盘卖点, 以止损理由与价格成交。"""
     panel = _panel(["A"], 4, overrides={
-        ("A", 2): {"open": 9.0, "high": 9.5, "low": 8.8, "close": 9.2},
+        ("A", 2): {"open": 9.0, "high": 9.5, "low": 9.0, "close": 9.2},
     }, scores={"A": 0.8})
     result = BacktestEngine(repo=None).simulate_portfolio(
         panel, _mask(panel, {("A", 0)}), _mask(panel, {("A", 1)}),
-        _original_config(stop_loss_pct=-0.06),
+        _original_config(entry_price_basis="raw", stop_loss_pct=-0.06),
     )
 
     trade = result.trades[0]
     assert trade.exit_reason == "stop_loss"
     assert trade.exit_date == "2025-01-04"
-    assert trade.exit_price == 9.0
+    assert trade.exit_price == 9.4
     assert result.stats["execution"]["sell_limit_down"] == 0
+
+
+def test_raw_risk_exit_at_open_limit_down_waits_until_rebound() -> None:
+    panel = _panel(["000001.SZ"], 4, overrides={
+        ("000001.SZ", 1): {
+            "open": 31.7, "high": 31.7, "low": 31.7, "close": 31.7,
+        },
+        ("000001.SZ", 2): {
+            "open": 28.53, "high": 28.66, "low": 28.53, "close": 28.53,
+        },
+        ("000001.SZ", 3): {
+            "open": 26.68, "high": 28.73, "low": 25.68, "close": 25.68,
+        },
+    }, scores={"000001.SZ": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("000001.SZ", 0)}),
+        _mask(panel, set()),
+        _original_config(
+            entry_price_basis="raw",
+            stop_loss_pct=-0.06,
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.exit_reason == "stop_loss"
+    assert trade.exit_date == "2025-01-05"
+    assert trade.exit_price == 26.68
+    assert trade.blocked_exit_days == 1
+    assert result.stats["execution"]["sell_limit_down"] == 1
+
+
+def test_raw_entry_day_close_stop_waits_for_next_close_plan() -> None:
+    panel = _panel(["A"], 4, overrides={
+        ("A", 1): {
+            "open": 10.0, "high": 10.1, "low": 9.2, "close": 9.3,
+        },
+        ("A", 2): {
+            "open": 9.6, "high": 9.7, "low": 9.5, "close": 9.6,
+        },
+        ("A", 3): {
+            "open": 9.5, "high": 9.5, "low": 9.4, "close": 9.5,
+        },
+    }, scores={"A": 0.8})
+    result = BacktestEngine(repo=None).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("A", 0)}),
+        _mask(panel, set()),
+        _original_config(
+            entry_price_basis="raw",
+            stop_loss_pct=-0.06,
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.exit_reason == "stop_loss"
+    assert trade.exit_signal_date == "2025-01-03"
+    assert trade.exit_date == "2025-01-05"
+    assert trade.exit_price == 9.5
 
 
 def test_blocked_risk_exit_keeps_reason_and_retries_next_tradable_day() -> None:

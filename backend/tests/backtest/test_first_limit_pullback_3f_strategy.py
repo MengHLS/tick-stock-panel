@@ -113,6 +113,29 @@ def test_universe_filter_runs_before_daily_ranking() -> None:
     assert selected == ["600001.SH", "600002.SH", "600003.SH"]
 
 
+def test_legacy_excluded_event_is_removed_before_ranking() -> None:
+    strategy = StrategyEngine._load_file(STRATEGY_PATH)
+    market = build_market_data_matrix(
+        _panel(),
+        field_columns={"consecutive_limit_ups"},
+    )
+    signals = MatrixStrategyPipeline().run(
+        strategy.matrix_strategy,
+        market,
+        {
+            "legacy_excluded_events": ["000001.SZ@2025-01-02"],
+        },
+        MatrixPipelineConfig(
+            basic_filter=strategy.basic_filter,
+            scoring={},
+            order_by="score",
+            descending=True,
+        ),
+    )
+
+    assert signals.entry[5].tolist() == [0, 1, 1]
+
+
 def test_first_board_uses_exchange_limit_judgment_not_stale_counter() -> None:
     strategy = StrategyEngine._load_file(STRATEGY_PATH)
     valid_panel = _panel().with_columns(
