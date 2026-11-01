@@ -1106,7 +1106,7 @@ def main() -> None:
     parser.add_argument("--data-dir", type=Path, required=True)
     parser.add_argument("--minute-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--start-year", type=int, default=2019)
+    parser.add_argument("--start-year", type=int, default=2018)
     parser.add_argument("--end-year", type=int, default=2026)
     parser.add_argument("--bootstrap-samples", type=int, default=2000)
     args = parser.parse_args()
