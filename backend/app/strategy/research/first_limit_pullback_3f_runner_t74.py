@@ -174,6 +174,9 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             _first_board_t5_observations(
                 market,
                 event_start=params.get("_event_start"),
+                excluded_event_keys=_excluded_event_keys(
+                    params.get("legacy_excluded_events")
+                ),
             )
         )
         ready_mask = np.nan_to_num(ready, nan=0.0) > 0.5
@@ -233,6 +236,7 @@ def _first_board_t5_observations(
     market: MarketDataMatrix,
     *,
     event_start: str | None = None,
+    excluded_event_keys: frozenset[str] = frozenset(),
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Observe a first board five trading bars ago using source-raw prices."""
     shape = market.shape
@@ -262,6 +266,11 @@ def _first_board_t5_observations(
         for signal_id in range(5, shape[0]):
             seed_id = signal_id - 5
             if event_start is not None and market.timestamp_labels[seed_id][:10] < event_start:
+                continue
+            if (
+                f"{market.symbols[asset_id]}@{market.timestamp_labels[seed_id][:10]}"
+                in excluded_event_keys
+            ):
                 continue
             if not bool(valid[seed_id : signal_id + 1, asset_id].all()):
                 continue
@@ -348,6 +357,21 @@ def _raw_price_field(market: MarketDataMatrix, name: str) -> np.ndarray:
     except ValueError:
         values = market.field(name)
     return np.round(values.astype(np.float64), RAW_PRICE_DECIMALS)
+
+
+def _excluded_event_keys(raw: object) -> frozenset[str]:
+    if raw is None:
+        return frozenset()
+    if not isinstance(raw, (list, tuple, set)):
+        raise ValueError("legacy_excluded_events must be a list")
+    keys: set[str] = set()
+    for item in raw:
+        if not isinstance(item, str) or "@" not in item:
+            raise ValueError(
+                "legacy_excluded_events entries must be SYMBOL@YYYY-MM-DD"
+            )
+        keys.add(item)
+    return frozenset(keys)
 
 
 def _first_board_mask(market: MarketDataMatrix) -> np.ndarray:
