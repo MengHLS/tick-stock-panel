@@ -321,6 +321,8 @@ AUC 差（同日聚类 bootstrap）：
 - 331 候选池按 T74 规则重建，成交样本完全匹配，但候选池可能包含引擎未成交的事件。
 - 3F 分档、缺口 2%～4%、开盘强势分位均为探索性比较，未做多重比较校正；
   验证期区间跨 0 的结论不能当作已确认。
+- 右尾因子测试的 12 个单因子与 3 个模型同样未做多重比较校正；
+  模型 A 选择平均振幅是基于开发期单因子 AUC，不是验证期结果。
 - 竞价过程快照要求 09:24:00～09:25:00 且年龄 ≤ 30 秒；不满足的样本被排除，
   可能偏向数据质量较好的交易日。
 
@@ -337,3 +339,15 @@ uv run python scripts/firstboard_auction_tail_study.py \
 输出：`events.parquet`、`panel.parquet`、`events_aggregated.parquet`、
 `results.json`、`SUMMARY.md`。脚本只读数据目录，不写入 `data/`。
 分析阶段需要 2020–2022 开发期样本，分年调试时请保留完整区间，否则脚本会明确报错。
+
+右尾概率因子测试复用上面的输出：
+
+```bash
+cd backend
+uv run python scripts/firstboard_right_tail_factor.py \
+  --data-dir ../data --minute-dir /path/to/mint-5 \
+  --reuse-dir ../.artifacts/firstboard_auction_tail \
+  --output ../.artifacts/firstboard_right_tail_factor
+```
+
+输出 `results.json`（单因子表、三个模型的系数/AUC/前 10% 对比、十分位校准）。
