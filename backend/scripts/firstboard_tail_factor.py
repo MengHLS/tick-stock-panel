@@ -1,16 +1,17 @@
-"""Right-tail probability factor test on the 331 first-board pullback pool.
+"""Two-sided tail factor test on the 331 first-board pullback pool.
 
-The label is MFE >= 20% within 20 sessions from the next-day open. Candidate
-features are known at the T close (3F score, amplitude, volume, pullback) or at
-the T+1 auction (gap, imbalance, tail price change, auction volume). Development
-(2020-2022) fits the deciles and the logistic models; validation (2023-2024) and
-stress (2025-2026H1) only evaluate them.
+Right tail: MFE >= 20% within 20 sessions from the next-day open.
+Left tail: -6% stop touched, and MAE <= -10% within the same window.
+Candidate features are known at the T close (3F score, amplitude, volume,
+pullback) or at the T+1 auction (gap, imbalance, tail price change, auction
+volume). Development (2020-2022) fits the deciles and the logistic models;
+validation (2023-2024) and stress (2025-2026H1) only evaluate them.
 
 Usage (from backend/):
-    uv run python scripts/firstboard_right_tail_factor.py \
+    uv run python scripts/firstboard_tail_factor.py \
         --data-dir ../data --minute-dir /path/to/mint-5 \
         --reuse-dir ../.artifacts/firstboard_auction_tail \
-        --output ../.artifacts/firstboard_right_tail_factor
+        --output ../.artifacts/firstboard_tail_factor
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ import numpy as np
 import polars as pl
 from firstboard_auction_tail_study import (
     SESSIONS,
+    STOP,
     TAIL,
     aggregate,
     attach_features,
@@ -31,8 +33,13 @@ from firstboard_auction_tail_study import (
     build_events,
 )
 
-VERSION = "firstboard-right-tail-factor-v1"
+VERSION = "firstboard-tail-factor-v2"
 PERIODS = ("development", "validation", "stress", "extension")
+TARGETS = {
+    "right": "tail20",
+    "left_stop": "stop6",
+    "left_mae": "mae10",
+}
 FACTORS = (
     "score",
     "max_amplitude",
@@ -98,6 +105,8 @@ def prepare(aggregated: pl.DataFrame) -> pl.DataFrame:
         & (pl.col("auction_open") > 0)
     ).with_columns(
         pl.col("tail20").cast(pl.Int8),
+        pl.col("first_stop_k").is_not_null().cast(pl.Int8).alias("stop6"),
+        (pl.col("mae20") <= -0.10).cast(pl.Int8).alias("mae10"),
         pl.len().over("signal_date").alias("day_n"),
     )
     ranked = frame.filter(pl.col("day_n") >= 4)
@@ -249,7 +258,7 @@ def _matrix(frame: pl.DataFrame, features: tuple[str, ...], stats: dict) -> np.n
     return np.column_stack(columns)
 
 
-def univariate(frame: pl.DataFrame) -> list[dict]:
+def univariate(frame: pl.DataFrame, target: str) -> list[dict]:
     development = frame.filter(pl.col("period") == "development")
     rows = []
     for factor in FACTORS:
@@ -261,16 +270,17 @@ def univariate(frame: pl.DataFrame) -> list[dict]:
             if sub.height < 100:
                 continue
             x = sub[factor].to_numpy().astype(float)
-            y = sub["tail20"].to_numpy().astype(int)
+            y = sub[target].to_numpy().astype(int)
             rows.append(
                 {
+                    "target": target,
                     "factor": factor,
                     "period": period,
                     "n": sub.height,
                     "ic": _spearman(x, y),
                     "auc": _auc(y, x),
-                    "tail_low": float(y[x <= thresholds[0]].mean()),
-                    "tail_high": float(y[x >= thresholds[1]].mean()),
+                    "rate_low": float(y[x <= thresholds[0]].mean()),
+                    "rate_high": float(y[x >= thresholds[1]].mean()),
                     "n_low": int((x <= thresholds[0]).sum()),
                     "n_high": int((x >= thresholds[1]).sum()),
                 }
@@ -278,7 +288,7 @@ def univariate(frame: pl.DataFrame) -> list[dict]:
     return rows
 
 
-def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
+def models(frame: pl.DataFrame, target: str, samples: int, seed: int) -> dict:
     development = frame.filter(pl.col("period") == "development")
     fitted: dict[str, tuple[dict, np.ndarray]] = {}
     results: dict[str, dict] = {}
@@ -288,10 +298,10 @@ def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
             pl.all_horizontal([pl.col(f).is_not_null() for f in features])
         )
         x_fit = _matrix(fit_rows, features, stats)
-        y_fit = fit_rows["tail20"].to_numpy().astype(int)
+        y_fit = fit_rows[target].to_numpy().astype(int)
         beta = _fit_logistic(x_fit, y_fit)
         fitted[name] = (stats, beta)
-        probability_fit = _sigmoid(np.column_stack([np.ones(len(x_fit)), x_fit]) @ beta)
+        probability_fit = _predict(fit_rows, features, stats, beta)
         threshold = float(np.percentile(probability_fit, 0.90))
         model_result = {
             "features": list(features),
@@ -313,25 +323,39 @@ def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
             if sub.height < 100:
                 continue
             probability = _predict(sub, features, stats, beta)
-            y = sub["tail20"].to_numpy().astype(int)
+            y = sub[target].to_numpy().astype(int)
             days = sub["date_str"].to_numpy()
             auc = _auc(y, probability)
             auc_low, auc_high = _auc_ci(y, probability, days, samples, seed)
-            mask = probability >= np.percentile(probability, 90)
-            diff, diff_low, diff_high = bootstrap_diff(
-                days, y.astype(float), mask, samples=samples, seed=seed
+            top = probability >= np.percentile(probability, 90)
+            bottom = probability <= np.percentile(probability, 10)
+            diff_top, top_low, top_high = bootstrap_diff(
+                days, y.astype(float), top, samples=samples, seed=seed
+            )
+            diff_bottom, bottom_low, bottom_high = bootstrap_diff(
+                days, y.astype(float), bottom, samples=samples, seed=seed
             )
             model_result["periods"][period] = {
                 "n": sub.height,
                 "auc": auc,
                 "auc_low": auc_low,
                 "auc_high": auc_high,
-                "tail_top": float(y[mask].mean()) if mask.any() else None,
-                "tail_rest": float(y[~mask].mean()) if (~mask).any() else None,
-                "tail_diff": diff,
-                "tail_diff_low": diff_low,
-                "tail_diff_high": diff_high,
-                "n_top": int(mask.sum()),
+                "top": {
+                    "n": int(top.sum()),
+                    "rate": float(y[top].mean()) if top.any() else None,
+                    "rest": float(y[~top].mean()) if (~top).any() else None,
+                    "diff": diff_top,
+                    "ci_low": top_low,
+                    "ci_high": top_high,
+                },
+                "bottom": {
+                    "n": int(bottom.sum()),
+                    "rate": float(y[bottom].mean()) if bottom.any() else None,
+                    "rest": float(y[~bottom].mean()) if (~bottom).any() else None,
+                    "diff": diff_bottom,
+                    "ci_low": bottom_low,
+                    "ci_high": bottom_high,
+                },
             }
         results[name] = model_result
     comparisons = {}
@@ -342,7 +366,7 @@ def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
         )
         if sub.height < 100:
             continue
-        y = sub["tail20"].to_numpy().astype(int)
+        y = sub[target].to_numpy().astype(int)
         days = sub["date_str"].to_numpy()
         probabilities = {
             name: _predict(sub, features, *fitted[name]) for name, features in MODELS.items()
@@ -362,7 +386,6 @@ def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
                 "n": sub.height,
             }
     deciles = []
-    combined = results["combined"]
     for period in ("development", "validation", "stress"):
         sub = frame.filter(
             (pl.col("period") == period)
@@ -373,7 +396,7 @@ def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
         probability = _predict(sub, MODELS["combined"], *fitted["combined"])
         edges = np.percentile(probability, np.arange(10, 100, 10))
         bucket = 1 + np.searchsorted(edges, probability, side="right")
-        y = sub["tail20"].to_numpy().astype(float)
+        y = sub[target].to_numpy().astype(float)
         for value in range(1, 11):
             mask = bucket == value
             if not mask.any():
@@ -391,7 +414,6 @@ def models(frame: pl.DataFrame, samples: int, seed: int) -> dict:
         "models": results,
         "comparisons": comparisons,
         "deciles": deciles,
-        "decile_edges": combined["threshold_dev_p90"],
     }
 
 
@@ -426,12 +448,11 @@ def main() -> None:
         args.end_year,
     )
     frame = prepare(aggregated)
-    factor_rows = univariate(frame)
-    model_results = models(frame, args.bootstrap_samples, 20261101)
     results = {
         "version": VERSION,
         "generated_at": dt.datetime.now(dt.UTC).isoformat(),
         "tail_threshold": TAIL,
+        "stop_threshold": STOP,
         "sessions": SESSIONS,
         "sample": {
             "total": frame.height,
@@ -439,47 +460,48 @@ def main() -> None:
                 row["period"]: row["len"]
                 for row in frame.group_by("period").len().sort("period").to_dicts()
             },
+            "left_tail_rates": {
+                row["period"]: {"stop6": row["stop6"], "mae10": row["mae10"]}
+                for row in (
+                    frame.group_by("period")
+                    .agg(
+                        pl.col("stop6").mean().alias("stop6"),
+                        pl.col("mae10").mean().alias("mae10"),
+                    )
+                    .sort("period")
+                    .to_dicts()
+                )
+            },
         },
-        "univariate": factor_rows,
-        "models": model_results["models"],
-        "comparisons": model_results["comparisons"],
-        "deciles": model_results["deciles"],
+        "targets": {},
         "warnings": [
-            "Conditional event study; right-tail probability is not a tradable return.",
+            "Conditional event study; tail probabilities are not tradable returns.",
             "Deciles and logistic coefficients are fitted on 2020-2022 only.",
             "Univariate IC/AUC are descriptive; only the model comparisons are inferential.",
             "2026-07 auction partitions are missing; extension is 2026-08/09 only.",
-            "AUC/tail differences use day-clustered bootstrap intervals.",
+            "AUC/rate differences use day-clustered bootstrap intervals.",
         ],
     }
+    for name, target in TARGETS.items():
+        results["targets"][name] = {
+            "label": target,
+            "univariate": univariate(frame, target),
+            **models(frame, target, args.bootstrap_samples, 20261101),
+        }
     (args.output / "results.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    print(
-        json.dumps(
-            {
-                "sample": results["sample"],
-                "comparisons": results["comparisons"],
-                "models": {
-                    name: {
-                        period: {
-                            "auc": round(row["auc"], 4),
-                            "tail_top": round(row["tail_top"], 4)
-                            if row["tail_top"] is not None
-                            else None,
-                            "tail_rest": round(row["tail_rest"], 4)
-                            if row["tail_rest"] is not None
-                            else None,
-                        }
-                        for period, row in model["periods"].items()
-                    }
-                    for name, model in results["models"].items()
-                },
-            },
-            indent=2,
-            ensure_ascii=False,
-        )
-    )
+    for name, target in TARGETS.items():
+        print(name, target)
+        for model_name, model in results["targets"][name]["models"].items():
+            for period, row in model["periods"].items():
+                if period == "development":
+                    continue
+                print(
+                    f"  {model_name:9s} {period:10s} auc={row['auc']:.3f} "
+                    f"top={row['top']['rate']:.3f}/{row['top']['rest']:.3f} "
+                    f"bottom={row['bottom']['rate']:.3f}/{row['bottom']['rest']:.3f}"
+                )
 
 
 if __name__ == "__main__":
