@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date
 
 import polars as pl
+import pytest
 
 from app.custom.first_board_event_chain.compute import (
     EVENT_CHAIN_FIELDS,
@@ -12,6 +13,7 @@ from app.extensions.factors import (
     FactorProvider,
     FactorProviderContext,
     ensure_factor_providers,
+    factor_provider_contract_signature,
     factor_provider_for,
     materialize_factor_columns,
     provider_factor_ids,
@@ -111,3 +113,84 @@ def test_register_factor_provider_registers_metadata_once() -> None:
         assert get_factor("test_provider_value") is not None
     finally:
         unregister_factor_provider(provider.provider_id)
+
+
+def test_provider_version_params_and_null_policy_are_enforced() -> None:
+    class _Provider(FactorProvider):
+        provider_id = "test.null-policy-provider"
+        version = 1
+        factor_ids = frozenset({"test_provider_nullable"})
+        factor_specs = (
+            FactorSpec(
+                id="test_provider_nullable",
+                label="Nullable provider test",
+                group="test",
+                formula_text="close",
+            ),
+        )
+
+        def dependencies(self, factor_id: str) -> frozenset[str]:
+            del factor_id
+            return frozenset({"close"})
+
+        def warmup_bars(self, factor_id: str) -> int:
+            del factor_id
+            return 1
+
+        def params(self, factor_id: str):
+            del factor_id
+            return {"threshold": 2}
+
+        def null_policy(self, factor_id: str):
+            del factor_id
+            return "drop_row"
+
+        def materialize_frame(
+            self,
+            frame: pl.DataFrame,
+            names: frozenset[str],
+            context: FactorProviderContext,
+        ) -> pl.DataFrame:
+            del names, context
+            return frame.with_columns(
+                pl.when(pl.int_range(pl.len()) == 1)
+                .then(None)
+                .otherwise(pl.col("close"))
+                .alias("test_provider_nullable")
+            )
+
+    provider = _Provider()
+    register_factor_provider(provider)
+    try:
+        assert factor_provider_contract_signature(
+            provider.factor_ids,
+        )["test_provider_nullable"]["params"] == {"threshold": 2}
+
+        actual = materialize_factor_columns(
+            _event_frame(),
+            provider.factor_ids,
+            context=FactorProviderContext(),
+        )
+
+        assert actual.height == 4
+        assert actual["test_provider_nullable"].null_count() == 0
+    finally:
+        unregister_factor_provider(provider.provider_id)
+
+
+def test_provider_rejects_incompatible_api_version() -> None:
+    class _Provider(FactorProvider):
+        api_version = 999
+        provider_id = "test.bad-api-version"
+        factor_ids = frozenset({"test_bad_api_version"})
+
+        def dependencies(self, factor_id: str) -> frozenset[str]:
+            del factor_id
+            return frozenset()
+
+        def warmup_bars(self, factor_id: str) -> int:
+            del factor_id
+            return 1
+
+    with pytest.raises(ValueError, match="API v999"):
+        register_factor_provider(_Provider())

@@ -13,6 +13,7 @@ from app.backtest.result_read import BacktestResultReadAdapter
 from app.extensions.adapters import repository_read_adapters
 from app.extensions.contracts import (
     BACKEND_EXTENSION_API_VERSION,
+    AnalysisRead,
     BacktestResultRead,
     EnrichedPanelRead,
     MarketDataRead,
@@ -53,7 +54,7 @@ class QuoteRuntimeRead(Protocol):
 class ExtensionRuntime:
     api_version: int
     data_dir: Path
-    repository: Any
+    analysis: AnalysisRead
     market_data: MarketDataRead
     enriched_panel: EnrichedPanelRead
     backtest_results: BacktestResultRead
@@ -61,7 +62,6 @@ class ExtensionRuntime:
     strategy_engine: StrategyRuntimeRead | None
     screener: ScreenerRuntimeRead | None
     quote_service: QuoteRuntimeRead | None
-    depth_service: Any
     financial_scheduler: Any
     alerts: AlertPublisher
     monitor_rules: MonitorRuleSynchronizer
@@ -141,10 +141,16 @@ def build_extension_runtime(
     financial_scheduler: Any = None,
 ) -> ExtensionRuntime:
     market_data, enriched_panel = repository_read_adapters(repository)
+    from app.extensions.adapters import RepositoryAnalysis
+
     return ExtensionRuntime(
         api_version=BACKEND_EXTENSION_API_VERSION,
         data_dir=Path(data_dir),
-        repository=repository,
+        analysis=RepositoryAnalysis(
+            repository,
+            quote_service,
+            depth_service,
+        ),
         market_data=market_data,
         enriched_panel=enriched_panel,
         backtest_results=BacktestResultReadAdapter(data_dir),
@@ -152,7 +158,6 @@ def build_extension_runtime(
         strategy_engine=strategy_engine,
         screener=screener,
         quote_service=quote_service,
-        depth_service=depth_service,
         financial_scheduler=financial_scheduler,
         alerts=CoreAlertPublisher(data_dir, quote_service),
         monitor_rules=CoreMonitorRuleSynchronizer(

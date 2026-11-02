@@ -113,7 +113,6 @@ def current_extension_context(*, data_dir, repository) -> ExtensionContext:
     return ExtensionContext(
         api_version=BACKEND_EXTENSION_API_VERSION,
         data_dir=data_dir,
-        repository=repository,
         market_data=market_data,
         enriched_panel=enriched_panel,
         backtest_read=BacktestReadAdapter(repository),

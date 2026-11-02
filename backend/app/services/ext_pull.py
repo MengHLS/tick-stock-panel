@@ -678,22 +678,28 @@ def _today_target(now: datetime, hhmm: str) -> datetime:
     return now.replace(hour=int(hhmm[:2]), minute=int(hhmm[3:5]), second=0, microsecond=0)
 
 
+def _last_run_at(pull: PullConfig) -> datetime | None:
+    """解析 last_run (UTC ISO); 缺失或损坏返回 None。"""
+    raw = pull.last_run
+    if not raw:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(raw))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(CN_TZ)
+
+
 def _ran_at_or_after(pull: PullConfig, target: datetime) -> bool:
     """上次执行 (last_run, UTC ISO) 是否已不早于 target — 重启后不重复拉当天。
 
     解析失败按「未拉过」处理: 拉取本身幂等 (同日分区去重覆盖), 宁可重拉一次
     也不要因为状态字段脏了而整天静默跳过。
     """
-    raw = pull.last_run
-    if not raw:
-        return False
-    try:
-        dt = datetime.fromisoformat(str(raw))
-    except ValueError:
-        return False
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=UTC)
-    return dt.astimezone(CN_TZ) >= target
+    last_run = _last_run_at(pull)
+    return last_run is not None and last_run >= target
 
 
 def _is_scheduled_day(now: datetime, pull: PullConfig) -> bool:
@@ -747,16 +753,26 @@ class PullScheduler:
         self._running = False
         self._loop: asyncio.AbstractEventLoop | None = None
         self._enabled = True
+        self._on_data_written: Callable[[], None] | None = None
 
-    def start(self, data_dir, *, enabled: bool = True) -> None:
+    def start(
+        self,
+        data_dir,
+        *,
+        enabled: bool = True,
+        on_data_written: Callable[[], None] | None = None,
+    ) -> None:
         """启动调度（在 lifespan startup 调用，主事件循环内）。
 
         enabled=False 时仍建立事件循环引用，保证后续 configure_pull 调用
         refresh() 安全 no-op，而不是因 _loop 为空抛 500。
+        on_data_written 用于清理依赖扩展表的进程内缓存；调度器不持有
+        repository，避免业务任务重新绑定核心数据服务。
         """
         self._running = True
         self._data_dir = data_dir
         self._enabled = enabled
+        self._on_data_written = on_data_written
         try:
             self._loop = asyncio.get_running_loop()
         except RuntimeError:
@@ -838,6 +854,15 @@ class PullScheduler:
             n, d = await fetch_and_ingest(
                 fresh, self._data_dir, keep_strategy_cache=True
             )
+            if self._on_data_written is not None:
+                try:
+                    self._on_data_written()
+                except Exception as exc:  # noqa: BLE001 - cache cleanup is best effort
+                    logger.warning(
+                        "PullScheduler: %s cache invalidation failed: %s",
+                        fresh.id,
+                        exc,
+                    )
             fresh.pull.last_run = datetime.now(UTC).isoformat()
             fresh.pull.last_status = "success"
             fresh.pull.last_message = f"{n} rows @ {d}"
@@ -964,6 +989,33 @@ class PullScheduler:
                     )
                     continue
 
+                interval = max(pull.schedule_minutes * 60, 60)  # 至少 60s
+
+                # 窗口打开不代表每次 60s 轮询都要拉取; 以 last_run + interval
+                # 判断是否到期。旧实现睡眠 60s 后直接执行, schedule_minutes
+                # 在窗口内被完全忽略。
+                if windowed:
+                    last_run = _last_run_at(pull)
+                    if last_run is not None:
+                        due = last_run + timedelta(seconds=interval)
+                        if now < due:
+                            due_iso = due.astimezone(UTC).isoformat()
+                            latest = store.get(config.id)
+                            if (
+                                latest
+                                and latest.pull
+                                and latest.pull.next_run != due_iso
+                            ):
+                                latest.pull.next_run = due_iso
+                                store.upsert(latest, keep_strategy_cache=True)
+                            await asyncio.sleep(
+                                min(
+                                    _DAILY_POLL_SECONDS,
+                                    max((due - now).total_seconds(), 1.0),
+                                )
+                            )
+                            continue
+
                 # 时间窗口检查: 不在窗口内则跳过本次拉取
                 if not _in_time_window(pull.time_window_start, pull.time_window_end):
                     fresh.pull.last_run = datetime.now(UTC).isoformat()
@@ -971,15 +1023,12 @@ class PullScheduler:
                     fresh.pull.last_message = "不在拉取时间窗口内"
                     store.upsert(fresh, keep_strategy_cache=True)
                     logger.info("PullScheduler: %s skipped (outside time window)", config.id)
-                    interval = max(pull.schedule_minutes * 60, 60)
                     await self._sleep_interval_reloading(config.id, store, interval)
                     continue
 
-                # 先执行一次 (启用即拉取, 让用户立刻看到生效)
+                # 到期后执行; 首次启用 (无 last_run) 立即执行, 让用户看到生效。
                 await self._execute_pull(fresh, store)
 
-                # 间隔取自最新配置 (每次重新读取, 修复改间隔不生效)
-                interval = max(pull.schedule_minutes * 60, 60)  # 至少 60s
                 # 预告下次运行时间, 供前端展示
                 if windowed:
                     next_run = _next_window_run(

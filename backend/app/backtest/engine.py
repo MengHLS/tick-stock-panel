@@ -12,7 +12,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import polars as pl
@@ -224,6 +224,7 @@ class MatcherConfig:
     entry_price_basis: Literal["adjusted", "raw"] = "adjusted"
     block_limit_open: bool = False
     execution_costs: ExecutionCostPolicy | None = None
+    cost_model: Any | None = None
     # 自定义仓位策略 (position_sizing="policy"): 运行期由 strategy 层解析注入,
     # 引擎不接触注册表/磁盘 — compute 为纯函数, params 为 META 默认值合并请求值。
     # 这两个字段不参与任何缓存键/序列化。
@@ -270,14 +271,24 @@ class MatcherConfig:
         # commission_pct 显式给出时优先, 否则回退 fees_pct (向后兼容双边佣金)。
         return self.commission_pct if self.commission_pct is not None else self.fees_pct
 
-    def buy_cost_pct(self) -> float:
+    def _core_buy_cost_pct(self) -> float:
         # 买入腿: 佣金 + 滑点。
         return self._commission_pct() + self.slippage_bps / 10000.0
 
-    def sell_cost_pct(self) -> float:
+    def _core_sell_cost_pct(self) -> float:
         # 卖出腿: 佣金 + 印花税 + 滑点。印花税未设时为 0 (向后兼容)。
         stamp = self.stamp_tax_pct if self.stamp_tax_pct is not None else 0.0
         return self._commission_pct() + stamp + self.slippage_bps / 10000.0
+
+    def buy_cost_pct(self) -> float:
+        if self.cost_model is not None:
+            return float(self.cost_model.buy_cost_pct(self))
+        return self._core_buy_cost_pct()
+
+    def sell_cost_pct(self) -> float:
+        if self.cost_model is not None:
+            return float(self.cost_model.sell_cost_pct(self))
+        return self._core_sell_cost_pct()
 
 
 # full 独立撮合未实现的执行规则 (字段, 中文名称), 顺序稳定。
@@ -699,7 +710,7 @@ class BacktestEngine:
         expected_linkage = _linkage_generation
         if linkage_names:
             if data_dir is None:
-                raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+                raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
             if expected_linkage is None:
                 expected_linkage = factor_provider_generation(
                     linkage_names,
@@ -858,7 +869,7 @@ class BacktestEngine:
             | set(getattr(feature_plan, "linkage_columns", frozenset()))
         ) & sidecar_names
         if linkage_names and data_dir is None:
-            raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+            raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
         linkage_generation = (
             factor_provider_generation(
                 linkage_names,

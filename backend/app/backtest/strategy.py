@@ -107,7 +107,7 @@ class ResolvedFeaturePlan:
     execution_backend: str = "polars_expr"
     # 财务因子列不落 enriched 存储, 由 engine 在加载口按公告日门控附加。
     fundamental_columns: frozenset[str] = frozenset()
-    # 截面联动因子由独立 sidecar 提供, 不进入 enriched 物理列加载。
+    # 扩展 Provider 的 sidecar 因子不进入 enriched 物理列加载。
     linkage_columns: frozenset[str] = frozenset()
     historical_st: bool = False
 
@@ -469,12 +469,18 @@ def build_matrix_cache_profile(
         | set(merged.instrument_columns)
         | set(merged.matrix_columns)
     ) - set(merged.linkage_columns)
+    from app.extensions.factors import factor_provider_contract_signature
+
     generation_payload = json.dumps(
         {
             "asset_type": asset_type,
             "fields": sorted(fields),
             "warmup_bars": merged.warmup_bars,
             "forward_bars": forward_bars,
+            "provider_contract": factor_provider_contract_signature(
+                fields,
+                asset_type=asset_type,
+            ),
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -1435,6 +1441,10 @@ class StrategyBacktestService:
             execution_policy = self._strategy_execution_policy(s)
         except (TypeError, ValueError) as e:
             return _err(f"策略执行策略配置无效: {e}")
+        try:
+            cost_model = self._resolve_backtest_cost_model(s)
+        except (TypeError, ValueError) as e:
+            return _err(f"策略回测成本模型配置无效: {e}")
         if config.mode == "full":
             # 数据加载/信号生成之前 fail-closed: 独立撮合未实现的执行规则
             # 不能因空数据或无候选而被绕过, 也不能自动降级。
@@ -1487,6 +1497,8 @@ class StrategyBacktestService:
             # 信号分钟收盘价入场, 之后复用日K矩阵模拟的离场与组合管理。
             return self._run_minute_backtest(
                 config, s, params, overrides,
+                execution_policy=execution_policy,
+                cost_model=cost_model,
                 stop_loss=stop_loss,
                 take_profit=take_profit,
                 trailing_stop=trailing_stop,
@@ -1723,6 +1735,7 @@ class StrategyBacktestService:
             max_daily_entries=execution_policy["max_daily_entries"],
             entry_price_basis=execution_policy["entry_price_basis"],
             block_limit_open=execution_policy["block_limit_open"],
+            cost_model=cost_model,
             position_policy_compute=position_policy_compute,
             position_policy_params=position_policy_params,
             minute_fill=config.minute_fill,
@@ -1893,9 +1906,9 @@ class StrategyBacktestService:
                     protect_strategy_cache=prepared is not None,
                 )
                 strategy_params = dict(params)
-                # Keep pre-start warmup bars out of the event universe. The
-                # first-board seed is observable only when its event day is
-                # inside the formal backtest window.
+                # Keep pre-start warmup bars out of the event universe. Event
+                # strategies can observe an event only when its day is inside
+                # the formal backtest window.
                 strategy_params["_event_start"] = config.start.isoformat()
                 if prepared is None:
                     signal_matrix = MatrixStrategyPipeline().run(
@@ -2229,6 +2242,8 @@ class StrategyBacktestService:
         params: dict,
         overrides: dict,
         *,
+        execution_policy: dict,
+        cost_model,
         stop_loss,
         take_profit,
         trailing_stop,
@@ -2264,6 +2279,11 @@ class StrategyBacktestService:
             )
         if config.exit_fill == "signal_next_minute":
             return _err("分钟策略回测暂不支持「信号触发卖出」离场口径")
+        if execution_policy["plan_at_signal_close"]:
+            return _err(
+                "分钟策略按触发分钟收盘价入场，不能同时启用 "
+                "backtest_defaults.plan_at_signal_close；请关闭该规则后重试"
+            )
 
         minute_days = self.engine.repo.list_minute_dates(config.start, config.end, "stock")
         if not minute_days:
@@ -2398,6 +2418,22 @@ class StrategyBacktestService:
             score_max=score_max,
             initial_capital=config.initial_capital,
             position_sizing=config.position_sizing,
+            score_tiers=execution_policy["score_tiers"],
+            entry_open_gap_range=execution_policy["entry_open_gap_range"],
+            entry_prev_day_change_range=execution_policy[
+                "entry_prev_day_change_range"
+            ],
+            trailing_peak_price=execution_policy["trailing_peak_price"],
+            exit_signal_requires_profit=execution_policy[
+                "exit_signal_requires_profit"
+            ],
+            hold_extension_policy=execution_policy["hold_extension_policy"],
+            execution_costs=execution_policy["execution_costs"],
+            plan_at_signal_close=False,
+            max_daily_entries=execution_policy["max_daily_entries"],
+            entry_price_basis=execution_policy["entry_price_basis"],
+            block_limit_open=execution_policy["block_limit_open"],
+            cost_model=cost_model,
             position_policy_compute=position_policy_compute,
             position_policy_params=position_policy_params,
             # 分钟策略的成交价由 entry_price_override 提供 (触发分钟收盘),
@@ -3031,6 +3067,18 @@ class StrategyBacktestService:
             s.meta.get("backtest_defaults"),
             context=f"strategy {s.meta.get('id', '<unknown>')}",
         ).engine_options()
+
+    @staticmethod
+    def _resolve_backtest_cost_model(s: StrategyDef):
+        model_id = s.meta.get("backtest_cost_model")
+        if not model_id:
+            return None
+        from app.extensions.strategies import strategy_extension
+
+        model = strategy_extension("backtest_cost_model", str(model_id))
+        if model is None:
+            raise ValueError(f"未注册的回测成本模型: {model_id}")
+        return model
 
     @staticmethod
     def _normalize_params(params: dict, s: StrategyDef) -> dict:

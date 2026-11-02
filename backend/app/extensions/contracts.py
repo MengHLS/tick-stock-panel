@@ -59,6 +59,26 @@ class MarketDataRead(Protocol):
 
     def get_st_history(self) -> pl.DataFrame: ...
 
+    def get_adj_factors(self, day: date) -> pl.DataFrame: ...
+
+    def read_dataset_partition(
+        self,
+        dataset: str,
+        day: date,
+        columns: list[str] | None = None,
+        *,
+        file_name: str = "part.parquet",
+    ) -> pl.DataFrame: ...
+
+    def dataset_partition_dates(
+        self,
+        dataset: str,
+        start: date,
+        end: date,
+    ) -> list[date]: ...
+
+    def dataset_partition_signature(self, dataset: str, suffix: str) -> str: ...
+
 
 class EnrichedPanelRead(Protocol):
     """Stable generation-aware enriched panel reads for extensions."""
@@ -119,11 +139,67 @@ class BacktestResultRead(Protocol):
     def get_completed(self, run_id: str) -> dict | None: ...
 
 
+class AnalysisRead(Protocol):
+    """Curated request-time reads for analysis-oriented extensions.
+
+    This surface deliberately exposes business results instead of repository
+    methods, so custom modules cannot bind to storage layout or concrete
+    repository implementations.
+    """
+
+    def quotes(self, symbols: list[str]) -> pl.DataFrame: ...
+
+    def names(self, symbols: list[str]) -> dict[str, str]: ...
+
+    def asset_type(self, symbol: str) -> str: ...
+
+    def enriched_latest(
+        self,
+        asset_type: str = "stock",
+        *,
+        refresh: bool = True,
+    ) -> tuple[pl.DataFrame, date | None]: ...
+
+    def daily(
+        self,
+        symbol: str,
+        start: date,
+        end: date,
+    ) -> pl.DataFrame: ...
+
+    def latest_intraday(
+        self,
+        symbol: str,
+        fallback_date: date | None = None,
+    ) -> tuple[pl.DataFrame, date | None]: ...
+
+    def index_quotes(self) -> pl.DataFrame: ...
+
+    def listing_dates(self) -> dict[str, date]: ...
+
+    def dataset_dates(self, dataset: str) -> list[str]: ...
+
+    def market_overview(self) -> dict[str, Any]: ...
+
+    def sector_rotation(self, kind: str, top: int) -> dict[str, Any]: ...
+
+    def abnormal_moves(self, kind: str, limit: int) -> dict[str, Any]: ...
+
+    async def trigger_pipeline(self, capabilities: Any) -> dict[str, Any]: ...
+
+    async def trigger_minute_extend(
+        self,
+        capabilities: Any,
+        days: int,
+    ) -> dict[str, Any]: ...
+
+    def invalidate_cache(self) -> None: ...
+
+
 @dataclass(frozen=True)
 class ExtensionContext:
     api_version: int
     data_dir: Path
-    repository: RepositoryAccess
     market_data: MarketDataRead | None = None
     enriched_panel: EnrichedPanelRead | None = None
     backtest_read: BacktestRead | None = None

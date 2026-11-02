@@ -10,6 +10,7 @@ from app.custom.cross_sectional_linkage.compute import (
     DEVIATION_FACTOR_IDS,
     LINKAGE_FACTOR_IDS,
 )
+from app.custom.cross_sectional_linkage.factor_specs import LINKAGE_FACTOR_SPECS
 from app.extensions.factors import (
     FactorProvider,
     FactorProviderContext,
@@ -31,6 +32,7 @@ class CrossSectionalLinkageProvider(FactorProvider):
     version = 1
     kind = "sidecar"
     factor_ids = frozenset(LINKAGE_FACTOR_IDS)
+    factor_specs = LINKAGE_FACTOR_SPECS
     transient_errors = (linkage_store.LinkageReadUnstableError,)
     coverage_errors = (linkage_store.LinkageCoverageError,)
 

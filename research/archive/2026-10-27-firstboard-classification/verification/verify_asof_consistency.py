@@ -32,7 +32,7 @@ REPO = DRAFT.parents[2]
 BACKEND = REPO / "backend"
 sys.path.insert(0, str(BACKEND))
 
-from app.factors.event_chain import (  # noqa: E402
+from app.custom.first_board_event_chain.compute import (  # noqa: E402
     EVENT_CHAIN_FIELDS,
     DEFAULT_EVENT_CHAIN_CONFIG,
     compute_event_chain_outputs,

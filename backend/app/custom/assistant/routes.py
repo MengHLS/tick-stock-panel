@@ -78,10 +78,8 @@ def build_router() -> APIRouter:
                 context=context,
                 engine=runtime.strategy_engine,
                 data_dir=str(runtime.data_dir),
-                repo=runtime.repository,
+                analysis=runtime.analysis,
                 screener=runtime.screener,
-                quote_service=runtime.quote_service,
-                depth_service=runtime.depth_service,
                 capabilities=runtime.capabilities,
                 financial_scheduler=runtime.financial_scheduler,
             )):

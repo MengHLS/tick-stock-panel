@@ -132,7 +132,7 @@ def trial_formula(req: FormulaTrialRequest, request: Request) -> dict:
     if linkage_names and data_dir is None:
         raise HTTPException(
             status_code=400,
-            detail="联动因子需要稳定的数据目录 (data_dir)",
+            detail="扩展 Provider 因子需要稳定的数据目录 (data_dir)",
         )
     if to_compute:
         try:
@@ -316,7 +316,7 @@ def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -
     if linkage_names and data_dir is None:
         raise HTTPException(
             status_code=400,
-            detail="联动因子需要稳定的数据目录 (data_dir)",
+            detail="扩展 Provider 因子需要稳定的数据目录 (data_dir)",
         )
     if to_compute:
         try:

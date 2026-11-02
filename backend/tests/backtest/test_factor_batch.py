@@ -17,7 +17,7 @@ from app.backtest.factor import (
     FactorConfig,
 )
 from app.enriched_generation import bump_enriched_generation
-from app.factors.linkage import LINKAGE_FACTOR_IDS
+from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
 
 
 def _panel() -> pl.DataFrame:

@@ -216,6 +216,20 @@ def test_adj_factor_routes_independently(monkeypatch):
     assert caps["daily"]["usable"] is True
 
 
+def test_removed_st_provider_falls_back_to_local_history(monkeypatch):
+    """ST 默认源不是 TickFlow；自定义 ST 源卸载后 getter 必须自愈。"""
+    from app.services import preferences
+
+    monkeypatch.setattr(
+        preferences,
+        "load",
+        lambda: {"st_history_data_provider": "removed_st_source"},
+    )
+    monkeypatch.setattr(custom_sources, "names", lambda: set())
+
+    assert preferences.get_st_history_provider() == "local_st_history"
+
+
 def test_depth5_capability_semantics(monkeypatch):
     """五档可独立路由到声明 depth5 的插件, 不受 TickFlow 档位限制。"""
     _fake_sources(

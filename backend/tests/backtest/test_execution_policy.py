@@ -138,8 +138,8 @@ def test_first_limit_pullback_strategy_declares_v1() -> None:
     path = (
         Path(__file__).resolve().parents[2]
         / "app"
-        / "strategy"
-        / "research"
+        / "custom"
+        / "first_board_event_chain"
         / "first_limit_pullback_3f_runner_t74.py"
     )
     strategy = StrategyEngine._load_file(path)

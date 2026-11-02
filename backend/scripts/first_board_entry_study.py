@@ -37,7 +37,7 @@ from app.backtest.matrix import (
     valid_shift,
 )
 from app.backtest.strategy import StrategyBacktestService, StrategyDependencyResolver
-from app.factors.event_chain import (
+from app.custom.first_board_event_chain.compute import (
     DEFAULT_EVENT_CHAIN_CONFIG,
     _evaluate_anchor,
     compute_event_chain_outputs,

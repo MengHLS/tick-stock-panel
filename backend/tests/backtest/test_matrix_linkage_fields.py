@@ -13,8 +13,11 @@ import pytest
 from app.backtest.engine import BacktestEngine
 from app.backtest.matrix import MatrixCacheProfile
 from app.enriched_generation import bump_enriched_generation
-from app.factors.linkage import LINKAGE_FACTOR_IDS
-from app.factors.linkage_store import LinkageCoverageError, LinkageReadUnstableError
+from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
+from app.custom.cross_sectional_linkage.store import (
+    LinkageCoverageError,
+    LinkageReadUnstableError,
+)
 from app.strategy.engine import StrategyDataContext, StrategyDef, StrategyEngine
 from app.tickflow.repository import DataStore, KlineRepository
 

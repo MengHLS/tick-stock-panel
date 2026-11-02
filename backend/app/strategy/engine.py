@@ -339,6 +339,29 @@ class StrategyEngine:
                     logger.warning("load strategy %s failed: %s", f.name, e)
                     errors.append({"file": str(f), "error": str(e)})
 
+        from app.extensions.strategies import strategy_providers
+
+        for provider in strategy_providers():
+            source = f"provider:{provider.__class__.__name__}"
+            try:
+                definitions = provider.strategy_definitions()
+            except Exception as e:  # noqa: BLE001 - isolate one optional provider
+                errors.append({"file": source, "error": str(e)})
+                continue
+            for strategy in definitions:
+                try:
+                    strategy_id = str(strategy.meta["id"])
+                except Exception as e:  # noqa: BLE001 - malformed provider item
+                    errors.append({"file": source, "error": str(e)})
+                    continue
+                if strategy_id in candidates:
+                    errors.append({
+                        "file": source,
+                        "error": f"duplicate strategy id {strategy_id!r}",
+                    })
+                    continue
+                candidates[strategy_id] = strategy
+
         # 第二阶段: 校验 composite 引用合法性。
         # _load_file 是 staticmethod, 加载单个文件时无法判断 child 是否存在;
         # 此处已拿到全部 candidates, 可做引用、嵌套、asset_types 与数量校验。
@@ -425,7 +448,7 @@ class StrategyEngine:
         dependency_paths = [
             candidate
             for candidate in path.parent.glob("_*.py")
-            if candidate != path
+            if candidate != path and candidate.name != "__init__.py"
         ]
         dependency_names = frozenset(candidate.stem for candidate in dependency_paths)
         try:
@@ -1192,8 +1215,50 @@ class StrategyEngine:
                 else:
                     df = df.filter(overlay_expr.fill_null(False))
 
+        from app.extensions.strategies import (
+            StrategyPolicyContext,
+            strategy_extension,
+        )
+
+        policy_context = StrategyPolicyContext(
+            asset_type=context.asset_type,
+            as_of=as_of,
+            strategy_id=strategy_id,
+            params=dict(params),
+            metadata=dict(s.meta),
+        )
+        candidate_filter_id = s.meta.get("candidate_filter")
+        if candidate_filter_id:
+            candidate_filter = strategy_extension(
+                "candidate_filter",
+                str(candidate_filter_id),
+            )
+            if candidate_filter is None:
+                raise ValueError(f"未注册的候选过滤器: {candidate_filter_id}")
+            df = candidate_filter.filter_candidates(df, policy_context)
+        risk_policy_id = s.meta.get("risk_policy")
+        if risk_policy_id:
+            risk_policy = strategy_extension("risk_policy", str(risk_policy_id))
+            if risk_policy is None:
+                raise ValueError(f"未注册的风险策略: {risk_policy_id}")
+            df = risk_policy.filter_entries(df, policy_context)
+
         # Stage 3: 评分
         df = self._apply_scoring(df, scoring, scoring_directions)
+        scoring_policy_id = s.meta.get("scoring_policy")
+        if scoring_policy_id:
+            scoring_policy = strategy_extension(
+                "scoring_policy",
+                str(scoring_policy_id),
+            )
+            if scoring_policy is None:
+                raise ValueError(f"未注册的评分策略: {scoring_policy_id}")
+            policy_score = scoring_policy.score(df, policy_context)
+            if not isinstance(policy_score, pl.Series) or len(policy_score) != df.height:
+                raise ValueError(
+                    f"评分策略 {scoring_policy_id} 必须返回与候选行数等长的 Series"
+                )
+            df = df.with_columns(policy_score.cast(pl.Float64).alias("score"))
         entry_signal_hits = self._collect_signal_hits(df, entry_signals)
         if not entry_signals and (
             s.filter_history_fn or s.filter_fn or s.execution_backend == "minute_filter"
@@ -1335,7 +1400,7 @@ class StrategyEngine:
             return context
         data_dir = self._user_data_dir()
         if data_dir is None:
-            raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+            raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
         from app.extensions.factors import (
             FactorProviderContext,
             factor_provider_generation,
@@ -2168,7 +2233,7 @@ class StrategyEngine:
             if not missing:
                 return frame
             if data_dir is None:
-                raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+                raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
             return materialize_factor_columns(
                 frame,
                 missing,

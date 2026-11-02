@@ -23,6 +23,7 @@ from app.custom.cross_sectional_linkage.compute import (
     compute_linkage_fields,
 )
 from app.enriched_generation import EnrichedPublication, get_enriched_generation
+from app.extensions import market_data_from_data_dir
 from app.indicators.pipeline import filter_halt_days, load_benchmark_momentum
 from app.market_time import CN_TZ
 from app.services.ext_data import ExtConfig, ExtConfigStore
@@ -116,10 +117,14 @@ def _integrity_issue_dates(data_dir: Path, today: date) -> set[date] | None:
 
 def _partition_is_finalized(data_dir: Path, day: date) -> bool:
     daily_dir = data_dir / "kline_daily" / f"date={day.isoformat()}"
-    enriched_dir = data_dir / "kline_daily_enriched" / f"date={day.isoformat()}"
-    daily = _read_partition_frame(daily_dir)
-    enriched = _read_partition_frame(enriched_dir, columns=["symbol", "raw_close"])
-    if daily is None or enriched is None or daily.is_empty() or enriched.is_empty():
+    market_data = market_data_from_data_dir(data_dir)
+    daily = market_data.read_dataset_partition("kline_daily", day)
+    enriched = market_data.read_dataset_partition(
+        "kline_daily_enriched",
+        day,
+        ["symbol", "raw_close"],
+    )
+    if daily.is_empty() or enriched.is_empty():
         return False
     if not {"symbol", "open", "high", "close"}.issubset(daily.columns):
         return False
@@ -189,8 +194,17 @@ def finalized_trading_dates(
     else:
         local_now = local_now.astimezone(CN_TZ)
     today = local_now.date()
-    daily = set(_partition_dates(data_dir / "kline_daily"))
-    enriched = set(_partition_dates(data_dir / "kline_daily_enriched"))
+    market_data = market_data_from_data_dir(data_dir)
+    daily = set(
+        market_data.dataset_partition_dates("kline_daily", date.min, today)
+    )
+    enriched = set(
+        market_data.dataset_partition_dates(
+            "kline_daily_enriched",
+            date.min,
+            today,
+        )
+    )
     bad_integrity = _integrity_issue_dates(data_dir, today)
     if bad_integrity is None:
         return []
@@ -245,29 +259,26 @@ def linkage_finalized_through(
     return finalized
 
 
-def _partition_signature(part_dir: Path) -> str:
-    digest = hashlib.sha256()
-    for path in sorted(part_dir.glob("*.parquet")):
-        stat = path.stat()
-        digest.update(path.name.encode("utf-8"))
-        digest.update(str(stat.st_size).encode("ascii"))
-        digest.update(str(stat.st_mtime_ns).encode("ascii"))
-    return digest.hexdigest()
-
-
 def _source_signatures(data_dir: Path, dates: list[date]) -> dict[str, str]:
+    market_data = market_data_from_data_dir(data_dir)
     signatures: dict[str, str] = {}
     for day in dates:
         suffix = f"date={day.isoformat()}"
         digest = hashlib.sha256()
         digest.update(b"enriched:")
         digest.update(
-            _partition_signature(data_dir / "kline_daily_enriched" / suffix)
+            market_data.dataset_partition_signature(
+                "kline_daily_enriched",
+                suffix,
+            )
             .encode("ascii")
         )
         digest.update(b"index:")
         digest.update(
-            _partition_signature(data_dir / "kline_index_daily" / suffix)
+            market_data.dataset_partition_signature(
+                "kline_index_daily",
+                suffix,
+            )
             .encode("ascii")
         )
         signatures[day.isoformat()] = digest.hexdigest()
@@ -436,14 +447,15 @@ def _load_industry_source(data_dir: Path, *, through: date) -> _IndustrySource:
 
 
 def _load_enriched(data_dir: Path, dates: list[date]) -> pl.DataFrame:
-    root = data_dir / "kline_daily_enriched"
+    market_data = market_data_from_data_dir(data_dir)
     frames: list[pl.DataFrame] = []
     for day in dates:
-        frame = _read_partition_frame(
-            root / f"date={day.isoformat()}",
-            columns=["symbol", "date", "close"],
+        frame = market_data.read_dataset_partition(
+            "kline_daily_enriched",
+            day,
+            ["symbol", "date", "close"],
         )
-        if frame is None or frame.is_empty():
+        if frame.is_empty():
             raise LinkageCoverageError(
                 f"联动因子覆盖不足: enriched 缺分区 {day.isoformat()}"
             )

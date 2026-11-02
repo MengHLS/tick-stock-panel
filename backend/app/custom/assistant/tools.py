@@ -29,6 +29,7 @@ from typing import Any
 
 import polars as pl
 
+from app.extensions.contracts import AnalysisRead
 from app.market_time import cn_today
 from app.services import tool_catalog
 
@@ -157,10 +158,8 @@ QUICK_SUGGESTS: list[dict[str, str]] = [
 # ----------------------------------------------------------------
 @dataclass
 class ToolContext:
-    repo: Any = None
+    analysis: AnalysisRead | None = None
     screener: Any = None
-    quote_service: Any = None
-    depth_service: Any = None
     engine: Any = None
     data_dir: Path | None = None
     capabilities: Any = None
@@ -170,20 +169,23 @@ class ToolContext:
     def build(
         cls,
         *,
-        repo: Any = None,
         screener: Any = None,
-        quote_service: Any = None,
-        depth_service: Any = None,
         engine: Any = None,
         data_dir: str | Path | None = None,
         capabilities: Any = None,
         financial_scheduler: Any = None,
+        analysis: AnalysisRead | None = None,
+        repo: Any = None,
+        quote_service: Any = None,
+        depth_service: Any = None,
     ) -> ToolContext:
+        if analysis is None and (repo is not None or quote_service is not None):
+            from app.extensions.adapters import RepositoryAnalysis
+
+            analysis = RepositoryAnalysis(repo, quote_service, depth_service)
         return cls(
-            repo=repo,
+            analysis=analysis,
             screener=screener,
-            quote_service=quote_service,
-            depth_service=depth_service,
             engine=engine,
             data_dir=Path(data_dir) if data_dir else None,
             capabilities=capabilities,
@@ -255,32 +257,14 @@ def _asset_quote_frame(ctx: ToolContext, symbols: list[str]) -> pl.DataFrame:
     /api/watchlist/enriched 一样须按资产类型分流, 否则 ETF / 指数永远查不到价格。
     只对股票缓存里没有的代码判定资产类型, 全是股票时不加载 ETF / 指数缓存。
     """
-    frames: list[pl.DataFrame] = []
-    df = ctx.quote_service.get_quotes_compat()
-    if df is not None and not df.is_empty() and "symbol" in df.columns:
-        frames.append(df.filter(pl.col("symbol").is_in(symbols)))
-    found = set(frames[0]["symbol"].to_list()) if frames else set()
-    missing = [s for s in symbols if s not in found]
-    if missing and ctx.repo is not None:
-        by_asset: dict[str, list[str]] = {}
-        for symbol in missing:
-            asset_type = ctx.repo.resolve_asset_type(symbol)
-            if asset_type != "stock":
-                by_asset.setdefault(asset_type, []).append(symbol)
-        for asset_type, members in by_asset.items():
-            asset_df, _ = ctx.repo.get_enriched_latest_asset(asset_type)
-            if asset_df is None or asset_df.is_empty() or "symbol" not in asset_df.columns:
-                continue
-            keep = [c for c in _QUOTE_COLUMNS if c in asset_df.columns]
-            frames.append(asset_df.filter(pl.col("symbol").is_in(members)).select(keep))
-    if not frames:
+    if ctx.analysis is None:
         return pl.DataFrame()
-    return pl.concat(frames, how="diagonal_relaxed")
+    return ctx.analysis.quotes(symbols)
 
 
 def _quotes_map(ctx: ToolContext, symbols: list[str]) -> dict[str, dict[str, Any]]:
     """symbol → {close, change_pct} 轻量行情映射(自选/持仓等合并展示用)。"""
-    if ctx.quote_service is None or not symbols:
+    if ctx.analysis is None or not symbols:
         return {}
     try:
         df = _asset_quote_frame(ctx, symbols)
@@ -295,10 +279,10 @@ def _quotes_map(ctx: ToolContext, symbols: list[str]) -> dict[str, dict[str, Any
     return out
 
 
-def _require_repo(ctx: ToolContext) -> Any:
-    if ctx.repo is None:
-        raise ValueError("行情数据仓库未就绪, 请确认后端已完成启动。")
-    return ctx.repo
+def _require_analysis(ctx: ToolContext) -> AnalysisRead:
+    if ctx.analysis is None:
+        raise ValueError("行情分析服务未就绪, 请确认后端已完成启动。")
+    return ctx.analysis
 
 
 def _validate_symbol(value: Any) -> str:
@@ -312,14 +296,15 @@ def _validate_symbol(value: Any) -> str:
 # 本地查询工具实现 (全部同步, 由 execute_assistant_tool 挪出事件循环)。
 # ----------------------------------------------------------------
 def _get_stock_quote(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    if ctx.quote_service is None:
+    analysis = _require_analysis(ctx)
+    if analysis is None:
         raise ValueError("实时行情服务未启用, 无法查询个股快照。")
     raw = args.get("symbols") or []
     if not isinstance(raw, list) or not raw:
         raise ValueError("symbols 不能为空, 请传入证券代码数组 (如 ['600519.SH'])。")
     symbols = list(dict.fromkeys(_validate_symbol(s) for s in raw[:50]))
     sub = _asset_quote_frame(ctx, symbols)
-    names = ctx.repo.get_name_map(symbols) if ctx.repo is not None else {}
+    names = analysis.names(symbols)
     rows = _rows(sub, 50)
     for row in rows:
         row.setdefault("name", names.get(row.get("symbol"), ""))
@@ -364,14 +349,11 @@ def _intraday_chart_payload(
 
     点数封顶 240(一个交易日); 本地无分钟数据时返回 None, 不阻断行情回答。
     """
-    if ctx.repo is None:
+    if ctx.analysis is None:
         return None
     try:
-        asset_type = ctx.repo.resolve_asset_type(symbol)
-        # 取行情快照所在交易日 (昨收基准线也来自快照行): 周末/节假日/开盘前快照停在
-        # 最近交易日, 按服务器本地 date.today() 查分钟分区会永远为空; 无快照日期时按北京日期。
-        _, trade_date = ctx.repo.get_enriched_latest_asset(asset_type, refresh=False)
-        df = ctx.repo.get_minute(symbol, trade_date or cn_today(), asset_type)
+        # 快照日期与昨收基准线同源；周末/节假日由适配器按北京日期兜底。
+        df, _ = ctx.analysis.latest_intraday(symbol, cn_today())
     except Exception:
         return None
     if df is None or df.is_empty() or "close" not in df.columns or "datetime" not in df.columns:
@@ -417,12 +399,12 @@ def _daily_kline_chart_payload(symbol: str, name: str, rows: list[dict[str, Any]
 
 
 def _get_stock_daily(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    repo = _require_repo(ctx)
+    analysis = _require_analysis(ctx)
     symbol = _validate_symbol(args.get("symbol"))
     days = _clamp(args.get("days"), 10, 500, 60)
     end = cn_today()
     start = end - timedelta(days=int(days * 1.9) + 20)
-    df = repo.get_daily_asset(repo.resolve_asset_type(symbol), symbol, start, end)
+    df = analysis.daily(symbol, start, end)
     if df is None or df.is_empty():
         return {"symbol": symbol, "rows": [], "note": "本地没有该标的的日线数据。"}
     keep = [
@@ -432,7 +414,7 @@ def _get_stock_daily(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
         ) if c in df.columns
     ]
     rows = _rows(df.select(keep).tail(days), days)
-    names = repo.get_name_map([symbol])
+    names = analysis.names([symbol])
     name = names.get(symbol, "")
     result: dict[str, Any] = {
         "symbol": symbol,
@@ -449,10 +431,10 @@ def _get_stock_daily(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 def _get_stock_analysis(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
     from app.indicators.levels import compute_levels, summarize_levels
 
-    repo = _require_repo(ctx)
+    analysis = _require_analysis(ctx)
     symbol = _validate_symbol(args.get("symbol"))
     end = cn_today()
-    df = repo.get_daily_asset(repo.resolve_asset_type(symbol), symbol, end - timedelta(days=500), end)
+    df = analysis.daily(symbol, end - timedelta(days=500), end)
     if df is None or df.is_empty():
         return {"symbol": symbol, "note": "本地没有该标的的日线数据, 无法分析。"}
     recent = df.tail(120)
@@ -465,7 +447,7 @@ def _get_stock_analysis(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any
         ) if c in recent.columns
     ]
     latest_rows = _rows(recent.select(keep).tail(1), 1)
-    names = repo.get_name_map([symbol])
+    names = analysis.names([symbol])
     return {
         "symbol": symbol,
         "name": names.get(symbol, ""),
@@ -514,7 +496,7 @@ def _get_watchlist(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
         return {"count": 0, "rows": [], "note": "自选列表为空。"}
     symbols = [str(i.get("symbol") or "") for i in items if i.get("symbol")]
     quotes = _quotes_map(ctx, symbols)
-    names = ctx.repo.get_name_map(symbols) if ctx.repo is not None else {}
+    names = ctx.analysis.names(symbols) if ctx.analysis is not None else {}
     rows = []
     for item in items[:300]:
         symbol = str(item.get("symbol") or "")
@@ -530,16 +512,13 @@ def _get_watchlist(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 
 
 def _get_market_overview(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    from app.services.market_overview_builder import build_market_overview
-
-    repo = _require_repo(ctx)
-    return build_market_overview(repo, quote_service=ctx.quote_service, depth_service=ctx.depth_service)
+    return _require_analysis(ctx).market_overview()
 
 
 def _get_indices(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    if ctx.quote_service is None:
+    if ctx.analysis is None:
         raise ValueError("实时行情服务未启用, 无法查询指数。")
-    df = ctx.quote_service.get_index_quotes()
+    df = ctx.analysis.index_quotes()
     rows = _rows(df, 60)
     if not rows:
         return {"count": 0, "rows": [], "note": "指数实时缓存为空。"}
@@ -547,14 +526,12 @@ def _get_indices(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 
 
 def _get_sector_rotation(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    from app.services.sector_rotation import build_sector_rotation
-
-    repo = _require_repo(ctx)
+    analysis = _require_analysis(ctx)
     kind = str(args.get("kind") or "concept")
     if kind not in {"concept", "industry"}:
         raise ValueError("kind 必须是 concept 或 industry。")
     top = _clamp(args.get("top"), 10, 50, 20)
-    data = build_sector_rotation(repo, kind=kind, top=top)
+    data = analysis.sector_rotation(kind, top)
     status = data.get("status")
     if status in {"no_data", "empty"}:
         return {"status": status, "reason": data.get("reason", "")}
@@ -594,18 +571,15 @@ def _get_regime(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 
 
 def _get_abnormal(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    from app.services.abnormal_moves import build_intraday, build_overview
-
-    repo = _require_repo(ctx)
+    analysis = _require_analysis(ctx)
     kind = str(args.get("kind") or "intraday")
     if kind not in {"intraday", "overview"}:
         raise ValueError("kind 必须是 intraday 或 overview。")
     limit = _clamp(args.get("limit"), 10, 200, 50)
+    data = analysis.abnormal_moves(kind, limit)
     if kind == "intraday":
-        data = build_intraday(repo, limit=limit)
         rows = data.get("rows") or []
         return {"kind": kind, "cache_date": data.get("cache_date"), "counts": data.get("counts"), "rows": rows[:limit]}
-    data = build_overview(repo, ctx.quote_service, limit=limit)
     rows = data.get("rows") or []
     return {"kind": kind, "rows": rows[:limit]}
 
@@ -620,7 +594,7 @@ def _get_lots(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
         return {"count": 0, "rows": [], "note": "暂无持仓提醒记录。"}
     symbols = [str(lot.get("symbol") or "") for lot in lots if lot.get("symbol")]
     quotes = _quotes_map(ctx, symbols)
-    names = ctx.repo.get_name_map(symbols) if ctx.repo is not None else {}
+    names = ctx.analysis.names(symbols) if ctx.analysis is not None else {}
     rows = []
     for lot in lots[:100]:
         symbol = str(lot.get("symbol") or "")
@@ -687,7 +661,7 @@ def _run_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 
 
 def _get_factor_values(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    repo = _require_repo(ctx)
+    analysis = _require_analysis(ctx)
     factor = str(args.get("factor") or "").strip()
     if not factor:
         raise ValueError("factor 不能为空, 可先用 list_factors 查看可用因子 id。")
@@ -697,7 +671,7 @@ def _get_factor_values(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]
     # 会给 0 或极端值, 直接按值排序会把整个榜单挤成新股 —— 用户要的是「全市场 RSI 最低」,
     # 不是「刚上市还没数据」。默认 60 天; 传 0 可关闭过滤。
     min_listed_days = _clamp(args.get("min_listed_days"), 0, 3650, 60)
-    df, as_of = repo.get_enriched_latest()
+    df, as_of = analysis.enriched_latest()
     if df is None or df.is_empty():
         raise ValueError("本地暂无行情数据, 无法读取因子值。")
     if factor not in df.columns:
@@ -706,7 +680,7 @@ def _get_factor_values(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]
     sub = df.select(keep).drop_nulls(subset=[factor])
     excluded_new = 0
     if min_listed_days > 0:
-        listing = _listing_dates(repo)
+        listing = _listing_dates(ctx)
         if listing:
             cutoff = as_of - timedelta(days=min_listed_days) if isinstance(as_of, date) else None
             if cutoff is not None:
@@ -716,7 +690,7 @@ def _get_factor_values(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]
                     sub = sub.filter(~pl.col("symbol").is_in(list(too_new)))
                     excluded_new = before - sub.height
     sub = sub.sort(factor, descending=descending).head(top)
-    names = repo.get_name_map(sub["symbol"].to_list()) if sub.height else {}
+    names = analysis.names(sub["symbol"].to_list()) if sub.height else {}
     rows = _rows(sub, top)
     for row in rows:
         row.setdefault("name", names.get(row.get("symbol"), ""))
@@ -734,36 +708,12 @@ def _get_factor_values(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]
     return out
 
 
-def _listing_dates(repo: Any) -> dict[str, date]:
-    """symbol → 上市日期 (来自 instruments 维表); 读不到时返回空 dict。
-
-    repo 是 KlineRepository, 拿 instruments 要么走它的缓存要么直读 parquet。
-    这里只做一次轻量读, 失败不影响主流程 (过滤退化为不过滤)。
-    """
+def _listing_dates(ctx: ToolContext) -> dict[str, date]:
+    """symbol → 上市日期；通过只读分析协议读取, 不依赖存储布局。"""
+    if ctx.analysis is None:
+        return {}
     try:
-        data_dir = getattr(getattr(repo, "store", None), "data_dir", None)
-        if data_dir is None:
-            return {}
-        path = Path(data_dir) / "instruments" / "instruments.parquet"
-        if not path.exists():
-            return {}
-        df = pl.read_parquet(path, columns=["symbol", "listing_date"])
-        out: dict[str, date] = {}
-        for row in df.drop_nulls(subset=["listing_date"]).iter_rows(named=True):
-            val = row.get("listing_date")
-            parsed: date | None = None
-            if isinstance(val, datetime):
-                parsed = val.date()
-            elif isinstance(val, date):
-                parsed = val
-            elif isinstance(val, str) and len(val) >= 10:
-                try:
-                    parsed = date.fromisoformat(val[:10])
-                except ValueError:
-                    parsed = None
-            if parsed is not None:
-                out[str(row["symbol"])] = parsed
-        return out
+        return ctx.analysis.listing_dates()
     except Exception:  # noqa: BLE001 — 维表不可读时退化为不过滤
         return {}
 
@@ -772,7 +722,7 @@ def _listing_dates(repo: Any) -> dict[str, date]:
 # ----------------------------------------------------------------
 # 动作工具实现 (写操作; 由 chat_service 的确认闸门把守, 未经确认不会到达这里)。
 # ----------------------------------------------------------------
-def _invalidate_custom_signals(data_dir: Path, repo: Any) -> None:
+def _invalidate_custom_signals(data_dir: Path, analysis: AnalysisRead | None) -> None:
     """与 api/signals.py 的 _invalidate 同一条失效链, 保证创建后立即可回测。"""
     from app.indicators.pipeline import invalidate_custom_signals
     from app.services import strategy_cache
@@ -781,8 +731,8 @@ def _invalidate_custom_signals(data_dir: Path, repo: Any) -> None:
     custom_signals.invalidate_intraday_cache()
     invalidate_custom_signals()
     strategy_cache.clear_cache(data_dir)
-    if repo is not None and hasattr(repo, "clear_cache"):
-        repo.clear_cache()
+    if analysis is not None:
+        analysis.invalidate_cache()
 
 
 _SIGNAL_FIELD_HINT = (
@@ -851,7 +801,7 @@ def _create_signal_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str,
     except ValueError as exc:
         raise ValueError(f"{exc}。{_SIGNAL_FIELD_HINT}") from exc
     custom_signals.save_one(ctx.data_dir, sig)
-    _invalidate_custom_signals(ctx.data_dir, ctx.repo)
+    _invalidate_custom_signals(ctx.data_dir, ctx.analysis)
     return {
         "created": True,
         "signal": {"id": sig["id"], "name": name, "kind": kind, "conditions": conditions},
@@ -930,10 +880,10 @@ def _create_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
     from app.services import strategy_cache
 
     strategy_cache.clear_cache(ctx.data_dir)
-    if ctx.repo is not None and hasattr(ctx.repo, "clear_cache"):
+    if ctx.analysis is not None:
         # 清缓存失败不影响已成功的落盘
         with contextlib.suppress(Exception):
-            ctx.repo.clear_cache()
+            ctx.analysis.invalidate_cache()
 
     return {
         "created": True,
@@ -978,15 +928,6 @@ def _add_to_watchlist(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 # 同步触发复用数据页同一条路径: 盘后管道 / 分钟K扩展 / 财务表调度器,
 # 全部后台执行、单飞去重, 工具立即返回, 进度用 get_sync_status 轮询。
 # ----------------------------------------------------------------
-def _partition_dates(data_dir: Path, subdir: str) -> list[str]:
-    """date=YYYY-MM-DD 分区目录扫描 — 与 /api/data/status 同款轻量口径, 不读 parquet。"""
-    root = data_dir / subdir
-    if not root.exists():
-        return []
-    dates = [d.name[5:] for d in root.iterdir() if d.is_dir() and d.name.startswith("date=")]
-    return sorted(dates)
-
-
 def _biz_days_behind(latest_iso: str | None, today: date) -> int:
     """数据最新日落后今天约多少个工作日 — 无交易日历, 按周一~周五近似, 节假日会高估。
 
@@ -1018,10 +959,13 @@ def _symbol_coverage(
 ) -> dict[str, Any]:
     """单标的覆盖: 近 30 日日K行数/最新日 + 财务报告期, 用于「为什么这只没数据」。"""
     out: dict[str, Any] = {"symbol": symbol}
-    if ctx.repo is not None:
+    if ctx.analysis is not None:
         try:
-            asset_type = ctx.repo.resolve_asset_type(symbol)
-            df = ctx.repo.get_daily_asset(asset_type, symbol, today - timedelta(days=30), today)
+            df = ctx.analysis.daily(
+                symbol,
+                today - timedelta(days=30),
+                today,
+            )
             if df is None or df.is_empty():
                 out["daily_missing"] = True
                 out["latest_daily"] = None
@@ -1058,9 +1002,10 @@ def _check_data_coverage(args: dict[str, Any], ctx: ToolContext) -> dict[str, An
     if ctx.data_dir is None:
         raise ValueError("数据目录未就绪。")
     today = cn_today()
-    daily = _partition_dates(ctx.data_dir, "kline_daily")
-    enriched = _partition_dates(ctx.data_dir, "kline_daily_enriched")
-    minute = _partition_dates(ctx.data_dir, "kline_minute")
+    analysis = _require_analysis(ctx)
+    daily = analysis.dataset_dates("kline_daily")
+    enriched = analysis.dataset_dates("kline_daily_enriched")
+    minute = analysis.dataset_dates("kline_minute")
     daily_latest = daily[-1] if daily else None
     enriched_latest = enriched[-1] if enriched else None
 
@@ -1282,11 +1227,9 @@ async def _sync_data(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
         raise ValueError("数据目录未就绪。")
 
     if kind == "pipeline":
-        if ctx.repo is None or ctx.capabilities is None:
+        if ctx.analysis is None or ctx.capabilities is None:
             raise ValueError("数据仓库或数据源能力未就绪, 无法启动同步。")
-        from app.api.pipeline import trigger_pipeline_job
-
-        trigger = await trigger_pipeline_job(ctx.repo, ctx.capabilities, ctx.quote_service)
+        trigger = await ctx.analysis.trigger_pipeline(ctx.capabilities)
         return {
             "started": True,
             "kind": kind,
@@ -1297,14 +1240,13 @@ async def _sync_data(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
         }
 
     if kind == "minute_extend":
-        if ctx.repo is None or ctx.capabilities is None:
+        if ctx.analysis is None or ctx.capabilities is None:
             raise ValueError("数据仓库或数据源能力未就绪, 无法启动同步。")
-        from app.api.kline import trigger_minute_sync
-
         days = _clamp(args.get("days"), 30, 1095, 365)
         try:
-            trigger = await trigger_minute_sync(
-                ctx.repo, ctx.capabilities, override_days=days, extend_flag=True,
+            trigger = await ctx.analysis.trigger_minute_extend(
+                ctx.capabilities,
+                days,
             )
         except HTTPException as exc:  # 权限不足等 4xx → 工具错误契约
             raise ValueError(str(getattr(exc, "detail", "") or exc)) from exc

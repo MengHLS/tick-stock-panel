@@ -14,6 +14,16 @@ from app.extensions.contracts import (
     NotificationFormatter,
     QuoteUpdateObserver,
 )
+from app.extensions.strategies import (
+    BacktestCostModel,
+    CandidateFilter,
+    MonitorConditionEvaluator,
+    RiskPolicy,
+    ScoringPolicy,
+    StrategyProvider,
+    register_strategy_extension,
+    validate_strategy_extension,
+)
 
 _ID_RE = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
 T = TypeVar("T")
@@ -37,6 +47,12 @@ class BackendExtensionRegistrar:
         self.routers: list[APIRouter] = []
         self.notification_formatters: list[tuple[str, NotificationFormatter, int]] = []
         self.quote_observers: list[tuple[str, QuoteUpdateObserver, int]] = []
+        self.candidate_filters: list[tuple[str, CandidateFilter]] = []
+        self.scoring_policies: list[tuple[str, ScoringPolicy]] = []
+        self.risk_policies: list[tuple[str, RiskPolicy]] = []
+        self.backtest_cost_models: list[tuple[str, BacktestCostModel]] = []
+        self.strategy_providers: list[tuple[str, StrategyProvider]] = []
+        self.monitor_condition_evaluators: list[tuple[str, MonitorConditionEvaluator]] = []
 
     def include_router(self, router: APIRouter) -> None:
         if not isinstance(router, APIRouter):
@@ -60,6 +76,28 @@ class BackendExtensionRegistrar:
         order: int = 100,
     ) -> None:
         self.quote_observers.append((implementation_id, observer, order))
+
+    def register_candidate_filter(self, implementation_id: str, implementation: CandidateFilter) -> None:
+        self.candidate_filters.append((implementation_id, implementation))
+
+    def register_scoring_policy(self, implementation_id: str, implementation: ScoringPolicy) -> None:
+        self.scoring_policies.append((implementation_id, implementation))
+
+    def register_risk_policy(self, implementation_id: str, implementation: RiskPolicy) -> None:
+        self.risk_policies.append((implementation_id, implementation))
+
+    def register_backtest_cost_model(self, implementation_id: str, implementation: BacktestCostModel) -> None:
+        self.backtest_cost_models.append((implementation_id, implementation))
+
+    def register_strategy_provider(self, implementation_id: str, implementation: StrategyProvider) -> None:
+        self.strategy_providers.append((implementation_id, implementation))
+
+    def register_monitor_condition_evaluator(
+        self,
+        implementation_id: str,
+        implementation: MonitorConditionEvaluator,
+    ) -> None:
+        self.monitor_condition_evaluators.append((implementation_id, implementation))
 
 
 class BackendExtensionRegistry:
@@ -138,9 +176,32 @@ class BackendExtensionRegistry:
                 RegisteredImplementation(extension_id, implementation_id, observer, order)
             )
 
+        strategy_staged = (
+            ("candidate_filter", registrar.candidate_filters),
+            ("scoring_policy", registrar.scoring_policies),
+            ("risk_policy", registrar.risk_policies),
+            ("backtest_cost_model", registrar.backtest_cost_models),
+            ("strategy_provider", registrar.strategy_providers),
+            (
+                "monitor_condition_evaluator",
+                registrar.monitor_condition_evaluators,
+            ),
+        )
+        for kind, entries in strategy_staged:
+            seen: set[str] = set()
+            for implementation_id, implementation in entries:
+                self._validate_id(implementation_id, "implementation_id")
+                if implementation_id in seen:
+                    raise ValueError(f"duplicate {kind} id: {implementation_id}")
+                validate_strategy_extension(kind, implementation_id, implementation)
+                seen.add(implementation_id)
+
         self._extension_ids.add(extension_id)
         self._notification_formatters.extend(staged)
         self._quote_observers.extend(staged_observers)
+        for kind, entries in strategy_staged:
+            for implementation_id, implementation in entries:
+                register_strategy_extension(kind, implementation_id, implementation)
 
     def freeze(self) -> None:
         self._notification_formatters.sort(

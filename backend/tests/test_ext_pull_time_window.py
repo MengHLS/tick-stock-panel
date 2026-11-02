@@ -12,12 +12,14 @@ Docker 部署时轮询窗口与真实交易时段完全错开」。
 """
 from __future__ import annotations
 
-from datetime import date, datetime
+import asyncio
+from datetime import date, datetime, timedelta
 
 import pytest
 
 from app.market_time import CN_TZ
 from app.services import ext_pull
+from app.services.ext_data import ExtConfig, PullConfig
 
 
 @pytest.fixture
@@ -118,3 +120,99 @@ async def test_an_explicit_target_date_still_wins(at_beijing, monkeypatch) -> No
 
     assert seen["fetched"] == date(2026, 1, 5)
     assert day_str == "2026-01-05"
+
+
+class _FakeStore:
+    def __init__(self, config: ExtConfig) -> None:
+        self._config = config
+
+    def get(self, _config_id: str) -> ExtConfig:
+        return self._config
+
+    def upsert(self, config: ExtConfig, **_kwargs) -> None:
+        self._config = config
+
+
+async def test_window_mode_honors_schedule_minutes(monkeypatch) -> None:
+    """窗口内也必须等 last_run + schedule_minutes，不能每 60s 重拉。"""
+    config = ExtConfig(
+        id="windowed",
+        label="窗口间隔",
+        mode="snapshot",
+        fields=[],
+        pull=PullConfig(
+            url="https://example.invalid",
+            enabled=True,
+            schedule_minutes=5,
+            time_window_start="09:30",
+            time_window_end="10:00",
+            last_run="2026-03-02T01:30:00+00:00",  # 北京 09:30
+        ),
+    )
+    store = _FakeStore(config)
+    clock = {"now": datetime(2026, 3, 2, 9, 31, tzinfo=CN_TZ)}
+    pulls: list[datetime] = []
+
+    class _FakeDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            moment = clock["now"].astimezone(tz) if tz else clock["now"]
+            return cls(
+                moment.year,
+                moment.month,
+                moment.day,
+                moment.hour,
+                moment.minute,
+                moment.second,
+                moment.microsecond,
+                moment.tzinfo,
+            )
+
+    async def fake_fetch_ingest(fresh, _data_dir, **_kwargs):
+        pulls.append(clock["now"])
+        fresh.pull.enabled = False
+        return 3, clock["now"].date().isoformat()
+
+    async def fake_sleep(seconds):
+        clock["now"] += timedelta(seconds=seconds)
+
+    monkeypatch.setattr(ext_pull, "cn_now", lambda: clock["now"])
+    monkeypatch.setattr(ext_pull, "datetime", _FakeDateTime)
+    monkeypatch.setattr(ext_pull, "ExtConfigStore", lambda _data_dir: store)
+    monkeypatch.setattr(ext_pull, "fetch_and_ingest", fake_fetch_ingest)
+    monkeypatch.setattr(ext_pull.asyncio, "sleep", fake_sleep)
+
+    scheduler = ext_pull.PullScheduler()
+    scheduler._running = True
+    scheduler._data_dir = "/tmp/unused"
+
+    await asyncio.wait_for(scheduler._run_loop(config), timeout=10)
+
+    assert len(pulls) == 1
+    assert pulls[0].strftime("%Y-%m-%d %H:%M") == "2026-03-02 09:35"
+
+
+async def test_scheduled_pull_invalidates_dependent_repository_cache(
+    monkeypatch,
+) -> None:
+    config = ExtConfig(
+        id="scheduled",
+        label="定时拉取",
+        mode="snapshot",
+        fields=[],
+        pull=PullConfig(url="https://example.invalid", enabled=True),
+    )
+    store = _FakeStore(config)
+    invalidated: list[str] = []
+
+    async def fake_fetch_ingest(*_args, **_kwargs):
+        return 1, "2026-03-02"
+
+    monkeypatch.setattr(ext_pull, "fetch_and_ingest", fake_fetch_ingest)
+    scheduler = ext_pull.PullScheduler()
+    scheduler.start("/tmp/unused", on_data_written=lambda: invalidated.append("clear"))
+
+    await scheduler._execute_pull(config, store)
+
+    assert invalidated == ["clear"]
+    assert config.pull.last_status == "success"

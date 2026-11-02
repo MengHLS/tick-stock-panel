@@ -137,8 +137,9 @@ def test_runtime_publishes_alerts_without_exposing_quote_service(monkeypatch) ->
         financial_scheduler=financial_scheduler,
     )
 
-    assert runtime.repository is not None
-    assert runtime.depth_service is depth_service
+    assert runtime.analysis is not None
+    assert not hasattr(runtime, "repository")
+    assert not hasattr(runtime, "depth_service")
     assert runtime.financial_scheduler is financial_scheduler
     runtime.alerts.publish([{"type": "buy_trigger", "message": "trigger"}])
 

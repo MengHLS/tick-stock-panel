@@ -296,7 +296,11 @@ def test_listing_dates_parses_iso_strings(tmp_path: Path) -> None:
     class _Repo:
         store = _Store()
 
-    got = assistant_tools._listing_dates(_Repo())
+        def get_instruments_asset(self, _asset_type: str):
+            return pl.read_parquet(d / "instruments.parquet")
+
+    ctx = assistant_tools.ToolContext.build(repo=_Repo())
+    got = assistant_tools._listing_dates(ctx)
     assert got["600000.SH"].isoformat() == "2000-01-04"
     assert got["301999.SZ"].isoformat() == "2026-10-01"
     assert "301998.SZ" not in got  # 空值不参与过滤
@@ -310,7 +314,11 @@ def test_listing_dates_missing_table_returns_empty(tmp_path: Path) -> None:
     class _Repo:
         store = _Store()
 
-    assert assistant_tools._listing_dates(_Repo()) == {}
+        def get_instruments_asset(self, _asset_type: str):
+            raise FileNotFoundError
+
+    ctx = assistant_tools.ToolContext.build(repo=_Repo())
+    assert assistant_tools._listing_dates(ctx) == {}
 
 
 def test_factor_values_filters_new_listings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -342,6 +350,9 @@ def test_factor_values_filters_new_listings(tmp_path: Path, monkeypatch: pytest.
 
         def get_name_map(self, symbols):
             return {s: s for s in symbols}
+
+        def get_instruments_asset(self, _asset_type: str):
+            return pl.read_parquet(inst / "instruments.parquet")
 
     ctx = assistant_tools.ToolContext.build(repo=_Repo(), data_dir=str(tmp_path))
     out = assistant_tools._get_factor_values(
@@ -383,6 +394,9 @@ def test_factor_values_allows_disabling_filter(tmp_path: Path) -> None:
 
         def get_name_map(self, symbols):
             return {s: s for s in symbols}
+
+        def get_instruments_asset(self, _asset_type: str):
+            return pl.read_parquet(inst / "instruments.parquet")
 
     ctx = assistant_tools.ToolContext.build(repo=_Repo(), data_dir=str(tmp_path))
     out = assistant_tools._get_factor_values(

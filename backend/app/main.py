@@ -318,6 +318,7 @@ async def _application_lifespan(app: FastAPI):
     pull_scheduler.start(
         store.data_dir,
         enabled=data_sync_prefs["data_sync_ext_pull_enabled"],
+        on_data_written=repo.clear_cache,
     )
     pull_scheduler.refresh(store.data_dir)
     app.state.pull_scheduler = pull_scheduler

@@ -20,15 +20,15 @@
 - 扩展数据与声明式分析页面：适合不需要自定义 React 交互的页面。
 - 前端源码扩展注册：`frontend/src/custom/<namespace>/extension.tsx`，支持静态页面、导航和已开放插槽。
 - 首板回放已迁移到 `frontend/src/custom/first-board-replay/`，保留 `/research/firstboard` 路径以兼容旧链接和导航偏好。
-- 后端源码扩展注册：`backend/app/custom/<module>.py`，支持 FastAPI 路由、启动钩子、通知格式化和受限实时行情观察器。
+- 后端源码扩展注册：`backend/app/custom/<package>/__init__.py`（也兼容单文件模块），支持 FastAPI 路由、启动钩子、通知格式化、受限实时行情观察器和策略级扩展。
 - 统一扩展数据定时拉取（已实现）：非 HTTP 采集器用稳定的 `builtin://...` 地址标识配置，并通过 `app.services.ext_pull.register_pull_handler(config_id, handler)` 接入既有 `PullScheduler`；调度、启停、状态和 `next_run` 必须复用该调度器，禁止扩展另建定时循环。
 - 只读行情与回测契约（已实现）：`MarketDataRead`、`EnrichedPanelRead`、`BacktestRead` 通过 `ExtensionContext` 注入，业务扩展不直接依赖具体 repository 或构造 `BacktestEngine`。
-- 请求期运行时契约（已实现）：`ExtensionRuntime` 通过 `app.extensions.get_extension_runtime` 注入，提供 `AlertPublisher`、`MonitorRuleSynchronizer` 和策略/筛选/行情公开读取面，业务扩展不直接访问 `app.state`。
-- 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
+- 请求期运行时契约（已实现）：`ExtensionRuntime` 通过 `app.extensions.get_extension_runtime` 注入，提供 `AlertPublisher`、`MonitorRuleSynchronizer`、`AnalysisRead` 和策略/筛选/行情公开读取面，业务扩展不直接访问 `app.state` 或具体 repository。
+- 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、参数与空值策略、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
 - 历史 ST 数据 Provider（已实现）：标准数据源可声明 `st_history` 数据集，设置页按 `st_history_data_provider` 独立路由；默认内置 `local_st_history` 读取本地规范数据。Provider 只返回 `symbol/flag_date/st_flag`，ST 宇宙过滤与涨跌停修正仍由核心完成。
 - 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。
 - 回测页面插槽（已实现）：`backtest.result.extra`、`backtest.trades.extra`、`backtest.savedResults.extra`、`backtest.settings.extra`。结果与交易上下文只传保存/运行快照和受控回调，不暴露回测页内部状态。
-- 当前后端继承点：`NotificationFormatter`、`QuoteUpdateObserver`。
+- 后端继承点（已实现）：`NotificationFormatter`、`QuoteUpdateObserver`、`CandidateFilter`、`ScoringPolicy`、`RiskPolicy`、`BacktestCostModel`、`StrategyProvider`、`MonitorConditionEvaluator`。
 - 自定义仓位策略（`PositionSizingPolicy`，已实现）：`data/user_data/position_policies/*.py`，在「设置 → 定义 → 仓位策略」创建（表单 META + 只写一个 `def compute(ctx)` 函数，模板起步）。契约见 `app/backtest/position_sizing.py`：ctx 只含当日及以前信息（候选评分/近 60 日收益/已平仓快照/组合状态/参数），输出 weights + budget_scale，引擎侧单仓上限/现金/敞口钳制不变。保存/备份导入均过「AST 安全校验 → 结构解析 → 合成冒烟」三关；回测在「买入权重 → 自定义策略」选用，引用失效 400 拒绝、运行期异常当日回退等权并计入统计。
 - 因子平台与策略线的既有桥接（已实现，二开时直接复用、勿重复实现）：因子库一键生成单因子排名策略（`GenerateFactorStrategyDialog` → `custom_factor_*`）；策略触发器引用因子条件信号（`AddFactorSignalDialog`，`csg_f_*`）；自定义信号 AI 提示词含因子分组（`custom_signals_ai.py`）；策略回测因子归因（`strategy.py` 的 `factor_attribution`，覆盖 `meta.scoring` 非空的策略）。
 - 旧策略包格式与接口（兼容保留）：按依赖闭包打包策略 `.py` + 引用的自定义信号/因子定义 + 用户调参（叠加策略含子策略）。`app/services/strategy_bundle.py` 只保留兼容入口，实际实现统一位于 `app/services/resource_bundle.py`；新旧接口共用依赖闭包、ZIP 安全校验、打包与资源预检，旧导入复用 `config_backup.apply_archive` 的校验/逐条写盘/冒烟管线，缺失依赖在旧预览中只作预警。包内仅允许策略/调参/信号/因子四类，其他路径 400 拒绝。API：`GET /api/strategies/{id}/bundle`、`POST /api/strategies/bundle/inspect|apply`；当前页面入口使用下述统一资源传输。
@@ -38,7 +38,6 @@
 尚未实现、只能在真实需求出现后增加的能力：
 
 - 更多页面局部插槽。
-- 候选过滤、评分、风控和回测成本等后端业务策略接口（仓位 `PositionSizingPolicy` 已实现，见上）。
 - 配置 schema 迁移注册表。
 
 AI 在开始任务前必须通过代码搜索确认能力是否已经实现。找不到定义和测试时，应把示例视为设计规范，不得虚构导入路径或调用结果。
@@ -191,15 +190,13 @@ const extension: FrontendExtension = {
 当前已经实现的继承点：
 
 - `NotificationFormatter`：在监控规则完成评估后统一调整通知文案，不改变事件结构和触发语义。
-
-下列是可能适合的小粒度接口，但目前没有实现，不能直接导入：
-
-- `CandidateFilter`：候选池过滤。
-- `ScoringPolicy`：评分计算。
-- `RiskPolicy`：风险约束。
-- `StrategyProvider`：策略发现。
-- `MonitorConditionEvaluator`：自定义监控条件。
-- `BacktestCostModel`：手续费和滑点模型。
+- `QuoteUpdateObserver`：接收受限实时行情轮次并返回标准告警事件，不暴露行情服务内部状态。
+- `CandidateFilter`：在策略候选池进入评分前过滤行。
+- `ScoringPolicy`：替换策略的评分表达式，返回与输入行一一对应的有限分值。
+- `RiskPolicy`：在候选进入回测/执行前过滤入场行。
+- `BacktestCostModel`：替换手续费和滑点计算，不接管 T+1、涨跌停、停牌、整手、现金或持仓约束。
+- `StrategyProvider`：从扩展包发现策略定义，核心统一校验重复 ID 并完成加载隔离。
+- `MonitorConditionEvaluator`：在监控规则中执行自定义条件表达式。
 
 不适合作为公共继承点的核心类：
 
@@ -275,17 +272,58 @@ SSE、系统通知和扩展格式化。观察器运行在监控评估线程，�
 
 请求期路由使用 `Depends(get_extension_runtime)` 获取 `ExtensionRuntime`。它提供
 `alerts.publish(events)`、`monitor_rules.save_and_sync(rules)`、`monitor_rules.sync_paper_watch()`，
-以及只读的 `market_data`、`enriched_panel`、`strategy_engine`、`screener`、`quote_service`。
+`analysis`（`AnalysisRead`）、只读的 `market_data`、`enriched_panel`、`backtest_results`、
+`strategy_engine`、`screener`、`quote_service`。`AnalysisRead` 提供行情、日线、最新分钟、
+维表日期、看板、板块轮动、异动和任务触发等业务读取，不暴露 repository 类。
 业务扩展不得直接读取 `request.app.state`、`monitor_engine`、`quote_service` 私有方法或
 具体 repository 类。运行时契约新增字段按向后兼容处理；删除或改变语义必须提升 API 版本。
 
+只拿到数据目录的后台任务使用 `market_data_from_data_dir(data_dir)` 或
+`FileMarketData` 读取 `MarketDataRead`，不要自行扫描核心 parquet 目录。
+
 有状态因子通过 `app.extensions.factors.FactorProvider` 接入。Provider 必须声明
-`provider_id`、`version`、`factor_ids`，并按因子返回依赖列、预热窗口、参数和空值策略；帧计算实现
+`api_version`、`provider_id`、`version`、`factor_ids`，并按因子返回依赖列、预热窗口、参数和空值策略；
+`params()` 会进入 Provider cache signature，参数变化必须触发重新物化；`null_policy()` 支持
+`keep` 与 `drop_row`，矩阵路径无法表达逐行删除时由核心 fail-closed。帧计算实现
 `materialize_frame`，矩阵计算实现 `materialize_matrix` 或
 `materialize_matrix_field`。联动这类外部物化因子设置 `kind="sidecar"`，通过
 `generation()` 暴露数据 generation，通过 `rebuild_sidecar()` 接入盘后重建。
+Provider 的 `FactorSpec.intraday_monitor_safe=False` 用于声明只可日频使用的因子，
+监控规则保存和运行时降级都读取这一元数据，不再按因子名前缀判断。
 覆盖不足和 publication 变化分别使用 `coverage_errors`、`transient_errors` 声明，核心统一
 fail-closed 和重试。Provider 模块加载失败只禁用自身，不改变内置因子与 `FactorSpec` 目录。
+
+策略级接口从 `app.extensions` 导入，可在 `setup(registrar)` 中注册，也可由
+`backend/app/custom/<package>/strategy_provider.py` 导出 `STRATEGY_PROVIDERS` 自动发现：
+
+```python
+from app.extensions import (
+    BackendExtensionRegistrar,
+    CandidateFilter,
+    MonitorConditionEvaluator,
+    StrategyProvider,
+)
+
+
+class MyFilter(CandidateFilter):
+    def filter_candidates(self, frame, context):
+        return frame.filter(frame["close"] > 0)
+
+
+def setup(registrar: BackendExtensionRegistrar) -> None:
+    registrar.register_candidate_filter("company.liquid", MyFilter())
+```
+
+策略 `META` 通过以下稳定键引用实现：
+
+- `candidate_filter`：候选过滤实现 ID。
+- `risk_policy`：入场风控实现 ID。
+- `scoring_policy`：评分实现 ID。
+- `backtest_cost_model`：成本模型实现 ID；未声明时保持核心默认成本。
+
+监控条件使用 `{ "evaluator": "company.condition", "threshold": 10 }` 形式引用
+`MonitorConditionEvaluator`。自定义条件仍受规则 schema、最大条件数、启用状态和盘中/日频限制约束。
+核心成交与风控不变量始终优先于策略级扩展。
 
 完整后端模板位于 [`backend/app/custom/_template.py.example`](../backend/app/custom/_template.py.example)。
 

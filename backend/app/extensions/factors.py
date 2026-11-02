@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import json
 import logging
 import pkgutil
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -30,6 +31,7 @@ class FactorProviderContext:
     asset_type: str = "stock"
     require_complete: bool = True
     allow_tail_nulls: bool = False
+    params: Mapping[str, Any] = field(default_factory=dict)
 
 
 class FactorProvider(ABC):
@@ -107,6 +109,11 @@ _PROVIDERS_READY = False
 
 def register_factor_provider(provider: FactorProvider) -> None:
     """Register one provider and its FactorSpec metadata atomically."""
+    if provider.api_version != BACKEND_EXTENSION_API_VERSION:
+        raise ValueError(
+            f"factor provider API v{provider.api_version} is unsupported; "
+            f"current is v{BACKEND_EXTENSION_API_VERSION}"
+        )
     provider_id = str(getattr(provider, "provider_id", "")).strip()
     if not provider_id:
         raise ValueError("factor provider requires provider_id")
@@ -118,6 +125,18 @@ def register_factor_provider(provider: FactorProvider) -> None:
         raise ValueError(
             f"factor provider {provider_id} specs do not match factor ids"
         )
+    for factor_id in factor_ids:
+        null_policy = provider.null_policy(factor_id)
+        if null_policy not in {"keep", "drop_row"}:
+            raise ValueError(
+                f"factor provider {provider_id} has invalid null policy "
+                f"{null_policy!r} for {factor_id}"
+            )
+        if not isinstance(provider.params(factor_id), Mapping):
+            raise TypeError(
+                f"factor provider {provider_id} params must be a mapping "
+                f"for {factor_id}"
+            )
     existing = _PROVIDERS.get(provider_id)
     if existing is provider:
         return
@@ -162,6 +181,7 @@ def ensure_factor_providers() -> None:
         package = importlib.import_module("app.custom")
     except ModuleNotFoundError:
         return
+    discovered: list[FactorProvider] = []
     for item in pkgutil.iter_modules(package.__path__, f"{package.__name__}."):
         if not item.ispkg:
             continue
@@ -175,9 +195,21 @@ def ensure_factor_providers() -> None:
             if not isinstance(providers, (tuple, list)):
                 raise TypeError("FACTOR_PROVIDERS must be a tuple or list")
             for provider in providers:
-                register_factor_provider(provider)
+                discovered.append(provider)
         except Exception as exc:  # noqa: BLE001 - isolate one optional provider
             logger.warning("factor provider load failed %s: %s", module_name, exc)
+    for provider in sorted(
+        discovered,
+        key=lambda item: (item.kind != "frame", item.provider_id),
+    ):
+        try:
+            register_factor_provider(provider)
+        except Exception as exc:  # noqa: BLE001 - isolate one optional provider
+            logger.warning(
+                "factor provider registration failed %s: %s",
+                provider.provider_id,
+                exc,
+            )
 
 
 def factor_provider_for(factor_id: str) -> FactorProvider | None:
@@ -220,6 +252,34 @@ def factor_provider_warmup(names: Any) -> int:
     )
 
 
+def factor_provider_contract_signature(
+    names: Any,
+    *,
+    asset_type: str = "stock",
+) -> dict[str, Any]:
+    """Return the effective provider/version/params contract for cache keys."""
+    result: dict[str, Any] = {}
+    for name in sorted(provider_factor_ids(names)):
+        provider = factor_provider_for(name)
+        if provider is None:
+            continue
+        result[name] = {
+            "provider_id": provider.provider_id,
+            "version": int(provider.version),
+            "kind": provider.kind,
+            "asset_type": asset_type,
+            "params": json.loads(
+                json.dumps(
+                    dict(provider.params(name)),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    default=str,
+                )
+            ),
+        }
+    return result
+
+
 def materialize_factor_columns(
     frame: pl.DataFrame,
     names: Any,
@@ -234,11 +294,24 @@ def materialize_factor_columns(
         if provider is not None:
             grouped.setdefault(provider.provider_id, set()).add(name)
     for provider_id, requested in grouped.items():
-        frame = _PROVIDERS[provider_id].materialize_frame(
+        provider = _PROVIDERS[provider_id]
+        frame = provider.materialize_frame(
             frame,
             frozenset(requested),
             context,
         )
+        drop_columns = [
+            name
+            for name in sorted(requested)
+            if provider.null_policy(name) == "drop_row"
+            and name in frame.columns
+        ]
+        if drop_columns:
+            frame = frame.filter(
+                pl.all_horizontal(
+                    [pl.col(name).is_not_null() for name in drop_columns]
+                )
+            )
     return frame
 
 
@@ -254,7 +327,13 @@ def materialize_factor_matrix(
         if provider is not None:
             grouped.setdefault(provider.provider_id, set()).add(name)
     for provider_id, requested in grouped.items():
-        market = _PROVIDERS[provider_id].materialize_matrix(
+        provider = _PROVIDERS[provider_id]
+        if any(provider.null_policy(name) == "drop_row" for name in requested):
+            raise ValueError(
+                f"factor provider {provider_id} requests drop_row null policy, "
+                "which cannot be represented in matrix materialization"
+            )
+        market = provider.materialize_matrix(
             market,
             frozenset(requested),
             context,

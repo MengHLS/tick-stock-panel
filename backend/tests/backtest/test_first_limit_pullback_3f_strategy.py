@@ -14,16 +14,16 @@ from app.backtest.matrix import (
     build_market_matrix_from_signals,
     make_signal_matrix,
 )
-from app.strategy.engine import StrategyEngine
-from app.strategy.research.first_limit_pullback_3f_runner_t74 import (
+from app.custom.first_board_event_chain.first_limit_pullback_3f_runner_t74 import (
     _event_relative_ma_breakdown,
 )
+from app.strategy.engine import StrategyEngine
 
 STRATEGY_PATH = (
     Path(__file__).resolve().parents[2]
     / "app"
-    / "strategy"
-    / "research"
+    / "custom"
+    / "first_board_event_chain"
     / "first_limit_pullback_3f_runner_t74.py"
 )
 

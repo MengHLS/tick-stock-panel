@@ -604,7 +604,6 @@ def test_extension_startup_seeds_config_and_refreshes_shared_scheduler(
     tmp_path, monkeypatch
 ):
     calls: list[tuple] = []
-    repository = object()
     monkeypatch.setattr(
         extension.service,
         "ensure_limit_board_config",
@@ -620,7 +619,6 @@ def test_extension_startup_seeds_config_and_refreshes_shared_scheduler(
         ExtensionContext(
             api_version=BACKEND_EXTENSION_API_VERSION,
             data_dir=tmp_path,
-            repository=repository,
         )
     )
 

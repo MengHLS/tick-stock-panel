@@ -558,7 +558,7 @@ class FactorBacktestService:
             set(factor_names) | factor_dependencies(factor_names)
         ) & sidecar_names
         if linkage_names and data_dir is None:
-            raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
+            raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
         expected_linkage = (
             factor_provider_generation(
                 linkage_names,

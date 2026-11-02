@@ -28,7 +28,6 @@ import pyarrow.dataset as pads
 
 from app.backtest.minute_trigger import build_minute_exit_reference
 from app.backtest.numba_runtime import run_numba_parallel
-from app.factors.event_chain import EVENT_CHAIN_FIELDS
 from app.price_limits import (
     LEGACY_MAIN_BOARD_ST_LIMIT,
     MAIN_BOARD_LIMIT,
@@ -4090,13 +4089,17 @@ _MATRIX_COMPUTED_FEATURES = frozenset({
     "vol_regime_5_60", "amplitude_trend_20_60", "obv_trend_20d",
     "amount_mean_20d", "turnover_mean_20d", "turnover_std_20d",
     "position_240d", "distance_to_high_240d", "kdj_kd_diff",
-    *EVENT_CHAIN_FIELDS,
 })
 
 
 def matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
     if name in {"open", "high", "low", "close", "volume"} or name in market.fields:
         return market.field(name)
+    from app.extensions.factors import provider_factor_ids
+
+    if name in provider_factor_ids([name]):
+        with _activate_valid_bar_index(market.valid_bars):
+            return _compute_matrix_feature(market, name)
     supported = (
         name in _MATRIX_COMPUTED_FEATURES
         or (name.startswith("ma") and name.endswith("_bias") and name[2:-5].isdigit())
@@ -4108,43 +4111,31 @@ def matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
     )
     if not supported:
         raise ValueError(f"unsupported matrix feature: {name}")
-    cache_inputs = (
-        (
-            market.open,
-            market.high,
-            market.low,
-            market.close,
-            market.field("consecutive_limit_ups"),
-        )
-        if name in EVENT_CHAIN_FIELDS
-        else (market.close,)
-    )
     with _activate_valid_bar_index(market.valid_bars):
         return _cached_matrix_operation(
             "matrix_feature",
-            cache_inputs,
+            (market.close,),
             {"name": name},
             lambda: _compute_matrix_feature(market, name),
         )
 
 
-def compute_matrix_event_chain(
+def materialize_matrix_factors(
     market: MarketDataMatrix,
+    names: frozenset[str],
     *,
-    lookback_bars: int = 250,
-    min_pullback_pct: float = 0.05,
-    require_new_high_after_anchor: bool = True,
-) -> dict[str, np.ndarray]:
-    """Compatibility adapter backed by the registered event-chain provider."""
-    from app.custom.first_board_event_chain.matrix import (
-        compute_matrix_event_chain as compute,
+    params: dict[str, Any] | None = None,
+) -> MarketDataMatrix:
+    """Attach provider-owned matrix fields through the public extension contract."""
+    from app.extensions.factors import (
+        FactorProviderContext,
+        materialize_factor_matrix,
     )
 
-    return compute(
+    return materialize_factor_matrix(
         market,
-        lookback_bars=lookback_bars,
-        min_pullback_pct=min_pullback_pct,
-        require_new_high_after_anchor=require_new_high_after_anchor,
+        names,
+        context=FactorProviderContext(params=dict(params or {})),
     )
 
 

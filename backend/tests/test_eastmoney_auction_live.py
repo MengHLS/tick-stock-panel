@@ -434,7 +434,6 @@ async def test_extension_startup_seeds_and_refreshes_pull_scheduler(
     tmp_path: Path, monkeypatch
 ) -> None:
     calls: list[tuple] = []
-    repository = object()
     monkeypatch.setattr(
         service,
         "ensure_auction_configs",
@@ -450,7 +449,6 @@ async def test_extension_startup_seeds_and_refreshes_pull_scheduler(
         ExtensionContext(
             api_version=BACKEND_EXTENSION_API_VERSION,
             data_dir=tmp_path,
-            repository=repository,
         )
     )
 
