@@ -153,11 +153,12 @@ QUICK_SUGGESTS: list[dict[str, str]] = [
 
 
 # ----------------------------------------------------------------
-# 执行上下文 — 由路由从 app.state 注入, 测试可替换为桩对象。
+# 执行上下文 — 由请求运行时注入, 测试可替换为桩对象。
 # ----------------------------------------------------------------
 @dataclass
 class ToolContext:
     repo: Any = None
+    screener: Any = None
     quote_service: Any = None
     depth_service: Any = None
     engine: Any = None
@@ -170,6 +171,7 @@ class ToolContext:
         cls,
         *,
         repo: Any = None,
+        screener: Any = None,
         quote_service: Any = None,
         depth_service: Any = None,
         engine: Any = None,
@@ -179,6 +181,7 @@ class ToolContext:
     ) -> ToolContext:
         return cls(
             repo=repo,
+            screener=screener,
             quote_service=quote_service,
             depth_service=depth_service,
             engine=engine,
@@ -646,10 +649,8 @@ def _list_signals(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 
 
 def _run_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    from app.services.screener import ScreenerService
     from app.strategy.config import load_override
 
-    repo = _require_repo(ctx)
     if ctx.engine is None:
         raise ValueError("策略引擎未就绪。")
     strategy_id = str(args.get("strategy_id") or "").strip()
@@ -665,12 +666,13 @@ def _run_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
             available = ""
         hint = f"; 可用策略: {available}" if available else "; 可先用 list_strategies 查询"
         raise ValueError(f"策略 {strategy_id} 不存在{hint}")
-    svc = ScreenerService(repo)
-    as_of = svc.latest_date()
+    if ctx.screener is None:
+        raise ValueError("策略筛选服务未就绪。")
+    as_of = ctx.screener.latest_date()
     if as_of is None:
         raise ValueError("本地暂无行情数据, 无法执行策略。")
     overrides = load_override(ctx.data_dir, strategy_id) or {} if ctx.data_dir else {}
-    context = svc.build_strategy_context(
+    context = ctx.screener.build_strategy_context(
         ctx.engine, as_of, [strategy_id], overrides_map={strategy_id: overrides},
     )
     result = ctx.engine.run(strategy_id, context, overrides=overrides or None)

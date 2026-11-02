@@ -158,6 +158,14 @@ class FactorBatchResult:
     error: str | None = None
 
 
+def compute_missing_factor_columns(
+    frame: pl.DataFrame,
+    factor_ids: set[str],
+) -> pl.DataFrame:
+    """Materialize missing registered factors without exposing service internals."""
+    return FactorBacktestService._compute_missing_factors(frame, factor_ids)
+
+
 class FactorBacktestService:
     def __init__(self, engine: BacktestEngine) -> None:
         self.engine = engine

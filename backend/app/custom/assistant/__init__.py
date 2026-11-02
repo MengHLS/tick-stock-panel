@@ -37,5 +37,5 @@ def setup(registrar: BackendExtensionRegistrar) -> None:
 
 
 def startup(context: ExtensionContext) -> None:
-    # 对话无状态, 无需启动期初始化; 策略引擎与数据目录在请求期从 app.state 获取。
+    # 对话无状态, 无需启动期初始化; 请求期能力由 ExtensionRuntime 注入。
     _ = context

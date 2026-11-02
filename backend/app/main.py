@@ -56,6 +56,7 @@ from app.api.routes import router as core_router
 from app.config import settings
 from app.data_providers.base import ProviderRequestError
 from app.enriched_generation import EnrichedGenerationUnavailableError
+from app.extensions import build_extension_runtime
 from app.extensions.loader import (
     configure_backend_extensions,
     current_extension_context,
@@ -477,6 +478,18 @@ async def _application_lifespan(app: FastAPI):
         logger.warning("paper watch sync failed (ignored): %s", e)
     app.state.monitor_engine = monitor_engine
     app.state.sector_monitor_service = sector_monitor_service
+    app.state.screener = _screener_svc
+    app.state.extension_runtime = build_extension_runtime(
+        data_dir=store.data_dir,
+        repository=repo,
+        capabilities=capset,
+        strategy_engine=strategy_engine,
+        screener=_screener_svc,
+        quote_service=getattr(app.state, "quote_service", None),
+        monitor_engine=monitor_engine,
+        depth_service=getattr(app.state, "depth_service", None),
+        financial_scheduler=getattr(app.state, "financial_scheduler", None),
+    )
 
     # 源码内二次开发启动钩子: 仅暴露稳定只读上下文, 单个扩展失败不影响核心启动。
     extension_registry = app.state.extension_registry

@@ -11,9 +11,9 @@ POST /api/custom/assistant/actions/{call_id}/decision
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -21,6 +21,7 @@ from app.custom.assistant import actions as assistant_actions
 from app.custom.assistant import sessions as assistant_sessions
 from app.custom.assistant import tools as assistant_tools
 from app.custom.assistant.chat_service import chat_stream
+from app.extensions import ExtensionRuntime, get_extension_runtime
 from app.services.ai_provider import (
     ai_configured,
     current_ai_model,
@@ -65,23 +66,24 @@ def build_router() -> APIRouter:
     router = APIRouter(prefix="/api/custom/assistant", tags=["custom-assistant"])
 
     @router.post("/chat")
-    async def chat(request: Request, req: ChatRequest):
-        engine = getattr(request.app.state, "strategy_engine", None)
-        repo = getattr(request.app.state, "repo", None)
-        data_dir = str(repo.store.data_dir) if repo is not None else None
+    async def chat(
+        req: ChatRequest,
+        runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
+    ):
         context = req.context.model_dump() if req.context else None
 
         async def gen():
             async for line in with_heartbeat(chat_stream(
                 history=[m.model_dump() for m in req.messages],
                 context=context,
-                engine=engine,
-                data_dir=data_dir,
-                repo=repo,
-                quote_service=getattr(request.app.state, "quote_service", None),
-                depth_service=getattr(request.app.state, "depth_service", None),
-                capabilities=getattr(request.app.state, "capabilities", None),
-                financial_scheduler=getattr(request.app.state, "financial_scheduler", None),
+                engine=runtime.strategy_engine,
+                data_dir=str(runtime.data_dir),
+                repo=runtime.repository,
+                screener=runtime.screener,
+                quote_service=runtime.quote_service,
+                depth_service=runtime.depth_service,
+                capabilities=runtime.capabilities,
+                financial_scheduler=runtime.financial_scheduler,
             )):
                 yield line + "\n"
 
@@ -106,19 +108,18 @@ def build_router() -> APIRouter:
         return {"suggests": assistant_tools.QUICK_SUGGESTS}
 
     @router.get("/sessions")
-    def sessions(request: Request) -> dict:
-        repo = getattr(request.app.state, "repo", None)
-        if repo is None:
-            raise HTTPException(status_code=503, detail="数据目录不可用")
-        return assistant_sessions.load_sessions(Path(repo.store.data_dir))
+    def sessions(
+        runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
+    ) -> dict:
+        return assistant_sessions.load_sessions(Path(runtime.data_dir))
 
     @router.put("/sessions")
-    def put_sessions(request: Request, req: AssistantSessionsPayload) -> dict:
-        repo = getattr(request.app.state, "repo", None)
-        if repo is None:
-            raise HTTPException(status_code=503, detail="数据目录不可用")
+    def put_sessions(
+        req: AssistantSessionsPayload,
+        runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
+    ) -> dict:
         n = assistant_sessions.save_sessions(
-            Path(repo.store.data_dir),
+            Path(runtime.data_dir),
             {"sessions": req.sessions, "activeId": req.active_id},
         )
         return {"ok": True, "sessions": n}

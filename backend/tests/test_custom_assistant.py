@@ -7,6 +7,8 @@ SSE 流式工具循环的事件顺序与逐字 delta、历史截断、本地工�
 from __future__ import annotations
 
 import json
+from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import polars as pl
@@ -453,6 +455,7 @@ def test_http_chat_endpoint_streams_ndjson(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(chat_service, "ai_configured", lambda: False)
 
     app = FastAPI()
+    app.state.repo = SimpleNamespace(store=SimpleNamespace(data_dir=Path(".")))
     configure_backend_extensions(app)
     client = TestClient(app)
     response = client.post("/api/custom/assistant/chat", json={

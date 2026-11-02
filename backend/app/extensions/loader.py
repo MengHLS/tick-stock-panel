@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
+from app.backtest.read import BacktestReadAdapter
+from app.extensions.adapters import repository_read_adapters
 from app.extensions.contracts import BACKEND_EXTENSION_API_VERSION, ExtensionContext
 from app.extensions.registry import BackendExtensionRegistrar, BackendExtensionRegistry
 
@@ -104,8 +106,12 @@ def start_backend_extensions(
 
 
 def current_extension_context(*, data_dir, repository) -> ExtensionContext:
+    market_data, enriched_panel = repository_read_adapters(repository)
     return ExtensionContext(
         api_version=BACKEND_EXTENSION_API_VERSION,
         data_dir=data_dir,
         repository=repository,
+        market_data=market_data,
+        enriched_panel=enriched_panel,
+        backtest_read=BacktestReadAdapter(repository),
     )

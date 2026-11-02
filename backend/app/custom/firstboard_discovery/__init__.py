@@ -23,8 +23,11 @@ _service: FirstboardDiscoveryService | None = None
 def startup(context: ExtensionContext) -> None:
     global _service
     _service = FirstboardDiscoveryService(
-        context.repository,
+        market_data=context.market_data,
+        enriched_panel=context.enriched_panel,
+        engine=context.backtest_read,
         storage=FirstboardDiscoveryStore(context.data_dir),
+        data_dir=context.data_dir,
     )
 
 

@@ -10,6 +10,7 @@ import threading
 from datetime import datetime, time
 from pathlib import Path
 
+from app.extensions.adapters import repository_read_adapters
 from app.market_time import CN_TZ, cn_now, in_continuous_session
 from app.services.fs_utils import atomic_write_text
 from app.strategy import paper, paper_auto
@@ -21,12 +22,25 @@ PREFIX = "strategy-exec:"
 
 
 class ExecutionService:
-    def __init__(self, data_dir: Path, engine, screener, quotes=None):
+    def __init__(
+        self,
+        data_dir: Path,
+        engine,
+        screener,
+        quotes=None,
+        *,
+        market_data=None,
+    ):
         self.data_dir = Path(data_dir)
         self.root = self.data_dir / "user_data" / "extensions" / "paper_execution"
         self.engine = engine
         self.screener = screener
         self.quotes = quotes
+        fallback = getattr(screener, "repo", None)
+        self.market_data = (
+            market_data
+            or (repository_read_adapters(fallback)[0] if fallback is not None else None)
+        )
         # 与 worker/API 串行；重计算不持 PAPER_LOCK，只有检查与下单持核心锁。
         self.lock = threading.RLock()
         self.stopping = threading.Event()
@@ -513,7 +527,9 @@ class ExecutionService:
         }
         if not starts:
             return {}
-        frame = self.screener.repo.get_daily_batch(
+        if self.market_data is None:
+            raise ValueError("缺少只读行情接口，无法检查最大持有天数")
+        frame = self.market_data.get_daily_batch(
             list(starts),
             datetime.fromisoformat(min(starts.values())).date(),
             datetime.fromisoformat(day).date(),

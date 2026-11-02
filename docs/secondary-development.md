@@ -19,8 +19,11 @@
 - 数据源 Provider 与 `plugin.yaml` 机制：详见 [`plugin-development.md`](plugin-development.md)。
 - 扩展数据与声明式分析页面：适合不需要自定义 React 交互的页面。
 - 前端源码扩展注册：`frontend/src/custom/<namespace>/extension.tsx`，支持静态页面、导航和已开放插槽。
+- 首板回放已迁移到 `frontend/src/custom/first-board-replay/`，保留 `/research/firstboard` 路径以兼容旧链接和导航偏好。
 - 后端源码扩展注册：`backend/app/custom/<module>.py`，支持 FastAPI 路由、启动钩子、通知格式化和受限实时行情观察器。
 - 统一扩展数据定时拉取（已实现）：非 HTTP 采集器用稳定的 `builtin://...` 地址标识配置，并通过 `app.services.ext_pull.register_pull_handler(config_id, handler)` 接入既有 `PullScheduler`；调度、启停、状态和 `next_run` 必须复用该调度器，禁止扩展另建定时循环。
+- 只读行情与回测契约（已实现）：`MarketDataRead`、`EnrichedPanelRead`、`BacktestRead` 通过 `ExtensionContext` 注入，业务扩展不直接依赖具体 repository 或构造 `BacktestEngine`。
+- 请求期运行时契约（已实现）：`ExtensionRuntime` 通过 `app.extensions.get_extension_runtime` 注入，提供 `AlertPublisher`、`MonitorRuleSynchronizer` 和策略/筛选/行情公开读取面，业务扩展不直接访问 `app.state`。
 - 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。
 - 当前后端继承点：`NotificationFormatter`、`QuoteUpdateObserver`。
 - 自定义仓位策略（`PositionSizingPolicy`，已实现）：`data/user_data/position_policies/*.py`，在「设置 → 定义 → 仓位策略」创建（表单 META + 只写一个 `def compute(ctx)` 函数，模板起步）。契约见 `app/backtest/position_sizing.py`：ctx 只含当日及以前信息（候选评分/近 60 日收益/已平仓快照/组合状态/参数），输出 weights + budget_scale，引擎侧单仓上限/现金/敞口钳制不变。保存/备份导入均过「AST 安全校验 → 结构解析 → 合成冒烟」三关；回测在「买入权重 → 自定义策略」选用，引用失效 400 拒绝、运行期异常当日回退等权并计入统计。
@@ -251,6 +254,18 @@ class MyObserver(QuoteUpdateObserver):
 SSE、系统通知和扩展格式化。观察器运行在监控评估线程，必须自行按分钟节流并且不得
 执行全量历史扫描、同步 Webhook 等长耗时任务。单个观察器异常只隔离自身，不阻断核心
 规则或其他扩展；应用关闭时 registry 会调用 `shutdown()`。
+
+启动钩子注入的 `ExtensionContext` 还提供：
+
+- `market_data: MarketDataRead`：标的维表、历史股本、日线、分钟线、交易日、ST 历史；
+- `enriched_panel: EnrichedPanelRead`：最新/区间 enriched 面板、数据 generation；
+- `backtest_read: BacktestRead`：只读面板加载和 generation 等待，不暴露 `BacktestEngine` 构造器。
+
+请求期路由使用 `Depends(get_extension_runtime)` 获取 `ExtensionRuntime`。它提供
+`alerts.publish(events)`、`monitor_rules.save_and_sync(rules)`、`monitor_rules.sync_paper_watch()`，
+以及只读的 `market_data`、`enriched_panel`、`strategy_engine`、`screener`、`quote_service`。
+业务扩展不得直接读取 `request.app.state`、`monitor_engine`、`quote_service` 私有方法或
+具体 repository 类。运行时契约新增字段按向后兼容处理；删除或改变语义必须提升 API 版本。
 
 完整后端模板位于 [`backend/app/custom/_template.py.example`](../backend/app/custom/_template.py.example)。
 
