@@ -218,7 +218,7 @@ def test_matrix_load_rebuilds_base_matrix_when_linkage_generation_changes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from app.backtest import engine as engine_module
-    from app.factors import linkage_store
+    from app.custom.cross_sectional_linkage import store as linkage_store
 
     _load(_engine(matrix_data))
     engine = _engine(matrix_data)

@@ -4,7 +4,6 @@ from __future__ import annotations
 import numpy as np
 
 from app.backtest.matrix import (
-    FIRST_BOARD_CHAIN_LOOKBACK_BARS,
     MarketDataMatrix,
     SignalMatrix,
     compute_matrix_event_chain,
@@ -12,6 +11,8 @@ from app.backtest.matrix import (
     matrix_feature,
     valid_shift,
 )
+
+FIRST_BOARD_CHAIN_LOOKBACK_BARS = 250
 
 META = {
     "id": "first_board_chain_rebreak",

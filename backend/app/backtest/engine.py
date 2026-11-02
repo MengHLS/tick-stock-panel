@@ -673,11 +673,12 @@ class BacktestEngine:
         _linkage_retry: int = 0,
     ) -> pl.DataFrame:
         """按解析后的依赖加载窄基础列并计算回测所需特征。"""
-        from app.enriched_generation import get_enriched_generation
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import (
-            LinkageReadUnstableError,
-            attach_linkage_columns,
+        from app.extensions.factors import (
+            FactorProviderContext,
+            factor_provider_generation,
+            is_transient_factor_provider_error,
+            materialize_factor_columns,
+            sidecar_factor_ids,
         )
         from app.indicators.pipeline import (
             compute_indicators,
@@ -685,9 +686,10 @@ class BacktestEngine:
             compute_signals,
         )
 
+        sidecar_names = sidecar_factor_ids()
         linkage_names = (
             getattr(feature_plan, "linkage_columns", frozenset())
-            & LINKAGE_FACTOR_IDS
+            & sidecar_names
         )
         data_dir = (
             self.repo.store.data_dir
@@ -699,7 +701,11 @@ class BacktestEngine:
             if data_dir is None:
                 raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
             if expected_linkage is None:
-                expected_linkage = get_enriched_generation(data_dir, "linkage")
+                expected_linkage = factor_provider_generation(
+                    linkage_names,
+                    data_dir=data_dir,
+                    asset_type=asset_type,
+                )
 
         df = self.load_panel(
             symbols,
@@ -737,14 +743,18 @@ class BacktestEngine:
 
         if linkage_names:
             try:
-                df = attach_linkage_columns(
+                df = materialize_factor_columns(
                     df,
                     linkage_names,
-                    data_dir,
-                    expected_generation=expected_linkage,
-                    require_complete=True,
+                    context=FactorProviderContext(
+                        data_dir=data_dir,
+                        expected_generation=expected_linkage,
+                        asset_type=asset_type,
+                    ),
                 )
-            except LinkageReadUnstableError:
+            except Exception as exc:
+                if not is_transient_factor_provider_error(exc):
+                    raise
                 if _linkage_retry + 1 >= 3:
                     raise
                 return self.load_panel_for_backtest(
@@ -753,7 +763,11 @@ class BacktestEngine:
                     end,
                     feature_plan,
                     asset_type,
-                    _linkage_generation=get_enriched_generation(data_dir, "linkage"),
+                    _linkage_generation=factor_provider_generation(
+                        linkage_names,
+                        data_dir=data_dir,
+                        asset_type=asset_type,
+                    ),
                     _linkage_retry=_linkage_retry + 1,
                 )
 
@@ -828,20 +842,29 @@ class BacktestEngine:
         """Load a matrix-native backtest directly from projected parquet batches."""
         if feature_plan.execution_backend != "matrix_native":
             raise ValueError("direct market matrix loading requires matrix_native backend")
-        from app.enriched_generation import get_enriched_generation
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import LinkageReadUnstableError
+        from app.extensions.factors import (
+            FactorProviderContext,
+            factor_provider_generation,
+            is_transient_factor_provider_error,
+            materialize_factor_matrix,
+            sidecar_factor_ids,
+        )
         from app.tickflow.repository import enriched_dirname
 
         data_dir = self.repo.store.data_dir
+        sidecar_names = sidecar_factor_ids()
         linkage_names = (
             set(getattr(feature_plan, "matrix_columns", frozenset()))
             | set(getattr(feature_plan, "linkage_columns", frozenset()))
-        ) & LINKAGE_FACTOR_IDS
+        ) & sidecar_names
         if linkage_names and data_dir is None:
             raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
         linkage_generation = (
-            get_enriched_generation(data_dir, "linkage")
+            factor_provider_generation(
+                linkage_names,
+                data_dir=data_dir,
+                asset_type=asset_type,
+            )
             if linkage_names
             else None
         )
@@ -949,13 +972,14 @@ class BacktestEngine:
                         ext_wanted,
                     )
                 if linkage_names:
-                    from app.factors.linkage_store import attach_matrix_linkage_fields
-
-                    market = attach_matrix_linkage_fields(
+                    market = materialize_factor_matrix(
                         market,
-                        data_dir,
                         linkage_names,
-                        expected_generation=linkage_generation,
+                        context=FactorProviderContext(
+                            data_dir=data_dir,
+                            expected_generation=linkage_generation,
+                            asset_type=asset_type,
+                        ),
                     )
                 if st_history is not None:
                     from app.tickflow.security_status import attach_matrix_st_history
@@ -969,11 +993,17 @@ class BacktestEngine:
                 source_generation = self.data_generation_await(
                     asset_type, cancel_event=cancel_event
                 )
-            except LinkageReadUnstableError:
+            except Exception as exc:
+                if not is_transient_factor_provider_error(exc):
+                    raise
                 linkage_attempts += 1
                 if linkage_attempts >= 3:
                     raise
-                linkage_generation = get_enriched_generation(data_dir, "linkage")
+                linkage_generation = factor_provider_generation(
+                    linkage_names,
+                    data_dir=data_dir,
+                    asset_type=asset_type,
+                )
             except pa.ArrowException as exc:
                 raise ValueError(f"direct market matrix parquet scan failed: {exc}") from exc
 

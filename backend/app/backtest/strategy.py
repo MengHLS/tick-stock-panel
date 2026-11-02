@@ -45,8 +45,8 @@ from app.backtest.matrix import (
     build_market_matrix,
     build_market_matrix_from_encoding,
     build_market_matrix_from_signals,
-    matrix_feature,
     encode_panel_matrix,
+    matrix_feature,
     slice_market_data_matrix,
     slice_signal_matrix,
 )
@@ -266,18 +266,13 @@ class StrategyDependencyResolver:
             required_features.update(signal_dependencies.get(signal, ()))
 
         indicator_columns = frozenset(required_features & set(INDICATOR_COLUMNS))
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.registry import get_factor
-
-        linkage_columns = frozenset(required_features & LINKAGE_FACTOR_IDS)
-        linkage_warmup = max(
-            (
-                spec.warmup_bars
-                for name in linkage_columns
-                if (spec := get_factor(name)) is not None
-            ),
-            default=1,
+        from app.extensions.factors import (
+            factor_provider_warmup,
+            sidecar_factor_ids,
         )
+
+        linkage_columns = frozenset(required_features & sidecar_factor_ids())
+        linkage_warmup = factor_provider_warmup(linkage_columns)
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         # 涨跌停族: 显式请求连板/判定价列, 或引用了判定价的自定义信号
         # (signal_limit_* 等迁移定义) → 统一加载不复权三价。
@@ -364,20 +359,15 @@ class StrategyDependencyResolver:
         overlay_sources = _overlay_numeric_fields(overrides)
         overlay_scoring = {name: 1.0 for name in overlay_sources}
         overlay_fields = scoring_dependencies(overlay_scoring)
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.registry import get_factor
+        from app.extensions.factors import (
+            factor_provider_warmup,
+            sidecar_factor_ids,
+        )
 
         linkage_columns = frozenset(
-            (required_features | overlay_fields) & LINKAGE_FACTOR_IDS
+            (required_features | overlay_fields) & sidecar_factor_ids()
         )
-        linkage_warmup = max(
-            (
-                spec.warmup_bars
-                for name in linkage_columns
-                if (spec := get_factor(name)) is not None
-            ),
-            default=1,
-        )
+        linkage_warmup = factor_provider_warmup(linkage_columns)
 
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         base_columns = frozenset(set(base_columns) | set(_LIMIT_BASE_COLUMNS))

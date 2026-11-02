@@ -28,17 +28,7 @@ import pyarrow.dataset as pads
 
 from app.backtest.minute_trigger import build_minute_exit_reference
 from app.backtest.numba_runtime import run_numba_parallel
-from app.factors.event_chain import (
-    DEFAULT_LOOKBACK_BARS as FIRST_BOARD_CHAIN_LOOKBACK_BARS,
-)
-from app.factors.event_chain import (
-    DEFAULT_MIN_PULLBACK_PCT as FIRST_BOARD_CHAIN_MIN_PULLBACK_PCT,
-)
-from app.factors.event_chain import (
-    EVENT_CHAIN_FIELDS,
-    EventChainConfig,
-    compute_event_chain_outputs,
-)
+from app.factors.event_chain import EVENT_CHAIN_FIELDS
 from app.price_limits import (
     LEGACY_MAIN_BOARD_ST_LIMIT,
     MAIN_BOARD_LIMIT,
@@ -4141,36 +4131,30 @@ def matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
 def compute_matrix_event_chain(
     market: MarketDataMatrix,
     *,
-    lookback_bars: int = FIRST_BOARD_CHAIN_LOOKBACK_BARS,
-    min_pullback_pct: float = FIRST_BOARD_CHAIN_MIN_PULLBACK_PCT,
+    lookback_bars: int = 250,
+    min_pullback_pct: float = 0.05,
     require_new_high_after_anchor: bool = True,
 ) -> dict[str, np.ndarray]:
-    """Matrix adapter for strategy code; all variants use the shared kernel."""
-    return compute_event_chain_outputs(
-        market.open,
-        market.high,
-        market.low,
-        market.close,
-        market.field("consecutive_limit_ups"),
-        EventChainConfig(
-            lookback_bars=lookback_bars,
-            min_pullback_pct=min_pullback_pct,
-            require_new_high_after_anchor=require_new_high_after_anchor,
-        ),
+    """Compatibility adapter backed by the registered event-chain provider."""
+    from app.custom.first_board_event_chain.matrix import (
+        compute_matrix_event_chain as compute,
+    )
+
+    return compute(
+        market,
+        lookback_bars=lookback_bars,
+        min_pullback_pct=min_pullback_pct,
+        require_new_high_after_anchor=require_new_high_after_anchor,
     )
 
 
 def _compute_matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
+    from app.extensions.factors import materialize_matrix_factor_field
+
     close_valid = np.isfinite(market.close)
-    if name in EVENT_CHAIN_FIELDS:
-        consecutive = market.field("consecutive_limit_ups")
-        return compute_event_chain_outputs(
-            market.open,
-            market.high,
-            market.low,
-            market.close,
-            consecutive,
-        )[name]
+    provider_value = materialize_matrix_factor_field(market, name)
+    if provider_value is not None:
+        return provider_value
     if name == "prev_close":
         return valid_shift(market.close, 1, close_valid)
     if name == "change_pct":

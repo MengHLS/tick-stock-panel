@@ -233,6 +233,9 @@ def _isolate_runtime_ext_factors(tmp_path, monkeypatch):
 
     for fid in [k for k in list(_REGISTRY) if k.startswith(ext_factors.EXT_PREFIX)]:
         _REGISTRY.pop(fid, None)
+    from app.backtest import factor as factor_service
+
+    factor_service.FACTOR_COLUMNS = factor_columns_view()
     yield
     ext_factors._frame_cache.clear()
     ext_factors._sync_state = None

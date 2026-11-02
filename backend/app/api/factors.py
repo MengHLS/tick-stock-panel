@@ -116,10 +116,10 @@ def trial_formula(req: FormulaTrialRequest, request: Request) -> dict:
 
     # 复用检验引擎同一条补算路径 (compute_indicators + 虚拟因子物化), 禁止第二套计算逻辑
     from app.backtest.factor import FactorBacktestService
-    from app.factors.linkage import LINKAGE_FACTOR_IDS
-    from app.factors.linkage_store import (
-        LinkageCoverageError,
-        LinkageReadUnstableError,
+    from app.extensions.factors import (
+        is_coverage_factor_provider_error,
+        is_transient_factor_provider_error,
+        sidecar_factor_ids,
     )
 
     physical = set(panel.columns)
@@ -128,7 +128,7 @@ def trial_formula(req: FormulaTrialRequest, request: Request) -> dict:
     }
     linkage_names = (
         set(compiled.referenced_factors) | set(compiled.dependencies)
-    ) & LINKAGE_FACTOR_IDS
+    ) & sidecar_factor_ids()
     if linkage_names and data_dir is None:
         raise HTTPException(
             status_code=400,
@@ -141,7 +141,12 @@ def trial_formula(req: FormulaTrialRequest, request: Request) -> dict:
                 to_compute,
                 data_dir=data_dir,
             )
-        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+        except Exception as exc:
+            if not (
+                is_coverage_factor_provider_error(exc)
+                or is_transient_factor_provider_error(exc)
+            ):
+                raise
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if compiled.frame_transform is None:
@@ -290,10 +295,10 @@ def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -
         raise HTTPException(status_code=400, detail={"errors": [e.to_dict() for e in compiled.errors]})
     from app.api.backtest import _get_engine
     from app.backtest.factor import FactorBacktestService
-    from app.factors.linkage import LINKAGE_FACTOR_IDS
-    from app.factors.linkage_store import (
-        LinkageCoverageError,
-        LinkageReadUnstableError,
+    from app.extensions.factors import (
+        is_coverage_factor_provider_error,
+        is_transient_factor_provider_error,
+        sidecar_factor_ids,
     )
 
     calendar_days = int((compiled.warmup_bars + 40) * 1.6) + 15
@@ -307,7 +312,7 @@ def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -
     to_compute = set(compiled.referenced_factors) | {d for d in compiled.dependencies if d not in physical}
     linkage_names = (
         set(compiled.referenced_factors) | set(compiled.dependencies)
-    ) & LINKAGE_FACTOR_IDS
+    ) & sidecar_factor_ids()
     if linkage_names and data_dir is None:
         raise HTTPException(
             status_code=400,
@@ -320,7 +325,12 @@ def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -
                 to_compute,
                 data_dir=data_dir,
             )
-        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+        except Exception as exc:
+            if not (
+                is_coverage_factor_provider_error(exc)
+                or is_transient_factor_provider_error(exc)
+            ):
+                raise
             raise HTTPException(status_code=400, detail=str(exc)) from exc
     prepared = compiled.frame_transform(panel) if compiled.frame_transform else None
     if prepared is None or prepared[FACTOR_COLUMN].is_not_null().sum() == 0:

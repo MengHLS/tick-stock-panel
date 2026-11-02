@@ -541,6 +541,7 @@ for _spec in _CATALOG:
 
 
 def get_factor(fid: str) -> FactorSpec | None:
+    _ensure_factor_providers()
     return _active_registry().get(fid)
 
 
@@ -582,6 +583,7 @@ def all_factors(
     返回前惰性同步扩展表因子 (ext_ 前缀 base 条目), 使信号字段白名单、
     因子库列表和 AI 提示词看到同一份扩展字段清单。
     """
+    _ensure_factor_providers()
     _ensure_ext_factors()
     return [
         spec for spec in _ordered_specs()
@@ -592,6 +594,7 @@ def all_factors(
 
 def factor_dependencies(fids) -> frozenset[str]:
     """递归展开依赖到 enriched base 列; 未知 id 原样保留 (与 scoring_dependencies 历史语义一致)。"""
+    _ensure_factor_providers()
     resolved: set[str] = set()
     for fid in fids:
         spec = get_factor(str(fid))
@@ -606,22 +609,31 @@ def factor_dependencies(fids) -> frozenset[str]:
 
 def factor_columns_view() -> list[dict]:
     """历史 FACTOR_COLUMNS 兼容视图 (顺序、键一致; 动态注册因子追加在末尾)。"""
+    _ensure_factor_providers()
     return [spec.column_view() for spec in _ordered_specs()]
 
 
 def virtual_dependencies() -> dict[str, frozenset[str]]:
     """历史 VIRTUAL_SCORING_DEPENDENCIES 兼容视图。"""
+    _ensure_factor_providers()
     return {
         spec.id: spec.dependencies
-        for spec in _CATALOG
+        for spec in _ordered_specs()
         if spec.kind == "virtual" and spec.dependencies
     }
 
 
 def scoring_warmups() -> dict[str, int]:
     """历史 _ROLLING_SCORING_WARMUP 兼容视图 (仅滚动窗口虚拟因子)。"""
+    _ensure_factor_providers()
     return {
         spec.id: spec.warmup_bars
-        for spec in _CATALOG
+        for spec in _ordered_specs()
         if spec.kind == "virtual" and spec.warmup_bars > 1
     }
+
+
+def _ensure_factor_providers() -> None:
+    from app.extensions.factors import ensure_factor_providers
+
+    ensure_factor_providers()

@@ -1285,10 +1285,11 @@ class StrategyEngine:
     ) -> frozenset[str]:
         """Resolve linkage dependencies for a batch without loading market data."""
         from app.backtest.strategy import StrategyDependencyResolver
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.extensions.factors import sidecar_factor_ids
 
         params_map = params_map or {}
         overrides_map = overrides_map or {}
+        linkage_ids = sidecar_factor_ids()
         resolver = StrategyDependencyResolver()
         names: set[str] = set()
         for strategy_id in strategy_ids:
@@ -1313,7 +1314,7 @@ class StrategyEngine:
                 asset_type=asset_type,
                 allow_unresolved_signals=True,
             )
-            names.update(plan.linkage_columns & LINKAGE_FACTOR_IDS)
+            names.update(plan.linkage_columns & linkage_ids)
         return frozenset(names)
 
     def _attach_context_linkage(
@@ -1335,70 +1336,34 @@ class StrategyEngine:
         data_dir = self._user_data_dir()
         if data_dir is None:
             raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
-        from app.enriched_generation import get_enriched_generation
-        from app.factors.linkage import DEVIATION_FACTOR_IDS
-        from app.factors.linkage_store import (
-            attach_linkage_columns,
-            linkage_finalized_through,
+        from app.extensions.factors import (
+            FactorProviderContext,
+            factor_provider_generation,
+            materialize_factor_columns,
         )
 
         expected = context.linkage_generation
         if expected is None:
-            expected = get_enriched_generation(data_dir, "linkage")
-        deviation_names = frozenset(names) & DEVIATION_FACTOR_IDS
-        finalized_through = (
-            linkage_finalized_through(
-                data_dir,
-                expected_generation=expected,
+            expected = factor_provider_generation(
+                names,
+                data_dir=data_dir,
+                asset_type=context.asset_type,
             )
-            if deviation_names
-            else None
+        provider_context = FactorProviderContext(
+            data_dir=data_dir,
+            expected_generation=expected,
+            asset_type=context.asset_type,
+            require_complete=True,
+            allow_tail_nulls=True,
         )
 
         def _attach(frame: pl.DataFrame | None) -> pl.DataFrame | None:
             if frame is None or frame.is_empty() or "date" not in frame.columns:
                 return frame
-            requested = frozenset(names)
-            if deviation_names and finalized_through is not None:
-                indexed = frame.with_row_index("_linkage_row")
-                covered = indexed.filter(pl.col("date") <= finalized_through)
-                beyond = indexed.filter(pl.col("date") > finalized_through)
-                industry_names = requested - deviation_names
-                if industry_names and not beyond.is_empty():
-                    attach_linkage_columns(
-                        beyond,
-                        industry_names,
-                        data_dir,
-                        expected_generation=expected,
-                        require_complete=True,
-                    )
-                if covered.is_empty():
-                    attached_covered = covered
-                else:
-                    attached_covered = attach_linkage_columns(
-                        covered,
-                        requested,
-                        data_dir,
-                        expected_generation=expected,
-                        require_complete=True,
-                    )
-                if not beyond.is_empty():
-                    beyond = beyond.with_columns([
-                        pl.lit(None, dtype=pl.Float64).alias(name)
-                        for name in requested
-                        if name not in beyond.columns
-                    ])
-                attached = pl.concat(
-                    [attached_covered, beyond],
-                    how="diagonal_relaxed",
-                ).sort("_linkage_row")
-                return attached.drop("_linkage_row")
-            return attach_linkage_columns(
+            return materialize_factor_columns(
                 frame,
-                requested,
-                data_dir,
-                expected_generation=expected,
-                require_complete=True,
+                names,
+                context=provider_context,
             )
 
         return replace(
@@ -2185,13 +2150,16 @@ class StrategyEngine:
         names = [str(name) for name, weight in scoring.items() if weight]
         if not names:
             return current, history
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import attach_linkage_columns
+        from app.extensions.factors import (
+            FactorProviderContext,
+            materialize_factor_columns,
+            sidecar_factor_ids,
+        )
         from app.factors.registry import factor_dependencies
 
         linkage_names = (
             frozenset(names) | factor_dependencies(names)
-        ) & LINKAGE_FACTOR_IDS
+        ) & sidecar_factor_ids()
 
         def _attach(frame: pl.DataFrame | None) -> pl.DataFrame | None:
             if frame is None or frame.is_empty() or not linkage_names:
@@ -2201,12 +2169,13 @@ class StrategyEngine:
                 return frame
             if data_dir is None:
                 raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
-            return attach_linkage_columns(
+            return materialize_factor_columns(
                 frame,
                 missing,
-                data_dir,
-                expected_generation=expected_linkage_generation,
-                require_complete=True,
+                context=FactorProviderContext(
+                    data_dir=data_dir,
+                    expected_generation=expected_linkage_generation,
+                ),
             )
 
         current = _attach(current)

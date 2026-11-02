@@ -288,37 +288,48 @@ def materialize_scoring_columns(
     frame: pl.DataFrame,
     names: Collection[str],
 ) -> pl.DataFrame:
-    from app.factors.event_chain import (
-        is_event_chain_factor,
-        materialize_event_chain_columns,
+    from app.extensions.factors import (
+        FactorProviderContext,
+        factor_provider_for,
+        materialize_factor_columns,
     )
 
-    event_chain_names: list[str] = [
+    provider_names: list[str] = [
         str(name) for name in names
-        if is_event_chain_factor(str(name)) and str(name) not in frame.columns
+        if (provider := factor_provider_for(str(name))) is not None
+        and provider.kind != "sidecar"
+        and str(name) not in frame.columns
     ]
     for name in names:
         spec = _registry_get_factor(str(name))
         if spec is None:
             continue
         if spec.kind == "composite":
-            event_chain_names.extend(
+            provider_names.extend(
                 member_id
                 for member_id, _ in spec.components
-                if is_event_chain_factor(member_id) and member_id not in frame.columns
+                if (provider := factor_provider_for(member_id)) is not None
+                and provider.kind != "sidecar"
+                and member_id not in frame.columns
             )
         elif spec.kind == "custom":
             from app.factors.dsl import compile_formula_cached
 
             compiled = compile_formula_cached(spec.formula_text)
-            event_chain_names.extend(
+            provider_names.extend(
                 factor_id
                 for factor_id in compiled.referenced_factors
-                if is_event_chain_factor(factor_id) and factor_id not in frame.columns
+                if (provider := factor_provider_for(factor_id)) is not None
+                and provider.kind != "sidecar"
+                and factor_id not in frame.columns
             )
-    event_chain_names = list(dict.fromkeys(event_chain_names))
-    if event_chain_names:
-        frame = materialize_event_chain_columns(frame, event_chain_names)
+    provider_names = list(dict.fromkeys(provider_names))
+    if provider_names:
+        frame = materialize_factor_columns(
+            frame,
+            provider_names,
+            context=FactorProviderContext(),
+        )
 
     # A composite evaluates member factors by name. Materialize custom/composite
     # members first so strategies and factor research share the same path.
