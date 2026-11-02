@@ -57,6 +57,7 @@ META = {
     "limit": 100,
     "stability": "experimental",
     "backtest_defaults": {
+        "schema_version": 1,
         "initial_capital": 100000,
         "max_positions": 5,
         "max_exposure_pct": 1.0,

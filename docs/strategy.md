@@ -104,6 +104,47 @@ AI 策略 `.py` 未声明发布状态时默认导入为草稿；资源包中明�
 
 完整字段说明与示例见 [`strategy-guide.md`](../backend/app/strategy/prompts/strategy-guide.md)。
 
+### 回测执行默认值 (`META.backtest_defaults`)
+
+策略可用 `META.backtest_defaults` 声明回测页默认值与策略专属执行规则。当前稳定格式为 `schema_version: 1`；解析入口是 `backend/app/backtest/execution_policy.py`，运行时由 `StrategyBacktestService` 在加载行情前校验并 fail-closed。
+
+```python
+META = {
+    # ...
+    "backtest_defaults": {
+        "schema_version": 1,
+        "initial_capital": 100000,
+        "max_positions": 5,
+        "entry_fill": "open_t+1",
+        "exit_fill": "open_t+1",
+        "position_sizing": "score_tier",
+        "score_tiers": [[0.0, 0.0], [0.55, 0.20]],
+        "plan_at_signal_close": True,
+        "max_daily_entries": 2,
+        "execution_costs": {
+            "min_commission": 5.0,
+            "transfer_fee_pct": 0.00001,
+            "buy_slippage_tiers": [[500000000.0, 10.0]],
+        },
+        "hold_extension": {
+            "decision_days": 5,
+            "strong_hold_days": 10,
+            "strong_hold_min_return": 0.03,
+            "runner_new_high_days": 3,
+            "runner_extend_days": 74,
+        },
+    },
+}
+```
+
+契约要点：
+
+- 省略 `schema_version` 的旧配置按 v1 读取，且不会自动改写策略文件；新写入或迁移后的文件必须显式声明 `schema_version: 1`。
+- 未知版本、v1 未知字段、错误类型、非法范围、非有限数值、无效成本阶梯或相互矛盾的持仓延展参数均拒绝执行该次回测。
+- `plan_at_signal_close` 只能与次日开盘建仓 (`entry_fill` / `matching = open_t+1`) 组合。
+- `hold_extension`、`execution_costs`、评分分档与入场门控是可声明的策略执行规则；T+1、涨跌停/停牌不可成交、整手、现金与持仓约束始终由核心撮合强制执行，不能通过此 schema 绕过。
+- `mode: full` 仍受 `FullExecutionCapabilities` 限制；不支持的策略规则会在加载行情前明确拒绝，提示改用组合回测。
+
 ---
 
 ## 新增示例策略(贡献者)

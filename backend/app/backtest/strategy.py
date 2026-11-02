@@ -21,15 +21,14 @@ import polars as pl
 
 from app.backtest.engine import (
     BacktestEngine,
-    ExecutionCostPolicy,
     FullExecutionCapabilities,
-    HoldExtensionPolicy,
     MatcherConfig,
     SimResult,
     SimulationOptions,
     full_execution_unsupported_message,
     unsupported_full_execution_rules,
 )
+from app.backtest.execution_policy import parse_backtest_defaults
 from app.backtest.fundamentals import FUNDAMENTAL_FACTOR_NAMES
 from app.backtest.matrix import (
     MarketDataMatrix,
@@ -3028,76 +3027,10 @@ class StrategyBacktestService:
 
     @staticmethod
     def _strategy_execution_policy(s: StrategyDef) -> dict:
-        defaults = s.meta.get("backtest_defaults")
-        if not isinstance(defaults, dict):
-            defaults = {}
-
-        def _range(name: str) -> tuple[float, float] | None:
-            value = defaults.get(name)
-            if not isinstance(value, (list, tuple)) or len(value) != 2:
-                return None
-            try:
-                return float(value[0]), float(value[1])
-            except (TypeError, ValueError):
-                return None
-
-        raw_tiers = defaults.get("score_tiers")
-        score_tiers: tuple[tuple[float, float], ...] | None = None
-        if isinstance(raw_tiers, list):
-            parsed: list[tuple[float, float]] = []
-            for item in raw_tiers:
-                if not isinstance(item, (list, tuple)) or len(item) != 2:
-                    parsed = []
-                    break
-                try:
-                    parsed.append((float(item[0]), float(item[1])))
-                except (TypeError, ValueError):
-                    parsed = []
-                    break
-            score_tiers = tuple(parsed) if parsed else None
-
-        hold_raw = defaults.get("hold_extension")
-        hold_policy = None
-        if isinstance(hold_raw, dict):
-            hold_policy = HoldExtensionPolicy(
-                decision_days=int(hold_raw.get("decision_days", 5)),
-                strong_hold_days=int(hold_raw.get("strong_hold_days", 10)),
-                strong_hold_min_return=float(
-                    hold_raw.get("strong_hold_min_return", 0.03)
-                ),
-                runner_new_high_days=int(hold_raw.get("runner_new_high_days", 3)),
-                runner_extend_days=int(hold_raw.get("runner_extend_days", 74)),
-            )
-        cost_raw = defaults.get("execution_costs")
-        execution_costs = None
-        if isinstance(cost_raw, dict):
-            execution_costs = ExecutionCostPolicy(
-                min_commission=float(cost_raw.get("min_commission", 0.0)),
-                transfer_fee_pct=float(cost_raw.get("transfer_fee_pct", 0.0)),
-                buy_slippage_tiers=tuple(
-                    (float(item[0]), float(item[1]))
-                    for item in cost_raw.get("buy_slippage_tiers", [])
-                    if isinstance(item, (list, tuple)) and len(item) == 2
-                ),
-            )
-        trailing_peak = str(defaults.get("trailing_peak_price", "high"))
-        if trailing_peak not in {"high", "close"}:
-            raise ValueError("trailing_peak_price must be 'high' or 'close'")
-        return {
-            "score_tiers": score_tiers,
-            "entry_open_gap_range": _range("entry_open_gap_range"),
-            "entry_prev_day_change_range": _range("entry_prev_day_change_range"),
-            "trailing_peak_price": trailing_peak,
-            "exit_signal_requires_profit": bool(
-                defaults.get("exit_signal_requires_profit", False)
-            ),
-            "hold_extension_policy": hold_policy,
-            "execution_costs": execution_costs,
-            "plan_at_signal_close": bool(defaults.get("plan_at_signal_close", False)),
-            "max_daily_entries": defaults.get("max_daily_entries"),
-            "entry_price_basis": str(defaults.get("entry_price_basis", "adjusted")),
-            "block_limit_open": bool(defaults.get("block_limit_open", False)),
-        }
+        return parse_backtest_defaults(
+            s.meta.get("backtest_defaults"),
+            context=f"strategy {s.meta.get('id', '<unknown>')}",
+        ).engine_options()
 
     @staticmethod
     def _normalize_params(params: dict, s: StrategyDef) -> dict:

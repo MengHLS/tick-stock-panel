@@ -898,6 +898,7 @@ export interface StrategyDetail {
   trailing_take_profit_drawdown: number | null
   max_hold_days: number | null
   backtest_defaults?: {
+    schema_version?: 1
     initial_capital?: number
     max_positions?: number
     max_exposure_pct?: number
