@@ -1,6 +1,7 @@
 from app.extensions.contracts import (
     BACKEND_EXTENSION_API_VERSION,
     BacktestRead,
+    BacktestResultRead,
     EnrichedPanelRead,
     ExtensionContext,
     MarketDataRead,
@@ -47,6 +48,7 @@ __all__ = [
     "BackendExtensionRegistrar",
     "BackendExtensionRegistry",
     "BacktestRead",
+    "BacktestResultRead",
     "EnrichedPanelRead",
     "ExtensionContext",
     "ExtensionRuntime",

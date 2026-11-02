@@ -109,6 +109,16 @@ class BacktestRead(Protocol):
     ) -> pl.DataFrame: ...
 
 
+class BacktestResultRead(Protocol):
+    """Read completed runs and immutable saved result snapshots."""
+
+    def list_saved(self, page: int = 1, page_size: int = 20) -> dict: ...
+
+    def get_saved(self, saved_id: str) -> dict: ...
+
+    def get_completed(self, run_id: str) -> dict | None: ...
+
+
 @dataclass(frozen=True)
 class ExtensionContext:
     api_version: int
@@ -117,6 +127,7 @@ class ExtensionContext:
     market_data: MarketDataRead | None = None
     enriched_panel: EnrichedPanelRead | None = None
     backtest_read: BacktestRead | None = None
+    backtest_results: BacktestResultRead | None = None
 
 
 @dataclass(frozen=True)

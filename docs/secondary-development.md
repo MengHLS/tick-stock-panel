@@ -26,6 +26,7 @@
 - 请求期运行时契约（已实现）：`ExtensionRuntime` 通过 `app.extensions.get_extension_runtime` 注入，提供 `AlertPublisher`、`MonitorRuleSynchronizer` 和策略/筛选/行情公开读取面，业务扩展不直接访问 `app.state`。
 - 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
 - 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。
+- 回测页面插槽（已实现）：`backtest.result.extra`、`backtest.trades.extra`、`backtest.savedResults.extra`、`backtest.settings.extra`。结果与交易上下文只传保存/运行快照和受控回调，不暴露回测页内部状态。
 - 当前后端继承点：`NotificationFormatter`、`QuoteUpdateObserver`。
 - 自定义仓位策略（`PositionSizingPolicy`，已实现）：`data/user_data/position_policies/*.py`，在「设置 → 定义 → 仓位策略」创建（表单 META + 只写一个 `def compute(ctx)` 函数，模板起步）。契约见 `app/backtest/position_sizing.py`：ctx 只含当日及以前信息（候选评分/近 60 日收益/已平仓快照/组合状态/参数），输出 weights + budget_scale，引擎侧单仓上限/现金/敞口钳制不变。保存/备份导入均过「AST 安全校验 → 结构解析 → 合成冒烟」三关；回测在「买入权重 → 自定义策略」选用，引用失效 400 拒绝、运行期异常当日回退等权并计入统计。
 - 因子平台与策略线的既有桥接（已实现，二开时直接复用、勿重复实现）：因子库一键生成单因子排名策略（`GenerateFactorStrategyDialog` → `custom_factor_*`）；策略触发器引用因子条件信号（`AddFactorSignalDialog`，`csg_f_*`）；自定义信号 AI 提示词含因子分组（`custom_signals_ai.py`）；策略回测因子归因（`strategy.py` 的 `factor_attribution`，覆盖 `meta.scoring` 非空的策略）。
@@ -127,6 +128,10 @@ export default extension
 layout.navigation.extra
 stock-preview.footer
 watchlist.toolbar
+backtest.result.extra
+backtest.trades.extra
+backtest.savedResults.extra
+backtest.settings.extra
 ```
 
 各插槽 context 契约（均要求 `apiVersion: 1`，定义见 `frontend/src/extensions/types.ts` 的 `FrontendSlotContextMap`）：
@@ -134,6 +139,10 @@ watchlist.toolbar
 - `layout.navigation.extra`：`{ collapsed, pathname }`，侧边栏导航底部。
 - `stock-preview.footer`：`{ symbol, name, view }`，个股详情对话框底部（日K/分时图表下方）；`view` 为 `'daily' | 'intraday'`。适合个股附加面板：龙虎榜、资金流、外部研究链接等。
 - `watchlist.toolbar`：`{ symbols, viewMode, selectedGroup, refresh }`，自选页工具栏末尾；`symbols` 为当前筛选视图中的标的，`refresh` 在扩展修改数据后调用以刷新自选增强数据。适合批量操作入口：自定义分析、导出、组合计算等。
+- `backtest.result.extra`：`{ result }`，完成/已保存结果快照的结果区尾部；只读，不触发重新回测。
+- `backtest.trades.extra`：`{ result, trades, selectedTrade, onSelectTrade }`，交易明细页签尾部；`onSelectTrade` 打开核心单笔 K 线回放。
+- `backtest.savedResults.extra`：`{ currentSavedId, openSaved, busy }`，已保存结果弹窗尾部；`openSaved` 只接受核心生成的结果 ID。
+- `backtest.settings.extra`：`{ strategyId, strategyName, defaults }`，策略设置区尾部；只传当前策略标识与 `META.backtest_defaults` 快照。
 
 新增插槽前必须有真实用例，并同时定义 context 类型、异常隔离和测试；不能只在类型表中预留名字。
 
@@ -261,6 +270,7 @@ SSE、系统通知和扩展格式化。观察器运行在监控评估线程，�
 - `market_data: MarketDataRead`：标的维表、历史股本、日线、分钟线、交易日、ST 历史；
 - `enriched_panel: EnrichedPanelRead`：最新/区间 enriched 面板、数据 generation；
 - `backtest_read: BacktestRead`：只读面板加载和 generation 等待，不暴露 `BacktestEngine` 构造器。
+- `backtest_results: BacktestResultRead`：只读已完成运行缓存和已保存结果快照，支持分页列表、按保存 ID 读取和按 run ID 读取；返回深拷贝，调用方不能修改核心缓存。
 
 请求期路由使用 `Depends(get_extension_runtime)` 获取 `ExtensionRuntime`。它提供
 `alerts.publish(events)`、`monitor_rules.save_and_sync(rules)`、`monitor_rules.sync_paper_watch()`，

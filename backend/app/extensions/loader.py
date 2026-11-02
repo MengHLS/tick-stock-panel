@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
 from app.backtest.read import BacktestReadAdapter
+from app.backtest.result_read import BacktestResultReadAdapter
 from app.extensions.adapters import repository_read_adapters
 from app.extensions.contracts import BACKEND_EXTENSION_API_VERSION, ExtensionContext
 from app.extensions.registry import BackendExtensionRegistrar, BackendExtensionRegistry
@@ -116,4 +117,5 @@ def current_extension_context(*, data_dir, repository) -> ExtensionContext:
         market_data=market_data,
         enriched_panel=enriched_panel,
         backtest_read=BacktestReadAdapter(repository),
+        backtest_results=BacktestResultReadAdapter(data_dir),
     )

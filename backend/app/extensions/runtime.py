@@ -9,9 +9,11 @@ from typing import Any, Protocol
 
 from fastapi import HTTPException, Request
 
+from app.backtest.result_read import BacktestResultReadAdapter
 from app.extensions.adapters import repository_read_adapters
 from app.extensions.contracts import (
     BACKEND_EXTENSION_API_VERSION,
+    BacktestResultRead,
     EnrichedPanelRead,
     MarketDataRead,
 )
@@ -54,6 +56,7 @@ class ExtensionRuntime:
     repository: Any
     market_data: MarketDataRead
     enriched_panel: EnrichedPanelRead
+    backtest_results: BacktestResultRead
     capabilities: Any
     strategy_engine: StrategyRuntimeRead | None
     screener: ScreenerRuntimeRead | None
@@ -144,6 +147,7 @@ def build_extension_runtime(
         repository=repository,
         market_data=market_data,
         enriched_panel=enriched_panel,
+        backtest_results=BacktestResultReadAdapter(data_dir),
         capabilities=capabilities,
         strategy_engine=strategy_engine,
         screener=screener,

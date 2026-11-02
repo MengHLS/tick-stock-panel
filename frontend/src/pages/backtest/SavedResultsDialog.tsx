@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Archive, Loader2, Trash2, X } from 'lucide-react'
 import { Modal } from '@/components/Modal'
+import { ExtensionSlot } from '@/extensions/ExtensionSlot'
 import { toast } from '@/components/Toast'
 import { api, type SavedStrategyBacktestDetail } from '@/lib/api'
 import { cnDateTimeFromUtc, fmtPct } from '@/lib/format'
@@ -167,6 +168,16 @@ export function SavedResultsDialog({ onOpen, onDeleted, currentSavedId, onClose 
           </table>
         )}
       </div>
+
+      <ExtensionSlot
+        name="backtest.savedResults.extra"
+        context={{
+          apiVersion: 1,
+          currentSavedId: currentSavedId ?? null,
+          openSaved: savedId => open.mutate(savedId),
+          busy: open.isPending,
+        }}
+      />
 
       {total > PAGE_SIZE && (
         <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-border px-4 py-2 text-xs text-muted">
