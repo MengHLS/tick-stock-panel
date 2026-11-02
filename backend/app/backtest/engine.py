@@ -571,6 +571,7 @@ class BacktestEngine:
     def __init__(self, repo: KlineRepository) -> None:
         self.repo = repo
         self._cache = PanelCache()
+        self._evidence = None
 
     # ── 数据加载 ──────────────────────────────────────
 
@@ -619,6 +620,17 @@ class BacktestEngine:
                 "enriched data changed while the snapshot was being read"
             )
 
+    def _range_cache_generation(self, asset_type: str, end: date, expected: str | None) -> str | None:
+        loader = getattr(self.repo, "get_enriched_generation_snapshot", None)
+        if not callable(loader) or expected is None:
+            return expected
+        snapshot = loader(asset_type)
+        if snapshot.generation != expected:
+            raise EnrichedGenerationUnavailableError(
+                "enriched data changed while the snapshot was being read"
+            )
+        return snapshot.through(end)
+
     def load_panel(
         self,
         symbols: list[str] | None,
@@ -640,16 +652,19 @@ class BacktestEngine:
                 if expected is not None
                 else self.data_generation(asset_type)
             )
-            panel = self._cache.get_or_compute(
-                symbols,
-                start,
-                end,
-                columns,
-                self._load_panel_inner,
-                asset_type=asset_type,
-                generation=generation,
-            )
             try:
+                # Cache identity follows the consumed prefix. The global generation
+                # still guards the read, including in-progress/partial publications.
+                cache_generation = self._range_cache_generation(asset_type, end, generation)
+                panel = self._cache.get_or_compute(
+                    symbols,
+                    start,
+                    end,
+                    columns,
+                    self._load_panel_inner,
+                    asset_type=asset_type,
+                    generation=cache_generation,
+                )
                 self.assert_data_generation(asset_type, generation)
             except EnrichedGenerationUnavailableError:
                 if attempt + 1 >= attempts:
@@ -671,6 +686,7 @@ class BacktestEngine:
         *,
         _linkage_generation: str | None = None,
         _linkage_retry: int = 0,
+        evidence=None,
     ) -> pl.DataFrame:
         """按解析后的依赖加载窄基础列并计算回测所需特征。"""
         from app.enriched_generation import get_enriched_generation
@@ -678,11 +694,6 @@ class BacktestEngine:
         from app.factors.linkage_store import (
             LinkageReadUnstableError,
             attach_linkage_columns,
-        )
-        from app.indicators.pipeline import (
-            compute_indicators,
-            compute_limit_signals,
-            compute_signals,
         )
 
         linkage_names = (
@@ -717,7 +728,6 @@ class BacktestEngine:
             df = attach_st_history(df, self.repo.get_st_history())
 
         from app.backtest.fundamentals import (
-            attach_fundamental_factors,
             load_fundamental_snapshot,
         )
 
@@ -725,16 +735,9 @@ class BacktestEngine:
             getattr(feature_plan, "fundamental_columns", frozenset())
             or frozenset()
         )
-        if fundamental_names:
-            # 财务因子列不落 enriched 存储, 在加载口按公告日门控并入。
-            df = attach_fundamental_factors(
-                df,
-                load_fundamental_snapshot(
-                    self.repo.store.data_dir if self.repo is not None else None
-                ),
-                fundamental_names,
-            )
-
+        financials = load_fundamental_snapshot(
+            self.repo.store.data_dir if self.repo is not None else None,
+        ) if fundamental_names else None
         if linkage_names:
             try:
                 df = attach_linkage_columns(
@@ -755,17 +758,60 @@ class BacktestEngine:
                     asset_type,
                     _linkage_generation=get_enriched_generation(data_dir, "linkage"),
                     _linkage_retry=_linkage_retry + 1,
+                    evidence=evidence,
                 )
-
         instruments = (
             self.repo.get_instruments_asset(asset_type)
             if self.repo is not None
             else pl.DataFrame()
         )
+        historical_shares = (
+            self.repo.get_historical_shares()
+            if asset_type == "stock" and self.repo is not None and not instruments.is_empty()
+            else None
+        )
+        if evidence is not None:
+            from app.factors.ext_factors import attach_ext_columns
+
+            # 扩展时序值也要固定在本次原始快照内；检查期间不重新读取磁盘。
+            df = attach_ext_columns(df, include_snapshot=False, data_dir=self.repo.store.data_dir)
+
+        def prepare(raw):
+            return self._prepare_panel_features(
+                raw, feature_plan, instruments, historical_shares, financials,
+                linkage_names=linkage_names,
+                attach_extensions=evidence is None,
+            )
+
+        if evidence is not None:
+            evidence.capture_panel(df, prepare, {
+                "instruments": instruments, "historical_shares": historical_shares,
+                "financial_announcements": financials,
+            })
+        return prepare(df)
+
+    @staticmethod
+    def _prepare_panel_features(
+        df, feature_plan, instruments, historical_shares, financials, *,
+        linkage_names=frozenset(), attach_extensions=True,
+    ):
+        from app.backtest.fundamentals import attach_fundamental_factors
+        from app.indicators.pipeline import (
+            compute_indicators,
+            compute_limit_signals,
+            compute_signals,
+        )
+
+        fundamental_names = sorted(getattr(feature_plan, "fundamental_columns", ()) or ())
+        if fundamental_names:
+            df = attach_fundamental_factors(df, financials, fundamental_names)
         matrix_native = feature_plan.execution_backend == "matrix_native"
         if not matrix_native:
             df = compute_indicators(df, needed=set(feature_plan.indicator_columns))
-            df = compute_signals(df, needed=set(feature_plan.signal_columns))
+            df = compute_signals(
+                df, needed=set(feature_plan.signal_columns),
+                **({"attach_extensions": False} if not attach_extensions else {}),
+            )
         if not instruments.is_empty():
             df = compute_limit_signals(
                 df,
@@ -773,11 +819,7 @@ class BacktestEngine:
                 needed={"signal_limit_up", "signal_limit_down"}
                 if matrix_native
                 else set(feature_plan.signal_columns),
-                historical_shares=(
-                    self.repo.get_historical_shares()
-                    if asset_type == "stock" and self.repo is not None
-                    else None
-                ),
+                historical_shares=historical_shares,
             )
             join_cols = ["symbol"] if "symbol" in instruments.columns else []
             join_cols.extend(
@@ -857,6 +899,8 @@ class BacktestEngine:
             from app.tickflow.security_status import MISSING_ST_HISTORY
 
             raise ValueError(MISSING_ST_HISTORY)
+        if self._evidence is not None:
+            self._evidence.record_frame("instruments", instruments)
         field_columns = (
             set(feature_plan.base_columns)
             | set(feature_plan.instrument_columns)
@@ -906,6 +950,9 @@ class BacktestEngine:
         linkage_attempts = 0
         while True:
             try:
+                cache_generation = self._range_cache_generation(
+                    asset_type, coverage_end or end, source_generation,
+                )
                 market = load_market_data_matrix_from_parquet(
                     parquet_root,
                     start,
@@ -921,7 +968,7 @@ class BacktestEngine:
                     profile_generation=(
                         cache_profile.generation if cache_profile is not None else "request"
                     ),
-                    source_generation=source_generation,
+                    source_generation=cache_generation,
                     cancel_event=cancel_event,
                     data_dir=getattr(getattr(self.repo, "store", None), "data_dir", None),
                     asset_type=asset_type,
@@ -939,6 +986,7 @@ class BacktestEngine:
                         market,
                         self.repo.store.data_dir if self.repo is not None else None,
                         fundamental_names,
+                        evidence=self._evidence,
                     )
                 if ext_wanted:
                     from app.factors.ext_factors import attach_matrix_ext_fields
@@ -1271,7 +1319,9 @@ class BacktestEngine:
             dates = {matrix.timestamp_labels[int(t)][:10] for t in trigger_times}
             symbols = {matrix.symbols[int(a)] for a in trigger_assets}
             if dates and symbols:
-                loaded = self._load_minute_for_fills(self.repo, list(symbols), dates, config.asset_type)
+                loaded = self._load_minute_for_fills(
+                    self.repo, list(symbols), dates, config.asset_type, evidence=self._evidence,
+                )
                 minute_cache = {key: value for key, value in loaded.items() if value is not None and len(value) > 0}
 
         def _count(key: str) -> None:
@@ -1705,6 +1755,7 @@ class BacktestEngine:
             if _trigger_dates and _trigger_symbols:
                 _loaded = self._load_minute_for_fills(
                     self.repo, list(_trigger_symbols), _trigger_dates, "stock",
+                    evidence=self._evidence,
                 )
                 for _key, _marr in _loaded.items():
                     if _marr is not None and len(_marr) > 0:
@@ -2155,6 +2206,7 @@ class BacktestEngine:
         symbols: list[str],
         dates_needed: set,
         asset_type: str,
+        *, evidence=None,
     ) -> dict:
         """按触发日加载分钟K, 返回 {(symbol, date_str): float64 2D ndarray}。
 
@@ -2186,6 +2238,8 @@ class BacktestEngine:
                 continue
             if df.is_empty():
                 continue
+            if evidence is not None:
+                evidence.record_frame(f"minute_fill/{asset_type}/{batch[0]}/{batch[-1]}", df)
             # 按 (symbol, 日期) 分组, 每组转紧凑 float64 数组存入 cache
             df = df.sort(["symbol", "datetime"]).with_columns(
                 pl.col("datetime").dt.strftime("%Y-%m-%d").alias("_d_str")
@@ -2312,6 +2366,7 @@ class BacktestEngine:
             if trigger_dates and trigger_symbols:
                 loaded = self._load_minute_for_fills(
                     self.repo, list(trigger_symbols), trigger_dates, config.asset_type,
+                    evidence=self._evidence,
                 )
                 minute_cache = {key: value for key, value in loaded.items() if value is not None and len(value) > 0}
 
@@ -3812,6 +3867,7 @@ class BacktestEngine:
                 ) else "stock"
                 loaded = self._load_minute_for_fills(
                     self.repo, list(trigger_symbols), trigger_dates, asset_type,
+                    evidence=self._evidence,
                 )
                 for key, marr in loaded.items():
                     if marr is not None and len(marr) > 0:

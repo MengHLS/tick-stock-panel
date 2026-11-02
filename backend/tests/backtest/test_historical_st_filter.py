@@ -165,6 +165,7 @@ def test_backtest_loaders_attach_status_even_when_price_matrix_is_cached(tmp_pat
         monkeypatch.setattr(engine, "load_panel", lambda *a, **kw: _panel().drop("st_flag"))
         monkeypatch.setattr(engine, "data_generation_await", lambda *a, **kw: "test")
         monkeypatch.setattr(engine, "assert_data_generation", lambda *a, **kw: None)
+        monkeypatch.setattr(engine, "_range_cache_generation", lambda *a, **kw: "test")
         cached = build_market_data_matrix(_panel().drop("st_flag"))
         monkeypatch.setattr(
             engine_module, "load_market_data_matrix_from_parquet", lambda *a, **kw: cached

@@ -40,9 +40,13 @@ from app.factors.event_chain import (
     compute_event_chain_outputs,
 )
 from app.price_limits import (
+    GEM_20PCT_LIMIT_START_DATE,
+    GROWTH_BOARD_LIMIT,
     LEGACY_MAIN_BOARD_ST_LIMIT,
     MAIN_BOARD_LIMIT,
     MAIN_BOARD_ST_LIMIT_CHANGE_DATE,
+    numpy_gem_pre_registration_vector,
+    numpy_limit_pct_for_date,
     numpy_limit_pct_vectors,
     numpy_limit_price,
     write_numpy_price_limit_matrix,
@@ -64,7 +68,8 @@ except ImportError:
     prange = range
 
 _MATRIX_CACHE_VERSION = 1
-_DIRECT_MATRIX_LOADER_VERSION = 4
+# Price-limit rules are baked into the mmap fields and lock arrays.
+_DIRECT_MATRIX_LOADER_VERSION = 5
 _MATRIX_AXIS_INDEX_VERSION = 1
 _ARROW_BATCH_SIZE = 131_072
 _SCORE_ASSET_CHUNK_SIZE = 256
@@ -2241,25 +2246,37 @@ def _limit_lock_matrices(
     down_locked.fill(0)
     legacy_pct, current_pct = numpy_limit_pct_vectors(symbols, names)
     main_board = current_pct == MAIN_BOARD_LIMIT
+    pre_gem_pct = numpy_gem_pre_registration_vector(symbols, legacy_pct, names)
+    pre_registration_gem = (
+        (current_pct == GROWTH_BOARD_LIMIT) & (pre_gem_pct != current_pct)
+    )
 
     previous_raw = np.full(shape[1], np.nan, dtype=np.float64)
     previous_adjustment = np.full(shape[1], np.nan, dtype=np.float64)
     for time_id in range(shape[0]):
-        before_st_rule_change = (
-            trading_dates[time_id] < MAIN_BOARD_ST_LIMIT_CHANGE_DATE
+        trade_date = trading_dates[time_id]
+        limit_pct = numpy_limit_pct_for_date(
+            trade_date, pre_gem_pct, legacy_pct, current_pct,
         )
-        if historical_st is None:
-            limit_pct = legacy_pct if before_st_rule_change else current_pct
-        else:
+        before_st_rule_change = (
+            trade_date < MAIN_BOARD_ST_LIMIT_CHANGE_DATE
+        )
+        if historical_st is not None:
             st_flags = (
                 np.isfinite(historical_st[time_id])
                 & (historical_st[time_id] > 0.5)
             )
-            limit_pct = np.where(
-                before_st_rule_change & main_board & st_flags,
-                LEGACY_MAIN_BOARD_ST_LIMIT,
-                current_pct,
+            legacy_board_limit = np.where(
+                st_flags, LEGACY_MAIN_BOARD_ST_LIMIT, MAIN_BOARD_LIMIT,
             )
+            if trade_date < GEM_20PCT_LIMIT_START_DATE:
+                limit_pct = np.where(
+                    main_board | pre_registration_gem,
+                    legacy_board_limit,
+                    limit_pct,
+                )
+            elif before_st_rule_change:
+                limit_pct = np.where(main_board, legacy_board_limit, limit_pct)
         present = seen[time_id]
         current_close = close[time_id].astype(np.float64, copy=False)
         current_raw = raw_close[time_id].astype(np.float64, copy=False)
