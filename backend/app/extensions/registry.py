@@ -1,6 +1,7 @@
 """Backend extension registry with version checks and deterministic freezing."""
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -11,10 +12,12 @@ from app.extensions.contracts import (
     BACKEND_EXTENSION_API_VERSION,
     DefaultNotificationFormatter,
     NotificationFormatter,
+    QuoteUpdateObserver,
 )
 
 _ID_RE = re.compile(r"^[a-z0-9]+(?:[._-][a-z0-9]+)*$")
 T = TypeVar("T")
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -33,6 +36,7 @@ class BackendExtensionRegistrar:
         self.api_version = api_version
         self.routers: list[APIRouter] = []
         self.notification_formatters: list[tuple[str, NotificationFormatter, int]] = []
+        self.quote_observers: list[tuple[str, QuoteUpdateObserver, int]] = []
 
     def include_router(self, router: APIRouter) -> None:
         if not isinstance(router, APIRouter):
@@ -48,11 +52,21 @@ class BackendExtensionRegistrar:
     ) -> None:
         self.notification_formatters.append((implementation_id, formatter, order))
 
+    def register_quote_observer(
+        self,
+        implementation_id: str,
+        observer: QuoteUpdateObserver,
+        *,
+        order: int = 100,
+    ) -> None:
+        self.quote_observers.append((implementation_id, observer, order))
+
 
 class BackendExtensionRegistry:
     def __init__(self) -> None:
         self._extension_ids: set[str] = set()
         self._notification_formatters: list[RegisteredImplementation[NotificationFormatter]] = []
+        self._quote_observers: list[RegisteredImplementation[QuoteUpdateObserver]] = []
         self._frozen = False
 
     @property
@@ -66,6 +80,10 @@ class BackendExtensionRegistry:
     @property
     def has_notification_formatters(self) -> bool:
         return bool(self._notification_formatters)
+
+    @property
+    def has_quote_observers(self) -> bool:
+        return bool(self._quote_observers)
 
     def extension_ids(self) -> frozenset[str]:
         return frozenset(self._extension_ids)
@@ -102,11 +120,33 @@ class BackendExtensionRegistry:
                 RegisteredImplementation(extension_id, implementation_id, formatter, order)
             )
 
+        known_observer_ids = {item.implementation_id for item in self._quote_observers}
+        staged_observers: list[RegisteredImplementation[QuoteUpdateObserver]] = []
+        for implementation_id, observer, order in registrar.quote_observers:
+            self._validate_id(implementation_id, "implementation_id")
+            if not isinstance(observer, QuoteUpdateObserver):
+                raise TypeError("observer must inherit QuoteUpdateObserver")
+            if observer.api_version != BACKEND_EXTENSION_API_VERSION:
+                raise ValueError(
+                    f"observer {implementation_id!r} requires API v{observer.api_version}; "
+                    f"current is v{BACKEND_EXTENSION_API_VERSION}"
+                )
+            if implementation_id in known_observer_ids:
+                raise ValueError(f"duplicate quote observer id: {implementation_id}")
+            known_observer_ids.add(implementation_id)
+            staged_observers.append(
+                RegisteredImplementation(extension_id, implementation_id, observer, order)
+            )
+
         self._extension_ids.add(extension_id)
         self._notification_formatters.extend(staged)
+        self._quote_observers.extend(staged_observers)
 
     def freeze(self) -> None:
         self._notification_formatters.sort(
+            key=lambda item: (item.order, item.implementation_id)
+        )
+        self._quote_observers.sort(
             key=lambda item: (item.order, item.implementation_id)
         )
         self._frozen = True
@@ -123,6 +163,24 @@ class BackendExtensionRegistry:
                 ),
             )
         return tuple(self._notification_formatters)
+
+    def quote_observers(
+        self,
+    ) -> tuple[RegisteredImplementation[QuoteUpdateObserver], ...]:
+        if not self._frozen:
+            raise RuntimeError("backend extension registry must be frozen before use")
+        return tuple(self._quote_observers)
+
+    def shutdown_quote_observers(self) -> None:
+        for registered in self._quote_observers:
+            try:
+                registered.implementation.shutdown()
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "quote observer shutdown failed %s: %s",
+                    registered.implementation_id,
+                    exc,
+                )
 
     def _ensure_mutable(self) -> None:
         if self._frozen:

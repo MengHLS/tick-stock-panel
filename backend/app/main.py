@@ -511,6 +511,9 @@ async def _application_lifespan(app: FastAPI):
         qs = getattr(app.state, "quote_service", None)
         if qs:
             qs.stop()
+        extension_registry = getattr(app.state, "extension_registry", None)
+        if extension_registry:
+            extension_registry.shutdown_quote_observers()
         dsvc = getattr(app.state, "depth_service", None)
         if dsvc:
             dsvc.stop_polling()

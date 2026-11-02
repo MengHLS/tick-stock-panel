@@ -19,9 +19,10 @@
 - 数据源 Provider 与 `plugin.yaml` 机制：详见 [`plugin-development.md`](plugin-development.md)。
 - 扩展数据与声明式分析页面：适合不需要自定义 React 交互的页面。
 - 前端源码扩展注册：`frontend/src/custom/<namespace>/extension.tsx`，支持静态页面、导航和已开放插槽。
-- 后端源码扩展注册：`backend/app/custom/<module>.py`，支持 FastAPI 路由、启动钩子和通知格式化器。
+- 后端源码扩展注册：`backend/app/custom/<module>.py`，支持 FastAPI 路由、启动钩子、通知格式化和受限实时行情观察器。
+- 统一扩展数据定时拉取（已实现）：非 HTTP 采集器用稳定的 `builtin://...` 地址标识配置，并通过 `app.services.ext_pull.register_pull_handler(config_id, handler)` 接入既有 `PullScheduler`；调度、启停、状态和 `next_run` 必须复用该调度器，禁止扩展另建定时循环。
 - 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。
-- 当前后端继承点：`NotificationFormatter`。
+- 当前后端继承点：`NotificationFormatter`、`QuoteUpdateObserver`。
 - 自定义仓位策略（`PositionSizingPolicy`，已实现）：`data/user_data/position_policies/*.py`，在「设置 → 定义 → 仓位策略」创建（表单 META + 只写一个 `def compute(ctx)` 函数，模板起步）。契约见 `app/backtest/position_sizing.py`：ctx 只含当日及以前信息（候选评分/近 60 日收益/已平仓快照/组合状态/参数），输出 weights + budget_scale，引擎侧单仓上限/现金/敞口钳制不变。保存/备份导入均过「AST 安全校验 → 结构解析 → 合成冒烟」三关；回测在「买入权重 → 自定义策略」选用，引用失效 400 拒绝、运行期异常当日回退等权并计入统计。
 - 因子平台与策略线的既有桥接（已实现，二开时直接复用、勿重复实现）：因子库一键生成单因子排名策略（`GenerateFactorStrategyDialog` → `custom_factor_*`）；策略触发器引用因子条件信号（`AddFactorSignalDialog`，`csg_f_*`）；自定义信号 AI 提示词含因子分组（`custom_signals_ai.py`）；策略回测因子归因（`strategy.py` 的 `factor_attribution`，覆盖 `meta.scoring` 非空的策略）。
 - 旧策略包格式与接口（兼容保留）：按依赖闭包打包策略 `.py` + 引用的自定义信号/因子定义 + 用户调参（叠加策略含子策略）。`app/services/strategy_bundle.py` 只保留兼容入口，实际实现统一位于 `app/services/resource_bundle.py`；新旧接口共用依赖闭包、ZIP 安全校验、打包与资源预检，旧导入复用 `config_backup.apply_archive` 的校验/逐条写盘/冒烟管线，缺失依赖在旧预览中只作预警。包内仅允许策略/调参/信号/因子四类，其他路径 400 拒绝。API：`GET /api/strategies/{id}/bundle`、`POST /api/strategies/bundle/inspect|apply`；当前页面入口使用下述统一资源传输。
@@ -181,9 +182,7 @@ const extension: FrontendExtension = {
 
 - `CandidateFilter`：候选池过滤。
 - `ScoringPolicy`：评分计算。
-- `PositionSizingPolicy`：仓位计算。
 - `RiskPolicy`：风险约束。
-- `NotificationFormatter`：通知文案。
 - `StrategyProvider`：策略发现。
 - `MonitorConditionEvaluator`：自定义监控条件。
 - `BacktestCostModel`：手续费和滑点模型。
@@ -230,6 +229,28 @@ def setup(registrar: BackendExtensionRegistrar) -> None:
 同一个 `setup` 可以通过 `registrar.include_router(router)` 注册独立 FastAPI 路由。核心路由冲突、重复 ID 或契约版本不匹配时，该扩展整体不注册，不留下半注册状态。
 
 核心数据层初始化完成后，可选的 `startup(context: ExtensionContext)` 会收到数据目录和只读仓库协议。启动钩子失败只记录错误，不阻止主程序启动。
+
+需要响应实时行情轮次时，扩展可继承 `QuoteUpdateObserver` 并通过
+`registrar.register_quote_observer(...)` 注册：
+
+```python
+from app.extensions import QuoteUpdateContext, QuoteUpdateObserver
+
+
+class MyObserver(QuoteUpdateObserver):
+    def watched_symbols(self) -> frozenset[str]:
+        return frozenset({"000001.SZ"})
+
+    def on_quote_update(self, context: QuoteUpdateContext) -> list[dict]:
+        row = context.quotes[0]
+        return []
+```
+
+观察器只收到自己声明的股票行，不暴露整个行情服务或 `app.state`；返回的事件必须使用
+标准告警字段（`source/type/symbol/message/price/change_pct` 等），由核心统一落盘、
+SSE、系统通知和扩展格式化。观察器运行在监控评估线程，必须自行按分钟节流并且不得
+执行全量历史扫描、同步 Webhook 等长耗时任务。单个观察器异常只隔离自身，不阻断核心
+规则或其他扩展；应用关闭时 registry 会调用 `shutdown()`。
 
 完整后端模板位于 [`backend/app/custom/_template.py.example`](../backend/app/custom/_template.py.example)。
 

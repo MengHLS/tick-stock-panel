@@ -25,6 +25,7 @@ from app.services.ext_data import (
     ExtConfig,
     ExtConfigStore,
     ExtField,
+    PullConfig,
     cast_df_to_schema,
     write_ext_parquet,
 )
@@ -33,8 +34,7 @@ from app.services.fs_utils import atomic_write_text
 logger = logging.getLogger(__name__)
 
 CONFIG_ID = "limit_board_events"
-AUTO_SYNC_START = time(15, 45)
-_AUTO_SYNC_POLL_SECONDS = 60
+LIMIT_BOARD_URL = "builtin://limit-board-events/daily"
 _LOCK_TIMEOUT_SECONDS = 30.0
 _LOCK_POLL_SECONDS = 0.05
 _SEED_MARKER = ".limit_board_events_seeded"
@@ -57,6 +57,15 @@ def limit_board_config() -> ExtConfig:
             "scripts.sync_limit_board_events 按日补录。"
         ),
         symbol_map={"type": "mapped", "col": "symbol"},
+        pull=PullConfig(
+            url=LIMIT_BOARD_URL,
+            schedule_minutes=5,
+            enabled=True,
+            time_window_start="15:45",
+            time_window_end="23:59",
+            schedule_trading_only=True,
+            granularity="daily",
+        ),
         fields=[
             ExtField("trade_date", "string", "交易日"),
             ExtField("symbol", "string", "标的代码"),
@@ -85,6 +94,29 @@ def limit_board_config() -> ExtConfig:
     )
 
 
+def _uses_owned_schedule(config: ExtConfig) -> bool:
+    return config.pull is None or config.pull.url in ("", LIMIT_BOARD_URL)
+
+
+def _apply_owned_schedule(config: ExtConfig, expected: ExtConfig) -> bool:
+    """Move only the system-owned table onto the shared pull scheduler."""
+    if config.pull is not None and config.pull.url not in ("", LIMIT_BOARD_URL):
+        return False
+    if config.pull is not None and config.pull.url == LIMIT_BOARD_URL:
+        return False
+    replacement = expected.pull
+    if replacement is None:
+        return False
+    current = config.pull
+    if current is not None:
+        replacement.last_run = current.last_run
+        replacement.last_status = current.last_status
+        replacement.last_message = current.last_message
+        replacement.last_rows = current.last_rows
+    config.pull = replacement
+    return True
+
+
 def ensure_limit_board_config(data_dir: Path) -> ExtConfig | None:
     """Create the derived table once without reviving a user-deleted config."""
     data_dir = Path(data_dir)
@@ -95,6 +127,8 @@ def ensure_limit_board_config(data_dir: Path) -> ExtConfig | None:
     if config_path.exists() and config is None:
         raise ValueError("Existing extension config is unreadable; refusing to overwrite")
     if config is not None:
+        if _apply_owned_schedule(config, limit_board_config()):
+            store.upsert(config)
         if not marker.exists():
             atomic_write_text(marker, "")
         return config
@@ -162,7 +196,7 @@ def _existing_state(
         if (
             config.mode != "timeseries"
             or config.market_level
-            or config.pull
+            or not _uses_owned_schedule(config)
             or config.symbol_map != expected.symbol_map
             or config.code_map
             or actual_fields != wanted_fields
@@ -291,131 +325,32 @@ def _completion_marker(data_dir: Path, day: date) -> Path:
     return data_dir / "ext_data" / CONFIG_ID / ".auto_completed" / day.isoformat()
 
 
-class LimitBoardEventScheduler:
-    """Generate each completed weekday once, including a startup catch-up."""
+async def run_scheduled_limit_board(
+    config: ExtConfig,
+    data_dir: Path,
+    target_date: date,
+) -> tuple[int, str]:
+    """Execute the daily limit-board materialization through PullScheduler."""
+    if config.id != CONFIG_ID:
+        raise ValueError(f"涨停板拉取适配器配置不匹配: {config.id}")
+    marker = _completion_marker(data_dir, target_date)
+    if marker.exists():
+        last_rows = config.pull.last_rows if config.pull else 0
+        return int(last_rows or 0), target_date.isoformat()
 
-    def __init__(self) -> None:
-        self._task: asyncio.Task | None = None
-        self._running = False
-        self._enabled = False
-        self._data_dir: Path | None = None
-        self._repository = None
-        self._completed_day: date | None = None
-        self._error_logged_day: date | None = None
-        self._cancel_event = threading.Event()
+    result = await asyncio.to_thread(
+        sync_limit_board_events,
+        data_dir,
+        target_date,
+        now=cn_now(),
+        create_config=False,
+    )
+    status = str(result.get("status") or "")
+    if status == "missing_config":
+        return 0, target_date.isoformat()
+    if status not in {"written", "exists", "empty"}:
+        raise ValueError(f"涨停板事件生成未完成: {status or '未知状态'}")
 
-    def start(
-        self,
-        data_dir: Path,
-        *,
-        enabled: bool = True,
-        repository=None,
-    ) -> None:
-        self.stop()
-        self._data_dir = Path(data_dir)
-        self._repository = repository
-        self._enabled = bool(enabled)
-        self._cancel_event = threading.Event()
-        self._completed_day = None
-        self._error_logged_day = None
-        if not self._enabled:
-            logger.info("LimitBoardEventScheduler initialized (auto-schedule disabled)")
-            return
-        self._running = True
-        self._task = asyncio.create_task(self._run_loop())
-        logger.info("LimitBoardEventScheduler started (auto-schedule enabled)")
-
-    def stop(self) -> None:
-        self._running = False
-        self._enabled = False
-        self._cancel_event.set()
-        if self._task is not None:
-            self._task.cancel()
-            self._task = None
-        logger.info("LimitBoardEventScheduler stopped")
-
-    async def _run_loop(self) -> None:
-        try:
-            while self._running:
-                await self.run_once()
-                await asyncio.sleep(_AUTO_SYNC_POLL_SECONDS)
-        except asyncio.CancelledError:
-            self._running = False
-            self._cancel_event.set()
-
-    async def run_once(self, now: datetime | None = None) -> dict:
-        if not self._enabled or self._data_dir is None:
-            return {"status": "disabled"}
-        current = now or cn_now()
-        if current.tzinfo is None:
-            raise ValueError("now must have an explicit timezone")
-        current = current.astimezone(CN_TZ)
-        if current.weekday() >= 5 or current.time() < AUTO_SYNC_START:
-            return {"status": "not_due"}
-        day = current.date()
-        if self._completed_day == day:
-            return {"status": "done"}
-        if _completion_marker(self._data_dir, day).exists():
-            self._completed_day = day
-            return {"status": "done", "date": day.isoformat()}
-        try:
-            result = await asyncio.to_thread(
-                sync_limit_board_events,
-                self._data_dir,
-                day,
-                now=current,
-                create_config=False,
-                cancel_event=self._cancel_event,
-            )
-        except SyncCancelledError:
-            return {"status": "cancelled"}
-        except Exception as exc:  # noqa: BLE001 - scheduler must keep retrying
-            if self._error_logged_day != day:
-                logger.warning(
-                    "LimitBoardEventScheduler sync failed for %s: %s",
-                    day,
-                    exc,
-                )
-                self._error_logged_day = day
-            return {"status": "error", "message": str(exc)}
-
-        if result.get("status") in {"written", "exists"}:
-            clear_cache = getattr(self._repository, "clear_cache", None)
-            if callable(clear_cache):
-                try:
-                    clear_cache()
-                except Exception as exc:  # noqa: BLE001 - retry before marking done
-                    logger.warning(
-                        "LimitBoardEventScheduler cache invalidation failed for %s: %s",
-                        day,
-                        exc,
-                    )
-                    return {
-                        "status": "error",
-                        "message": f"cache invalidation: {exc}",
-                    }
-
-        if result.get("status") in {"written", "exists", "empty"}:
-            marker = _completion_marker(self._data_dir, day)
-            try:
-                marker.parent.mkdir(parents=True, exist_ok=True)
-                atomic_write_text(marker, result["status"])
-            except OSError as exc:
-                logger.warning(
-                    "LimitBoardEventScheduler completion marker failed for %s: %s",
-                    day,
-                    exc,
-                )
-                return {"status": "error", "message": f"completion marker: {exc}"}
-            self._completed_day = day
-            logger.info("LimitBoardEventScheduler completed %s: %s", day, result)
-        elif result.get("status") == "missing_config":
-            self._completed_day = day
-            logger.info(
-                "LimitBoardEventScheduler skipped %s: extension table was deleted",
-                day,
-            )
-        return result
-
-
-limit_board_scheduler = LimitBoardEventScheduler()
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    atomic_write_text(marker, status)
+    return int(result.get("rows") or 0), target_date.isoformat()

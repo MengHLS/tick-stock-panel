@@ -2,13 +2,11 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import threading
+from collections.abc import Awaitable, Callable
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from datetime import UTC, date, datetime, timedelta, timezone
-from functools import reduce
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +23,23 @@ from app.services.ext_data import (
 logger = logging.getLogger(__name__)
 
 _pull_client: ContextVar[httpx.AsyncClient | None] = ContextVar("ext_pull_client", default=None)
+PullHandler = Callable[[ExtConfig, Path, date], Awaitable[tuple[int, str]]]
+_pull_handlers: dict[str, PullHandler] = {}
+
+
+def register_pull_handler(config_id: str, handler: PullHandler) -> None:
+    """注册由现有 PullScheduler 调度的非 HTTP 采集器。
+
+    扩展只提供一次执行的适配器；何时执行、启停、状态和 next_run 仍由统一
+    拉取调度器负责，不能再创建第二个调度循环。
+    """
+    if not config_id or not callable(handler):
+        raise ValueError("pull handler 需要 config_id 和可调用对象")
+    _pull_handlers[config_id] = handler
+
+
+def has_pull_handler(config_id: str) -> bool:
+    return config_id in _pull_handlers
 
 
 @asynccontextmanager
@@ -61,6 +76,14 @@ def outbound_headers(user_headers: dict[str, str] | None = None) -> dict[str, st
     }
 
 
+def _at_in_time_window(now: datetime, start: str, end: str) -> bool:
+    current = now.strftime("%H:%M")
+    if start <= end:
+        return start <= current < end
+    # 跨午夜: 如 22:00-02:00
+    return current >= start or current < end
+
+
 def _in_time_window(start: str | None, end: str | None) -> bool:
     """检查当前北京时间是否在每日时间窗口内。
 
@@ -74,11 +97,48 @@ def _in_time_window(start: str | None, end: str | None) -> bool:
     """
     if not start or not end:
         return True
-    now = cn_now().strftime("%H:%M")
-    if start <= end:
-        return start <= now < end
-    # 跨午夜: 如 22:00-02:00
-    return now >= start or now < end
+    return _at_in_time_window(cn_now(), start, end)
+
+
+def _window_day_allowed(now: datetime, trading_only: bool) -> bool:
+    return not (trading_only and now.isoweekday() > 5)
+
+
+def _next_window_open(
+    now: datetime,
+    start: str,
+    end: str,
+    *,
+    trading_only: bool,
+) -> datetime:
+    """返回严格晚于 now 的下一个窗口起点。"""
+    today_start = now.replace(
+        hour=int(start[:2]), minute=int(start[3:5]), second=0, microsecond=0
+    )
+    candidate = today_start if now < today_start else today_start + timedelta(days=1)
+    while not _window_day_allowed(candidate, trading_only):
+        candidate += timedelta(days=1)
+    return candidate
+
+
+def _next_window_run(
+    now: datetime,
+    start: str,
+    end: str,
+    *,
+    trading_only: bool,
+    interval_seconds: int,
+) -> datetime:
+    """间隔制任务的下一轮: 窗口内按间隔，越界则等到下一窗口。"""
+    proposed = now + timedelta(seconds=interval_seconds)
+    if (
+        _window_day_allowed(proposed, trading_only)
+        and _at_in_time_window(proposed, start, end)
+    ):
+        return proposed
+    return _next_window_open(
+        proposed, start, end, trading_only=trading_only
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -241,7 +301,6 @@ def _apply_auth(config_id: str, auth: dict | None, url: str, headers: dict[str, 
     from urllib.parse import quote
 
     from app import secrets_store
-
     from app.services.ext_data import get_ext_api_key
 
     auth_type = str((auth or {}).get("type") or "none").lower()
@@ -467,6 +526,15 @@ async def fetch_and_ingest(
     """
     # 同上: 落盘分区按北京日期, 否则 UTC 容器在北京时间 08:00 之前写的是前一天。
     day = target_date or cn_today()
+    config_id = str(getattr(config, "id", "") or "")
+    pull = getattr(config, "pull", None)
+    if pull and str(pull.url or "").startswith("builtin://"):
+        handler = _pull_handlers.get(config_id)
+        if handler is not None:
+            return await handler(config, Path(data_dir), day)
+        raise ValueError(
+            f"内置拉取适配器未注册: {config_id}；请确认对应扩展已成功加载"
+        )
     rows = await fetch_rows_for_date(config, day, data_dir)
     if not rows:
         raise ValueError("提取到的行数为 0")
@@ -770,7 +838,7 @@ class PullScheduler:
             n, d = await fetch_and_ingest(
                 fresh, self._data_dir, keep_strategy_cache=True
             )
-            fresh.pull.last_run = datetime.now(timezone.utc).isoformat()
+            fresh.pull.last_run = datetime.now(UTC).isoformat()
             fresh.pull.last_status = "success"
             fresh.pull.last_message = f"{n} rows @ {d}"
             fresh.pull.last_rows = n
@@ -779,7 +847,7 @@ class PullScheduler:
         except Exception as e:
             fresh2 = store.get(fresh.id)
             if fresh2 and fresh2.pull:
-                fresh2.pull.last_run = datetime.now(timezone.utc).isoformat()
+                fresh2.pull.last_run = datetime.now(UTC).isoformat()
                 fresh2.pull.last_status = "error"
                 fresh2.pull.last_message = str(e)[:200]
                 store.upsert(fresh2, keep_strategy_cache=True)
@@ -858,14 +926,47 @@ class PullScheduler:
                 if not fresh or not fresh.pull or not fresh.pull.enabled:
                     break
                 pull = fresh.pull
+                now = cn_now()
 
                 if pull.schedule_time:
                     await self._run_daily_at(config.id, store, pull.schedule_time)
                     continue
 
+                windowed = bool(pull.time_window_start and pull.time_window_end)
+                window_open = (
+                    windowed
+                    and _window_day_allowed(now, pull.schedule_trading_only)
+                    and _at_in_time_window(
+                        now,
+                        pull.time_window_start, pull.time_window_end
+                    )
+                )
+
+                # 时间窗口模式在窗口外不执行、也不反复写 skipped；next_run
+                # 直接指向下一次真实窗口起点，前端看到的是可执行时刻。
+                if windowed and not window_open:
+                    next_window = _next_window_open(
+                        now,
+                        pull.time_window_start,
+                        pull.time_window_end,
+                        trading_only=pull.schedule_trading_only,
+                    )
+                    next_iso = next_window.astimezone(UTC).isoformat()
+                    latest = store.get(config.id)
+                    if latest and latest.pull and latest.pull.next_run != next_iso:
+                        latest.pull.next_run = next_iso
+                        store.upsert(latest, keep_strategy_cache=True)
+                    await asyncio.sleep(
+                        min(
+                            _DAILY_POLL_SECONDS,
+                            max((next_window - now).total_seconds(), 1.0),
+                        )
+                    )
+                    continue
+
                 # 时间窗口检查: 不在窗口内则跳过本次拉取
                 if not _in_time_window(pull.time_window_start, pull.time_window_end):
-                    fresh.pull.last_run = datetime.now(timezone.utc).isoformat()
+                    fresh.pull.last_run = datetime.now(UTC).isoformat()
                     fresh.pull.last_status = "skipped"
                     fresh.pull.last_message = "不在拉取时间窗口内"
                     store.upsert(fresh, keep_strategy_cache=True)
@@ -880,15 +981,30 @@ class PullScheduler:
                 # 间隔取自最新配置 (每次重新读取, 修复改间隔不生效)
                 interval = max(pull.schedule_minutes * 60, 60)  # 至少 60s
                 # 预告下次运行时间, 供前端展示
-                next_dt = datetime.now(UTC).timestamp() + interval
+                if windowed:
+                    next_run = _next_window_run(
+                        cn_now(),
+                        pull.time_window_start,
+                        pull.time_window_end,
+                        trading_only=pull.schedule_trading_only,
+                        interval_seconds=interval,
+                    )
+                else:
+                    next_run = now + timedelta(seconds=interval)
                 latest = store.get(config.id)
                 if latest and latest.pull:
-                    latest.pull.next_run = datetime.fromtimestamp(
-                        next_dt, tz=UTC
-                    ).isoformat()
+                    latest.pull.next_run = next_run.astimezone(UTC).isoformat()
                     store.upsert(latest, keep_strategy_cache=True)
 
-                await self._sleep_interval_reloading(config.id, store, interval)
+                if windowed:
+                    await asyncio.sleep(
+                        min(
+                            _DAILY_POLL_SECONDS,
+                            max((next_run - cn_now()).total_seconds(), 1.0),
+                        )
+                    )
+                else:
+                    await self._sleep_interval_reloading(config.id, store, interval)
                 if not self._running:
                     break
         except asyncio.CancelledError:

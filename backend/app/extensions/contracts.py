@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -50,3 +52,31 @@ class DefaultNotificationFormatter(NotificationFormatter):
     ) -> str:
         del context
         return str(event.get("message") or "")
+
+
+@dataclass(frozen=True)
+class QuoteUpdateContext:
+    """A small, point-in-time quote snapshot for an extension observer."""
+
+    api_version: int
+    observed_at: datetime
+    quotes: tuple[Mapping[str, Any], ...]
+
+
+class QuoteUpdateObserver(ABC):
+    """Observe realtime quote rounds without owning the quote service lifecycle."""
+
+    api_version = BACKEND_EXTENSION_API_VERSION
+
+    def watched_symbols(self) -> frozenset[str]:
+        """Return the symbols this observer needs. Empty disables the callback."""
+        return frozenset()
+
+    @abstractmethod
+    def on_quote_update(self, context: QuoteUpdateContext) -> list[dict[str, Any]]:
+        """Return zero or more standard alert-event dictionaries."""
+        raise NotImplementedError
+
+    def shutdown(self) -> None:
+        """Release optional resources. Called during application shutdown."""
+        return None

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import date, datetime
 from pathlib import Path
 
@@ -14,7 +15,8 @@ from app.custom.eastmoney_auction import client as auction_client
 from app.custom.eastmoney_auction import service
 from app.extensions import BACKEND_EXTENSION_API_VERSION, ExtensionContext
 from app.market_time import CN_TZ
-from app.services.ext_data import ExtConfigStore
+from app.services import ext_pull
+from app.services.ext_data import ExtConfigStore, PullConfig
 
 DAY = "2026-10-30"
 SYMBOLS = ("600519.SH", "000001.SZ")
@@ -224,11 +226,41 @@ def test_step_configs_are_seeded_once_and_never_resurrected(tmp_path: Path) -> N
     seeded = service.ensure_auction_configs(tmp_path)
     assert seeded[service.PREOPEN_CONFIG] is not None
     assert seeded[service.RESULT_CONFIG] is not None
+    assert seeded[service.PREOPEN_CONFIG].pull.enabled
+    assert seeded[service.PREOPEN_CONFIG].pull.schedule_minutes == 1
+    assert (
+        seeded[service.PREOPEN_CONFIG].pull.time_window_start,
+        seeded[service.PREOPEN_CONFIG].pull.time_window_end,
+    ) == ("09:15", "09:25")
+    assert seeded[service.RESULT_CONFIG].pull.enabled
+    assert (
+        seeded[service.RESULT_CONFIG].pull.time_window_start,
+        seeded[service.RESULT_CONFIG].pull.time_window_end,
+    ) == ("09:27", "09:30")
     assert (tmp_path / "ext_data" / service.SEED_MARKER).exists()
+    assert (tmp_path / "ext_data" / service.SCHEDULE_MIGRATION_MARKER).exists()
 
     store = ExtConfigStore(tmp_path)
     assert store.delete(service.PREOPEN_CONFIG)
     assert service.ensure_auction_configs(tmp_path)[service.PREOPEN_CONFIG] is None
+
+
+def test_legacy_auction_configs_migrate_to_pull_scheduler(tmp_path: Path) -> None:
+    store = ExtConfigStore(tmp_path)
+    preopen = service.preopen_config()
+    preopen.pull = PullConfig(time_field="observed_at", enabled=False)
+    result = service.result_config()
+    result.pull = None
+    store.upsert(preopen)
+    store.upsert(result)
+    (tmp_path / "ext_data" / service.SEED_MARKER).write_text("", encoding="utf-8")
+
+    migrated = service.ensure_auction_configs(tmp_path)
+
+    assert migrated[service.PREOPEN_CONFIG].pull.url == service.PREOPEN_URL
+    assert migrated[service.PREOPEN_CONFIG].pull.enabled
+    assert migrated[service.RESULT_CONFIG].pull.url == service.RESULT_URL
+    assert migrated[service.RESULT_CONFIG].pull.enabled
 
 
 def test_local_universe_excludes_non_sh_sz_symbols(tmp_path: Path) -> None:
@@ -346,37 +378,61 @@ def test_final_gate_mismatch_writes_nothing(tmp_path: Path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_scheduler_uses_process_then_final_windows(tmp_path: Path, monkeypatch) -> None:
-    calls: list[str] = []
+async def test_fetch_and_ingest_uses_registered_auction_handler(
+    tmp_path: Path, monkeypatch
+) -> None:
+    called: list[tuple] = []
 
-    async def fake_to_thread(fn, *args, **kwargs):
-        calls.append(getattr(fn, "__name__", getattr(fn, "func", fn).__name__))
-        return {"status": "written", "rows": 1}
+    async def fake_handler(config, data_dir, target_date):
+        called.append((config.id, data_dir, target_date))
+        return 2, target_date.isoformat()
 
-    monkeypatch.setattr(service.asyncio, "to_thread", fake_to_thread)
-    monkeypatch.setattr(service.trading_day, "is_trading_day", lambda now=None: True)
+    monkeypatch.setitem(ext_pull._pull_handlers, service.PREOPEN_CONFIG, fake_handler)
+    config = service.preopen_config()
+    day = date(2026, 10, 30)
 
-    scheduler = service.EastmoneyAuctionScheduler()
-    scheduler._enabled = True
-    scheduler._data_dir = tmp_path
-
-    assert (
-        await scheduler.run_once(datetime(2026, 10, 30, 9, 14, 0, tzinfo=CN_TZ))
-    )["status"] == "not_due"
-    assert (
-        await scheduler.run_once(datetime(2026, 10, 30, 9, 20, 0, tzinfo=CN_TZ))
-    )["status"] == "written"
-    assert (
-        await scheduler.run_once(datetime(2026, 10, 30, 9, 20, 20, tzinfo=CN_TZ))
-    )["status"] == "not_due"
-    assert (
-        await scheduler.run_once(datetime(2026, 10, 30, 9, 26, 10, tzinfo=CN_TZ))
-    )["status"] == "written"
-    assert calls == ["sync_preopen_snapshot", "sync_final_results"]
+    assert await ext_pull.fetch_and_ingest(config, tmp_path, day) == (
+        2,
+        day.isoformat(),
+    )
+    assert called == [(service.PREOPEN_CONFIG, tmp_path, day)]
 
 
 @pytest.mark.asyncio
-async def test_extension_startup_seeds_and_starts_scheduler(tmp_path: Path, monkeypatch) -> None:
+async def test_scheduled_result_is_published_once_per_day(
+    tmp_path: Path, monkeypatch
+) -> None:
+    calls: list[date] = []
+    day = date(2026, 10, 30)
+
+    def fake_sync(data_dir, **kwargs):
+        calls.append(day)
+        part = (
+            data_dir / "ext_data" / service.RESULT_CONFIG / "timeseries"
+            / f"date={day.isoformat()}" / "part.parquet"
+        )
+        part.parent.mkdir(parents=True)
+        part.write_bytes(b"parquet")
+        return {"status": "written", "rows": 7}
+
+    monkeypatch.setattr(service, "sync_final_results", fake_sync)
+    config = service.result_config()
+
+    assert await service.run_scheduled_result(config, tmp_path, day) == (
+        7,
+        day.isoformat(),
+    )
+    assert await service.run_scheduled_result(config, tmp_path, day) == (
+        0,
+        day.isoformat(),
+    )
+    assert calls == [day]
+
+
+@pytest.mark.asyncio
+async def test_extension_startup_seeds_and_refreshes_pull_scheduler(
+    tmp_path: Path, monkeypatch
+) -> None:
     calls: list[tuple] = []
     repository = object()
     monkeypatch.setattr(
@@ -385,16 +441,9 @@ async def test_extension_startup_seeds_and_starts_scheduler(tmp_path: Path, monk
         lambda root: calls.append(("seed", root)),
     )
     monkeypatch.setattr(
-        service.auction_scheduler,
-        "start",
-        lambda root, *, enabled, repository: calls.append(
-            ("start", root, enabled, repository)
-        ),
-    )
-    monkeypatch.setattr(
-        extension.preferences,
-        "get_data_sync_prefs",
-        lambda: {"data_sync_ext_pull_enabled": True},
+        extension.pull_scheduler,
+        "refresh",
+        lambda root: calls.append(("refresh", root)),
     )
 
     extension.startup(
@@ -407,5 +456,39 @@ async def test_extension_startup_seeds_and_starts_scheduler(tmp_path: Path, monk
 
     assert calls == [
         ("seed", tmp_path),
-        ("start", tmp_path, True, repository),
+        ("refresh", tmp_path),
     ]
+
+
+def test_extension_setup_registers_both_shared_pull_handlers() -> None:
+    extension.setup(object())
+
+    assert ext_pull.has_pull_handler(service.PREOPEN_CONFIG)
+    assert ext_pull.has_pull_handler(service.RESULT_CONFIG)
+
+
+@pytest.mark.asyncio
+async def test_auction_tables_are_scheduled_by_the_shared_pull_scheduler(
+    tmp_path: Path, monkeypatch
+) -> None:
+    service.ensure_auction_configs(tmp_path)
+    monkeypatch.setattr(
+        ext_pull,
+        "cn_now",
+        lambda: datetime(2026, 10, 30, 8, 0, tzinfo=CN_TZ),
+    )
+
+    scheduler = ext_pull.PullScheduler()
+    scheduler.start(tmp_path)
+    scheduler.refresh(tmp_path)
+    await asyncio.sleep(0)
+    tasks = list(scheduler._tasks.values())
+
+    try:
+        assert set(scheduler._tasks) == {
+            service.PREOPEN_CONFIG,
+            service.RESULT_CONFIG,
+        }
+    finally:
+        scheduler.stop()
+        await asyncio.gather(*tasks, return_exceptions=True)

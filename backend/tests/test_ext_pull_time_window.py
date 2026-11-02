@@ -57,6 +57,23 @@ def test_no_window_configured_is_still_unrestricted(at_beijing) -> None:
     assert ext_pull._in_time_window(None, "15:00") is True
 
 
+def test_window_next_run_skips_closed_hours_and_weekend() -> None:
+    at_close = datetime(2026, 3, 6, 9, 24, 30, tzinfo=CN_TZ)
+    nxt = ext_pull._next_window_run(
+        at_close,
+        "09:15",
+        "09:25",
+        trading_only=True,
+        interval_seconds=60,
+    )
+    assert nxt == datetime(2026, 3, 9, 9, 15, tzinfo=CN_TZ)
+
+    before_open = datetime(2026, 3, 6, 8, 0, tzinfo=CN_TZ)
+    assert ext_pull._next_window_open(
+        before_open, "09:15", "09:25", trading_only=True
+    ) == datetime(2026, 3, 6, 9, 15, tzinfo=CN_TZ)
+
+
 async def test_default_landing_date_is_the_beijing_date(at_beijing, monkeypatch) -> None:
     """不传 target_date 时按北京日期落盘。
 

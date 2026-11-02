@@ -60,7 +60,11 @@ export function ExtDataPullPanel({ config, onSaved }: {
         : pull.schedule_period === 'monthly' ? `每月 ${pull.schedule_day ?? 1} 号`
           : '每天'
     } ${pull.schedule_time}${pull.schedule_trading_only ? ' · 仅交易日' : ''}`
-    : `每 ${pull?.schedule_minutes ?? 1440} 分钟`
+    : `每 ${pull?.schedule_minutes ?? 1440} 分钟${
+      pull?.time_window_start && pull?.time_window_end
+        ? ` · ${pull.time_window_start}–${pull.time_window_end}`
+        : ''
+    }${pull?.schedule_trading_only ? ' · 仅交易日' : ''}`
 
   // 从已保存配置原样重建 payload 仅切换 enabled — 不掺入设置弹窗里未保存的草稿;
   // page_start / fanout / auth.key_ref 等 UI 不暴露的字段透传保留
@@ -313,6 +317,7 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
   const [runResult, setRunResult] = useState<{ rows: number; date: string } | null>(null)
   const [testResult, setTestResult] = useState<{ total_rows: number; preview: Record<string, unknown>[]; has_symbol: boolean } | null>(null)
   const [error, setError] = useState('')
+  const builtinPull = url.startsWith('builtin://')
 
   // 历史回补 (仅 timeseries + 接口支持按日查询)
   const today = new Date().toISOString().slice(0, 10)
@@ -356,7 +361,7 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
       schedule_time: scheduleMode === 'fixed' ? scheduleTime : null,
       schedule_period: scheduleMode === 'fixed' ? schedulePeriod : null,
       schedule_day: scheduleMode === 'fixed' && schedulePeriod !== 'daily' ? scheduleDay : null,
-      schedule_trading_only: scheduleMode === 'fixed' ? scheduleTradingOnly : false,
+      schedule_trading_only: scheduleTradingOnly,
       time_window_start: timeWindowStart || null,
       time_window_end: timeWindowEnd || null,
       date_param: dateParam.trim() || null,
@@ -480,7 +485,9 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
         : schedulePeriod === 'monthly' ? `每月 ${scheduleDay} 号`
           : '每天'
     } ${scheduleTime}${scheduleTradingOnly ? ' · 仅交易日' : ''}`
-    : `每 ${schedule} 分钟`
+    : `每 ${schedule} 分钟${
+      timeWindowStart && timeWindowEnd ? ` · ${timeWindowStart}–${timeWindowEnd}` : ''
+    }${scheduleTradingOnly ? ' · 仅交易日' : ''}`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -557,7 +564,9 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
           {/* 01 请求 */}
           <section>
             <SectionHead num="01" title={fanout ? '第一级 (目录) 请求' : '请求'}>
-              <span className="text-[10px] text-muted/70">保存后「测试」会按此配置真实请求一次</span>
+              <span className="text-[10px] text-muted/70">
+                {builtinPull ? '内置采集任务，由统一定时拉取器执行' : '保存后「测试」会按此配置真实请求一次'}
+              </span>
             </SectionHead>
             <div className="flex gap-2">
               <select
@@ -569,8 +578,10 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
               </select>
               <input
                 value={url} onChange={e => setUrl(e.target.value)}
+                readOnly={builtinPull}
+                title={builtinPull ? '内置采集器由扩展注册，不使用外部 HTTP 地址' : undefined}
                 placeholder="https://api.example.com/data"
-                className="h-9 flex-1 min-w-0 rounded-lg border border-border bg-base px-3 text-xs font-mono text-foreground placeholder:text-muted/40 focus:outline-none focus:ring-1 focus:ring-accent/25 focus:border-accent/50 transition-shadow"
+                className="h-9 flex-1 min-w-0 rounded-lg border border-border bg-base px-3 text-xs font-mono text-foreground placeholder:text-muted/40 focus:outline-none focus:ring-1 focus:ring-accent/25 focus:border-accent/50 transition-shadow read-only:text-muted"
               />
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
@@ -681,8 +692,19 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
                       />
                     </div>
                   </div>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox" checked={scheduleTradingOnly}
+                      onChange={e => setScheduleTradingOnly(e.target.checked)}
+                      title="跳过周六日; 法定节假日无法离线判定, 仍会按期尝试 (拉取幂等, 失败仅记状态)"
+                      className="h-3 w-3 shrink-0 accent-amber-500"
+                    />
+                    <span className="text-[10px] text-secondary">
+                      仅交易日 — 跳过周六日
+                    </span>
+                  </label>
                   <div className="text-[10px] text-muted/70 leading-relaxed">
-                    间隔制锁相在启用时刻 — 「每天 09:30」这类日程请用固定时刻。
+                    设置时间窗口后，只在窗口内按间隔执行，窗口外等待下一次开盘窗口。
                   </div>
                 </div>
               ) : (
@@ -1047,14 +1069,16 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
         </div>
 
         <div className="flex items-center gap-2 px-6 py-4 border-t border-border/50 bg-elevated/30">
-          <button
-            onClick={handleTest}
-            disabled={testing || !url}
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg border border-border bg-elevated text-xs text-foreground hover:bg-border/30 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 transition-colors"
-          >
-            {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
-            测试
-          </button>
+          {!builtinPull && (
+            <button
+              onClick={handleTest}
+              disabled={testing || !url}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg border border-border bg-elevated text-xs text-foreground hover:bg-border/30 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40 transition-colors"
+            >
+              {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Search className="h-3.5 w-3.5" />}
+              测试
+            </button>
+          )}
           <button
             onClick={handleRun}
             disabled={running || !url || extPullDisabled}
