@@ -28,11 +28,32 @@ def read_st_history(data_dir: Path) -> pl.DataFrame:
     paths = sorted((data_dir / "st_history").rglob("*.parquet"))
     if not paths:
         return pl.DataFrame(schema=ST_HISTORY_SCHEMA)
-    history = pl.concat([
+    return normalize_st_history(pl.concat([
         pl.read_parquet(path, columns=list(ST_HISTORY_SCHEMA))
         for path in paths
-    ])
-    if history.schema != ST_HISTORY_SCHEMA or history.null_count().sum_horizontal().item():
+    ]))
+
+
+def normalize_st_history(history: pl.DataFrame | None) -> pl.DataFrame:
+    """Validate and normalize a provider-supplied effective-dated ST dataset."""
+    if history is None or history.is_empty():
+        return pl.DataFrame(schema=ST_HISTORY_SCHEMA)
+    missing = set(ST_HISTORY_SCHEMA) - set(history.columns)
+    if missing:
+        raise ValueError(
+            "历史ST状态缺少字段: " + ", ".join(sorted(missing))
+        )
+    flag_date = pl.col("flag_date")
+    if history.schema["flag_date"] == pl.String:
+        flag_date = flag_date.str.to_date(strict=False)
+    else:
+        flag_date = flag_date.cast(pl.Date, strict=False)
+    history = history.select(
+        pl.col("symbol").cast(pl.String),
+        flag_date,
+        pl.col("st_flag").cast(pl.Boolean, strict=False),
+    )
+    if history.null_count().sum_horizontal().item():
         raise ValueError("历史ST状态必须包含非空 symbol/string、flag_date/date、st_flag/bool")
     history = history.unique()
     if history.select(pl.struct("symbol", "flag_date").is_duplicated().any()).item():

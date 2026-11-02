@@ -9,6 +9,7 @@ from pathlib import Path
 
 import polars as pl
 
+from app.data_providers.st_history import load_st_history
 from app.market_time import CN_TZ, cn_now
 from app.parquet import scan_daily_parquet, scan_parquet_compat
 from app.price_limits import (
@@ -21,7 +22,6 @@ from app.price_limits import (
     polars_price_limit_pct,
 )
 from app.services.minute_adjust import minute_basis_is_raw
-from app.tickflow.security_status import read_st_history
 
 _SYMBOL = re.compile(r"^\d{6}\.(SH|SZ|BJ)$")
 _FULL_DAY_BARS = 241
@@ -310,7 +310,7 @@ def fetch_minute_limit_board_events(
 
     minute_dates = list_minute_partitions(data_dir, date.min, day)
     instruments = _load_instruments(data_dir)
-    history = read_st_history(data_dir).sort(["symbol", "flag_date"])
+    history = load_st_history(data_dir).sort(["symbol", "flag_date"])
     previous = _previous_closes(data_dir, day)
     adj = _load_adj_factors(data_dir, day)
 

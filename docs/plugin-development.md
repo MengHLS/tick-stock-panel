@@ -28,7 +28,7 @@ display_name: "我的数据源"                 # 设置页显示名
 runtime: none                            # 运行时类型: node | python | none
 entry: app.plugins.my_source.provider:MyProvider   # provider 类的导入路径
 check: app.plugins.my_source.bridge:availability   # 可用性检测函数(可选)
-datasets: [realtime]                     # 支持: daily/adj_factor/minute/realtime/depth5/financial
+datasets: [realtime]                     # 支持: daily/adj_factor/minute/realtime/depth5/financial/st_history
 api_key_env: MY_SOURCE_API_KEY           # (可选)声明后设置页提供 Key 输入框
 hidden: false                            # (可选)true = 已加载但对设置页隐藏,不注册不展示
 description: "数据源描述"
@@ -178,6 +178,11 @@ class MyProvider:
     def get_financials(self, table, symbols, latest_only=False) -> pl.DataFrame:
         """财务数据(声明 financial 数据集时实现, table 见 financial_sync 调用)。"""
 
+    def get_st_history(self, symbols=None) -> pl.DataFrame:
+        """(声明 st_history 时实现) 点时风险警示状态:
+        [symbol(string), flag_date(date), st_flag(bool)]。
+        flag_date 是生效交易日; 缺失状态表示未知, 不得用当前名称反推。"""
+
     def get_instruments(self, asset_type="stock") -> list[dict]:
         """(可选)标的维表: 返回 tickflow Instrument 形状的行, 供 instrument_sync 复用 flatten"""
 
@@ -244,6 +249,16 @@ provider 不应自行切换或回退到其他数据源。
 > 修复轮自愈。声明方式:插件在 `plugin.yaml` 的 `datasets:` 列表加入
 > `full_minute`。YAML 声明式源同样支持(数据集配置与 `minute` 同形,仅提供
 > 修复轮语义,见 [custom-data-source.md](./custom-data-source.md))。
+
+> **历史 ST (`st_history`) 数据集契约**:声明该数据集后可在「设置 → 数据源」
+> 将「历史 ST」能力独立路由到该源。Provider 返回
+> `[symbol: string, flag_date: date, st_flag: bool]` 的生效日记录;同一
+> `symbol + flag_date` 不允许冲突,空值或非法日期会被核心拒绝。`flag_date`
+> 表示状态从该交易日开始生效,直到同股票下一条记录;缺失状态保持未知,
+> 不能用当前证券名称或涨跌停幅度反推。ST 宇宙过滤和 5%/10% 涨跌停修正
+> 仍由核心回测、筛选和矩阵路径执行,不在 Provider 内完成。TickFlow 不提供
+> 该数据集;没有自定义源时默认使用内置 `local_st_history`,读取
+> `data/st_history/**/*.parquet`。
 
 ### 异常语义
 

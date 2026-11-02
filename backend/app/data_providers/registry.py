@@ -1,10 +1,12 @@
 """Provider registry."""
 from __future__ import annotations
 
+from app.data_providers.local_st_history import LocalStHistoryProvider
 from app.data_providers.tickflow_provider import TickFlowProvider
 
 _PROVIDERS = {
     "tickflow": TickFlowProvider,
+    "local_st_history": LocalStHistoryProvider,
 }
 
 

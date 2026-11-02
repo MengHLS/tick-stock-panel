@@ -9,6 +9,7 @@ export const DEFAULT_ROUTING: Record<ProviderField, string> = {
   depth5_data_provider: 'tickflow',
   realtime_data_provider: 'tickflow',
   financial_data_provider: 'tickflow',
+  st_history_data_provider: 'local_st_history',
 }
 
 /**

@@ -25,6 +25,7 @@
 - 只读行情与回测契约（已实现）：`MarketDataRead`、`EnrichedPanelRead`、`BacktestRead` 通过 `ExtensionContext` 注入，业务扩展不直接依赖具体 repository 或构造 `BacktestEngine`。
 - 请求期运行时契约（已实现）：`ExtensionRuntime` 通过 `app.extensions.get_extension_runtime` 注入，提供 `AlertPublisher`、`MonitorRuleSynchronizer` 和策略/筛选/行情公开读取面，业务扩展不直接访问 `app.state`。
 - 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
+- 历史 ST 数据 Provider（已实现）：标准数据源可声明 `st_history` 数据集，设置页按 `st_history_data_provider` 独立路由；默认内置 `local_st_history` 读取本地规范数据。Provider 只返回 `symbol/flag_date/st_flag`，ST 宇宙过滤与涨跌停修正仍由核心完成。
 - 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。
 - 回测页面插槽（已实现）：`backtest.result.extra`、`backtest.trades.extra`、`backtest.savedResults.extra`、`backtest.settings.extra`。结果与交易上下文只传保存/运行快照和受控回调，不暴露回测页内部状态。
 - 当前后端继承点：`NotificationFormatter`、`QuoteUpdateObserver`。

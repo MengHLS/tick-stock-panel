@@ -219,7 +219,7 @@ def get_minute_refresh_interval() -> int:
 
 # ===== 数据源选择 (默认 TickFlow；第一阶段仅日K切换入口) =====
 
-_ALLOWED_DATA_PROVIDERS = {"tickflow"}
+_ALLOWED_DATA_PROVIDERS = {"tickflow", "local_st_history"}
 DATA_SOURCE_JOB_TIMEOUT_MIN_S = 60
 
 
@@ -359,6 +359,14 @@ def get_realtime_data_provider() -> str:
 def get_financial_provider() -> str:
     provider = str(load().get("financial_data_provider", "tickflow") or "tickflow").lower()
     return _validated_provider(provider, "financial_data_provider")
+
+
+def get_st_history_provider() -> str:
+    provider = str(
+        load().get("st_history_data_provider", "local_st_history")
+        or "local_st_history"
+    ).lower()
+    return _validated_provider(provider, "st_history_data_provider")
 
 
 # ===== 盘后管道拉取内容开关 (A股 / ETF / 指数 独立控制) =====

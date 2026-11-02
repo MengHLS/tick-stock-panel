@@ -533,9 +533,9 @@ class KlineRepository:
 
     def get_st_history(self) -> pl.DataFrame:
         """Read effective-dated ST/normal records; absent records stay unknown."""
-        from app.tickflow.security_status import read_st_history
+        from app.data_providers.st_history import load_st_history
 
-        return read_st_history(self.store.data_dir)
+        return load_st_history(self.store.data_dir)
 
     def __init__(self, store: DataStore) -> None:
         self.store = store

@@ -30,6 +30,7 @@ class TickFlowProvider:
         realtime=True,
         depth5=True,
         financial=True,
+        st_history=False,
     )
 
     def get_instruments(self, asset_type: AssetType) -> pl.DataFrame:

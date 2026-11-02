@@ -54,6 +54,7 @@ const DATASET_LABEL: Record<string, string> = {
   depth5: '五档',
   financial: '财务',
   full_minute: '全量分钟',
+  st_history: '历史 ST',
 }
 
 /** 能力图标 (纯展示; 能力清单本身由后端注册表驱动) */
@@ -64,6 +65,7 @@ const CAP_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   full_minute: Zap,
   adj_factor: Scale,
   financial: Landmark,
+  st_history: Database,
 }
 
 /** TickFlow 档位要求文本: none → 全档位, 其余 → starter+ 形式 */
@@ -636,6 +638,7 @@ export function SettingsDataSourcesPanel({ highlight }: { highlight?: string } =
     realtime: prefs.data?.realtime_data_provider || 'tickflow',
     depth5: prefs.data?.depth5_data_provider || 'tickflow',
     financial: prefs.data?.financial_data_provider || 'tickflow',
+    st_history: prefs.data?.st_history_data_provider || 'local_st_history',
   }
   const servingDatasets = (name: string) =>
     Object.entries(effProvider).filter(([, v]) => v === name).map(([k]) => k)

@@ -2149,6 +2149,7 @@ export type ProviderField =
   | 'depth5_data_provider'
   | 'realtime_data_provider'
   | 'financial_data_provider'
+  | 'st_history_data_provider'
 
 /** 能力路由矩阵中的一个候选源 (candidates 只含当前确实可提供该能力的源) */
 export interface CapabilityCandidate {
@@ -2382,6 +2383,7 @@ export interface Preferences {
   depth5_data_provider?: string
   realtime_data_provider?: string
   financial_data_provider?: string
+  st_history_data_provider?: string
   data_source_job_timeout_s: number
   data_source_long_job_timeout_s: number
   minute_batch_compress: boolean
