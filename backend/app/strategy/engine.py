@@ -1216,49 +1216,39 @@ class StrategyEngine:
                     df = df.filter(overlay_expr.fill_null(False))
 
         from app.extensions.strategies import (
-            StrategyPolicyContext,
-            strategy_extension,
+            apply_candidate_filter,
+            apply_risk_policy,
+            apply_scoring_policy,
+            build_strategy_policy_context,
         )
 
-        policy_context = StrategyPolicyContext(
+        policy_context = build_strategy_policy_context(
             asset_type=context.asset_type,
             as_of=as_of,
             strategy_id=strategy_id,
-            params=dict(params),
-            metadata=dict(s.meta),
+            params=params,
+            metadata=s.meta,
         )
         candidate_filter_id = s.meta.get("candidate_filter")
         if candidate_filter_id:
-            candidate_filter = strategy_extension(
-                "candidate_filter",
+            df = apply_candidate_filter(
+                df,
                 str(candidate_filter_id),
+                policy_context,
             )
-            if candidate_filter is None:
-                raise ValueError(f"未注册的候选过滤器: {candidate_filter_id}")
-            df = candidate_filter.filter_candidates(df, policy_context)
-        risk_policy_id = s.meta.get("risk_policy")
-        if risk_policy_id:
-            risk_policy = strategy_extension("risk_policy", str(risk_policy_id))
-            if risk_policy is None:
-                raise ValueError(f"未注册的风险策略: {risk_policy_id}")
-            df = risk_policy.filter_entries(df, policy_context)
-
         # Stage 3: 评分
         df = self._apply_scoring(df, scoring, scoring_directions)
         scoring_policy_id = s.meta.get("scoring_policy")
         if scoring_policy_id:
-            scoring_policy = strategy_extension(
-                "scoring_policy",
+            policy_score = apply_scoring_policy(
+                df,
                 str(scoring_policy_id),
+                policy_context,
             )
-            if scoring_policy is None:
-                raise ValueError(f"未注册的评分策略: {scoring_policy_id}")
-            policy_score = scoring_policy.score(df, policy_context)
-            if not isinstance(policy_score, pl.Series) or len(policy_score) != df.height:
-                raise ValueError(
-                    f"评分策略 {scoring_policy_id} 必须返回与候选行数等长的 Series"
-                )
-            df = df.with_columns(policy_score.cast(pl.Float64).alias("score"))
+            df = df.with_columns(policy_score.alias("score"))
+        risk_policy_id = s.meta.get("risk_policy")
+        if risk_policy_id:
+            df = apply_risk_policy(df, str(risk_policy_id), policy_context)
         entry_signal_hits = self._collect_signal_hits(df, entry_signals)
         if not entry_signals and (
             s.filter_history_fn or s.filter_fn or s.execution_backend == "minute_filter"
@@ -1823,6 +1813,86 @@ class StrategyEngine:
                     count=len(market.symbols),
                 )
                 entry_active = np.where(allowed, entry_active, 0)
+
+        candidate_filter_id = strategy.meta.get("candidate_filter")
+        risk_policy_id = strategy.meta.get("risk_policy")
+        scoring_policy_id = strategy.meta.get("scoring_policy")
+        policy_scores: dict[str, float] = {}
+        if candidate_filter_id or risk_policy_id or scoring_policy_id:
+            from app.extensions.strategies import (
+                apply_candidate_filter,
+                apply_risk_policy,
+                apply_scoring_policy,
+                build_strategy_policy_context,
+            )
+
+            selected_symbols = [
+                market.symbols[int(asset_id)]
+                for asset_id in np.flatnonzero(entry_active != 0)
+            ]
+            if selected_symbols:
+                policy_frame = target_frame.filter(
+                    pl.col("symbol").cast(pl.Utf8).is_in(selected_symbols)
+                )
+                if policy_frame.height != len(set(selected_symbols)):
+                    raise ValueError(
+                        "矩阵策略当日候选帧必须每个标的仅一行"
+                    )
+                policy_context = build_strategy_policy_context(
+                    asset_type=context.asset_type,
+                    as_of=as_of,
+                    strategy_id=strategy_id,
+                    params=params,
+                    metadata=strategy.meta,
+                )
+                if candidate_filter_id:
+                    policy_frame = apply_candidate_filter(
+                        policy_frame,
+                        str(candidate_filter_id),
+                        policy_context,
+                    )
+                if scoring_policy_id and policy_frame.height:
+                    scores = apply_scoring_policy(
+                        policy_frame,
+                        str(scoring_policy_id),
+                        policy_context,
+                    )
+                    policy_frame = policy_frame.with_columns(
+                        scores.alias("score")
+                    )
+                if risk_policy_id:
+                    policy_frame = apply_risk_policy(
+                        policy_frame,
+                        str(risk_policy_id),
+                        policy_context,
+                    )
+                allowed_symbols = [
+                    str(symbol)
+                    for symbol in policy_frame["symbol"].cast(pl.Utf8).to_list()
+                ]
+                if len(allowed_symbols) != len(set(allowed_symbols)):
+                    raise ValueError("策略级过滤器必须保持每个标的最多一行")
+                unknown = set(allowed_symbols) - set(selected_symbols)
+                if unknown:
+                    raise ValueError(
+                        f"策略级过滤器返回了非候选标的: {sorted(unknown)}"
+                    )
+                allowed_mask = np.fromiter(
+                    (symbol in set(allowed_symbols) for symbol in market.symbols),
+                    dtype=bool,
+                    count=len(market.symbols),
+                )
+                entry_active = np.where(allowed_mask, entry_active, 0)
+                if scoring_policy_id and policy_frame.height:
+                    policy_scores = dict(zip(
+                        allowed_symbols,
+                        (
+                            float(value)
+                            for value in policy_frame["score"].to_list()
+                        ),
+                        strict=True,
+                    ))
+
         entry_signal_hits = self._matrix_signal_hits(
             entry_active,
             signals.entry_signal_code[target_time],
@@ -1855,7 +1925,10 @@ class StrategyEngine:
             row = row_by_symbol.get(symbol)
             if row is None:
                 continue
-            score = float(signals.score[target_time, int(asset_id)])
+            score = policy_scores.get(
+                symbol,
+                float(signals.score[target_time, int(asset_id)]),
+            )
             ranked.append((score, {**row, "score": score}))
         ranked.sort(
             key=lambda item: item[0],
@@ -1895,6 +1968,14 @@ class StrategyEngine:
         from app.strategy import composite as composite_mod
 
         assert strategy.composite is not None
+        if any(
+            strategy.meta.get(key)
+            for key in ("candidate_filter", "scoring_policy", "risk_policy")
+        ):
+            raise ValueError(
+                "composite 策略不支持顶层 candidate_filter / scoring_policy / "
+                "risk_policy；请配置到子策略"
+            )
         overrides = overrides or {}
 
         # 权重: override.children 优先(META 固化值的轻量覆盖), 否则用 META 声明。
@@ -2268,3 +2349,8 @@ def _sanitize(rows: list[dict]) -> list[dict]:
             if isinstance(v, float) and (v != v or abs(v) == float("inf")):
                 r[k] = None
     return rows
+
+
+def load_strategy_file(path: Path) -> StrategyDef:
+    """Stable entry point for backend extensions that ship strategy files."""
+    return StrategyEngine._load_file(Path(path))

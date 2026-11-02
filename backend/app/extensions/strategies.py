@@ -199,6 +199,100 @@ def strategy_extensions(kind: str) -> tuple[Any, ...]:
     return tuple(_KINDS[kind].values())
 
 
+def build_strategy_policy_context(
+    *,
+    asset_type: str,
+    strategy_id: str | None,
+    params: Mapping[str, Any] | None = None,
+    metadata: Mapping[str, Any] | None = None,
+    as_of: date | None = None,
+) -> StrategyPolicyContext:
+    return StrategyPolicyContext(
+        asset_type=asset_type,
+        as_of=as_of,
+        strategy_id=strategy_id,
+        params=dict(params or {}),
+        metadata=dict(metadata or {}),
+    )
+
+
+def _resolve_policy(kind: str, implementation_id: str) -> Any:
+    implementation = strategy_extension(kind, str(implementation_id))
+    if implementation is None:
+        raise ValueError(f"未注册的{kind}: {implementation_id}")
+    return implementation
+
+
+def _validate_filtered_frame(
+    kind: str,
+    implementation_id: str,
+    source: pl.DataFrame,
+    result: Any,
+) -> pl.DataFrame:
+    if not isinstance(result, pl.DataFrame):
+        raise TypeError(f"{kind} {implementation_id} 必须返回 polars DataFrame")
+    missing = set(source.columns) - set(result.columns)
+    if missing:
+        raise ValueError(
+            f"{kind} {implementation_id} 必须保留输入列: {sorted(missing)}"
+        )
+    if result.height > source.height:
+        raise ValueError(
+            f"{kind} {implementation_id} 不能增加候选行: "
+            f"{source.height} -> {result.height}"
+        )
+    return result
+
+
+def apply_candidate_filter(
+    frame: pl.DataFrame,
+    implementation_id: str,
+    context: StrategyPolicyContext,
+) -> pl.DataFrame:
+    implementation = _resolve_policy("candidate_filter", implementation_id)
+    result = implementation.filter_candidates(frame, context)
+    return _validate_filtered_frame(
+        "candidate_filter",
+        implementation_id,
+        frame,
+        result,
+    )
+
+
+def apply_risk_policy(
+    frame: pl.DataFrame,
+    implementation_id: str,
+    context: StrategyPolicyContext,
+) -> pl.DataFrame:
+    implementation = _resolve_policy("risk_policy", implementation_id)
+    result = implementation.filter_entries(frame, context)
+    return _validate_filtered_frame(
+        "risk_policy",
+        implementation_id,
+        frame,
+        result,
+    )
+
+
+def apply_scoring_policy(
+    frame: pl.DataFrame,
+    implementation_id: str,
+    context: StrategyPolicyContext,
+) -> pl.Series:
+    implementation = _resolve_policy("scoring_policy", implementation_id)
+    result = implementation.score(frame, context)
+    if not isinstance(result, pl.Series) or len(result) != frame.height:
+        raise ValueError(
+            f"scoring_policy {implementation_id} 必须返回与候选行数等长的 Series"
+        )
+    values = result.cast(pl.Float64, strict=False)
+    if values.null_count() or not bool(values.is_finite().all()):
+        raise ValueError(
+            f"scoring_policy {implementation_id} 必须返回有限非空分值"
+        )
+    return values
+
+
 def strategy_providers() -> tuple[StrategyProvider, ...]:
     global _PROVIDERS_READY
     if not _PROVIDERS_READY:

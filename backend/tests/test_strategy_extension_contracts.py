@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from datetime import date
 
+import numpy as np
 import polars as pl
 import pytest
 
 from app.backtest.engine import MatcherConfig
+from app.backtest.matrix import build_market_data_matrix, make_signal_matrix
 from app.extensions import (
     BackendExtensionRegistrar,
     BackendExtensionRegistry,
@@ -111,6 +113,135 @@ def test_candidate_scoring_and_risk_policies_are_consumed_by_engine() -> None:
 
     assert [row["symbol"] for row in result.rows] == ["keep"]
     assert result.scores["keep"] == pytest.approx(20.0)
+
+
+def test_matrix_strategy_policies_are_consumed_by_engine() -> None:
+    class _Candidate(CandidateFilter):
+        def filter_candidates(self, frame, context):
+            del context
+            return frame.filter(pl.col("symbol") == "B")
+
+    class _Risk(RiskPolicy):
+        def filter_entries(self, frame, context):
+            del context
+            return frame.filter(pl.col("close") >= 11.0)
+
+    class _Score(ScoringPolicy):
+        def score(self, frame, context):
+            del context
+            return frame["close"] * 2
+
+    class _Matrix:
+        def required_fields(self):
+            return frozenset({"open", "high", "low", "close", "volume"})
+
+        def required_warmup_bars(self, params):
+            del params
+            return 1
+
+        def compute_signals(self, market, params):
+            del params
+            return make_signal_matrix(
+                market.shape,
+                entry=np.ones(market.shape, dtype=np.uint8),
+                score=np.ones(market.shape, dtype=np.float32),
+            )
+
+    for kind, impl_id, implementation in (
+        ("candidate_filter", "test.matrix-candidate", _Candidate()),
+        ("risk_policy", "test.matrix-risk", _Risk()),
+        ("scoring_policy", "test.matrix-score", _Score()),
+    ):
+        register_strategy_extension(kind, impl_id, implementation)
+
+    panel = pl.DataFrame([
+        {
+            "symbol": symbol,
+            "date": date(2026, 1, day),
+            "open": close,
+            "high": close + 1,
+            "low": close - 1,
+            "close": close,
+            "volume": 1000.0,
+        }
+        for day, close_a, close_b in (
+            (1, 9.0, 10.0),
+            (2, 10.0, 11.0),
+            (3, 11.0, 12.0),
+        )
+        for symbol, close in (("A", close_a), ("B", close_b))
+    ])
+    strategy = StrategyDef(
+        meta={
+            "id": "test_matrix_extensions",
+            "asset_types": ["stock"],
+            "timeframes": ["1d"],
+            "candidate_filter": "test.matrix-candidate",
+            "risk_policy": "test.matrix-risk",
+            "scoring_policy": "test.matrix-score",
+        },
+        basic_filter={"enabled": False},
+        entry_signals=[],
+        exit_signals=[],
+        stop_loss=None,
+        trailing_stop=None,
+        trailing_take_profit_activate=None,
+        trailing_take_profit_drawdown=None,
+        max_hold_days=None,
+        filter_fn=None,
+        filter_history_fn=None,
+        lookback_days=1,
+        source="custom",
+        execution_backend="matrix_native",
+        matrix_strategy=_Matrix(),
+    )
+    engine = StrategyEngine(strategy_dirs=[])
+    engine._strategies[strategy.meta["id"]] = strategy
+
+    result = engine.run(
+        strategy.meta["id"],
+        StrategyDataContext(
+            asset_type="stock",
+            timeframe="1d",
+            as_of=date(2026, 1, 3),
+            current=panel,
+            history=panel,
+            market=build_market_data_matrix(panel),
+        ),
+    )
+
+    assert [row["symbol"] for row in result.rows] == ["B"]
+    assert result.scores == {"B": pytest.approx(24.0)}
+
+
+def test_scoring_policy_rejects_non_finite_scores() -> None:
+    class _Score(ScoringPolicy):
+        def score(self, frame, context):
+            del context
+            return pl.Series([float("nan")] * frame.height)
+
+    register_strategy_extension("scoring_policy", "test.non-finite", _Score())
+    engine = StrategyEngine(strategy_dirs=[])
+    strategy = _strategy({
+        "id": "test_non_finite_score",
+        "scoring_policy": "test.non-finite",
+    })
+    engine._strategies[strategy.meta["id"]] = strategy
+
+    with pytest.raises(ValueError, match="有限非空分值"):
+        engine.run(
+            strategy.meta["id"],
+            StrategyDataContext(
+                asset_type="stock",
+                timeframe="1d",
+                as_of=date(2026, 1, 5),
+                current=pl.DataFrame({
+                    "symbol": ["A"],
+                    "close": [10.0],
+                    "date": [date(2026, 1, 5)],
+                }),
+            ),
+        )
 
 
 def test_backtest_cost_model_is_delegated() -> None:

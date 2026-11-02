@@ -14,7 +14,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import polars as pl
@@ -45,6 +45,7 @@ from app.backtest.matrix import (
     build_market_matrix_from_encoding,
     build_market_matrix_from_signals,
     encode_panel_matrix,
+    make_signal_matrix,
     matrix_feature,
     slice_market_data_matrix,
     slice_signal_matrix,
@@ -1053,6 +1054,7 @@ class StrategyBacktestService:
         min_confirm: int,
         max_hold: int,
         timing_ms: dict[str, float],
+        asset_type: str = "stock",
     ):
         """逐子策略计算 SignalMatrix, 再合并为单个 SignalMatrix(回测合并)。
 
@@ -1065,6 +1067,7 @@ class StrategyBacktestService:
 
         t_signals = time.perf_counter()
         sigs = []
+        policy_frame = None
         for child_def, child_params, child_pipeline_cfg in resolved_children:
             try:
                 child_sig = MatrixStrategyPipeline().run(
@@ -1075,6 +1078,24 @@ class StrategyBacktestService:
                 )
             except (TypeError, ValueError) as e:
                 raise ValueError(f"子策略 {child_def.meta.get('id')} 信号计算失败: {e}") from e
+            if any(
+                child_def.meta.get(key)
+                for key in ("candidate_filter", "risk_policy", "scoring_policy")
+            ):
+                if policy_frame is None:
+                    policy_frame = self._policy_frame_from_market(market_data)
+                try:
+                    child_sig = self._apply_signal_strategy_policies(
+                        policy_frame,
+                        child_sig,
+                        child_def,
+                        child_params,
+                        asset_type,
+                    )
+                except (TypeError, ValueError) as e:
+                    raise ValueError(
+                        f"子策略 {child_def.meta.get('id')} 策略级过滤失败: {e}"
+                    ) from e
             sigs.append(child_sig)
         timing_ms["strategy_signals"] = round((time.perf_counter() - t_signals) * 1000, 1)
 
@@ -1445,6 +1466,11 @@ class StrategyBacktestService:
             cost_model = self._resolve_backtest_cost_model(s)
         except (TypeError, ValueError) as e:
             return _err(f"策略回测成本模型配置无效: {e}")
+        if cost_model is not None and execution_policy["execution_costs"] is not None:
+            return _err(
+                "backtest_cost_model 与 backtest_defaults.execution_costs "
+                "不能同时启用；请二选一"
+            )
         if config.mode == "full":
             # 数据加载/信号生成之前 fail-closed: 独立撮合未实现的执行规则
             # 不能因空数据或无候选而被绕过, 也不能自动降级。
@@ -1747,6 +1773,14 @@ class StrategyBacktestService:
         if s.execution_backend == "composite":
             # composite 回测信号生成: 复用 matrix 数据加载, 逐子策略算信号后合并。
             # 退出采用来源投影(composite.merge_signal_matrices), 不串平其他子策略仓位。
+            if any(
+                s.meta.get(key)
+                for key in ("candidate_filter", "scoring_policy", "risk_policy")
+            ):
+                return _err(
+                    "composite 策略不支持顶层 candidate_filter / scoring_policy / "
+                    "risk_policy；请配置到子策略"
+                )
             if composite_children_resolved is None:
                 return _err("叠加策略子策略解析失败")
             if market_data is None:
@@ -1803,6 +1837,7 @@ class StrategyBacktestService:
                     min_confirm,
                     composite_max_hold,
                     timing_ms,
+                    asset_type=config.asset_type,
                 )
             except ValueError as e:
                 return _err(str(e))
@@ -1957,6 +1992,17 @@ class StrategyBacktestService:
                     sim_signal_matrix,
                     entry=overlay_entry,
                 )
+            if any(
+                s.meta.get(key)
+                for key in ("candidate_filter", "risk_policy", "scoring_policy")
+            ):
+                sim_signal_matrix = self._apply_signal_strategy_policies(
+                    self._policy_frame_from_market(sim_market_data),
+                    sim_signal_matrix,
+                    s,
+                    params,
+                    config.asset_type,
+                )
             timing_ms["signals_score"] = round((time.perf_counter() - t_signal) * 1000, 1)
             if not sim_signal_matrix.entry.any():
                 return _err("在指定区间内未产生买入信号")
@@ -1996,8 +2042,22 @@ class StrategyBacktestService:
                     return _err(f"基础过滤计算失败: {e}")
 
             candidate_filter_mask = self._build_candidate_filter_mask(panel, s, params)
+            panel, candidate_filter_mask = self._apply_panel_candidate_filter(
+                panel,
+                candidate_filter_mask,
+                s,
+                params,
+                config.asset_type,
+            )
             candidate_mask = basic_mask & candidate_filter_mask
             panel = self._apply_score(panel, s, overrides, universe_mask=candidate_mask, factor_snapshot=factor_snapshot)
+            panel = self._apply_panel_scoring_policy(
+                panel,
+                candidate_mask,
+                s,
+                params,
+                config.asset_type,
+            )
             formal_candidate_mask = candidate_mask & formal_range
             entry_mask = self._build_entry_mask_from_candidate(panel, candidate_mask, s, entry_signals)
             entry_mask = entry_mask & formal_range
@@ -2030,6 +2090,13 @@ class StrategyBacktestService:
                     regime_row_mask = panel.get_column("date").is_in(allowed_dates).fill_null(False)
                     formal_candidate_mask = formal_candidate_mask & regime_row_mask
                     entry_mask = entry_mask & regime_row_mask
+            panel, entry_mask = self._apply_panel_risk_policy(
+                panel,
+                entry_mask,
+                s,
+                params,
+                config.asset_type,
+            )
             raw_exit_mask = self._build_signal_mask(panel, exit_signals, "_exit")
             exit_range = self._date_range_mask(panel, config.start, load_end) if config.mode == "full" else formal_range
             exit_mask = raw_exit_mask & exit_range
@@ -2379,7 +2446,6 @@ class StrategyBacktestService:
             score[time_id, asset_id] = hit.score
             entry_price_override[time_id, asset_id] = hit.entry_price
             trigger_times[(hit.symbol, hit.trade_date)] = hit.trigger_time
-        raw_candidates = int(entry.sum())
         entry.setflags(write=False)
         score.setflags(write=False)
         entry_price_override.setflags(write=False)
@@ -2396,6 +2462,25 @@ class StrategyBacktestService:
             entry_signal_ids=(),
             exit_signal_ids=(),
         )
+        if any(
+            s.meta.get(key)
+            for key in ("candidate_filter", "risk_policy", "scoring_policy")
+        ):
+            policy_market = build_market_data_matrix(
+                sim_panel,
+                field_columns={
+                    name for name in sim_panel.columns
+                    if name not in {"symbol", "date"}
+                },
+            )
+            signals = self._apply_signal_strategy_policies(
+                self._policy_frame_from_market(policy_market),
+                signals,
+                s,
+                params,
+                "stock",
+            )
+        raw_candidates = int(signals.entry.sum())
 
         position_policy_compute, position_policy_params = _resolve_position_policy(config)
         matcher_config = MatcherConfig(
@@ -2769,6 +2854,247 @@ class StrategyBacktestService:
             regime_by_date,
             required_start=required_start,
             required_end=required_end,
+        )
+
+    @staticmethod
+    def _policy_context(
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ):
+        from app.extensions.strategies import build_strategy_policy_context
+
+        return build_strategy_policy_context(
+            asset_type=asset_type,
+            as_of=None,
+            strategy_id=str(s.meta.get("id") or ""),
+            params=params,
+            metadata=s.meta,
+        )
+
+    @staticmethod
+    def _ensure_policy_row_id(panel: pl.DataFrame) -> pl.DataFrame:
+        if "__policy_row_id" in panel.columns:
+            return panel
+        return panel.with_row_index("__policy_row_id")
+
+    def _apply_panel_candidate_filter(
+        self,
+        panel: pl.DataFrame,
+        candidate_mask: pl.Series,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> tuple[pl.DataFrame, pl.Series]:
+        implementation_id = s.meta.get("candidate_filter")
+        if not implementation_id:
+            return panel, candidate_mask
+        from app.extensions.strategies import apply_candidate_filter
+
+        panel = self._ensure_policy_row_id(panel)
+        source = panel.filter(candidate_mask)
+        filtered = apply_candidate_filter(
+            source,
+            str(implementation_id),
+            self._policy_context(s, params, asset_type),
+        )
+        filtered_ids = filtered["__policy_row_id"].to_list()
+        if len(filtered_ids) != len(set(filtered_ids)):
+            raise ValueError("candidate_filter 返回了重复候选行")
+        allowed_ids = set(filtered_ids)
+        candidate_mask = (
+            candidate_mask
+            & panel["__policy_row_id"].is_in(allowed_ids)
+        )
+        added = [name for name in filtered.columns if name not in panel.columns]
+        if added:
+            panel = panel.join(
+                filtered.select(["__policy_row_id", *added]),
+                on="__policy_row_id",
+                how="left",
+            ).sort("__policy_row_id")
+        return panel, candidate_mask
+
+    def _apply_panel_scoring_policy(
+        self,
+        panel: pl.DataFrame,
+        candidate_mask: pl.Series,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> pl.DataFrame:
+        implementation_id = s.meta.get("scoring_policy")
+        if not implementation_id:
+            return panel
+        from app.extensions.strategies import apply_scoring_policy
+
+        panel = self._ensure_policy_row_id(panel)
+        source = panel.filter(candidate_mask)
+        if source.is_empty():
+            return panel
+        scores = apply_scoring_policy(
+            source,
+            str(implementation_id),
+            self._policy_context(s, params, asset_type),
+        )
+        scored = source.select(["__policy_row_id"]).with_columns(
+            scores.alias("__policy_score")
+        )
+        return (
+            panel.join(scored, on="__policy_row_id", how="left")
+            .with_columns(
+                pl.coalesce(
+                    [pl.col("__policy_score"), pl.col("score")]
+                ).alias("score")
+            )
+            .drop("__policy_score")
+            .sort("__policy_row_id")
+        )
+
+    def _apply_panel_risk_policy(
+        self,
+        panel: pl.DataFrame,
+        entry_mask: pl.Series,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> tuple[pl.DataFrame, pl.Series]:
+        implementation_id = s.meta.get("risk_policy")
+        if not implementation_id:
+            return panel, entry_mask
+        from app.extensions.strategies import apply_risk_policy
+
+        panel = self._ensure_policy_row_id(panel)
+        source = panel.filter(entry_mask)
+        filtered = apply_risk_policy(
+            source,
+            str(implementation_id),
+            self._policy_context(s, params, asset_type),
+        )
+        filtered_ids = filtered["__policy_row_id"].to_list()
+        if len(filtered_ids) != len(set(filtered_ids)):
+            raise ValueError("risk_policy 返回了重复候选行")
+        allowed_ids = set(filtered_ids)
+        entry_mask = entry_mask & panel["__policy_row_id"].is_in(allowed_ids)
+        return panel, entry_mask
+
+    @staticmethod
+    def _policy_frame_from_market(market) -> pl.DataFrame:
+        symbols = [str(symbol) for symbol in market.symbols]
+        labels = tuple(str(label) for label in market.timestamp_labels)
+        dates = [
+            date.fromisoformat(label[:10])
+            for label in labels
+            for _ in symbols
+        ]
+        data: dict[str, Any] = {
+            "date": dates,
+            "symbol": symbols * len(labels),
+            "name": [str(name) for name in market.names] * len(labels),
+            "open": market.open.reshape(-1),
+            "high": market.high.reshape(-1),
+            "low": market.low.reshape(-1),
+            "close": market.close.reshape(-1),
+            "volume": market.volume.reshape(-1),
+        }
+        for name, values in market.fields.items():
+            array = np.asarray(values)
+            if array.shape == market.shape:
+                data[str(name)] = array.reshape(-1)
+        return pl.DataFrame(data)
+
+    def _apply_signal_strategy_policies(
+        self,
+        frame: pl.DataFrame,
+        signals: SignalMatrix,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> SignalMatrix:
+        candidate_filter_id = s.meta.get("candidate_filter")
+        risk_policy_id = s.meta.get("risk_policy")
+        scoring_policy_id = s.meta.get("scoring_policy")
+        if not (candidate_filter_id or risk_policy_id or scoring_policy_id):
+            return signals
+        from app.extensions.strategies import (
+            apply_candidate_filter,
+            apply_risk_policy,
+            apply_scoring_policy,
+        )
+
+        shape = signals.entry.shape
+        total = int(np.prod(shape))
+        if frame.height != total:
+            raise ValueError(
+                "策略级过滤器需要完整的 date×symbol 矩阵帧: "
+                f"expected {total}, got {frame.height}"
+            )
+        entry_flat = np.asarray(signals.entry, dtype=bool).reshape(-1)
+        policy_frame = frame.with_row_index("__policy_row_id").filter(
+            pl.Series(entry_flat)
+        )
+        context = self._policy_context(s, params, asset_type)
+        if candidate_filter_id:
+            policy_frame = apply_candidate_filter(
+                policy_frame,
+                str(candidate_filter_id),
+                context,
+            )
+        scored_ids = None
+        scored_values = None
+        if scoring_policy_id and policy_frame.height:
+            policy_scores = apply_scoring_policy(
+                policy_frame,
+                str(scoring_policy_id),
+                context,
+            )
+            scored_ids = np.asarray(
+                policy_frame["__policy_row_id"].to_list(),
+                dtype=np.int64,
+            )
+            scored_values = policy_scores.to_numpy()
+            policy_frame = policy_frame.with_columns(
+                policy_scores.alias("score")
+            )
+        if risk_policy_id:
+            policy_frame = apply_risk_policy(
+                policy_frame,
+                str(risk_policy_id),
+                context,
+            )
+        allowed_ids = np.asarray(
+            policy_frame["__policy_row_id"].to_list(),
+            dtype=np.int64,
+        )
+        if (
+            allowed_ids.size
+            and (
+                int(allowed_ids.min()) < 0
+                or int(allowed_ids.max()) >= total
+                or len(set(allowed_ids.tolist())) != allowed_ids.size
+            )
+        ):
+            raise ValueError("策略级过滤器返回了非法或重复的候选行")
+        allowed = np.zeros(total, dtype=bool)
+        allowed[allowed_ids] = True
+        entry = np.where(
+            allowed.reshape(shape),
+            signals.entry,
+            0,
+        ).astype(np.uint8)
+        score = np.array(signals.score, dtype=np.float32, copy=True)
+        if scored_ids is not None:
+            score.reshape(-1)[scored_ids] = scored_values
+        return make_signal_matrix(
+            shape,
+            entry=entry,
+            exit=signals.exit,
+            score=score,
+            entry_signal_code=signals.entry_signal_code,
+            exit_signal_code=signals.exit_signal_code,
+            entry_signal_ids=signals.entry_signal_ids,
+            exit_signal_ids=signals.exit_signal_ids,
+            ranking_score=signals.ranking_score,
         )
 
     def _build_candidate_filter_mask(

@@ -194,3 +194,31 @@ def test_provider_rejects_incompatible_api_version() -> None:
 
     with pytest.raises(ValueError, match="API v999"):
         register_factor_provider(_Provider())
+
+
+def test_provider_version_cannot_change_factor_id_set() -> None:
+    class _Provider(FactorProvider):
+        provider_id = "test.stable-factor-set"
+        version = 1
+        factor_ids = frozenset({"test_stable_factor_one"})
+
+        def dependencies(self, factor_id: str) -> frozenset[str]:
+            del factor_id
+            return frozenset()
+
+        def warmup_bars(self, factor_id: str) -> int:
+            del factor_id
+            return 1
+
+    class _NextVersion(_Provider):
+        version = 2
+        factor_ids = frozenset({"test_stable_factor_two"})
+
+    provider = _Provider()
+    register_factor_provider(provider)
+    try:
+        with pytest.raises(ValueError, match="stable factor id set"):
+            register_factor_provider(_NextVersion())
+        assert factor_provider_for("test_stable_factor_one") is provider
+    finally:
+        unregister_factor_provider(provider.provider_id)

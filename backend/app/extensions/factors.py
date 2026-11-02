@@ -120,6 +120,10 @@ def register_factor_provider(provider: FactorProvider) -> None:
     factor_ids = frozenset(str(item) for item in provider.factor_ids)
     if not factor_ids:
         raise ValueError(f"factor provider {provider_id} requires factor ids")
+    if provider.kind not in {"frame", "sidecar"}:
+        raise ValueError(
+            f"factor provider {provider_id} has invalid kind {provider.kind!r}"
+        )
     spec_ids = frozenset(str(spec.id) for spec in provider.factor_specs)
     if spec_ids and spec_ids != factor_ids:
         raise ValueError(
@@ -140,10 +144,16 @@ def register_factor_provider(provider: FactorProvider) -> None:
     existing = _PROVIDERS.get(provider_id)
     if existing is provider:
         return
-    if existing is not None and existing.version >= provider.version:
-        raise ValueError(
-            f"factor provider {provider_id} version must increase"
-        )
+    if existing is not None:
+        if existing.version >= provider.version:
+            raise ValueError(
+                f"factor provider {provider_id} version must increase"
+            )
+        if existing.factor_ids != factor_ids:
+            raise ValueError(
+                f"factor provider {provider_id} must keep a stable factor id set "
+                "across versions"
+            )
     for factor_id in factor_ids:
         owner = _FACTOR_OWNERS.get(factor_id)
         if owner is not None and owner != provider_id:

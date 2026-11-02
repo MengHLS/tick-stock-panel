@@ -321,6 +321,13 @@ def setup(registrar: BackendExtensionRegistrar) -> None:
 - `scoring_policy`：评分实现 ID。
 - `backtest_cost_model`：成本模型实现 ID；未声明时保持核心默认成本。
 
+候选过滤、评分和入场风控按 `candidate_filter → scoring_policy → risk_policy`
+的顺序执行，并统一接入选股、矩阵策略、分钟策略和回测路径。过滤实现只能保留或
+删除输入行，不能增加行，且必须保留输入列；评分实现必须返回与输入行等长、非空且
+有限的 `polars.Series`。`backtest_cost_model` 与
+`backtest_defaults.execution_costs` 互斥，同时声明时回测 fail-closed，避免成本口径
+被静默覆盖。叠加策略的上述三个策略级接口须配置在子策略上；顶层声明会 fail-closed。
+
 监控条件使用 `{ "evaluator": "company.condition", "threshold": 10 }` 形式引用
 `MonitorConditionEvaluator`。自定义条件仍受规则 schema、最大条件数、启用状态和盘中/日频限制约束。
 核心成交与风控不变量始终优先于策略级扩展。

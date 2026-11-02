@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import logging
 import pkgutil
 from dataclasses import dataclass
@@ -48,8 +49,29 @@ def configure_backend_extensions(
             module = importlib.import_module(module_name)
             extension_id = getattr(module, "EXTENSION_ID", None)
             api_version = getattr(module, "EXTENSION_API_VERSION", None)
-            if extension_id is None and getattr(module, "FACTOR_PROVIDERS", None):
-                continue
+            if extension_id is None:
+                has_provider = bool(
+                    getattr(module, "FACTOR_PROVIDERS", None)
+                    or getattr(module, "STRATEGY_PROVIDERS", None)
+                )
+                if not has_provider:
+                    for provider_module in (
+                        "factor_provider",
+                        "strategy_provider",
+                    ):
+                        try:
+                            has_provider = (
+                                importlib.util.find_spec(
+                                    f"{module_name}.{provider_module}"
+                                )
+                                is not None
+                            )
+                        except (ImportError, ModuleNotFoundError, ValueError):
+                            has_provider = False
+                        if has_provider:
+                            break
+                if has_provider:
+                    continue
             if not isinstance(extension_id, str):
                 raise ValueError("backend extension module must define EXTENSION_ID")
             registrar = BackendExtensionRegistrar(extension_id, api_version=api_version)
