@@ -44,6 +44,7 @@ import { WatchlistGroupMenu } from '@/components/WatchlistAddMenu'
 import { ScoringEditor } from '@/components/ScoringEditor'
 import { strategyResultCandidate } from './researchCandidates'
 import { SavedResultsDialog } from './SavedResultsDialog'
+import { ExtensionSlot } from '@/extensions/ExtensionSlot'
 import {
   isEntryFill,
   isExitFill,
@@ -2607,6 +2608,10 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
             )}
 
             <div className="text-[11px] text-muted">run_id: {result.run_id}</div>
+            <ExtensionSlot
+              name="backtest.result.extra"
+              context={{ apiVersion: 1, result }}
+            />
           </motion.div>
         )}
 
@@ -2728,6 +2733,11 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                 )}
               </div>
             </div>
+
+            <ExtensionSlot
+              name="backtest.result.extra"
+              context={{ apiVersion: 1, result }}
+            />
 
             {selectionStages.length > 0 && (
               <div className="flex flex-wrap items-center gap-y-2 rounded-card border border-border bg-base/35 px-3 py-2 text-[11px] text-secondary">
@@ -3004,6 +3014,19 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                       </div>
                     )}
                   </div>
+                )}
+
+                {resultTab === 'trades' && (
+                  <ExtensionSlot
+                    name="backtest.trades.extra"
+                    context={{
+                      apiVersion: 1,
+                      result,
+                      trades: sortedTrades,
+                      selectedTrade,
+                      onSelectTrade: trade => setChartOverlay({ kind: 'trade', trade, source: 'trades' }),
+                    }}
+                  />
                 )}
 
                 {resultTab === 'picks' && (
@@ -3488,6 +3511,16 @@ export function StrategyBacktest({ loadCandidate, onLoadConsumed }: {
                   <div className="text-[11px] leading-5 text-muted">需要单票调试或自选池回测时再限定股票池；默认由基础过滤、策略条件与买卖触发器在全市场筛选。</div>
                 </ConfigSection>
               </div>
+
+              <ExtensionSlot
+                name="backtest.settings.extra"
+                context={{
+                  apiVersion: 1,
+                  strategyId: detail.id,
+                  strategyName: detail.name,
+                  defaults: (detail.backtest_defaults ?? {}) as Record<string, unknown>,
+                }}
+              />
               </div>
             </div>
 

@@ -21,11 +21,13 @@ from app.backtest.matrix import (
     apply_time_masks,
     build_market_data_matrix,
     build_matrix_score,
-    load_market_data_matrix_from_parquet as _load_matrix_real,
     make_signal_matrix,
     matrix_feature,
     slice_signal_matrix,
     validate_signal_matrix,
+)
+from app.backtest.matrix import (
+    load_market_data_matrix_from_parquet as _load_matrix_real,
 )
 from app.backtest.strategy import build_matrix_cache_profile
 from app.indicators.pipeline import (
@@ -121,7 +123,7 @@ def test_research_factor_catalog_matches_matrix_features():
                 ),
             })
     panel = pl.DataFrame(rows)
-    from app.factors.linkage import LINKAGE_FACTOR_IDS
+    from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
 
     # 联动因子由 linkage store 物化, 不能从这段无外部状态的合成面板推导。
     factor_names = {item["id"] for item in FACTOR_COLUMNS} - LINKAGE_FACTOR_IDS
@@ -913,8 +915,8 @@ def test_registered_builtin_matrix_strategies_share_one_cache_profile():
         if s.execution_backend != "minute_filter"
     )
 
-    # 25 个 matrix 策略夹具 (研究模板在 research 目录, 不在夹具目录)
-    assert len(strategies) == 25
+    # 25 个 matrix 策略夹具 + 首板事件链 Provider 提供的 2 个研究策略
+    assert len(strategies) == 27
     assert all(strategy.execution_backend == "matrix_native" for strategy in strategies)
     assert profile.warmup_bars > 0
     assert profile.forward_bars == max(int(strategy.max_hold_days or 0) for strategy in strategies)

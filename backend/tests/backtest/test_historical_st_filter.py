@@ -242,12 +242,20 @@ def test_matrix_limit_lock_uses_historical_st_not_latest_name():
     })
     historical_not_st = attach_matrix_st_history(market, not_st)
     assert historical_not_st.limit_up_locked[:, 0].tolist() == [0, 0]
+    assert historical_not_st.fields["price_limit_pct"][:, 0].tolist() == [
+        pytest.approx(0.10),
+        pytest.approx(0.10),
+    ]
 
     historical_st = attach_matrix_st_history(
         market,
         not_st.with_columns(pl.lit(True).alias("st_flag")),
     )
     assert historical_st.limit_up_locked[:, 0].tolist() == [0, 1]
+    assert historical_st.fields["price_limit_pct"][:, 0].tolist() == [
+        pytest.approx(0.05),
+        pytest.approx(0.05),
+    ]
 
 
 def test_matrix_limit_lock_does_not_treat_ex_right_drop_as_limit_up():

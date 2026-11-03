@@ -158,6 +158,14 @@ class FactorBatchResult:
     error: str | None = None
 
 
+def compute_missing_factor_columns(
+    frame: pl.DataFrame,
+    factor_ids: set[str],
+) -> pl.DataFrame:
+    """Materialize missing registered factors without exposing service internals."""
+    return FactorBacktestService._compute_missing_factors(frame, factor_ids)
+
+
 class FactorBacktestService:
     def __init__(self, engine: BacktestEngine) -> None:
         self.engine = engine
@@ -201,9 +209,9 @@ class FactorBacktestService:
         t0 = time.perf_counter()
         run_id = uuid.uuid4().hex[:10]
         generation = self._data_generation(config.asset_type)
-        from app.factors.linkage_store import (
-            LinkageCoverageError,
-            LinkageReadUnstableError,
+        from app.extensions.factors import (
+            is_coverage_factor_provider_error,
+            is_transient_factor_provider_error,
         )
 
         try:
@@ -212,7 +220,12 @@ class FactorBacktestService:
                 [config.factor_name],
                 expected_generation=generation,
             )
-        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+        except Exception as exc:
+            if not (
+                is_coverage_factor_provider_error(exc)
+                or is_transient_factor_provider_error(exc)
+            ):
+                raise
             return self._error_result(config, run_id, t0, str(exc))
         if panel.is_empty():
             return self._error_result(config, run_id, t0, "无数据, 请检查日期范围或先运行盘后管道")
@@ -276,13 +289,14 @@ class FactorBacktestService:
             )
 
         generation = self._data_generation(config.asset_type)
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import (
-            LinkageCoverageError,
-            LinkageReadUnstableError,
+        from app.extensions.factors import (
+            is_coverage_factor_provider_error,
+            is_transient_factor_provider_error,
+            sidecar_factor_ids,
         )
 
-        linkage_names = set(factor_names) & LINKAGE_FACTOR_IDS
+        sidecar_names = sidecar_factor_ids()
+        linkage_names = set(factor_names) & sidecar_names
         linkage_error: str | None = None
         try:
             panel = self._load_factor_panel(
@@ -290,12 +304,17 @@ class FactorBacktestService:
                 factor_names,
                 expected_generation=generation,
             )
-        except (LinkageCoverageError, LinkageReadUnstableError) as exc:
+        except Exception as exc:
+            if not (
+                is_coverage_factor_provider_error(exc)
+                or is_transient_factor_provider_error(exc)
+            ):
+                raise
             if not linkage_names:
                 raise
             linkage_error = str(exc)
             non_linkage = [
-                name for name in factor_names if name not in LINKAGE_FACTOR_IDS
+                name for name in factor_names if name not in sidecar_names
             ]
             if not non_linkage:
                 metadata = {item["id"]: item for item in FACTOR_COLUMNS}
@@ -358,7 +377,7 @@ class FactorBacktestService:
                 asset_type=config.asset_type,
             )
             meta = metadata.get(factor_name, {})
-            if factor_name in LINKAGE_FACTOR_IDS and linkage_error is not None:
+            if factor_name in sidecar_names and linkage_error is not None:
                 items.append(FactorBatchItem(
                     factor_name=factor_name,
                     label=str(meta.get("label", factor_name)),
@@ -480,29 +499,42 @@ class FactorBacktestService:
             "symbol", "date", "open", "high", "low", "close", "volume", "amount",
             "turnover_rate",
         ]
-        from app.factors.event_chain import is_event_chain_factor
-        from app.factors.registry import get_factor
+        from app.extensions.factors import (
+            factor_provider_dependencies,
+            factor_provider_for,
+            factor_provider_generation,
+            is_transient_factor_provider_error,
+            sidecar_factor_ids,
+        )
 
-        event_chain_names = {
-            name for name in factor_names if is_event_chain_factor(name)
+        frame_provider_names = {
+            name for name in factor_names
+            if (provider := factor_provider_for(name)) is not None
+            and provider.kind != "sidecar"
+        }
+        provider_dependencies = factor_provider_dependencies(frame_provider_names)
+        provider_dependency_names = {
+            dependency
+            for dependencies in provider_dependencies.values()
+            for dependency in dependencies
         }
         if (
             any(
                 name in ("limit_up_count_20d", "limit_up_count_60d")
                 for name in factor_names
             )
-            or event_chain_names
+            or "consecutive_limit_ups" in provider_dependency_names
         ):
             panel_columns.append("consecutive_limit_ups")
         load_start = config.start
         if any(name != "turnover_rate" for name in factor_names):
             warmup_days = FACTOR_WARMUP_DAYS
-            if event_chain_names:
+            if frame_provider_names:
                 required_bars = max(
                     (
-                        spec.warmup_bars
-                        for name in event_chain_names
-                        if (spec := get_factor(name)) is not None
+                        factor_provider_for(name).warmup_bars(name)
+                        for name in frame_provider_names
+                        if factor_provider_for(name) is not None
                     ),
                     default=1,
                 )
@@ -518,22 +550,21 @@ class FactorBacktestService:
         }
         if expected_generation is not None:
             load_kwargs["expected_generation"] = expected_generation
-        from app.enriched_generation import get_enriched_generation
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import (
-            LinkageCoverageError,
-            LinkageReadUnstableError,
-        )
         from app.factors.registry import factor_dependencies
 
         data_dir = self._fundamentals_data_dir()
+        sidecar_names = sidecar_factor_ids()
         linkage_names = (
             set(factor_names) | factor_dependencies(factor_names)
-        ) & LINKAGE_FACTOR_IDS
+        ) & sidecar_names
         if linkage_names and data_dir is None:
-            raise LinkageCoverageError("联动因子需要稳定的数据目录 (data_dir)")
+            raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
         expected_linkage = (
-            get_enriched_generation(data_dir, "linkage")
+            factor_provider_generation(
+                linkage_names,
+                data_dir=data_dir,
+                asset_type=config.asset_type,
+            )
             if linkage_names and data_dir is not None
             else None
         )
@@ -567,12 +598,18 @@ class FactorBacktestService:
                         fundamental_names,
                     )
                 return panel
-            except LinkageReadUnstableError:
+            except Exception as exc:
+                if not is_transient_factor_provider_error(exc):
+                    raise
                 if attempt + 1 >= self._SNAPSHOT_MAX_ATTEMPTS:
                     raise
                 if data_dir is None:
                     raise
-                expected_linkage = get_enriched_generation(data_dir, "linkage")
+                expected_linkage = factor_provider_generation(
+                    linkage_names,
+                    data_dir=data_dir,
+                    asset_type=config.asset_type,
+                )
         raise RuntimeError("联动因子面板重读未返回结果")
 
     def _global_trading_dates(
@@ -814,32 +851,31 @@ class FactorBacktestService:
         # 扩展表因子 (ext_ base 条目) = 外部物化列, 指标补算管线不认识;
         # 请求的因子集合命中时在此按 (symbol, date) 时序对齐注入 (与
         # compute_signals 同一原语, 历史帧不含快照 → 无未来函数)。
-        from app.enriched_generation import get_enriched_generation
-        from app.factors import ext_factors
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import (
-            LinkageCoverageError,
-            attach_linkage_columns,
+        from app.extensions.factors import (
+            FactorProviderContext,
+            materialize_factor_columns,
+            provider_factor_ids,
         )
-        from app.factors.registry import factor_dependencies
+        from app.factors import ext_factors
+        from app.factors.registry import factor_dependencies, get_factor
 
-        linkage_cols = (
+        requested_provider_names = (
             factor_cols | factor_dependencies(factor_cols)
-        ) & LINKAGE_FACTOR_IDS
-        if linkage_cols:
-            if data_dir is None:
-                raise LinkageCoverageError("联动因子需要稳定的数据目录 (data_dir)")
-            expected = expected_linkage_generation
-            if expected is None:
-                expected = get_enriched_generation(data_dir, "linkage")
-            panel = attach_linkage_columns(
+        )
+        provider_cols = (
+            requested_provider_names
+            & provider_factor_ids(requested_provider_names)
+        )
+        if provider_cols:
+            panel = materialize_factor_columns(
                 panel,
-                linkage_cols,
-                data_dir,
-                expected_generation=expected,
-                require_complete=True,
+                provider_cols,
+                context=FactorProviderContext(
+                    data_dir=data_dir,
+                    expected_generation=expected_linkage_generation,
+                ),
             )
-            factor_cols = factor_cols - linkage_cols
+            factor_cols = factor_cols - provider_cols
             if not factor_cols:
                 return panel
 
@@ -848,18 +884,7 @@ class FactorBacktestService:
         if requested_ext or transitive_ext:
             panel = ext_factors.attach_ext_columns(panel, include_snapshot=False)
 
-        from app.factors.event_chain import is_event_chain_factor
-        from app.factors.registry import get_factor
         from app.indicators.pipeline import compute_indicators
-
-        event_chain_names = {
-            name for name in factor_cols if is_event_chain_factor(name)
-        }
-        if event_chain_names:
-            panel = materialize_scoring_columns(panel, event_chain_names)
-            factor_cols = factor_cols - event_chain_names
-            if not factor_cols:
-                return panel
 
         # custom/composite 因子走注册表→DSL/组合 的同一条物化路径 (P3, 与策略评分共用);
         # 其底层依赖 (如 change_pct/ma20) 先经内置补算路径物化, 再做 DSL/组合物化。

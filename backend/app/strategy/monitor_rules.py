@@ -249,12 +249,26 @@ def validate(rule: dict) -> None:
         for i, c in enumerate(conds):
             if not isinstance(c, dict):
                 raise ValueError(f"第 {i+1} 个条件格式错误")
+            evaluator_id = c.get("evaluator")
+            if evaluator_id is not None:
+                if not isinstance(evaluator_id, str) or not evaluator_id.strip():
+                    raise ValueError(
+                        f"第 {i+1} 个条件: evaluator 必须是非空字符串"
+                    )
+                if c.get("field") or c.get("op"):
+                    raise ValueError(
+                        f"第 {i+1} 个条件: evaluator 条件不能同时声明 field/op"
+                    )
+                continue
             field = c.get("field", "")
             op = c.get("op", "")
-            if str(field).startswith("industry_"):
+            from app.factors.registry import get_factor
+
+            factor = get_factor(str(field))
+            if factor is not None and not factor.intraday_monitor_safe:
                 raise ValueError(
                     f"第 {i+1} 个条件: daily_close_only — "
-                    "行业联动因子仅支持日收盘回测/扫描, 盘中监控不可用"
+                    "该因子仅支持日收盘回测/扫描, 盘中监控不可用"
                 )
             if op == "truth":
                 # 布尔信号: field 必须是 signal_/csg_ 前缀

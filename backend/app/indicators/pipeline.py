@@ -1661,14 +1661,14 @@ def run_pipeline(data_dir: Path | None = None,
             on_batch_done=on_batch_done,
             publication=publication,
         )
-        from app.factors.linkage_store import rebuild_linkage_sidecar
+        from app.extensions.factors import rebuild_factor_sidecars
 
         sidecar_mode = (
             "incremental"
             if new_dates_only and symbols is None
             else "full"
         )
-        rebuild_linkage_sidecar(d, mode=sidecar_mode)
+        rebuild_factor_sidecars(data_dir=d, mode=sidecar_mode)
         return written
     except BaseException:
         publication.abandon()

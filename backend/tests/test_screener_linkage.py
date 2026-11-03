@@ -9,7 +9,7 @@ import polars as pl
 import pytest
 
 from app.enriched_generation import bump_enriched_generation
-from app.factors.linkage import LINKAGE_FACTOR_IDS
+from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
 from app.strategy.engine import (
     StrategyDataContext,
     StrategyDef,

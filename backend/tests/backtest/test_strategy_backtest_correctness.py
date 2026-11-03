@@ -10,6 +10,13 @@ import pytest
 from app.backtest.engine import BacktestEngine, SimResult
 from app.backtest.matrix import build_market_data_matrix, make_signal_matrix, rolling_mean
 from app.backtest.strategy import StrategyBacktestConfig, StrategyBacktestService
+from app.extensions import (
+    BacktestCostModel,
+    CandidateFilter,
+    RiskPolicy,
+    ScoringPolicy,
+    register_strategy_extension,
+)
 from app.services import regime_builder
 from app.strategy.engine import StrategyDef
 
@@ -127,6 +134,22 @@ def _migrated_signal_definitions(monkeypatch):
     """注入迁移自内置的信号定义 (信号列定义驱动, 不依赖运行目录)。"""
     from tests.signal_seeds import install_pipeline_caches
     install_pipeline_caches(monkeypatch)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_strategy_extensions():
+    from app.extensions import strategies
+
+    saved = {kind: dict(items) for kind, items in strategies._KINDS.items()}
+    providers_ready = strategies._PROVIDERS_READY
+    try:
+        yield
+    finally:
+        strategies._KINDS.clear()
+        strategies._KINDS.update(
+            {kind: dict(items) for kind, items in saved.items()}
+        )
+        strategies._PROVIDERS_READY = providers_ready
 
 
 def test_basic_filter_only_limits_entries_not_panel_rows():
@@ -698,3 +721,205 @@ def test_full_mode_reports_factor_attribution():
     assert attribution["n_win"] == 1 and attribution["n_lose"] == 0
     assert attribution["factors"][0]["factor"] == "factor"
     assert attribution["factors"][0]["win_mean"] == 5.0
+
+
+def _policy_panel() -> pl.DataFrame:
+    start = date(2024, 1, 1)
+    return pl.DataFrame([
+        {
+            "symbol": symbol,
+            "name": symbol,
+            "date": start + timedelta(days=day - 1),
+            "open": close,
+            "high": close + 1.0,
+            "low": close - 1.0,
+            "close": close,
+            "volume": 100_000.0,
+            "amount": close * 100_000.0,
+            "signal_limit_up": False,
+            "signal_limit_down": False,
+        }
+        for day, close_a, close_b in (
+            (1, 9.0, 10.0),
+            (2, 10.0, 11.0),
+            (3, 11.0, 12.0),
+        )
+        for symbol, close in (("A", close_a), ("B", close_b))
+    ]).sort(["symbol", "date"])
+
+
+def _register_policy_extensions() -> None:
+    class _Candidate(CandidateFilter):
+        def filter_candidates(self, frame, context):
+            del context
+            return frame.filter(pl.col("symbol") == "B")
+
+    class _Risk(RiskPolicy):
+        def filter_entries(self, frame, context):
+            del context
+            return frame.filter(pl.col("close") >= 12.0)
+
+    class _Score(ScoringPolicy):
+        def score(self, frame, context):
+            del context
+            return frame["close"] * 2.0
+
+    register_strategy_extension(
+        "candidate_filter", "test.backtest-candidate", _Candidate()
+    )
+    register_strategy_extension("risk_policy", "test.backtest-risk", _Risk())
+    register_strategy_extension(
+        "scoring_policy", "test.backtest-score", _Score()
+    )
+
+
+def test_panel_backtest_consumes_strategy_policies():
+    _register_policy_extensions()
+    panel = _policy_panel()
+    start = date(2024, 1, 1)
+    strategy = _strategy(
+        meta={
+            "id": "test",
+            "name": "test",
+            "scoring": {},
+            "params": [],
+            "limit": 100,
+            "candidate_filter": "test.backtest-candidate",
+            "risk_policy": "test.backtest-risk",
+            "scoring_policy": "test.backtest-score",
+        },
+        basic_filter={"enabled": False},
+        filter_fn=lambda _frame, _params: pl.lit(True),
+    )
+    engine = _EngineStub(panel)
+    service = StrategyBacktestService(
+        engine=engine,
+        strategy_engine=_StrategyEngineStub(strategy),
+    )
+
+    result = service.run(StrategyBacktestConfig(
+        strategy_id="test",
+        symbols=None,
+        start=start,
+        end=start + timedelta(days=2),
+        matching="close_t",
+        mode="position",
+    ))
+
+    assert result.error is None
+    assert engine.sim_matrix is not None
+    assert engine.sim_matrix.entry[:, 0].tolist() == [0, 0, 0]
+    assert engine.sim_matrix.entry[:, 1].tolist() == [0, 0, 1]
+    np.testing.assert_allclose(
+        engine.sim_matrix.score[:, 1],
+        [20.0, 22.0, 24.0],
+    )
+
+
+def test_matrix_backtest_consumes_strategy_policies():
+    _register_policy_extensions()
+
+    class _AllEntries:
+        def required_fields(self):
+            return frozenset({"open", "high", "low", "close", "volume"})
+
+        def required_warmup_bars(self, params):
+            del params
+            return 1
+
+        def compute_signals(self, market, params):
+            del params
+            return make_signal_matrix(
+                market.shape,
+                entry=np.ones(market.shape, dtype=np.uint8),
+                score=np.ones(market.shape, dtype=np.float32),
+            )
+
+    panel = _policy_panel()
+    start = date(2024, 1, 1)
+    strategy = _strategy(
+        meta={
+            "id": "test",
+            "name": "test",
+            "scoring": {},
+            "params": [],
+            "limit": 100,
+            "candidate_filter": "test.backtest-candidate",
+            "risk_policy": "test.backtest-risk",
+            "scoring_policy": "test.backtest-score",
+        },
+        basic_filter={"enabled": False},
+        filter_fn=None,
+        execution_backend="matrix_native",
+        matrix_strategy=_AllEntries(),
+    )
+    engine = _EngineStub(panel)
+    service = StrategyBacktestService(
+        engine=engine,
+        strategy_engine=_StrategyEngineStub(strategy),
+    )
+
+    result = service.run(StrategyBacktestConfig(
+        strategy_id="test",
+        symbols=None,
+        start=start,
+        end=start + timedelta(days=2),
+        matching="close_t",
+        mode="position",
+    ))
+
+    assert result.error is None
+    assert engine.sim_matrix is not None
+    assert engine.sim_matrix.entry[:, 0].tolist() == [0, 0, 0]
+    assert engine.sim_matrix.entry[:, 1].tolist() == [0, 0, 1]
+    np.testing.assert_allclose(
+        engine.sim_matrix.score[:, 1],
+        [20.0, 22.0, 24.0],
+    )
+
+
+def test_backtest_cost_model_and_execution_costs_fail_closed():
+    class _Cost(BacktestCostModel):
+        def buy_cost_pct(self, config):
+            del config
+            return 0.01
+
+        def sell_cost_pct(self, config):
+            del config
+            return 0.02
+
+    register_strategy_extension(
+        "backtest_cost_model", "test.backtest-cost", _Cost()
+    )
+    panel = _policy_panel()
+    strategy = _strategy(
+        meta={
+            "id": "test",
+            "name": "test",
+            "scoring": {},
+            "params": [],
+            "limit": 100,
+            "backtest_cost_model": "test.backtest-cost",
+            "backtest_defaults": {
+                "schema_version": 1,
+                "execution_costs": {"min_commission": 5.0},
+            },
+        },
+        basic_filter={"enabled": False},
+    )
+    service = StrategyBacktestService(
+        engine=_EngineStub(panel),
+        strategy_engine=_StrategyEngineStub(strategy),
+    )
+
+    result = service.run(StrategyBacktestConfig(
+        strategy_id="test",
+        symbols=None,
+        start=date(2024, 1, 1),
+        end=date(2024, 1, 3),
+        matching="close_t",
+        mode="position",
+    ))
+
+    assert result.error is not None
+    assert "二选一" in result.error

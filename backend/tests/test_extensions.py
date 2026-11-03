@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import types
+from datetime import datetime
 
+import polars as pl
 import pytest
 from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
@@ -10,6 +12,8 @@ from app.extensions.contracts import (
     BACKEND_EXTENSION_API_VERSION,
     NotificationFormatContext,
     NotificationFormatter,
+    QuoteUpdateContext,
+    QuoteUpdateObserver,
 )
 from app.extensions.loader import configure_backend_extensions
 from app.extensions.registry import BackendExtensionRegistrar, BackendExtensionRegistry
@@ -29,6 +33,29 @@ class BrokenFormatter(NotificationFormatter):
     def format_message(self, event: dict, context: NotificationFormatContext) -> str:
         del event, context
         raise RuntimeError("broken formatter")
+
+
+class RecordingObserver(QuoteUpdateObserver):
+    def __init__(self, symbols: set[str], events: list[dict] | None = None) -> None:
+        self._symbols = frozenset(symbols)
+        self.events = events or []
+        self.contexts: list[QuoteUpdateContext] = []
+
+    def watched_symbols(self) -> frozenset[str]:
+        return self._symbols
+
+    def on_quote_update(self, context: QuoteUpdateContext) -> list[dict]:
+        self.contexts.append(context)
+        return list(self.events)
+
+
+class BrokenObserver(QuoteUpdateObserver):
+    def watched_symbols(self) -> frozenset[str]:
+        return frozenset({"000001.SZ"})
+
+    def on_quote_update(self, context: QuoteUpdateContext) -> list[dict]:
+        del context
+        raise RuntimeError("broken observer")
 
 
 def _registrar(extension_id: str = "company.test") -> BackendExtensionRegistrar:
@@ -105,6 +132,105 @@ def test_registry_is_frozen_after_startup() -> None:
 
     with pytest.raises(RuntimeError, match="frozen"):
         registry.register(_registrar())
+
+
+def test_quote_observers_are_ordered_and_only_receive_watched_symbols() -> None:
+    registry = BackendExtensionRegistry()
+    registrar = _registrar()
+    first = RecordingObserver({"000001.SZ"})
+    second = RecordingObserver({"600000.SH"})
+    registrar.register_quote_observer("company.second", second, order=20)
+    registrar.register_quote_observer("company.first", first, order=10)
+    registry.register(registrar)
+    registry.freeze()
+    service = QuoteService()
+    service._app_state = types.SimpleNamespace(extension_registry=registry)
+    frame = pl.DataFrame(
+        {
+            "symbol": ["000001.SZ", "600000.SH", "000002.SZ"],
+            "name": ["A", "B", "C"],
+            "close": [10.0, 20.0, 30.0],
+            "raw_close": [10.0, 20.0, 30.0],
+            "change_pct": [0.01, 0.02, 0.03],
+        }
+    )
+
+    events = service._evaluate_extension_observers(
+        frame,
+        observed_at=datetime.fromisoformat("2026-11-02T09:31:00+08:00"),
+    )
+
+    assert events == []
+    assert [registration.implementation_id for registration in registry.quote_observers()] == [
+        "company.first",
+        "company.second",
+    ]
+    assert [row["symbol"] for row in first.contexts[0].quotes] == ["000001.SZ"]
+    assert [row["symbol"] for row in second.contexts[0].quotes] == ["600000.SH"]
+
+
+def test_quote_observer_failure_is_isolated_and_does_not_drop_other_events() -> None:
+    registry = BackendExtensionRegistry()
+    registrar = _registrar()
+    registrar.register_quote_observer("company.broken", BrokenObserver(), order=10)
+    registrar.register_quote_observer(
+        "company.valid",
+        RecordingObserver(
+            {"000001.SZ"},
+            events=[
+                {
+                    "source": "first_board_right_tail",
+                    "type": "buy_trigger",
+                    "symbol": "000001.SZ",
+                    "name": "A",
+                    "message": "测试触发",
+                    "price": 10.0,
+                    "change_pct": 0.01,
+                    "signals": [],
+                    "severity": "warn",
+                    "conditions": [],
+                    "logic": "and",
+                }
+            ],
+        ),
+        order=20,
+    )
+    registry.register(registrar)
+    registry.freeze()
+    service = QuoteService()
+    service._app_state = types.SimpleNamespace(extension_registry=registry)
+    frame = pl.DataFrame(
+        {
+            "symbol": ["000001.SZ"],
+            "name": ["A"],
+            "close": [10.0],
+            "raw_close": [10.0],
+            "change_pct": [0.01],
+        }
+    )
+
+    events = service._evaluate_extension_observers(
+        frame,
+        observed_at=datetime.fromisoformat("2026-11-02T09:31:00+08:00"),
+    )
+
+    assert len(events) == 1
+    assert events[0]["message"] == "测试触发"
+
+
+def test_quote_observer_version_mismatch_rejects_whole_extension() -> None:
+    registry = BackendExtensionRegistry()
+    registrar = _registrar()
+    observer = RecordingObserver(set())
+    observer.api_version = 999
+    registrar.register_quote_observer("company.future", observer)
+
+    with pytest.raises(ValueError, match="requires API"):
+        registry.register(registrar)
+
+    registry.freeze()
+    assert not registry.has_customizations
+    assert registry.quote_observers() == ()
 
 
 def test_loader_isolates_failed_setup_and_registers_valid_route(

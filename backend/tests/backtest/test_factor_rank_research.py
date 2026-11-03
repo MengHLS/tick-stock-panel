@@ -283,7 +283,7 @@ def test_strategy_rejects_uncontrolled_or_invalid_research_params(params, messag
 
 
 def test_factor_rank_research_resolves_and_scores_linkage_field():
-    from app.factors.linkage import LINKAGE_FACTOR_IDS
+    from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
     from app.strategy.research.factor_rank_research import (
         FactorRankResearchMatrixStrategy,
     )

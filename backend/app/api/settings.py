@@ -558,6 +558,7 @@ class DataProvidersIn(BaseModel):
     depth5_data_provider: str | None = None
     realtime_data_provider: str | None = None
     financial_data_provider: str | None = None
+    st_history_data_provider: str | None = None
 
 
 class PluginKeyIn(BaseModel):
@@ -654,6 +655,7 @@ def get_preferences() -> dict:
         "depth5_data_provider": preferences.get_depth5_data_provider(),
         "realtime_data_provider": preferences.get_realtime_data_provider(),
         "financial_data_provider": preferences.get_financial_provider(),
+        "st_history_data_provider": preferences.get_st_history_provider(),
         "data_source_job_timeout_s": preferences.get_data_source_job_timeout_s(),
         "data_source_long_job_timeout_s": preferences.get_data_source_long_job_timeout_s(),
         "minute_batch_compress": preferences.get_minute_batch_compress(),
@@ -719,7 +721,18 @@ def list_data_sources() -> dict:
     """列出已加载的数据源 (内置 / 插件 / 用户自定义)。"""
     from app.data_providers import custom as custom_sources
     return {
-        "builtin": [{"name": "tickflow", "display_name": "TickFlow", "datasets": ["daily", "adj_factor", "realtime", "minute"]}],
+        "builtin": [
+            {
+                "name": "tickflow",
+                "display_name": "TickFlow",
+                "datasets": ["daily", "adj_factor", "realtime", "minute"],
+            },
+            {
+                "name": "local_st_history",
+                "display_name": "本地历史 ST",
+                "datasets": ["st_history"],
+            },
+        ],
         "plugins": custom_sources.list_plugins(),
         "custom": custom_sources.list_sources(),
         "errors": custom_sources.errors(),
@@ -748,6 +761,7 @@ def get_capability_matrix() -> dict:
             "depth5_data_provider": preferences.get_depth5_data_provider(),
             "adj_factor_provider": preferences.get_adj_factor_provider(),
             "financial_data_provider": preferences.get_financial_provider(),
+            "st_history_data_provider": preferences.get_st_history_provider(),
         },
         tickflow_tier=policy.base_tier_name(),
     )
@@ -860,6 +874,11 @@ def uninstall_plugin(name: str) -> dict:
         (preferences.get_minute_data_provider, "minute_data_provider", "tickflow"),
         (preferences.get_realtime_data_provider, "realtime_data_provider", "tickflow"),
         (preferences.get_financial_provider, "financial_data_provider", "tickflow"),
+        (
+            preferences.get_st_history_provider,
+            "st_history_data_provider",
+            "local_st_history",
+        ),
     ]:
         if getter() == name:
             preferences.save({key: default})
@@ -931,6 +950,8 @@ def delete_data_source(name: str, request: Request) -> dict:
         updates["financial_data_provider"] = "tickflow"
     if preferences.get_adj_factor_provider() == name:
         updates["adj_factor_provider"] = "tickflow"
+    if preferences.get_st_history_provider() == name:
+        updates["st_history_data_provider"] = "local_st_history"
     if updates:
         preferences.save(updates)
     # 删除源可能触发偏好回退 tickflow, 同步刷新能力快照
@@ -980,6 +1001,7 @@ def update_data_providers(req: DataProvidersIn, request: Request) -> dict:
         "depth5_data_provider": preferences.get_depth5_data_provider(),
         "realtime_data_provider": preferences.get_realtime_data_provider(),
         "financial_data_provider": preferences.get_financial_provider(),
+        "st_history_data_provider": preferences.get_st_history_provider(),
     }
 
 

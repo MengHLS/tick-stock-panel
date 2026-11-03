@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 
 from app.api.factors import router
 from app.enriched_generation import bump_enriched_generation
-from app.factors.linkage import LINKAGE_FACTOR_IDS
+from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
 
 
 @pytest.fixture()

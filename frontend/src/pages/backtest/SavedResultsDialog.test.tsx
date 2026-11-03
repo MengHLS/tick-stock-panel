@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { SavedResultsDialog } from './SavedResultsDialog'
 import type { SavedStrategyBacktestSummary } from '@/lib/api'
+import { finalizeFrontendExtensions } from '@/extensions/registry'
 
 const mocks = vi.hoisted(() => ({
   list: vi.fn(),
@@ -64,6 +65,7 @@ function buttonByText(text: string): HTMLButtonElement | undefined {
 }
 
 beforeEach(() => {
+  finalizeFrontendExtensions(new Set())
   ;(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true
   container = document.createElement('div')
   document.body.appendChild(container)

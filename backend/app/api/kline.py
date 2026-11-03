@@ -440,33 +440,56 @@ def _get_previous_closes(
         return {}
     start = min(trade_dates) - timedelta(days=45)
     end = max(trade_dates)
+    previous_by_trade: dict[date, date] = {}
     try:
-        daily = repo.get_daily_asset(
-            asset_type,
-            symbol,
-            start,
-            end,
-            columns=["date", "close"],
-        ).sort("date")
+        list_dates = getattr(repo, "list_enriched_dates", None)
+        get_by_dates = getattr(repo, "get_enriched_by_dates", None)
+        available_dates = (
+            list_dates(start, end, asset_type=asset_type)
+            if callable(list_dates) else []
+        )
+        if available_dates and callable(get_by_dates):
+            for trade_date in trade_dates:
+                previous = next(
+                    (day for day in reversed(available_dates) if day < trade_date),
+                    None,
+                )
+                if previous is not None:
+                    previous_by_trade[trade_date] = previous
+            previous_dates = sorted(set(previous_by_trade.values()))
+            daily = get_by_dates(
+                [symbol],
+                previous_dates,
+                asset_type=asset_type,
+                columns=["date", "close"],
+            ).sort("date")
+        else:
+            daily = repo.get_daily_asset(
+                asset_type,
+                symbol,
+                start,
+                end,
+                columns=["date", "close"],
+            ).sort("date")
     except Exception:
         daily = None
     if daily is None or daily.is_empty():
         return {trade_date: None for trade_date in trade_dates}
 
-    closes: list[tuple[date, float]] = []
+    closes: dict[date, float] = {}
     for daily_date, close in daily.select(["date", "close"]).iter_rows():
         if close is None:
             continue
         numeric = float(close)
         if math.isfinite(numeric) and numeric > 0:
-            closes.append((daily_date, numeric))
+            closes[daily_date] = numeric
 
     result: dict[date, float | None] = {}
     for trade_date in trade_dates:
-        result[trade_date] = next(
-            (close for daily_date, close in reversed(closes) if daily_date < trade_date),
-            None,
-        )
+        previous = previous_by_trade.get(trade_date)
+        if previous is None:
+            previous = max((day for day in closes if day < trade_date), default=None)
+        result[trade_date] = closes.get(previous) if previous is not None else None
     return result
 
 
@@ -1095,13 +1118,29 @@ def get_minute_range(
 
     end = cn_today()
     start = end - timedelta(days=days * 3 + 20)
-    minute = repo.get_minute_range([symbol], start, end, asset_type=asset_type)
-    if minute.is_empty() or "datetime" not in minute.columns:
+    available_dates = repo.list_minute_dates(start, end, asset_type=asset_type)
+    frames: list[pl.DataFrame] = []
+    found_dates: set[date] = set()
+    cursor = len(available_dates)
+    while cursor > 0 and len(found_dates) < days:
+        batch_size = max(days - len(found_dates), 1)
+        batch_dates = available_dates[max(0, cursor - batch_size):cursor]
+        if not batch_dates:
+            break
+        cursor -= len(batch_dates)
+        part = repo.get_minute_by_dates([symbol], batch_dates, asset_type=asset_type)
+        if part.is_empty() or "datetime" not in part.columns:
+            continue
+        frames.append(part)
+        found_dates.update(part["datetime"].dt.date().unique().to_list())
+
+    if not frames:
         return _gzip_payload(
             request,
             {**base_response, "sessions": [], "source": "none"},
             pref_key="minute_batch_compress",
         )
+    minute = pl.concat(frames).unique(subset=["symbol", "datetime"], keep="last")
 
     minute = minute.with_columns(
         pl.col("datetime").dt.date().alias("_trade_date"),
@@ -1166,12 +1205,18 @@ def get_minute(
 
     if trade_date is None:
         # 默认看今天, 而不是本地落盘的最近日 (盘中后者是昨天)。
-        # 非交易日(周末/节假日)才回退到本地最近有数据的交易日。
+        # 非交易日(周末/节假日)或开盘前回退到本地最近有数据的交易日。
         today = cn_today()
-        # 同 /minute-batch: 周末必回退, 工作日休市以交易日探针「确定休市」为准
-        need_fallback = today.weekday() >= 5 or trading_day.is_trading_day() is False
+        now_cn = cn_now()
+        before_open = now_cn.hour < 9 or (now_cn.hour == 9 and now_cn.minute < 30)
+        # 同 /minute-batch: 周末必回退; 开盘前今日尚无分钟K, 不用空结果触发远端拉取;
+        # 工作日休市以交易日探针「确定休市」为准。
+        need_fallback = (
+            today.weekday() >= 5
+            or before_open
+            or trading_day.is_trading_day() is False
+        )
         if not need_fallback:
-            now_cn = cn_now()
             after_close = now_cn.hour > 15 or (now_cn.hour == 15 and now_cn.minute >= 30)
             if after_close:
                 latest_daily = repo.latest_daily_date()
@@ -1262,6 +1307,22 @@ def get_minute(
             expected = 240
 
     is_complete = not df.is_empty() and len(df) >= expected * 0.9  # 允许 10% 容差
+
+    # 开盘前今日本应 0 根。即使调用方显式传 date=今天, 也不能把空数据
+    # 当成缺口去请求远端; 否则休市/盘前详情会卡到请求超时。
+    if trade_date == today and expected == 0:
+        return _gzip_payload(
+            request,
+            {
+                "symbol": symbol, "name": stock_name, "stock_info": stock_info,
+                "date": str(trade_date), "rows": df.to_dicts(),
+                "source": "local" if not df.is_empty() else "none",
+                "asset_type": asset_type,
+                "price_limit": price_limit,
+                "prev_close": prev_close,
+            },
+            pref_key="minute_batch_compress",
+        )
 
     if is_complete:
         return _gzip_payload(

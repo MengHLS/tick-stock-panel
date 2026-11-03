@@ -28,11 +28,32 @@ def read_st_history(data_dir: Path) -> pl.DataFrame:
     paths = sorted((data_dir / "st_history").rglob("*.parquet"))
     if not paths:
         return pl.DataFrame(schema=ST_HISTORY_SCHEMA)
-    history = pl.concat([
+    return normalize_st_history(pl.concat([
         pl.read_parquet(path, columns=list(ST_HISTORY_SCHEMA))
         for path in paths
-    ])
-    if history.schema != ST_HISTORY_SCHEMA or history.null_count().sum_horizontal().item():
+    ]))
+
+
+def normalize_st_history(history: pl.DataFrame | None) -> pl.DataFrame:
+    """Validate and normalize a provider-supplied effective-dated ST dataset."""
+    if history is None or history.is_empty():
+        return pl.DataFrame(schema=ST_HISTORY_SCHEMA)
+    missing = set(ST_HISTORY_SCHEMA) - set(history.columns)
+    if missing:
+        raise ValueError(
+            "历史ST状态缺少字段: " + ", ".join(sorted(missing))
+        )
+    flag_date = pl.col("flag_date")
+    if history.schema["flag_date"] == pl.String:
+        flag_date = flag_date.str.to_date(strict=False)
+    else:
+        flag_date = flag_date.cast(pl.Date, strict=False)
+    history = history.select(
+        pl.col("symbol").cast(pl.String),
+        flag_date,
+        pl.col("st_flag").cast(pl.Boolean, strict=False),
+    )
+    if history.null_count().sum_horizontal().item():
         raise ValueError("历史ST状态必须包含非空 symbol/string、flag_date/date、st_flag/bool")
     history = history.unique()
     if history.select(pl.struct("symbol", "flag_date").is_duplicated().any()).item():
@@ -104,11 +125,38 @@ def attach_matrix_st_history(
     )
     limit_up_locked.flags.writeable = False
     limit_down_locked.flags.writeable = False
+    from app.price_limits import (
+        LEGACY_MAIN_BOARD_ST_LIMIT,
+        MAIN_BOARD_LIMIT,
+        MAIN_BOARD_ST_LIMIT_CHANGE_DATE,
+        numpy_limit_pct_vectors,
+    )
+
+    _, current_pct = numpy_limit_pct_vectors(
+        list(market.symbols),
+        list(market.names),
+    )
+    main_board = current_pct == MAIN_BOARD_LIMIT
+    price_limit_pct = np.empty(market.shape, dtype=np.float32)
+    for time_id, trade_date in enumerate(trading_dates):
+        st_flags = np.isfinite(flags[time_id]) & (flags[time_id] > 0.5)
+        price_limit_pct[time_id] = np.where(
+            (trade_date < MAIN_BOARD_ST_LIMIT_CHANGE_DATE)
+            & main_board
+            & st_flags,
+            LEGACY_MAIN_BOARD_ST_LIMIT,
+            current_pct,
+        )
+    price_limit_pct.flags.writeable = False
     return replace(
         market,
         limit_up_locked=limit_up_locked,
         limit_down_locked=limit_down_locked,
-        fields={**market.fields, "st_flag": flags},
+        fields={
+            **market.fields,
+            "st_flag": flags,
+            "price_limit_pct": price_limit_pct,
+        },
     )
 
 

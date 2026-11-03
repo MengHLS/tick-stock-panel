@@ -13,8 +13,11 @@ import pytest
 from app.backtest.engine import BacktestEngine
 from app.backtest.matrix import MatrixCacheProfile
 from app.enriched_generation import bump_enriched_generation
-from app.factors.linkage import LINKAGE_FACTOR_IDS
-from app.factors.linkage_store import LinkageCoverageError, LinkageReadUnstableError
+from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
+from app.custom.cross_sectional_linkage.store import (
+    LinkageCoverageError,
+    LinkageReadUnstableError,
+)
 from app.strategy.engine import StrategyDataContext, StrategyDef, StrategyEngine
 from app.tickflow.repository import DataStore, KlineRepository
 
@@ -218,7 +221,7 @@ def test_matrix_load_rebuilds_base_matrix_when_linkage_generation_changes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from app.backtest import engine as engine_module
-    from app.factors import linkage_store
+    from app.custom.cross_sectional_linkage import store as linkage_store
 
     _load(_engine(matrix_data))
     engine = _engine(matrix_data)

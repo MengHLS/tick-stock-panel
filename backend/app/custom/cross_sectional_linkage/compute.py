@@ -5,6 +5,7 @@ symbol/date 与 7 个联动因子列。模块不读写文件，sidecar 管道负
 """
 from __future__ import annotations
 
+# Pure computation; persistence and request-time wiring live in factor_provider.py.
 from datetime import date
 
 import polars as pl

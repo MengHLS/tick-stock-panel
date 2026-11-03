@@ -25,8 +25,8 @@ from app.strategy.engine import StrategyEngine
 STRATEGY_PATH = (
     Path(__file__).resolve().parents[2]
     / "app"
-    / "strategy"
-    / "research"
+    / "custom"
+    / "first_board_event_chain"
     / "first_limit_pullback_3f_runner_t74.py"
 )
 

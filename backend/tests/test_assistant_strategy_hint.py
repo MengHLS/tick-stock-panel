@@ -6,6 +6,9 @@
 """
 from __future__ import annotations
 
+from datetime import date
+from types import SimpleNamespace
+
 from app.custom.assistant import tools as assistant_tools
 from app.services import tool_catalog
 
@@ -54,3 +57,42 @@ def test_hint_sync_path_covers_thread_runner() -> None:
         raise AssertionError("应当抛 ValueError")
     except ValueError as exc:
         assert "可用策略: boll_breakout, limit_up_momentum" in str(exc)
+
+
+def test_run_strategy_uses_runtime_screener() -> None:
+    calls: list[tuple] = []
+
+    class _Engine:
+        def has(self, strategy_id: str) -> bool:
+            return strategy_id == "s1"
+
+        def run(self, strategy_id, context, overrides=None):
+            calls.append(("run", strategy_id, context, overrides))
+            return SimpleNamespace(
+                rows=[{"symbol": "000001.SZ"}],
+                total=1,
+                as_of=date(2026, 11, 2),
+                elapsed_ms=12,
+            )
+
+    class _Screener:
+        def latest_date(self):
+            calls.append(("latest_date",))
+            return date(2026, 11, 2)
+
+        def build_strategy_context(self, engine, as_of, strategy_ids, overrides_map):
+            calls.append(("context", as_of, strategy_ids, overrides_map))
+            return {"as_of": as_of}
+
+    ctx = assistant_tools.ToolContext.build(
+        engine=_Engine(),
+        screener=_Screener(),
+        data_dir=".",
+    )
+
+    result = assistant_tools._run_strategy({"strategy_id": "s1"}, ctx)
+
+    assert result["total"] == 1
+    assert calls[0] == ("latest_date",)
+    assert calls[1][0] == "context"
+    assert calls[2][0] == "run"

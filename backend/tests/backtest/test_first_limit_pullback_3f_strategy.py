@@ -15,15 +15,12 @@ from app.backtest.matrix import (
     make_signal_matrix,
 )
 from app.strategy.engine import StrategyEngine
-from app.strategy.research.first_limit_pullback_3f_runner_t74 import (
-    _event_relative_ma_breakdown,
-)
 
 STRATEGY_PATH = (
     Path(__file__).resolve().parents[2]
     / "app"
-    / "strategy"
-    / "research"
+    / "custom"
+    / "first_board_event_chain"
     / "first_limit_pullback_3f_runner_t74.py"
 )
 
@@ -366,6 +363,44 @@ def test_strategy_can_supply_legacy_security_id_tie_break_order() -> None:
     assert ordered.score[5].tolist()[2] > ordered.score[5].tolist()[0]
 
 
+def test_strategy_builtin_legacy_order_reproduces_first_2019_ranking_split() -> None:
+    strategy = StrategyEngine._load_file(STRATEGY_PATH)
+    start = date(2025, 1, 2)
+    rows = []
+    for symbol in ("000056.SZ", "002862.SZ", "002869.SZ"):
+        for index in range(6):
+            rows.append({
+                "symbol": symbol,
+                "name": symbol,
+                "date": start + timedelta(days=index),
+                "open": 10.10 if index == 0 else 9.96,
+                "high": 10.60 if index == 0 else 10.35,
+                "low": 9.85 if index == 0 else 9.55,
+                "close": 10.00 if index == 0 else 9.95,
+                "volume": 100.0 if index == 0 else 40.0,
+                "consecutive_limit_ups": 1.0 if index == 0 else 0.0,
+                "signal_limit_up": index == 0,
+            })
+    market = build_market_data_matrix(
+        pl.DataFrame(rows).sort(["date", "symbol"]),
+        field_columns={"consecutive_limit_ups"},
+    )
+    signals = MatrixStrategyPipeline().run(
+        strategy.matrix_strategy,
+        market,
+        {"daily_candidates": 1},
+        MatrixPipelineConfig(
+            basic_filter=strategy.basic_filter,
+            scoring={},
+            order_by="score",
+            descending=True,
+        ),
+    )
+
+    selected = [market.symbols[i] for i in signals.entry[5].nonzero()[0]]
+    assert selected == ["002862.SZ"]
+
+
 def _low_score_panel() -> pl.DataFrame:
     """回踩成立但三分项都落在最低桶: 评分 0.15, 用于验证评分下限。"""
     start = date(2025, 1, 2)
@@ -487,9 +522,54 @@ def test_exit_ma_does_not_reset_on_unselected_first_board() -> None:
     )
     entry = np.zeros(market.shape, dtype=bool)
     entry[5, 0] = True
-    event_exit = _event_relative_ma_breakdown(market, entry=entry)
+    strategy = StrategyEngine._load_file(STRATEGY_PATH)
+    event_exit = strategy.matrix_strategy.exit_signal_for_selected_entries(
+        market, entry, {},
+    )
 
     assert event_exit[9].tolist() == [1]
+
+
+def test_exit_ma_uses_raw_close_at_equality_boundary() -> None:
+    """The source compares raw closes; adjusted-price rounding must not create a break."""
+    start = date(2019, 10, 9)
+    raw_closes = [
+        13.93, 13.81, 13.69, 13.87, 13.94,
+        13.51, 13.34, 13.10, 13.65, 13.40, 12.95,
+    ]
+    adjusted_closes = [
+        8.592850, 8.518826, 8.444803, 8.555838, 8.599018,
+        8.333769, 8.228903, 8.080856, 8.420129, 8.265914, 7.988327,
+    ]
+    rows = []
+    for index, (raw_close, adjusted_close) in enumerate(
+        zip(raw_closes, adjusted_closes, strict=True)
+    ):
+        rows.append({
+            "symbol": "603970.SH",
+            "name": "603970.SH",
+            "date": start + timedelta(days=index),
+            "open": adjusted_close,
+            "high": adjusted_close,
+            "low": adjusted_close,
+            "close": adjusted_close,
+            "raw_close": raw_close,
+            "volume": 100.0,
+        })
+
+    market = build_market_data_matrix(
+        pl.DataFrame(rows).sort(["date", "symbol"]),
+        field_columns={"raw_close"},
+    )
+    entry = np.zeros(market.shape, dtype=bool)
+    entry[5, 0] = True
+    strategy = StrategyEngine._load_file(STRATEGY_PATH)
+    event_exit = strategy.matrix_strategy.exit_signal_for_selected_entries(
+        market, entry, {},
+    )
+
+    assert event_exit[9].tolist() == [0]
+    assert event_exit[10].tolist() == [1]
 
 
 def test_exit_ma_ignores_first_boards_before_the_run_start() -> None:

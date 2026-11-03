@@ -28,17 +28,6 @@ import pyarrow.dataset as pads
 
 from app.backtest.minute_trigger import build_minute_exit_reference
 from app.backtest.numba_runtime import run_numba_parallel
-from app.factors.event_chain import (
-    DEFAULT_LOOKBACK_BARS as FIRST_BOARD_CHAIN_LOOKBACK_BARS,
-)
-from app.factors.event_chain import (
-    DEFAULT_MIN_PULLBACK_PCT as FIRST_BOARD_CHAIN_MIN_PULLBACK_PCT,
-)
-from app.factors.event_chain import (
-    EVENT_CHAIN_FIELDS,
-    EventChainConfig,
-    compute_event_chain_outputs,
-)
 from app.price_limits import (
     GEM_20PCT_LIMIT_START_DATE,
     GROWTH_BOARD_LIMIT,
@@ -529,6 +518,17 @@ class SignalMatrix:
     # Optional full-precision values used only for boundary-safe candidate
     # ranking. The executable score remains float32.
     ranking_score: np.ndarray | None = None
+    # Optional event identity for strategies whose one asset column can carry
+    # multiple concurrent positions from different source events.
+    # Key: (entry signal time, asset id). Value: all exit signal times for
+    # that event. Profit-gated exits must retain later signals after an
+    # earlier breakdown is rejected.
+    event_exit_times: dict[tuple[int, int], frozenset[int]] | None = None
+    # Optional parity data-gap mask: (entry signal time, asset id) -> execution
+    # times whose source bar has no usable preClose. The original simulator
+    # rejected sell quotes on those days instead of reconstructing preClose
+    # from a later/other bar.
+    preclose_unavailable: dict[tuple[int, int], frozenset[int]] | None = None
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -577,6 +577,8 @@ class MarketMatrix:
     entry_price: np.ndarray | None = None
     source_entry: np.ndarray | None = None
     source_exit: np.ndarray | None = None
+    event_exit_times: dict[tuple[int, int], frozenset[int]] | None = None
+    preclose_unavailable: dict[tuple[int, int], frozenset[int]] | None = None
     ranking_score: np.ndarray | None = None
     raw_close: np.ndarray | None = None
     raw_pre_close: np.ndarray | None = None
@@ -2350,6 +2352,8 @@ def make_signal_matrix(
     entry_signal_ids: tuple[str, ...] = (),
     exit_signal_ids: tuple[str, ...] = (),
     ranking_score: np.ndarray | None = None,
+    event_exit_times: dict[tuple[int, int], frozenset[int]] | None = None,
+    preclose_unavailable: dict[tuple[int, int], frozenset[int]] | None = None,
 ) -> SignalMatrix:
     """Create a compact read-only signal matrix with canonical dtypes."""
     entry_array = _coerce_array(entry, shape, np.uint8, 0)
@@ -2371,6 +2375,8 @@ def make_signal_matrix(
         entry_signal_ids=entry_signal_ids,
         exit_signal_ids=exit_signal_ids,
         ranking_score=ranking_array,
+        event_exit_times=event_exit_times,
+        preclose_unavailable=preclose_unavailable,
     )
 
 
@@ -2384,6 +2390,8 @@ def _finalize_signal_matrix(
     entry_signal_ids: tuple[str, ...] = (),
     exit_signal_ids: tuple[str, ...] = (),
     ranking_score: np.ndarray | None = None,
+    event_exit_times: dict[tuple[int, int], frozenset[int]] | None = None,
+    preclose_unavailable: dict[tuple[int, int], frozenset[int]] | None = None,
 ) -> SignalMatrix:
     shape = entry.shape
     arrays = [entry, exit_, score, entry_signal_code, exit_signal_code]
@@ -2399,6 +2407,8 @@ def _finalize_signal_matrix(
         entry_signal_ids=tuple(entry_signal_ids),
         exit_signal_ids=tuple(exit_signal_ids),
         ranking_score=ranking_score,
+        event_exit_times=event_exit_times,
+        preclose_unavailable=preclose_unavailable,
     )
     validate_signal_matrix(result, shape)
     return result
@@ -2441,6 +2451,34 @@ def validate_signal_matrix(signals: SignalMatrix, shape: tuple[int, int]) -> Non
             raise ValueError("SignalMatrix.ranking_score must be read-only")
         if not np.isfinite(ranking_score).all():
             raise ValueError("SignalMatrix.ranking_score must contain only finite values")
+    event_exit_times = signals.event_exit_times
+    if event_exit_times is not None:
+        for key, exit_times in event_exit_times.items():
+            if (
+                not isinstance(key, tuple)
+                or len(key) != 2
+                or not all(isinstance(value, int) for value in key)
+            ):
+                raise TypeError(
+                    "SignalMatrix.event_exit_times must map int pairs "
+                    "to frozensets of int"
+                )
+            entry_time, asset_id = key
+            if not 0 <= entry_time < shape[0] or not 0 <= asset_id < shape[1]:
+                raise ValueError("SignalMatrix.event_exit_times key is out of range")
+            if (
+                not isinstance(exit_times, frozenset)
+                or not all(isinstance(value, int) for value in exit_times)
+            ):
+                raise TypeError(
+                    "SignalMatrix.event_exit_times must map int pairs "
+                    "to frozensets of int"
+                )
+            if any(
+                not entry_time <= exit_time < shape[0]
+                for exit_time in exit_times
+            ):
+                raise ValueError("SignalMatrix.event_exit_times exit is out of range")
 
 
 def build_market_matrix_from_signals(
@@ -2567,6 +2605,8 @@ def build_market_matrix_from_signals(
         ),
         source_entry=signals.entry,
         source_exit=signals.exit,
+        event_exit_times=signals.event_exit_times,
+        preclose_unavailable=signals.preclose_unavailable,
         ranking_score=signals.ranking_score,
         raw_close=raw_close,
         raw_pre_close=raw_pre_close,
@@ -2779,6 +2819,34 @@ def slice_signal_matrix(signals: SignalMatrix, start: int, stop: int) -> SignalM
         ranking_score=(
             signals.ranking_score[start:stop]
             if signals.ranking_score is not None
+            else None
+        ),
+        event_exit_times=(
+            {
+                (entry_time - start, asset_id): frozenset(
+                    exit_time - start
+                    for exit_time in exit_times
+                    if start <= exit_time < stop
+                )
+                for (entry_time, asset_id), exit_times in signals.event_exit_times.items()
+                if start <= entry_time < stop
+            }
+            if signals.event_exit_times is not None
+            else None
+        ),
+        preclose_unavailable=(
+            {
+                (entry_time - start, asset_id): frozenset(
+                    blocked_time - start
+                    for blocked_time in blocked_times
+                    if start <= blocked_time < stop
+                )
+                for (entry_time, asset_id), blocked_times in (
+                    signals.preclose_unavailable.items()
+                )
+                if start <= entry_time < stop
+            }
+            if signals.preclose_unavailable is not None
             else None
         ),
     )
@@ -3863,13 +3931,16 @@ class MatrixStrategyPipeline:
                             candidate_keys[asset_id],
                         ),
                     )
-                    if preserve_rank:
+                    selected_count = min(limit, len(ranked))
+                    if preserve_rank and selected_count > 1:
                         # The matcher applies the daily-buy cap again by score.
                         # Preserve custom source ranking without changing buckets.
-                        for rank, asset_id in enumerate(ranked[:limit], start=1):
+                        for rank, asset_id in enumerate(
+                            ranked[:selected_count], start=1,
+                        ):
                             score[time_id, asset_id] = np.float32(
                                 score[time_id, asset_id]
-                                + 1e-6 * (min(limit, len(ranked)) - rank + 1)
+                                + 1e-6 * (selected_count - rank + 1)
                             )
                     entry[time_id, ranked[limit:]] = 0
                 score = np.where(entry != 0, score, np.float32(0.0))
@@ -3885,6 +3956,18 @@ class MatrixStrategyPipeline:
                     market.shape,
                     np.uint8,
                     0,
+                )
+            event_exit_times = None
+            refine_event_exits = getattr(
+                strategy,
+                "event_exit_times_for_selected_entries",
+                None,
+            )
+            if callable(refine_event_exits):
+                event_exit_times = refine_event_exits(
+                    market,
+                    entry.astype(bool),
+                    params,
                 )
             entry_codes = np.where(entry != 0, signals.entry_signal_code, -1).astype(np.int16)
             exit_codes = np.where(
@@ -3907,6 +3990,8 @@ class MatrixStrategyPipeline:
             entry_signal_ids=signals.entry_signal_ids,
             exit_signal_ids=signals.exit_signal_ids,
             ranking_score=ranking_score,
+            event_exit_times=event_exit_times,
+            preclose_unavailable=signals.preclose_unavailable,
         )
 
 
@@ -4117,13 +4202,17 @@ _MATRIX_COMPUTED_FEATURES = frozenset({
     "vol_regime_5_60", "amplitude_trend_20_60", "obv_trend_20d",
     "amount_mean_20d", "turnover_mean_20d", "turnover_std_20d",
     "position_240d", "distance_to_high_240d", "kdj_kd_diff",
-    *EVENT_CHAIN_FIELDS,
 })
 
 
 def matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
     if name in {"open", "high", "low", "close", "volume"} or name in market.fields:
         return market.field(name)
+    from app.extensions.factors import provider_factor_ids
+
+    if name in provider_factor_ids([name]):
+        with _activate_valid_bar_index(market.valid_bars):
+            return _compute_matrix_feature(market, name)
     supported = (
         name in _MATRIX_COMPUTED_FEATURES
         or (name.startswith("ma") and name.endswith("_bias") and name[2:-5].isdigit())
@@ -4135,59 +4224,41 @@ def matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
     )
     if not supported:
         raise ValueError(f"unsupported matrix feature: {name}")
-    cache_inputs = (
-        (
-            market.open,
-            market.high,
-            market.low,
-            market.close,
-            market.field("consecutive_limit_ups"),
-        )
-        if name in EVENT_CHAIN_FIELDS
-        else (market.close,)
-    )
     with _activate_valid_bar_index(market.valid_bars):
         return _cached_matrix_operation(
             "matrix_feature",
-            cache_inputs,
+            (market.close,),
             {"name": name},
             lambda: _compute_matrix_feature(market, name),
         )
 
 
-def compute_matrix_event_chain(
+def materialize_matrix_factors(
     market: MarketDataMatrix,
+    names: frozenset[str],
     *,
-    lookback_bars: int = FIRST_BOARD_CHAIN_LOOKBACK_BARS,
-    min_pullback_pct: float = FIRST_BOARD_CHAIN_MIN_PULLBACK_PCT,
-    require_new_high_after_anchor: bool = True,
-) -> dict[str, np.ndarray]:
-    """Matrix adapter for strategy code; all variants use the shared kernel."""
-    return compute_event_chain_outputs(
-        market.open,
-        market.high,
-        market.low,
-        market.close,
-        market.field("consecutive_limit_ups"),
-        EventChainConfig(
-            lookback_bars=lookback_bars,
-            min_pullback_pct=min_pullback_pct,
-            require_new_high_after_anchor=require_new_high_after_anchor,
-        ),
+    params: dict[str, Any] | None = None,
+) -> MarketDataMatrix:
+    """Attach provider-owned matrix fields through the public extension contract."""
+    from app.extensions.factors import (
+        FactorProviderContext,
+        materialize_factor_matrix,
+    )
+
+    return materialize_factor_matrix(
+        market,
+        names,
+        context=FactorProviderContext(params=dict(params or {})),
     )
 
 
 def _compute_matrix_feature(market: MarketDataMatrix, name: str) -> np.ndarray:
+    from app.extensions.factors import materialize_matrix_factor_field
+
     close_valid = np.isfinite(market.close)
-    if name in EVENT_CHAIN_FIELDS:
-        consecutive = market.field("consecutive_limit_ups")
-        return compute_event_chain_outputs(
-            market.open,
-            market.high,
-            market.low,
-            market.close,
-            consecutive,
-        )[name]
+    provider_value = materialize_matrix_factor_field(market, name)
+    if provider_value is not None:
+        return provider_value
     if name == "prev_close":
         return valid_shift(market.close, 1, close_valid)
     if name == "change_pct":
@@ -4582,6 +4653,32 @@ def apply_time_masks(
         entry_signal_ids=signals.entry_signal_ids,
         exit_signal_ids=signals.exit_signal_ids,
         ranking_score=signals.ranking_score,
+        event_exit_times=(
+            {
+                key: frozenset(
+                    exit_time
+                    for exit_time in exit_times
+                    if exit_mask[exit_time]
+                )
+                for key, exit_times in signals.event_exit_times.items()
+                if entry_mask[key[0]]
+            }
+            if signals.event_exit_times is not None
+            else None
+        ),
+        preclose_unavailable=(
+            {
+                key: frozenset(
+                    blocked_time
+                    for blocked_time in blocked_times
+                    if exit_mask[blocked_time]
+                )
+                for key, blocked_times in signals.preclose_unavailable.items()
+                if entry_mask[key[0]]
+            }
+            if signals.preclose_unavailable is not None
+            else None
+        ),
     )
 
 

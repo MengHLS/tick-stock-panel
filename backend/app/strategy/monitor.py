@@ -291,9 +291,51 @@ def _build_condition_mask(df: pl.DataFrame, conditions: list[dict], logic: str) 
     logic: "and" | "or"
     返回命中行 (含 symbol/name/close/change_pct + 各信号列)
     """
+    from app.extensions.strategies import (
+        MonitorConditionContext,
+        strategy_extension,
+    )
+
     cols = set(df.columns)
     parts: list[pl.Expr] = []
-    for c in conditions:
+    work = df
+    temporary: list[str] = []
+    for index, c in enumerate(conditions):
+        evaluator_id = c.get("evaluator")
+        if evaluator_id is not None:
+            evaluator = strategy_extension(
+                "monitor_condition_evaluator",
+                str(evaluator_id),
+            )
+            if evaluator is None:
+                return df.head(0)
+            try:
+                result = evaluator.evaluate(
+                    work,
+                    c,
+                    MonitorConditionContext(),
+                )
+            except Exception:  # noqa: BLE001 - one optional evaluator must not break all rules
+                logger.exception(
+                    "monitor condition evaluator failed: %s",
+                    evaluator_id,
+                )
+                return df.head(0)
+            if (
+                not isinstance(result, pl.Series)
+                or len(result) != work.height
+                or result.dtype != pl.Boolean
+            ):
+                logger.warning(
+                    "monitor condition evaluator %s returned an invalid mask",
+                    evaluator_id,
+                )
+                return df.head(0)
+            name = f"__monitor_condition_{index}__"
+            work = work.with_columns(result.alias(name))
+            temporary.append(name)
+            parts.append(pl.col(name))
+            continue
         field = c["field"]
         if field not in cols:
             return df.head(0)  # 字段缺失,无法判定 → 空结果
@@ -310,7 +352,8 @@ def _build_condition_mask(df: pl.DataFrame, conditions: list[dict], logic: str) 
         mask = pl.any_horizontal(parts)
     else:
         mask = pl.all_horizontal(parts)
-    return df.filter(mask)
+    result = work.filter(mask)
+    return result.drop(temporary) if temporary else result
 
 
 class MonitorRuleEngine:

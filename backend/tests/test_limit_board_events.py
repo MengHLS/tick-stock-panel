@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import os
 import subprocess
 import sys
 import threading
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from pathlib import Path
 
 import polars as pl
@@ -16,11 +15,16 @@ import pytest
 import app.custom.limit_board_events as extension
 from app.api.ext_data import _read_ext_dataframe
 from app.custom.limit_board_events import service
-from app.extensions import BACKEND_EXTENSION_API_VERSION, ExtensionContext
+from app.extensions import (
+    BACKEND_EXTENSION_API_VERSION,
+    BackendExtensionRegistrar,
+    ExtensionContext,
+)
 from app.factors.ext_factors import attach_ext_columns, numeric_timeseries_ext_columns
 from app.market_time import CN_TZ
 from app.plugins.fuyao.client import FuyaoError
-from app.services.ext_data import ExtConfigStore
+from app.services import ext_pull
+from app.services.ext_data import ExtConfigStore, PullConfig
 
 DAY = date(2026, 9, 1)
 NOW = datetime(2026, 10, 30, 20, tzinfo=CN_TZ)
@@ -56,7 +60,8 @@ def test_sync_is_visible_in_existing_api_and_factor_join(tmp_path, monkeypatch):
     config = ExtConfigStore(tmp_path).get(service.CONFIG_ID)
     assert config is not None
     assert config.mode == "timeseries"
-    assert config.pull is None
+    assert config.pull is not None
+    assert config.pull.url == service.LIMIT_BOARD_URL
     frame, active = _read_ext_dataframe(config, tmp_path, DAY.isoformat())
     assert active == DAY.isoformat()
     assert frame["limit_up_pool_open_times"].to_list() == [2]
@@ -423,217 +428,201 @@ def test_cancelled_fetch_cannot_commit_after_stop(tmp_path, monkeypatch):
     assert not list(tmp_path.rglob("*.parquet"))
 
 
-@pytest.mark.asyncio
-async def test_scheduler_generates_once_after_close_and_catches_up(tmp_path, monkeypatch):
-    calls = []
+def test_existing_config_is_migrated_to_shared_pull_scheduler(tmp_path):
+    config = service.limit_board_config()
+    config.pull = None
+    ExtConfigStore(tmp_path).upsert(config)
 
-    def sync(root, day, *, now=None, **kwargs):
-        calls.append((root, day, now))
+    migrated = service.ensure_limit_board_config(tmp_path)
+
+    assert migrated is not None
+    assert migrated.pull is not None
+    assert migrated.pull.url == service.LIMIT_BOARD_URL
+    assert migrated.pull.time_window_start == "15:45"
+    assert migrated.pull.time_window_end == "23:59"
+    assert migrated.pull.schedule_trading_only is True
+
+
+def test_existing_owned_pull_preserves_runtime_status(tmp_path):
+    config = service.limit_board_config()
+    assert config.pull is not None
+    config.pull.last_run = "2026-10-30T07:45:00+00:00"
+    config.pull.last_status = "success"
+    config.pull.last_message = "1 rows @ 2026-10-30"
+    config.pull.last_rows = 1
+    config.pull.schedule_minutes = 17
+    config.pull.time_window_start = "16:00"
+    ExtConfigStore(tmp_path).upsert(config)
+
+    migrated = service.ensure_limit_board_config(tmp_path)
+
+    assert migrated is not None
+    assert migrated.pull is not None
+    assert migrated.pull.last_run == "2026-10-30T07:45:00+00:00"
+    assert migrated.pull.last_status == "success"
+    assert migrated.pull.last_message == "1 rows @ 2026-10-30"
+    assert migrated.pull.last_rows == 1
+    assert migrated.pull.schedule_minutes == 17
+    assert migrated.pull.time_window_start == "16:00"
+
+
+def test_user_custom_pull_is_not_overwritten(tmp_path):
+    config = service.limit_board_config()
+    config.pull = PullConfig(url="https://example.test/limit-board", enabled=False)
+    ExtConfigStore(tmp_path).upsert(config)
+
+    existing = service.ensure_limit_board_config(tmp_path)
+
+    assert existing is not None
+    assert existing.pull is not None
+    assert existing.pull.url == "https://example.test/limit-board"
+    with pytest.raises(ValueError, match="config"):
+        service.sync_limit_board_events(tmp_path, DAY, client=object(), now=NOW)
+
+
+@pytest.mark.asyncio
+async def test_scheduled_handler_marks_written_day_and_skips_repeat(tmp_path, monkeypatch):
+    calls: list[tuple] = []
+    due = datetime(2026, 10, 30, 20, 0, tzinfo=CN_TZ)
+
+    def sync(root, day, **kwargs):
+        calls.append((root, day, kwargs))
         return {"date": day.isoformat(), "status": "written", "rows": 80}
 
+    monkeypatch.setattr(service, "cn_now", lambda: due)
     monkeypatch.setattr(service, "sync_limit_board_events", sync)
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler._data_dir = tmp_path
-    scheduler._enabled = True
+    config = service.limit_board_config()
 
-    early = datetime(2026, 10, 30, 15, 44, tzinfo=CN_TZ)
-    assert (await scheduler.run_once(early))["status"] == "not_due"
-    assert calls == []
+    assert await service.run_scheduled_limit_board(config, tmp_path, due.date()) == (
+        80,
+        due.date().isoformat(),
+    )
+    assert calls == [
+        (
+            tmp_path,
+            due.date(),
+            {"now": due, "create_config": False},
+        )
+    ]
+    marker = service._completion_marker(tmp_path, due.date())
+    assert marker.read_text(encoding="utf-8") == "written"
 
-    due = datetime(2026, 10, 30, 20, 0, tzinfo=CN_TZ)
-    result = await scheduler.run_once(due)
-    assert result["status"] == "written"
-    assert calls == [(tmp_path, date(2026, 10, 30), due)]
-    assert (await scheduler.run_once(due + timedelta(minutes=1)))["status"] == "done"
+    assert await service.run_scheduled_limit_board(config, tmp_path, due.date()) == (
+        0,
+        due.date().isoformat(),
+    )
     assert len(calls) == 1
 
 
 @pytest.mark.asyncio
-async def test_scheduler_retries_failures_but_not_empty_completed_days(tmp_path, monkeypatch):
-    outcomes = [
-        FuyaoError("429"),
-        {"date": "2026-10-30", "status": "empty", "rows": 0},
-    ]
-    calls: list[int] = []
-
-    def sync(*args, **kwargs):
-        calls.append(1)
-        outcome = outcomes.pop(0)
-        if isinstance(outcome, Exception):
-            raise outcome
-        return outcome
-
-    monkeypatch.setattr(service, "sync_limit_board_events", sync)
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler._data_dir = tmp_path
-    scheduler._enabled = True
-    now = datetime(2026, 10, 30, 20, 0, tzinfo=CN_TZ)
-
-    assert (await scheduler.run_once(now))["status"] == "error"
-    assert (await scheduler.run_once(now))["status"] == "empty"
-    assert (await scheduler.run_once(now))["status"] == "done"
-    assert len(calls) == 2
-
-
-@pytest.mark.asyncio
-async def test_empty_completion_marker_survives_scheduler_restart(tmp_path, monkeypatch):
-    calls: list[int] = []
-
-    def sync(*args, **kwargs):
-        calls.append(1)
-        return {"date": "2026-10-30", "status": "empty", "rows": 0}
-
-    monkeypatch.setattr(service, "sync_limit_board_events", sync)
-    now = datetime(2026, 10, 30, 20, 0, tzinfo=CN_TZ)
-    first = service.LimitBoardEventScheduler()
-    first._data_dir = tmp_path
-    first._enabled = True
-    assert (await first.run_once(now))["status"] == "empty"
-
-    restarted = service.LimitBoardEventScheduler()
-    restarted._data_dir = tmp_path
-    restarted._enabled = True
-    assert (await restarted.run_once(now))["status"] == "done"
-    assert calls == [1]
-
-
-@pytest.mark.asyncio
-async def test_scheduler_clears_repository_cache_after_write(tmp_path, monkeypatch):
-    cleared: list[int] = []
-
-    class Repository:
-        def clear_cache(self):
-            cleared.append(1)
-
+@pytest.mark.parametrize(
+    ("status", "expected_rows"),
+    [("exists", 12), ("empty", 0)],
+)
+async def test_scheduled_handler_treats_existing_and_empty_as_complete(
+    tmp_path, monkeypatch, status, expected_rows
+):
     monkeypatch.setattr(
         service,
         "sync_limit_board_events",
         lambda *args, **kwargs: {
-            "date": "2026-10-30",
-            "status": "written",
-            "rows": 80,
+            "date": DAY.isoformat(),
+            "status": status,
+            "rows": expected_rows,
         },
     )
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler._data_dir = tmp_path
-    scheduler._enabled = True
-    scheduler._repository = Repository()
 
-    await scheduler.run_once(datetime(2026, 10, 30, 20, 0, tzinfo=CN_TZ))
+    result = await service.run_scheduled_limit_board(
+        service.limit_board_config(),
+        tmp_path,
+        DAY,
+    )
 
-    assert cleared == [1]
+    assert result == (expected_rows, DAY.isoformat())
+    assert service._completion_marker(tmp_path, DAY).read_text(encoding="utf-8") == status
 
 
 @pytest.mark.asyncio
-async def test_scheduler_skips_weekends_and_disabled_mode(tmp_path, monkeypatch):
-    calls: list[int] = []
+async def test_scheduled_handler_does_not_mark_failed_or_missing_config(
+    tmp_path, monkeypatch
+):
     monkeypatch.setattr(
         service,
         "sync_limit_board_events",
-        lambda *args, **kwargs: calls.append(1),
+        lambda *args, **kwargs: {"status": "missing_config", "rows": 0},
     )
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler._data_dir = tmp_path
-    scheduler._enabled = True
+    assert await service.run_scheduled_limit_board(
+        service.limit_board_config(),
+        tmp_path,
+        DAY,
+    ) == (0, DAY.isoformat())
+    assert not service._completion_marker(tmp_path, DAY).exists()
 
-    weekend = datetime(2026, 10, 31, 20, 0, tzinfo=CN_TZ)
-    assert (await scheduler.run_once(weekend))["status"] == "not_due"
-    scheduler._enabled = False
-    weekday = datetime(2026, 10, 30, 20, 0, tzinfo=CN_TZ)
-    assert (await scheduler.run_once(weekday))["status"] == "disabled"
-    assert calls == []
+    def fail(*args, **kwargs):
+        raise FuyaoError("429")
 
-
-@pytest.mark.asyncio
-async def test_scheduler_start_and_stop_manage_background_task(tmp_path, monkeypatch):
-    blocker = asyncio.Event()
-
-    async def wait_forever(_self):
-        await blocker.wait()
-
-    monkeypatch.setattr(service.LimitBoardEventScheduler, "_run_loop", wait_forever)
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler.start(tmp_path, enabled=True)
-    assert scheduler._task is not None
-    await asyncio.sleep(0)
-    scheduler.stop()
-    assert scheduler._task is None
-    scheduler.start(tmp_path, enabled=False)
-    assert scheduler._task is None
+    monkeypatch.setattr(service, "sync_limit_board_events", fail)
+    with pytest.raises(FuyaoError):
+        await service.run_scheduled_limit_board(
+            service.limit_board_config(),
+            tmp_path,
+            DAY,
+        )
+    assert not service._completion_marker(tmp_path, DAY).exists()
 
 
 @pytest.mark.asyncio
-async def test_scheduler_restart_does_not_clear_old_cancel_signal(tmp_path, monkeypatch):
-    blocker = asyncio.Event()
+async def test_builtin_dispatch_uses_limit_board_handler(tmp_path, monkeypatch):
+    called: list[tuple] = []
 
-    async def wait_forever(_self):
-        await blocker.wait()
+    async def fake_handler(config, data_dir, target_date):
+        called.append((config.id, data_dir, target_date))
+        return 3, target_date.isoformat()
 
-    monkeypatch.setattr(service.LimitBoardEventScheduler, "_run_loop", wait_forever)
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler.start(tmp_path, enabled=True)
-    old_event = scheduler._cancel_event
-    await asyncio.sleep(0)
+    monkeypatch.setitem(ext_pull._pull_handlers, service.CONFIG_ID, fake_handler)
 
-    scheduler.start(tmp_path, enabled=True)
-
-    assert old_event.is_set()
-    assert scheduler._cancel_event is not old_event
-    scheduler.stop()
+    assert await ext_pull.fetch_and_ingest(
+        service.limit_board_config(),
+        tmp_path,
+        DAY,
+    ) == (3, DAY.isoformat())
+    assert called == [(service.CONFIG_ID, tmp_path, DAY)]
 
 
-@pytest.mark.asyncio
-async def test_loop_cancellation_blocks_late_commit(monkeypatch):
-    blocker = asyncio.Event()
+def test_extension_setup_registers_shared_pull_handler():
+    extension.setup(
+        BackendExtensionRegistrar(
+            extension.EXTENSION_ID,
+            api_version=extension.EXTENSION_API_VERSION,
+        )
+    )
 
-    async def wait_forever(_self):
-        await blocker.wait()
-
-    monkeypatch.setattr(service.LimitBoardEventScheduler, "run_once", wait_forever)
-    scheduler = service.LimitBoardEventScheduler()
-    scheduler._running = True
-    task = asyncio.create_task(scheduler._run_loop())
-    await asyncio.sleep(0)
-
-    task.cancel()
-    await task
-
-    assert scheduler._cancel_event.is_set()
+    assert ext_pull.has_pull_handler(service.CONFIG_ID)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("enabled", [True, False])
-async def test_extension_startup_seeds_config_and_starts_scheduler(tmp_path, monkeypatch, enabled):
+def test_extension_startup_seeds_config_and_refreshes_shared_scheduler(
+    tmp_path, monkeypatch
+):
     calls: list[tuple] = []
-    repository = object()
     monkeypatch.setattr(
-        service,
+        extension.service,
         "ensure_limit_board_config",
         lambda root: calls.append(("seed", root)),
     )
     monkeypatch.setattr(
-        service.limit_board_scheduler,
-        "start",
-        lambda root, *, enabled, repository: calls.append(("start", root, enabled, repository)),
-    )
-    monkeypatch.setattr(
-        extension.preferences,
-        "get_data_sync_prefs",
-        lambda: {"data_sync_ext_pull_enabled": enabled},
+        extension.pull_scheduler,
+        "refresh",
+        lambda root: calls.append(("refresh", root)),
     )
 
     extension.startup(
         ExtensionContext(
             api_version=BACKEND_EXTENSION_API_VERSION,
             data_dir=tmp_path,
-            repository=repository,
         )
     )
 
-    assert calls == [
-        ("seed", tmp_path),
-        ("start", tmp_path, enabled, repository),
-    ]
+    assert calls == [("seed", tmp_path), ("refresh", tmp_path)]
 
 
 def test_cli_uses_target_directory_for_credentials_and_stops_on_failure(

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import logging
 import pkgutil
 from dataclasses import dataclass
@@ -9,6 +10,9 @@ from dataclasses import dataclass
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
+from app.backtest.read import BacktestReadAdapter
+from app.backtest.result_read import BacktestResultReadAdapter
+from app.extensions.adapters import repository_read_adapters
 from app.extensions.contracts import BACKEND_EXTENSION_API_VERSION, ExtensionContext
 from app.extensions.registry import BackendExtensionRegistrar, BackendExtensionRegistry
 
@@ -45,6 +49,29 @@ def configure_backend_extensions(
             module = importlib.import_module(module_name)
             extension_id = getattr(module, "EXTENSION_ID", None)
             api_version = getattr(module, "EXTENSION_API_VERSION", None)
+            if extension_id is None:
+                has_provider = bool(
+                    getattr(module, "FACTOR_PROVIDERS", None)
+                    or getattr(module, "STRATEGY_PROVIDERS", None)
+                )
+                if not has_provider:
+                    for provider_module in (
+                        "factor_provider",
+                        "strategy_provider",
+                    ):
+                        try:
+                            has_provider = (
+                                importlib.util.find_spec(
+                                    f"{module_name}.{provider_module}"
+                                )
+                                is not None
+                            )
+                        except (ImportError, ModuleNotFoundError, ValueError):
+                            has_provider = False
+                        if has_provider:
+                            break
+                if has_provider:
+                    continue
             if not isinstance(extension_id, str):
                 raise ValueError("backend extension module must define EXTENSION_ID")
             registrar = BackendExtensionRegistrar(extension_id, api_version=api_version)
@@ -56,7 +83,7 @@ def configure_backend_extensions(
             registry.register(registrar)
             for router in registrar.routers:
                 app.include_router(router)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - isolate one failed extension
             logger.warning("backend extension load failed %s: %s", module_name, exc)
             errors.append(BackendExtensionLoadError(module_name, str(exc)))
 
@@ -99,13 +126,17 @@ def start_backend_extensions(
             startup = getattr(module, "startup", None)
             if callable(startup):
                 startup(context)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - isolate one failed startup hook
             logger.warning("backend extension startup failed %s: %s", module_name, exc)
 
 
 def current_extension_context(*, data_dir, repository) -> ExtensionContext:
+    market_data, enriched_panel = repository_read_adapters(repository)
     return ExtensionContext(
         api_version=BACKEND_EXTENSION_API_VERSION,
         data_dir=data_dir,
-        repository=repository,
+        market_data=market_data,
+        enriched_panel=enriched_panel,
+        backtest_read=BacktestReadAdapter(repository),
+        backtest_results=BacktestResultReadAdapter(data_dir),
     )

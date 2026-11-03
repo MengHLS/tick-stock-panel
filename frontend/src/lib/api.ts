@@ -898,6 +898,7 @@ export interface StrategyDetail {
   trailing_take_profit_drawdown: number | null
   max_hold_days: number | null
   backtest_defaults?: {
+    schema_version?: 1
     initial_capital?: number
     max_positions?: number
     max_exposure_pct?: number
@@ -1918,6 +1919,7 @@ export interface StrategyBacktestTrade {
   blocked_exit_days?: number
   entry_signal_id?: string | null
   exit_signal_id?: string | null
+  open_at_end?: boolean
 }
 
 export interface BacktestEvidenceCheck {
@@ -2249,6 +2251,7 @@ export type ProviderField =
   | 'depth5_data_provider'
   | 'realtime_data_provider'
   | 'financial_data_provider'
+  | 'st_history_data_provider'
 
 /** 能力路由矩阵中的一个候选源 (candidates 只含当前确实可提供该能力的源) */
 export interface CapabilityCandidate {
@@ -2483,6 +2486,7 @@ export interface Preferences {
   depth5_data_provider?: string
   realtime_data_provider?: string
   financial_data_provider?: string
+  st_history_data_provider?: string
   data_source_job_timeout_s: number
   data_source_long_job_timeout_s: number
   minute_batch_compress: boolean

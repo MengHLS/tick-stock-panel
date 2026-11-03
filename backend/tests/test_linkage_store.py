@@ -7,14 +7,14 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from app.enriched_generation import (
-    EnrichedGenerationUnavailableError,
-    bump_enriched_generation,
-)
-from app.factors.linkage_store import (
+from app.custom.cross_sectional_linkage.store import (
     LinkageReadUnstableError,
     finalized_trading_dates,
     stable_linkage_read,
+)
+from app.enriched_generation import (
+    EnrichedGenerationUnavailableError,
+    bump_enriched_generation,
 )
 from app.market_time import CN_TZ
 
@@ -126,7 +126,7 @@ def test_stable_linkage_read_rejects_mid_read_generation_change(
     values = iter([generation, "different-generation"])
 
     monkeypatch.setattr(
-        "app.factors.linkage_store.get_enriched_generation",
+        "app.custom.cross_sectional_linkage.store.get_enriched_generation",
         lambda *_args, **_kwargs: next(values),
     )
 
@@ -144,7 +144,7 @@ def test_stable_linkage_read_fails_closed_when_publication_in_progress(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(
-        "app.factors.linkage_store.get_enriched_generation",
+        "app.custom.cross_sectional_linkage.store.get_enriched_generation",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             EnrichedGenerationUnavailableError("publishing")
         ),

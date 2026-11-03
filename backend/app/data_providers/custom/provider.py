@@ -24,6 +24,7 @@ from app.data_providers.custom.mapper import (
 from app.data_providers.normalizer import normalize_adj_factors, normalize_daily
 from app.market_time import cn_now
 from app.tickflow.rate_limits import chunked, sleep_between_batches
+from app.tickflow.security_status import normalize_st_history
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ _REQUIRED = {
     # 否则缺成交额的源整个被 validate 拒绝, 保存后源从列表消失
     # financial 字段由数据源决定, 只要求能映射出 symbol
     "financial": {"symbol"},
+    "st_history": {"symbol", "flag_date", "st_flag"},
 }
 
 # 小数制下 change_pct 的物理上限: A股最大涨跌停 30% (+容差)。
@@ -289,6 +291,14 @@ class GenericHTTPProvider:
                 }
         return result
 
+    def get_st_history(
+        self,
+        symbols: list[str] | None = None,
+    ) -> pl.DataFrame:
+        cfg = self._dataset("st_history")
+        rows = self._request_rows(cfg, symbols=symbols)
+        return normalize_st_history(self._mapped_frame(cfg, rows))
+
     def get_minute(
         self,
         symbols: list[str],
@@ -466,7 +476,7 @@ class GenericHTTPProvider:
                 override_params=override or None,
                 override_body=override or None,
             )
-        elif dataset in {"daily", "adj_factor"}:
+        elif dataset in {"daily", "adj_factor", "st_history"}:
             rows = self._request_rows(
                 cfg,
                 symbols=test_symbols,

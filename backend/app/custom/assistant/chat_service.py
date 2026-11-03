@@ -157,8 +157,10 @@ async def chat_stream(
     engine: Any = None,
     data_dir: str | None = None,
     repo: Any = None,
+    screener: Any = None,
     quote_service: Any = None,
     depth_service: Any = None,
+    analysis: Any = None,
     capabilities: Any = None,
     financial_scheduler: Any = None,
 ) -> AsyncIterator[str]:
@@ -189,7 +191,9 @@ async def chat_stream(
     ]
     schemas = assistant_tools.build_tool_schemas()
     tool_ctx = assistant_tools.ToolContext.build(
+        analysis=analysis,
         repo=repo,
+        screener=screener,
         quote_service=quote_service,
         depth_service=depth_service,
         engine=engine,

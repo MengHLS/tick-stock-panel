@@ -57,6 +57,7 @@ from app.api.routes import router as core_router
 from app.config import settings
 from app.data_providers.base import ProviderRequestError
 from app.enriched_generation import EnrichedGenerationUnavailableError
+from app.extensions import build_extension_runtime
 from app.extensions.loader import (
     configure_backend_extensions,
     current_extension_context,
@@ -324,6 +325,7 @@ async def _application_lifespan(app: FastAPI):
     pull_scheduler.start(
         store.data_dir,
         enabled=data_sync_prefs["data_sync_ext_pull_enabled"],
+        on_data_written=repo.clear_cache,
     )
     pull_scheduler.refresh(store.data_dir)
     app.state.pull_scheduler = pull_scheduler
@@ -484,6 +486,18 @@ async def _application_lifespan(app: FastAPI):
         logger.warning("paper watch sync failed (ignored): %s", e)
     app.state.monitor_engine = monitor_engine
     app.state.sector_monitor_service = sector_monitor_service
+    app.state.screener = _screener_svc
+    app.state.extension_runtime = build_extension_runtime(
+        data_dir=store.data_dir,
+        repository=repo,
+        capabilities=capset,
+        strategy_engine=strategy_engine,
+        screener=_screener_svc,
+        quote_service=getattr(app.state, "quote_service", None),
+        monitor_engine=monitor_engine,
+        depth_service=getattr(app.state, "depth_service", None),
+        financial_scheduler=getattr(app.state, "financial_scheduler", None),
+    )
 
     # 源码内二次开发启动钩子: 仅暴露稳定只读上下文, 单个扩展失败不影响核心启动。
     extension_registry = app.state.extension_registry
@@ -517,6 +531,9 @@ async def _application_lifespan(app: FastAPI):
         qs = getattr(app.state, "quote_service", None)
         if qs:
             qs.stop()
+        extension_registry = getattr(app.state, "extension_registry", None)
+        if extension_registry:
+            extension_registry.shutdown_quote_observers()
         dsvc = getattr(app.state, "depth_service", None)
         if dsvc:
             dsvc.stop_polling()

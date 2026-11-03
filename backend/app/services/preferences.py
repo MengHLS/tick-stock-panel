@@ -219,7 +219,7 @@ def get_minute_refresh_interval() -> int:
 
 # ===== 数据源选择 (默认 TickFlow；第一阶段仅日K切换入口) =====
 
-_ALLOWED_DATA_PROVIDERS = {"tickflow"}
+_ALLOWED_DATA_PROVIDERS = {"tickflow", "local_st_history"}
 DATA_SOURCE_JOB_TIMEOUT_MIN_S = 60
 
 
@@ -311,8 +311,13 @@ def _allowed_data_providers() -> set[str]:
         return set(_ALLOWED_DATA_PROVIDERS)
 
 
-def _validated_provider(raw: str, pref_key: str) -> str:
-    """数据源偏好白名单校验。非法/已卸载的源回退 tickflow 并告警。
+def _validated_provider(
+    raw: str,
+    pref_key: str,
+    *,
+    fallback: str = "tickflow",
+) -> str:
+    """数据源偏好白名单校验。非法/已卸载的源回退默认源并告警。
 
     静默回退曾让「配了 fuyao 却全程走免费档」无从排查 (fuyao 事件的
     定位难点之一): 回退必须留痕。
@@ -320,9 +325,9 @@ def _validated_provider(raw: str, pref_key: str) -> str:
     if raw in _allowed_data_providers():
         return raw
     logger.warning(
-        "数据源偏好 %s=%r 不在可用列表 %s, 回退 tickflow",
-        pref_key, raw, sorted(_allowed_data_providers()))
-    return "tickflow"
+        "数据源偏好 %s=%r 不在可用列表 %s, 回退 %s",
+        pref_key, raw, sorted(_allowed_data_providers()), fallback)
+    return fallback
 
 
 def get_daily_data_provider() -> str:
@@ -359,6 +364,18 @@ def get_realtime_data_provider() -> str:
 def get_financial_provider() -> str:
     provider = str(load().get("financial_data_provider", "tickflow") or "tickflow").lower()
     return _validated_provider(provider, "financial_data_provider")
+
+
+def get_st_history_provider() -> str:
+    provider = str(
+        load().get("st_history_data_provider", "local_st_history")
+        or "local_st_history"
+    ).lower()
+    return _validated_provider(
+        provider,
+        "st_history_data_provider",
+        fallback="local_st_history",
+    )
 
 
 # ===== 盘后管道拉取内容开关 (A股 / ETF / 指数 独立控制) =====

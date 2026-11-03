@@ -30,6 +30,7 @@ from app.custom.firstboard_discovery.negative import (
 from app.custom.firstboard_discovery.outcomes import build_event_samples
 from app.custom.firstboard_discovery.storage import FirstboardDiscoveryStore
 from app.enriched_generation import EnrichedGenerationUnavailableError
+from app.extensions.adapters import repository_read_adapters
 from app.factors.registry import all_factors, get_factor
 
 ALGORITHM_VERSION = "firstboard-discovery-v6"
@@ -95,16 +96,31 @@ class _Snapshot:
 class FirstboardDiscoveryService:
     def __init__(
         self,
-        repository: Any,
+        repository: Any | None = None,
         engine: Any | None = None,
         storage: FirstboardDiscoveryStore | None = None,
+        *,
+        market_data: Any | None = None,
+        enriched_panel: Any | None = None,
+        data_dir: Any | None = None,
     ) -> None:
+        fallback_market, fallback_enriched = repository_read_adapters(repository) if repository is not None else (None, None)
+        self.market_data = market_data or fallback_market
+        self.enriched_panel = enriched_panel or fallback_enriched
+        if self.market_data is None or self.enriched_panel is None:
+            raise TypeError("market_data and enriched_panel are required")
         if engine is None:
-            from app.backtest.engine import BacktestEngine
+            from app.backtest.read import BacktestReadAdapter
 
-            engine = BacktestEngine(repository)
-        self.repository = repository
-        self.engine = engine
+            if repository is None:
+                raise TypeError("repository or engine is required")
+            engine = BacktestReadAdapter(repository)
+        self.backtest_read = engine
+        self.repository = self.market_data
+        self.engine = self.backtest_read
+        self.data_dir = data_dir
+        if self.data_dir is None:
+            self.data_dir = getattr(getattr(repository, "store", None), "data_dir", None)
         self.storage = storage
         self._lock = threading.Lock()
         self._cache: OrderedDict[tuple, _Snapshot] = OrderedDict()
@@ -255,10 +271,15 @@ class FirstboardDiscoveryService:
 
     def _current_snapshot(self, params: DiscoveryParams) -> _Snapshot:
         columns = self._candidate_factor_columns(params.snapshot_mode)
-        wait_for_generation = getattr(self.engine, "data_generation_await", None)
+        wait_for_generation = getattr(
+            self.backtest_read,
+            "data_generation_await",
+            None,
+        )
         generation = (
             wait_for_generation("stock", timeout_s=10.0)
-            if callable(wait_for_generation) else self.engine.data_generation("stock")
+            if callable(wait_for_generation)
+            else self.backtest_read.data_generation("stock")
         )
         versions = tuple(
             (s.id, s.version, s.formula_text, s.components)
@@ -291,20 +312,20 @@ class FirstboardDiscoveryService:
         return snapshot
 
     def _assert_generation(self, generation: str | None) -> None:
-        if self.engine.data_generation("stock") != generation:
+        if self.backtest_read.data_generation("stock") != generation:
             raise EnrichedGenerationUnavailableError("行情数据版本已变化，请重新发现")
 
     def _attach_limit_prices(self, panel: pl.DataFrame) -> pl.DataFrame:
         from app.indicators.pipeline import compute_limit_signals
 
-        instruments = self.repository.get_instruments_asset("stock")
+        instruments = self.market_data.get_instruments("stock")
         if instruments.is_empty():
             raise ValueError("缺少股票维表，无法检查 T+1 开盘涨停价格")
         result = compute_limit_signals(
             panel,
             instruments,
             needed={"limit_up_price"},
-            historical_shares=self.repository.get_historical_shares(),
+            historical_shares=self.market_data.get_historical_shares(),
         )
         if "name" not in result.columns and "name" in instruments.columns:
             result = result.join(
@@ -314,9 +335,9 @@ class FirstboardDiscoveryService:
         return result
 
     def _materialize_factors(self, panel: pl.DataFrame, factor_ids: set[str]) -> pl.DataFrame:
-        from app.backtest.factor import FactorBacktestService
+        from app.backtest.factor import compute_missing_factor_columns
 
-        return FactorBacktestService._compute_missing_factors(
+        return compute_missing_factor_columns(
             panel, factor_ids - set(panel.columns),
         )
 
@@ -330,7 +351,7 @@ class FirstboardDiscoveryService:
         if data_dir is None:
             raise ValueError("缺少数据目录，无法加载封板炸板扩展因子")
         config = next(
-            (cfg for cfg in ext_factors._load_configs(data_dir)
+            (cfg for cfg in ext_factors.load_extension_configs(data_dir)
              if cfg.id == "limit_board_events"),
             None,
         )
@@ -344,7 +365,7 @@ class FirstboardDiscoveryService:
         if missing_config:
             raise ValueError(f"涨停封板与炸板扩展配置缺少字段: {missing_config}")
         fields = [field_by_column[name] for name in requested]
-        ext = ext_factors._timeseries_frame(data_dir, config, fields)
+        ext = ext_factors.timeseries_frame(data_dir, config, fields)
         if ext.is_empty():
             raise ValueError("涨停封板与炸板扩展表暂无数据，无法进行本次因子研究")
         missing = requested - set(ext.columns)
@@ -359,7 +380,7 @@ class FirstboardDiscoveryService:
         return panel.join(ext, on=["symbol", "date"], how="left")
 
     def _data_dir(self):
-        return getattr(getattr(self.repository, "store", None), "data_dir", None)
+        return self.data_dir
 
     def _extension_signature(self, factor_ids: set[str]) -> tuple | None:
         if not factor_ids & set(_ALLOWED_EXTENSION_FACTOR_IDS):
@@ -379,14 +400,14 @@ class FirstboardDiscoveryService:
             config_signature = None
         return (
             config_signature,
-            ext_factors._timeseries_signature(
+            ext_factors.timeseries_signature(
                 data_dir / "ext_data" / "limit_board_events" / "timeseries",
             ),
         )
 
     def _build(self, params: DiscoveryParams, columns: list[tuple[str, str]], generation) -> _Snapshot:
         started = time.perf_counter()
-        latest = getattr(self.repository, "latest_enriched_date", lambda _: params.end)("stock")
+        latest = self.enriched_panel.latest_date("stock")
         load_end = latest or params.end
         # Calendar padding is only an IO bound. Actual windows use observed bars;
         # finite feature coverage is checked after materialization.
@@ -394,7 +415,7 @@ class FirstboardDiscoveryService:
             "symbol", "date", "open", "high", "low", "close", "volume", "amount",
             "raw_close", "raw_high", "raw_low", "consecutive_limit_ups",
         ]
-        panel = self.engine.load_panel(
+        panel = self.backtest_read.load_panel(
             None, params.start - timedelta(days=550), load_end,
             columns=physical, asset_type="stock", expected_generation=generation,
         )
@@ -447,10 +468,7 @@ class FirstboardDiscoveryService:
     def _market_sessions(self, panel: pl.DataFrame) -> list[date]:
         start = panel["date"].min()
         end = panel["date"].max()
-        loader = getattr(self.repository, "list_enriched_dates", None)
-        if not callable(loader):
-            raise ValueError("数据仓库不支持全市场交易日序列，无法安全构造 T+1 标签")
-        sessions = loader(start, end, "stock")
+        sessions = self.market_data.list_trading_dates(start, end, "stock")
         if not sessions:
             raise ValueError("缺少全市场 enriched 交易日分区，无法构造 T+1 标签")
         return sessions

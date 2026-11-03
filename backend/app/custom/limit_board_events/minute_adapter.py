@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import bisect
 import re
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
 import polars as pl
 
+from app.extensions import market_data_from_data_dir
+from app.extensions.contracts import MarketDataRead
 from app.market_time import CN_TZ, cn_now
-from app.parquet import scan_daily_parquet, scan_parquet_compat
 from app.price_limits import (
     GEM_REGISTRATION_DATE,
     LEGACY_MAIN_BOARD_ST_LIMIT,
@@ -21,56 +22,41 @@ from app.price_limits import (
     polars_price_limit_pct,
 )
 from app.services.minute_adjust import minute_basis_is_raw
-from app.tickflow.security_status import read_st_history
 
 _SYMBOL = re.compile(r"^\d{6}\.(SH|SZ|BJ)$")
 _FULL_DAY_BARS = 241
 _MINUTE_COLUMNS = ["symbol", "datetime", "open", "high", "low", "close", "amount"]
 
 
-def list_minute_partitions(data_dir: Path, start: date, end: date) -> list[date]:
+def list_minute_partitions(
+    data_dir: Path,
+    start: date,
+    end: date,
+    *,
+    market_data: MarketDataRead | None = None,
+) -> list[date]:
     """Return existing stock-minute partition dates in ascending order."""
-    root = Path(data_dir) / "kline_minute"
-    if not root.is_dir():
-        return []
-    dates = []
-    for path in root.glob("date=*/part.parquet"):
-        try:
-            day = date.fromisoformat(path.parent.name[5:])
-        except ValueError:
-            continue
-        if start <= day <= end:
-            dates.append(day)
-    return sorted(dates)
+    source = market_data or market_data_from_data_dir(data_dir)
+    return source.list_minute_dates(start, end, "stock")
 
 
-def _nearest_partition_date(root: Path, before: date) -> date | None:
-    if not root.is_dir():
-        return None
-    dates = []
-    for path in root.glob("date=*"):
-        try:
-            day = date.fromisoformat(path.name[5:])
-        except ValueError:
-            continue
-        if day < before:
-            dates.append(day)
-    return max(dates, default=None)
-
-
-def _read_daily_close(path: Path) -> pl.DataFrame:
-    files = sorted(path.glob("*.parquet"))
-    if not files:
-        return pl.DataFrame(schema={"symbol": pl.String, "close": pl.Float64})
-    return (
-        scan_daily_parquet([str(file) for file in files])
-        .select("symbol", "close")
-        .collect()
-        .unique(subset=["symbol"], keep="last")
+def _nearest_partition_date(
+    market_data: MarketDataRead,
+    dataset: str,
+    before: date,
+) -> date | None:
+    dates = market_data.dataset_partition_dates(
+        dataset,
+        date.min,
+        before - timedelta(days=1),
     )
+    return dates[-1] if dates else None
 
 
-def _previous_closes(data_dir: Path, day: date) -> pl.DataFrame:
+def _previous_closes(
+    market_data: MarketDataRead,
+    day: date,
+) -> pl.DataFrame:
     """Load dated daily/minute closes so the newer usable source can win."""
     empty = pl.DataFrame(
         schema={
@@ -81,11 +67,17 @@ def _previous_closes(data_dir: Path, day: date) -> pl.DataFrame:
             "_minute_date": pl.Date,
         }
     )
-    daily_day = _nearest_partition_date(data_dir / "kline_daily", day)
-    minute_day = _nearest_partition_date(data_dir / "kline_minute", day)
+    daily_day = _nearest_partition_date(market_data, "kline_daily", day)
+    minute_day = _nearest_partition_date(market_data, "kline_minute", day)
     if daily_day is not None:
         daily = (
-            _read_daily_close(data_dir / "kline_daily" / f"date={daily_day}")
+            market_data.read_dataset_partition(
+                "kline_daily",
+                daily_day,
+                ["symbol", "close"],
+            )
+            .select("symbol", "close")
+            .unique(subset=["symbol"], keep="last")
             .rename({"close": "daily_prev_close"})
             .with_columns(pl.lit(daily_day, dtype=pl.Date).alias("_daily_date"))
         )
@@ -93,11 +85,14 @@ def _previous_closes(data_dir: Path, day: date) -> pl.DataFrame:
         daily = empty.select("symbol", "daily_prev_close", "_daily_date")
     minute = empty.select("symbol", "minute_prev_close", "_minute_date")
     if minute_day is not None:
-        path = data_dir / "kline_minute" / f"date={minute_day}" / "part.parquet"
-        if path.exists():
+        minute_bars = market_data.read_dataset_partition(
+            "kline_minute",
+            minute_day,
+            ["symbol", "datetime", "close"],
+        )
+        if not minute_bars.is_empty():
             minute = (
-                pl.scan_parquet(str(path))
-                .select("symbol", "datetime", "close")
+                minute_bars
                 .group_by("symbol")
                 .agg(
                     pl.col("close").sort_by(pl.col("datetime")).last().alias("minute_prev_close"),
@@ -105,17 +100,15 @@ def _previous_closes(data_dir: Path, day: date) -> pl.DataFrame:
                 )
                 .filter(pl.col("_last").dt.time() == time(15))
                 .drop("_last")
-                .collect()
                 .with_columns(pl.lit(minute_day, dtype=pl.Date).alias("_minute_date"))
             )
     return daily.join(minute, on="symbol", how="full", coalesce=True)
 
 
-def _load_instruments(data_dir: Path) -> pl.DataFrame:
-    files = sorted((data_dir / "instruments").rglob("*.parquet"))
-    if not files:
+def _load_instruments(market_data: MarketDataRead) -> pl.DataFrame:
+    frame = market_data.get_instruments("stock")
+    if frame is None or frame.is_empty():
         return pl.DataFrame(schema={"symbol": pl.String, "listing_date": pl.String})
-    frame = scan_parquet_compat([str(path) for path in files]).collect()
     if "listing_date" not in frame.columns:
         frame = frame.with_columns(pl.lit(None).cast(pl.String).alias("listing_date"))
     return frame.select(
@@ -124,9 +117,12 @@ def _load_instruments(data_dir: Path) -> pl.DataFrame:
     ).unique(subset=["symbol"], keep="last")
 
 
-def _load_adj_factors(data_dir: Path, day: date) -> pl.DataFrame:
-    files = sorted((data_dir / "adj_factor").rglob("*.parquet"))
-    if not files:
+def _load_adj_factors(
+    market_data: MarketDataRead,
+    day: date,
+) -> pl.DataFrame:
+    frame = market_data.get_adj_factors(day)
+    if frame is None or frame.is_empty():
         return pl.DataFrame(
             schema={
                 "symbol": pl.String,
@@ -135,7 +131,7 @@ def _load_adj_factors(data_dir: Path, day: date) -> pl.DataFrame:
             }
         )
     return (
-        pl.scan_parquet([str(path) for path in files])
+        frame.lazy()
         .filter(pl.col("trade_date") == day)
         .select(
             "symbol",
@@ -268,6 +264,7 @@ def fetch_minute_limit_board_events(
     day: date,
     *,
     now: datetime | None = None,
+    market_data: MarketDataRead | None = None,
 ) -> list[dict]:
     """Return minute-observed seals and breaks for one completed trading day.
 
@@ -279,14 +276,18 @@ def fetch_minute_limit_board_events(
     if current.tzinfo is None:
         raise ValueError("now must have an explicit timezone")
     current = current.astimezone(CN_TZ)
-    path = data_dir / "kline_minute" / f"date={day}" / "part.parquet"
-    if not path.exists():
-        raise FileNotFoundError(path)
+    source = market_data or market_data_from_data_dir(data_dir)
+    bars = source.read_dataset_partition(
+        "kline_minute",
+        day,
+        _MINUTE_COLUMNS,
+    )
+    if bars.is_empty():
+        raise FileNotFoundError(
+            data_dir / "kline_minute" / f"date={day}" / "part.parquet"
+        )
     if not minute_basis_is_raw(data_dir):
         raise ValueError("Minute data must use the raw basis for limit-board detection")
-    bars = pl.read_parquet(path, columns=_MINUTE_COLUMNS)
-    if bars.is_empty():
-        return []
     _validate_bars(bars, day)
     bars = _normalize_minute_sessions(bars, day)
 
@@ -308,11 +309,16 @@ def fetch_minute_limit_board_events(
     if bars.is_empty():
         return []
 
-    minute_dates = list_minute_partitions(data_dir, date.min, day)
-    instruments = _load_instruments(data_dir)
-    history = read_st_history(data_dir).sort(["symbol", "flag_date"])
-    previous = _previous_closes(data_dir, day)
-    adj = _load_adj_factors(data_dir, day)
+    minute_dates = list_minute_partitions(
+        data_dir,
+        date.min,
+        day,
+        market_data=source,
+    )
+    instruments = _load_instruments(source)
+    history = source.get_st_history().sort(["symbol", "flag_date"])
+    previous = _previous_closes(source, day)
+    adj = _load_adj_factors(source, day)
 
     base = (
         bars.select("symbol")

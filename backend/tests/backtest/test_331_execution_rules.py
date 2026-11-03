@@ -189,6 +189,230 @@ def test_new_high_three_extends_time_exit_to_runner_horizon() -> None:
     assert trade.duration >= 8
 
 
+def test_event_exit_keeps_later_signal_after_profit_gate_rejects_first() -> None:
+    panel = _panel(
+        ["A"],
+        days=7,
+        scores={"A": 0.8},
+        overrides={
+            ("A", 0): {"open": 10.0, "close": 10.0},
+            ("A", 1): {"open": 10.0, "close": 10.0},
+            ("A", 2): {"open": 10.0, "close": 10.1},
+            ("A", 3): {"open": 10.1, "close": 10.5},
+            ("A", 4): {"open": 10.5, "close": 10.8},
+            ("A", 5): {"open": 10.8, "close": 10.9},
+        },
+    )
+    market = build_market_data_matrix(
+        panel.with_columns(pl.lit(0.1).alias("price_limit_pct")),
+        field_columns={"raw_close", "price_limit_pct"},
+    )
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    score = np.zeros(market.shape, dtype=np.float32)
+    score[0, 0] = 0.8
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        score=score,
+        event_exit_times={(0, 0): frozenset({1, 4})},
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(exit_signal_requires_profit=True),
+    )
+
+    assert len(result.trades) == 1
+    assert result.trades[0].exit_signal_date == "2025-01-06"
+    assert result.trades[0].exit_date == "2025-01-07"
+
+
+def test_same_asset_events_use_independent_exit_signal_times() -> None:
+    panel = _panel(
+        ["A"],
+        days=8,
+        scores={"A": 0.8},
+        overrides={
+            ("A", index): {"open": 10.0 + index, "close": 10.0 + index}
+            for index in range(8)
+        },
+    )
+    market = build_market_data_matrix(panel)
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    entry[1, 0] = 1
+    score = np.zeros(market.shape, dtype=np.float32)
+    score[0, 0] = 0.8
+    score[1, 0] = 0.8
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        score=score,
+        event_exit_times={
+            (0, 0): frozenset({2}),
+            (1, 0): frozenset({4}),
+        },
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(
+            max_positions=2,
+            allow_same_asset_positions=True,
+        ),
+    )
+
+    trades = sorted(result.trades, key=lambda trade: trade.entry_date)
+    assert len(trades) == 2
+    assert [trade.entry_date for trade in trades] == [
+        "2025-01-03",
+        "2025-01-04",
+    ]
+    assert [trade.exit_date for trade in trades] == [
+        "2025-01-05",
+        "2025-01-07",
+    ]
+    assert [trade.exit_signal_date for trade in trades] == [
+        "2025-01-04",
+        "2025-01-06",
+    ]
+
+
+def test_same_asset_new_event_can_be_planned_after_prior_open_exit() -> None:
+    panel = _panel(
+        ["A"],
+        days=5,
+        scores={"A": 0.8},
+    )
+    market = build_market_data_matrix(panel)
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    entry[2, 0] = 1
+    score = np.zeros(market.shape, dtype=np.float32)
+    score[0, 0] = 0.8
+    score[2, 0] = 0.8
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        score=score,
+        event_exit_times={(0, 0): frozenset({1})},
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(
+            max_positions=1,
+            allow_same_asset_positions=True,
+            exit_signal_requires_profit=False,
+        ),
+    )
+
+    trades = sorted(result.trades, key=lambda trade: trade.entry_date)
+    assert [trade.entry_date for trade in trades[:2]] == [
+        "2025-01-03",
+        "2025-01-05",
+    ]
+    assert result.stats["execution"]["buy_same_day_reentry"] == 0
+
+
+def test_raw_execution_blocks_open_at_raw_limit_down() -> None:
+    panel = _panel(
+        ["A"],
+        days=5,
+        scores={"A": 0.8},
+        overrides={
+            ("A", 1): {"open": 10.0, "high": 10.0, "low": 10.0, "close": 9.0},
+            ("A", 2): {"open": 8.1, "high": 8.5, "low": 8.1, "close": 8.5},
+            ("A", 3): {"open": 8.5, "high": 8.6, "low": 8.4, "close": 8.5},
+        },
+    )
+    market = build_market_data_matrix(
+        panel.with_columns(pl.lit(0.1).alias("price_limit_pct")),
+        field_columns={"raw_close", "price_limit_pct"},
+    )
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    score = np.zeros(market.shape, dtype=np.float32)
+    score[0, 0] = 0.8
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        score=score,
+        event_exit_times={(0, 0): frozenset({1})},
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(entry_price_basis="raw"),
+    )
+
+    assert len(result.trades) == 1
+    assert result.trades[0].exit_signal_date == "2025-01-03"
+    assert result.trades[0].exit_date == "2025-01-05"
+    assert result.trades[0].blocked_exit_days == 1
+
+
+def test_planned_buy_runs_after_same_open_exit_releases_slot() -> None:
+    panel = _panel(
+        ["A", "B", "C", "D"],
+        days=5,
+        scores={"A": 0.8, "B": 0.8, "C": 0.8, "D": 0.8},
+        overrides={
+            ("B", 2): {"open": 10.1, "high": 10.1, "low": 10.1, "close": 10.1},
+        },
+    )
+    market = build_market_data_matrix(panel)
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    for asset_id in (0, 2, 3):
+        entry[0, asset_id] = 1
+    entry[1, 1] = 1
+    score = np.zeros(market.shape, dtype=np.float32)
+    score[entry != 0] = 0.8
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        score=score,
+        event_exit_times={(0, 0): frozenset({1})},
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        _original_config(max_daily_entries=3),
+    )
+
+    trades = sorted(result.trades, key=lambda trade: trade.entry_date)
+    by_symbol = {trade.symbol: trade for trade in trades}
+    assert by_symbol["B"].entry_date == "2025-01-04"
+    assert by_symbol["B"].shares == 2_500
+    assert result.stats["execution"]["buy_no_slot"] == 0
+
+
 def test_strong_hold_extends_from_five_to_ten_holding_days() -> None:
     closes = [
         10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0,
@@ -247,6 +471,139 @@ def _original_config(**overrides) -> MatcherConfig:
     }
     values.update(overrides)
     return MatcherConfig(**values)
+
+
+def test_preclose_gap_mask_survives_matrix_slicing_and_time_masks() -> None:
+    market = build_market_data_matrix(_panel(["A"], 5))
+    gaps = {(1, 0): frozenset({2, 3})}
+    signals = make_signal_matrix(market.shape, preclose_unavailable=gaps)
+
+    assert slice_signal_matrix(signals, 0, 5).preclose_unavailable == gaps
+    masked = apply_time_masks(
+        signals,
+        np.ones(market.shape[0], dtype=bool),
+        np.ones(market.shape[0], dtype=bool),
+    )
+    assert masked.preclose_unavailable == gaps
+    assert slice_signal_matrix(signals, 2, 5).preclose_unavailable == {}
+
+    matrix = build_market_matrix_from_signals(market, signals, entry_delay_bars=1)
+    assert matrix.preclose_unavailable == gaps
+
+
+def test_preclose_gap_blocks_signal_sell_and_retries_next_day() -> None:
+    market = build_market_data_matrix(_panel(["A"], 4))
+    entry = np.zeros(market.shape, dtype=np.uint8)
+    exit_ = np.zeros(market.shape, dtype=np.uint8)
+    entry[0, 0] = 1
+    exit_[1, 0] = 1
+    signals = make_signal_matrix(
+        market.shape,
+        entry=entry,
+        exit=exit_,
+        preclose_unavailable={(0, 0): frozenset({2})},
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        signals,
+        entry_delay_bars=1,
+        exit_delay_bars=1,
+    )
+
+    result = BacktestEngine(repo=None).simulate_market_matrix(  # type: ignore[arg-type]
+        matrix,
+        MatcherConfig(
+            matching="open_t+1",
+            fees_pct=0.0,
+            slippage_bps=0.0,
+            max_positions=1,
+            initial_capital=100_000.0,
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.exit_date == "2025-01-05"
+    assert trade.blocked_exit_days == 1
+    assert result.stats["execution"]["sell_missing_preclose"] == 1
+
+
+def test_corporate_action_gap_mask_skips_source_row() -> None:
+    start = date(2025, 1, 2)
+    panel = pl.DataFrame([
+        {
+            "symbol": "A",
+            "name": "A",
+            "date": start + timedelta(days=index),
+            "open": 10.0,
+            "high": 10.0,
+            "low": 10.0,
+            "close": 10.0,
+            "raw_close": 10.0,
+            "volume": 100_000.0,
+        }
+        for index in range(3)
+    ])
+    market = build_market_data_matrix(
+        panel,
+        field_columns={"raw_close"},
+    )
+    matrix = build_market_matrix_from_signals(
+        market,
+        make_signal_matrix(market.shape),
+    )
+
+    class _ActionRepo:
+        @staticmethod
+        def get_corporate_actions(symbols, start_date, end_date):
+            del symbols, start_date, end_date
+            return pl.DataFrame([{
+                "symbol": "A",
+                "trade_date": start + timedelta(days=2),
+                "ex_factor": 1.01,
+                "dividend": 0.1,
+                "bonus": 0.0,
+                "allot": 0.0,
+                "allot_price": 0.0,
+            }])
+
+    engine = BacktestEngine(repo=_ActionRepo())  # type: ignore[arg-type]
+    day = (start + timedelta(days=2)).isoformat()
+    assert engine._load_corporate_actions(matrix)
+    assert not engine._load_corporate_actions(
+        matrix,
+        unavailable=frozenset({("A", day)}),
+    )
+
+
+def test_finalize_open_at_end_marks_close_without_realizing_pnl() -> None:
+    panel = _panel(["A"], 4, overrides={
+        ("A", 3): {"close": 10.5},
+    })
+    result = BacktestEngine(repo=None).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("A", 0)}),
+        _mask(panel, set()),
+        MatcherConfig(
+            matching="open_t+1",
+            fees_pct=0.0,
+            slippage_bps=0.0,
+            max_positions=1,
+            initial_capital=100_000.0,
+            finalize_open_at_end=True,
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.open_at_end is True
+    assert trade.exit_reason == "end"
+    assert trade.exit_price == 10.5
+    assert trade.pnl_pct == 0.0
+    assert trade.duration == 0
+    assert result.stats["n_trades"] == 1
+    assert result.stats["completed_trade_count"] == 0
+    assert result.stats["open_at_end_count"] == 1
+    assert result.stats["win_rate"] == 0.0
+    assert result.stats["final_equity"] == 105_000.0
 
 
 def test_planned_runner_decision_uses_fifth_holding_session():
@@ -388,7 +745,197 @@ def test_raw_trailing_peak_remaps_after_adjustment_scale_change() -> None:
     trade = result.trades[0]
     assert trade.exit_reason == "trailing_take_profit"
     assert trade.exit_date == "2025-01-06"
+    assert trade.entry_price == pytest.approx(10.0, abs=1e-4)
     assert trade.exit_price == pytest.approx(11.2 * 0.92, abs=1e-4)
+
+
+def test_raw_execution_uses_original_prices_for_fill_and_quantity() -> None:
+    start = date(2025, 1, 2)
+    bars = [
+        (5.0, 5.0, 5.0, 5.0, 10.0),
+        (5.0, 5.1, 5.0, 5.1, 10.2),
+        (5.1, 5.2, 5.0, 5.2, 10.4),
+    ]
+    rows = []
+    for index, (open_, high, low, close, raw_close) in enumerate(bars):
+        rows.append({
+            "symbol": "A",
+            "name": "A",
+            "date": start + timedelta(days=index),
+            "open": open_,
+            "high": high,
+            "low": low,
+            "close": close,
+            "raw_close": raw_close,
+            "volume": 100_000.0,
+            "score": 0.8,
+        })
+    panel = pl.DataFrame(rows).sort(["date", "symbol"])
+    result = BacktestEngine(repo=None).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("A", 0)}),
+        _mask(panel, {("A", 1)}),
+        MatcherConfig(
+            matching="open_t+1",
+            fees_pct=0.0,
+            slippage_bps=0.0,
+            max_positions=1,
+            initial_capital=100_000.0,
+            entry_price_basis="raw",
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.entry_price == pytest.approx(10.0, abs=1e-4)
+    assert trade.exit_price == pytest.approx(10.2, abs=1e-4)
+    assert trade.shares == 10_000
+
+
+def test_raw_execution_applies_bonus_shares_before_next_open() -> None:
+    start = date(2025, 1, 2)
+    bars = [
+        (10.0, 10.0, 10.0, 10.0, 10.0, 10.0),
+        (10.0, 10.1, 9.9, 10.0, 10.0, 10.0),
+        (10.0, 10.4, 9.8, 10.0, 10.0, 5.0),
+        (11.4, 11.4, 11.4, 11.4, 11.4, 5.5),
+    ]
+    rows = []
+    for index, (open_, high, low, close, adj_close, raw_close) in enumerate(bars):
+        rows.append({
+            "symbol": "A",
+            "name": "A",
+            "date": start + timedelta(days=index),
+            "open": open_,
+            "high": high,
+            "low": low,
+            "close": adj_close,
+            "raw_close": raw_close,
+            "volume": 100_000.0,
+            "score": 0.8,
+        })
+    panel = pl.DataFrame(rows).sort(["date", "symbol"])
+
+    class _ActionRepo:
+        @staticmethod
+        def get_corporate_actions(symbols, start_date, end_date):
+            del symbols, start_date, end_date
+            return pl.DataFrame([{
+                "symbol": "A",
+                "trade_date": start + timedelta(days=2),
+                "ex_factor": 2.0,
+                "dividend": 0.0,
+                "bonus": 1.0,
+                "allot": 0.0,
+                "allot_price": 0.0,
+            }])
+
+    result = BacktestEngine(repo=_ActionRepo()).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("A", 0)}),
+        _mask(panel, {("A", 2)}),
+        MatcherConfig(
+            matching="open_t+1",
+            fees_pct=0.0,
+            slippage_bps=0.0,
+            max_positions=1,
+            initial_capital=100_000.0,
+            entry_price_basis="raw",
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.entry_price == pytest.approx(5.0, abs=1e-4)
+    assert trade.exit_price == pytest.approx(5.5, abs=1e-4)
+    assert trade.shares == 20_000
+    assert trade.pnl_pct == pytest.approx(0.10, abs=1e-5)
+
+
+def test_raw_corporate_action_risk_factor_includes_cash_dividend() -> None:
+    start = date(2025, 1, 2)
+    rows = []
+    for index, raw_close in enumerate((6.13, 6.21, 6.05)):
+        rows.append({
+            "symbol": "A",
+            "name": "A",
+            "date": start + timedelta(days=index),
+            "open": raw_close,
+            "high": raw_close,
+            "low": raw_close,
+            "close": raw_close,
+            "raw_close": raw_close,
+            "volume": 100_000.0,
+            "score": 0.8,
+        })
+    market = build_market_data_matrix(
+        pl.DataFrame(rows).sort(["date", "symbol"]),
+        field_columns={"raw_close"},
+    )
+    signals = make_signal_matrix(market.shape)
+    matrix = build_market_matrix_from_signals(market, signals)
+
+    class _ActionRepo:
+        @staticmethod
+        def get_corporate_actions(symbols, start_date, end_date):
+            del symbols, start_date, end_date
+            return pl.DataFrame([{
+                "symbol": "A",
+                "trade_date": start + timedelta(days=2),
+                "ex_factor": 1.013051,
+                "dividend": 0.08,
+                "bonus": 0.0,
+                "allot": 0.0,
+                "allot_price": 0.0,
+            }])
+
+    actions = BacktestEngine(repo=_ActionRepo())._load_corporate_actions(matrix)  # type: ignore[arg-type]
+
+    assert actions[(2, 0)][1] == pytest.approx((6.21 - 0.08) / 6.21)
+
+
+def test_raw_strong_hold_compares_close_and_risk_entry_on_same_scale() -> None:
+    start = date(2025, 1, 2)
+    rows = []
+    for index in range(22):
+        raw_close = 10.0 + index * 0.1
+        raw_open = raw_close - 0.01
+        rows.append({
+            "symbol": "A",
+            "name": "A",
+            "date": start + timedelta(days=index),
+            "open": raw_open * 0.5,
+            "high": 11.6 * 0.5,
+            "low": (raw_close - 0.05) * 0.5,
+            "close": raw_close * 0.5,
+            "raw_close": raw_close,
+            "volume": 100_000.0,
+            "score": 0.8,
+        })
+    panel = pl.DataFrame(rows).sort(["date", "symbol"])
+    result = BacktestEngine(repo=None).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("A", 9)}),
+        _mask(panel, set()),
+        MatcherConfig(
+            matching="open_t+1",
+            fees_pct=0.0,
+            slippage_bps=0.0,
+            max_positions=1,
+            initial_capital=100_000.0,
+            entry_price_basis="raw",
+            hold_extension_policy=HoldExtensionPolicy(
+                decision_days=5,
+                strong_hold_days=10,
+                strong_hold_min_return=0.03,
+                runner_new_high_days=3,
+                runner_extend_days=74,
+            ),
+        ),
+    )
+
+    trade = result.trades[0]
+    assert trade.entry_price == pytest.approx(10.99, abs=1e-4)
+    assert trade.exit_reason == "time_exit"
+    assert trade.duration == 10
 
 
 def test_top_three_plan_two_does_not_replace_rejected_order() -> None:
@@ -416,6 +963,25 @@ def test_quantity_is_planned_at_signal_close_and_cash_is_split_before_tiers() ->
     # Only 30k exposure is available at decision time; reserve half per plan.
     assert trades["A"].shares == 1500
     assert trades["B"].shares == 1500
+
+
+def test_planned_quantity_is_not_rederived_from_next_open_price() -> None:
+    panel = _panel(
+        ["A"],
+        4,
+        overrides={("A", 1): {"open": 10.5}},
+        scores={"A": 0.8},
+    )
+    result = BacktestEngine(repo=None).simulate_portfolio(  # type: ignore[arg-type]
+        panel,
+        _mask(panel, {("A", 0)}),
+        _mask(panel, {("A", 2)}),
+        _original_config(),
+    )
+
+    trade = result.trades[0]
+    assert trade.shares == 2500
+    assert trade.entry_price == 10.5
 
 
 def test_no_buy_deferred_past_a_missing_execution_day() -> None:
@@ -459,24 +1025,43 @@ def test_raw_open_gap_uses_exchange_pre_close_on_ex_right_day() -> None:
     assert result.stats["execution"]["buy_open_gap"] == 0
 
 
-def test_raw_previous_day_change_uses_exchange_pre_close() -> None:
+def test_raw_previous_day_change_uses_raw_prior_close_after_ex_rights_day() -> None:
     panel = _panel(["A"], 5, overrides={
-        ("A", 0): {"raw_close": 20.0},
-        ("A", 1): {"open": 10.0, "raw_close": 10.0},
-        ("A", 2): {"open": 10.0, "close": 10.2, "raw_close": 10.2},
+        ("A", 0): {"close": 22.13, "raw_close": 31.35},
+        ("A", 1): {
+            "open": 22.20,
+            "high": 22.28,
+            "low": 21.30,
+            "close": 21.44,
+            "raw_close": 21.44,
+        },
+        ("A", 2): {
+            "open": 21.34,
+            "high": 21.35,
+            "low": 20.39,
+            "close": 20.77,
+            "raw_close": 20.77,
+        },
     }, scores={"A": 0.8})
     result = BacktestEngine(repo=None).simulate_portfolio(
-        panel, _mask(panel, {("A", 2)}), _mask(panel, {("A", 3)}),
+        panel, _mask(panel, {("A", 1)}), _mask(panel, {("A", 3)}),
         _original_config(
             entry_price_basis="raw",
             entry_prev_day_change_range=(-0.05, 0.05),
         ),
     )
 
-    # Day 2's 10.2 / pre-close 10.0 = +2%, not 10.2 / raw day-1 close 20.
-    trade = result.trades[0]
-    assert trade.entry_date == "2025-01-05"
-    assert result.stats["execution"]["buy_prev_day_change"] == 0
+    # 2021-07-16-style ex-rights day: adjusted pre-close is 22.13, but the
+    # original T74 gate uses the raw prior close 31.35 -> -31.61%, rejected.
+    assert not result.trades
+    assert result.stats["execution"]["buy_prev_day_change"] == 1
+
+
+def test_execution_fill_price_rounds_half_up_like_original_engine() -> None:
+    policy = ExecutionCostPolicy()
+    assert policy.fill_price(12.50, "buy", 25.0) == 12.5313
+    assert policy.fill_price(12.50, "sell", 25.0) == 12.4688
+    assert policy.fill_price(3.38, "buy", 25.0) == 3.3884
 
 
 def test_previous_day_change_includes_exact_negative_five_percent_boundary() -> None:

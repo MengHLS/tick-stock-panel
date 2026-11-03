@@ -77,6 +77,16 @@ CAPABILITY_REGISTRY: list[dict] = [
         "tf_tier": "expert",
     },
     {
+        "id": "st_history",
+        "label": "历史 ST",
+        "desc": "点时风险警示状态与涨跌停修正",
+        "field": "st_history_data_provider",
+        "default": "local_st_history",
+        "builtin_source": "local_st_history",
+        "tf_tier": "none",
+        "tickflow": False,
+    },
+    {
         "id": "full_minute",
         "label": "全量分钟",
         "desc": "盘中全市场当日分钟落盘 (冷启动全天 + 标的池增量)",
@@ -137,6 +147,8 @@ def _declared_sources() -> list[dict]:
 def _display_of(sources: list[dict], name: str) -> str:
     if name == "tickflow":
         return "TickFlow"
+    if name == "local_st_history":
+        return "本地历史 ST"
     for s in sources:
         if s["name"] == name:
             return s["display"]
@@ -163,11 +175,24 @@ def build_capability_matrix(current: dict[str, str], tickflow_tier: str = "none"
     for cap in CAPABILITY_REGISTRY:
         # field=None → 不可路由能力 (仅 TickFlow 提供, 无路由偏好), 生效源恒为默认
         effective = current.get(cap["field"], cap["default"]) if cap["field"] else cap["default"]
-        tf_available = tier_rank >= _TIER_RANK[cap["tf_tier"]]
+        tf_available = (
+            cap.get("tickflow", True)
+            and tier_rank >= _TIER_RANK[cap["tf_tier"]]
+        )
         candidates: list[dict] = []
         pending: list[dict] = []
         if tf_available:
             candidates.append(dict(_TICKFLOW_CANDIDATE))
+        builtin_source = cap.get("builtin_source")
+        if builtin_source:
+            candidates.append({
+                "name": builtin_source,
+                "display": _display_of(sources, builtin_source),
+                "kind": "builtin",
+                "available": True,
+                "status": "ok",
+                "note": None,
+            })
         for s in sources:
             if cap["id"] not in s["datasets"]:
                 continue
@@ -224,6 +249,7 @@ def _current_routing() -> dict[str, str]:
         "depth5_data_provider": preferences.get_depth5_data_provider(),
         "adj_factor_provider": preferences.get_adj_factor_provider(),
         "financial_data_provider": preferences.get_financial_provider(),
+        "st_history_data_provider": preferences.get_st_history_provider(),
     }
 
 
@@ -247,8 +273,14 @@ def resolve_capability_sources(tickflow_tier: str = "none") -> list[dict]:
         if not field:
             continue
         effective = current.get(field, cap["default"])
-        tf_available = tier_rank >= _TIER_RANK[cap["tf_tier"]]
+        tf_available = (
+            cap.get("tickflow", True)
+            and tier_rank >= _TIER_RANK[cap["tf_tier"]]
+        )
         provider_names = {"tickflow"} if tf_available else set()
+        builtin_source = cap.get("builtin_source")
+        if builtin_source:
+            provider_names.add(builtin_source)
         provider_names |= {
             s["name"] for s in sources
             if cap["id"] in s["datasets"] and s["available"]

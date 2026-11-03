@@ -13,7 +13,7 @@ from app.backtest.matrix import (
     build_market_data_matrix,
     build_market_matrix_from_signals,
 )
-from app.factors.event_chain import (
+from app.custom.first_board_event_chain.compute import (
     EVENT_CHAIN_FIELDS,
     compute_event_chain_outputs,
     materialize_event_chain_columns,
@@ -23,9 +23,9 @@ from app.strategy.engine import StrategyEngine
 STRATEGY_PATH = (
     Path(__file__).resolve().parents[2]
     / "app"
-    / "strategy"
-    / "research"
-    / "first_board_chain_rebreak.py"
+    / "custom"
+    / "first_board_event_chain"
+    / "strategy_rebreak.py"
 )
 
 

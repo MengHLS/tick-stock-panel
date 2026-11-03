@@ -7,13 +7,11 @@ import logging
 import sqlite3
 import threading
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.services.screener import ScreenerService
-from app.strategy import paper_watch
+from app.extensions import extension_runtime_from_app
 
 from .service import ExecutionService
 
@@ -60,22 +58,26 @@ def build_router() -> APIRouter:
         thread = None
         lease = None
         try:
-            repo = getattr(app.state, "repo", None)
-            engine = getattr(app.state, "strategy_engine", None)
-            if repo is None or engine is None:
+            runtime = extension_runtime_from_app(app)
+            engine = runtime.strategy_engine
+            if engine is None:
                 raise ValueError("策略引擎或数据仓库未就绪")
-            data_dir = Path(repo.store.data_dir)
+            data_dir = runtime.data_dir
             root = data_dir / "user_data" / "extensions" / "paper_execution"
             root.mkdir(parents=True, exist_ok=True)
             # SQLite 的操作系统锁跨平台、随进程退出释放；禁止多个 worker 同时跟单。
             lease = sqlite3.connect(root / "runner.sqlite", timeout=0)
             lease.execute("BEGIN EXCLUSIVE")
             service = ExecutionService(
-                data_dir, engine, ScreenerService(repo), getattr(app.state, "quote_service", None)
+                data_dir,
+                engine,
+                runtime.screener,
+                runtime.quote_service,
+                market_data=runtime.market_data,
             )
 
             def refresh_watch():
-                return paper_watch.sync_from_state(app.state, data_dir)
+                return runtime.monitor_rules.sync_paper_watch()
 
             sync_watch = refresh_watch
             active_service = service

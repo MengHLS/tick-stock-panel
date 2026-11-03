@@ -11,6 +11,7 @@ const CAPS: Pick<CapabilityRoute, 'id' | 'field'>[] = [
   { id: 'depth5', field: 'depth5_data_provider' },
   { id: 'financial', field: 'financial_data_provider' },
   { id: 'full_minute', field: 'full_minute_data_provider' },
+  { id: 'st_history', field: 'st_history_data_provider' },
 ]
 
 const ALL_FIELDS: ProviderField[] = [
@@ -21,6 +22,7 @@ const ALL_FIELDS: ProviderField[] = [
   'depth5_data_provider',
   'financial_data_provider',
   'full_minute_data_provider',
+  'st_history_data_provider',
 ]
 
 const DEMO = 'demo_source'
@@ -83,6 +85,8 @@ describe('buildProviderRouting', () => {
 
   it('默认路由覆盖全部字段且均为 tickflow', () => {
     expect(Object.keys(DEFAULT_ROUTING).sort()).toEqual([...ALL_FIELDS].sort())
-    expect(new Set(Object.values(DEFAULT_ROUTING))).toEqual(new Set(['tickflow']))
+    expect(DEFAULT_ROUTING.st_history_data_provider).toBe('local_st_history')
+    expect(new Set(Object.values(DEFAULT_ROUTING).filter(v => v !== 'local_st_history')))
+      .toEqual(new Set(['tickflow']))
   })
 })

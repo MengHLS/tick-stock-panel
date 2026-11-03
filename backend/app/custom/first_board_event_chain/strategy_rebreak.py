@@ -4,14 +4,22 @@ from __future__ import annotations
 import numpy as np
 
 from app.backtest.matrix import (
-    FIRST_BOARD_CHAIN_LOOKBACK_BARS,
     MarketDataMatrix,
     SignalMatrix,
-    compute_matrix_event_chain,
     make_signal_matrix,
+    materialize_matrix_factors,
     matrix_feature,
     valid_shift,
 )
+
+_EVENT_CHAIN_FIELDS = frozenset({
+    "first_board_chain_strict_rebreak",
+    "first_board_chain_seed_close_preserved",
+    "first_board_chain_target_above_reference_pct",
+    "first_board_chain_pullback_pct",
+})
+
+FIRST_BOARD_CHAIN_LOOKBACK_BARS = 250
 
 META = {
     "id": "first_board_chain_rebreak",
@@ -84,18 +92,23 @@ class FirstBoardChainRebreakMatrixStrategy:
         return _lookback_from_params(params) + 1
 
     def compute_signals(self, market: MarketDataMatrix, params: dict) -> SignalMatrix:
-        outputs = compute_matrix_event_chain(
+        materialized = materialize_matrix_factors(
             market,
-            lookback_bars=_lookback_from_params(params),
-            min_pullback_pct=_min_pullback_from_params(params),
-            require_new_high_after_anchor=bool(
-                params.get("require_new_high_after_anchor", True)
-            ),
+            _EVENT_CHAIN_FIELDS,
+            params={
+                "lookback_bars": _lookback_from_params(params),
+                "min_pullback_pct": _min_pullback_from_params(params),
+                "require_new_high_after_anchor": bool(
+                    params.get("require_new_high_after_anchor", True)
+                ),
+            },
         )
-        entry = outputs["first_board_chain_strict_rebreak"] > 0.5
+        entry = materialized.field("first_board_chain_strict_rebreak") > 0.5
         entry &= np.isfinite(market.close)
         if bool(params.get("require_seed_close_preserved", False)):
-            entry &= outputs["first_board_chain_seed_close_preserved"] > 0.5
+            entry &= (
+                materialized.field("first_board_chain_seed_close_preserved") > 0.5
+            )
 
         ma20 = matrix_feature(market, "ma20")
         previous_close = valid_shift(market.close, 1, np.isfinite(market.close))
@@ -106,8 +119,10 @@ class FirstBoardChainRebreakMatrixStrategy:
             & (previous_close >= previous_ma20)
         )
 
-        target_above = outputs["first_board_chain_target_above_reference_pct"]
-        pullback = outputs["first_board_chain_pullback_pct"]
+        target_above = materialized.field(
+            "first_board_chain_target_above_reference_pct"
+        )
+        pullback = materialized.field("first_board_chain_pullback_pct")
         raw_score = (
             np.nan_to_num(target_above, nan=0.0, posinf=0.0, neginf=0.0)
             * np.float32(100.0)

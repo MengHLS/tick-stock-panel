@@ -14,22 +14,21 @@ from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import polars as pl
 
 from app.backtest.engine import (
     BacktestEngine,
-    ExecutionCostPolicy,
     FullExecutionCapabilities,
-    HoldExtensionPolicy,
     MatcherConfig,
     SimResult,
     SimulationOptions,
     full_execution_unsupported_message,
     unsupported_full_execution_rules,
 )
+from app.backtest.execution_policy import parse_backtest_defaults
 from app.backtest.fundamentals import FUNDAMENTAL_FACTOR_NAMES
 from app.backtest.matrix import (
     MarketDataMatrix,
@@ -45,8 +44,9 @@ from app.backtest.matrix import (
     build_market_matrix,
     build_market_matrix_from_encoding,
     build_market_matrix_from_signals,
-    matrix_feature,
     encode_panel_matrix,
+    make_signal_matrix,
+    matrix_feature,
     slice_market_data_matrix,
     slice_signal_matrix,
 )
@@ -108,7 +108,7 @@ class ResolvedFeaturePlan:
     execution_backend: str = "polars_expr"
     # 财务因子列不落 enriched 存储, 由 engine 在加载口按公告日门控附加。
     fundamental_columns: frozenset[str] = frozenset()
-    # 截面联动因子由独立 sidecar 提供, 不进入 enriched 物理列加载。
+    # 扩展 Provider 的 sidecar 因子不进入 enriched 物理列加载。
     linkage_columns: frozenset[str] = frozenset()
     historical_st: bool = False
 
@@ -266,18 +266,13 @@ class StrategyDependencyResolver:
             required_features.update(signal_dependencies.get(signal, ()))
 
         indicator_columns = frozenset(required_features & set(INDICATOR_COLUMNS))
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.registry import get_factor
-
-        linkage_columns = frozenset(required_features & LINKAGE_FACTOR_IDS)
-        linkage_warmup = max(
-            (
-                spec.warmup_bars
-                for name in linkage_columns
-                if (spec := get_factor(name)) is not None
-            ),
-            default=1,
+        from app.extensions.factors import (
+            factor_provider_warmup,
+            sidecar_factor_ids,
         )
+
+        linkage_columns = frozenset(required_features & sidecar_factor_ids())
+        linkage_warmup = factor_provider_warmup(linkage_columns)
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         # 涨跌停族: 显式请求连板/判定价列, 或引用了判定价的自定义信号
         # (signal_limit_* 等迁移定义) → 统一加载不复权三价。
@@ -364,20 +359,15 @@ class StrategyDependencyResolver:
         overlay_sources = _overlay_numeric_fields(overrides)
         overlay_scoring = {name: 1.0 for name in overlay_sources}
         overlay_fields = scoring_dependencies(overlay_scoring)
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.registry import get_factor
+        from app.extensions.factors import (
+            factor_provider_warmup,
+            sidecar_factor_ids,
+        )
 
         linkage_columns = frozenset(
-            (required_features | overlay_fields) & LINKAGE_FACTOR_IDS
+            (required_features | overlay_fields) & sidecar_factor_ids()
         )
-        linkage_warmup = max(
-            (
-                spec.warmup_bars
-                for name in linkage_columns
-                if (spec := get_factor(name)) is not None
-            ),
-            default=1,
-        )
+        linkage_warmup = factor_provider_warmup(linkage_columns)
 
         base_columns = _resolve_base_columns(required_features | set(_EXECUTION_COLUMNS))
         base_columns = frozenset(set(base_columns) | set(_LIMIT_BASE_COLUMNS))
@@ -480,12 +470,18 @@ def build_matrix_cache_profile(
         | set(merged.instrument_columns)
         | set(merged.matrix_columns)
     ) - set(merged.linkage_columns)
+    from app.extensions.factors import factor_provider_contract_signature
+
     generation_payload = json.dumps(
         {
             "asset_type": asset_type,
             "fields": sorted(fields),
             "warmup_bars": merged.warmup_bars,
             "forward_bars": forward_bars,
+            "provider_contract": factor_provider_contract_signature(
+                fields,
+                asset_type=asset_type,
+            ),
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -896,6 +892,35 @@ def _panel_backend(execution_backend: str) -> bool:
     return execution_backend not in ("matrix_native", "composite", "minute_filter")
 
 
+def _normalize_corporate_action_gaps(
+    raw: object,
+) -> frozenset[tuple[str, str]] | None:
+    """Normalize ``SYMBOL@YYYY-MM-DD`` parity gaps for the execution engine."""
+    if raw is None:
+        return None
+    if not isinstance(raw, (list, tuple, set, frozenset)):
+        raise ValueError("_legacy_corporate_action_gaps must be a sequence")
+    gaps: set[tuple[str, str]] = set()
+    for item in raw:
+        if not isinstance(item, str) or "@" not in item:
+            raise ValueError(
+                "_legacy_corporate_action_gaps entries must be SYMBOL@YYYY-MM-DD"
+            )
+        symbol, day = item.rsplit("@", 1)
+        try:
+            parsed = date.fromisoformat(day)
+        except ValueError as exc:
+            raise ValueError(
+                "_legacy_corporate_action_gaps entries must use YYYY-MM-DD"
+            ) from exc
+        if not symbol:
+            raise ValueError(
+                "_legacy_corporate_action_gaps entries must include a symbol"
+            )
+        gaps.add((symbol, parsed.isoformat()))
+    return frozenset(gaps)
+
+
 @dataclass(frozen=True)
 class PreparedPanelBacktest:
     """polars_expr 参数网格的共享特征面板 (P2a) — 一次加载, 全部试算复用。
@@ -1059,6 +1084,7 @@ class StrategyBacktestService:
         min_confirm: int,
         max_hold: int,
         timing_ms: dict[str, float],
+        asset_type: str = "stock",
     ):
         """逐子策略计算 SignalMatrix, 再合并为单个 SignalMatrix(回测合并)。
 
@@ -1071,6 +1097,7 @@ class StrategyBacktestService:
 
         t_signals = time.perf_counter()
         sigs = []
+        policy_frame = None
         for child_def, child_params, child_pipeline_cfg in resolved_children:
             try:
                 child_sig = MatrixStrategyPipeline().run(
@@ -1081,6 +1108,24 @@ class StrategyBacktestService:
                 )
             except (TypeError, ValueError) as e:
                 raise ValueError(f"子策略 {child_def.meta.get('id')} 信号计算失败: {e}") from e
+            if any(
+                child_def.meta.get(key)
+                for key in ("candidate_filter", "risk_policy", "scoring_policy")
+            ):
+                if policy_frame is None:
+                    policy_frame = self._policy_frame_from_market(market_data)
+                try:
+                    child_sig = self._apply_signal_strategy_policies(
+                        policy_frame,
+                        child_sig,
+                        child_def,
+                        child_params,
+                        asset_type,
+                    )
+                except (TypeError, ValueError) as e:
+                    raise ValueError(
+                        f"子策略 {child_def.meta.get('id')} 策略级过滤失败: {e}"
+                    ) from e
             sigs.append(child_sig)
         timing_ms["strategy_signals"] = round((time.perf_counter() - t_signals) * 1000, 1)
 
@@ -1482,6 +1527,15 @@ class StrategyBacktestService:
             execution_policy = self._strategy_execution_policy(s)
         except (TypeError, ValueError) as e:
             return _err(f"策略执行策略配置无效: {e}")
+        try:
+            cost_model = self._resolve_backtest_cost_model(s)
+        except (TypeError, ValueError) as e:
+            return _err(f"策略回测成本模型配置无效: {e}")
+        if cost_model is not None and execution_policy["execution_costs"] is not None:
+            return _err(
+                "backtest_cost_model 与 backtest_defaults.execution_costs "
+                "不能同时启用；请二选一"
+            )
         if config.mode == "full":
             # 数据加载/信号生成之前 fail-closed: 独立撮合未实现的执行规则
             # 不能因空数据或无候选而被绕过, 也不能自动降级。
@@ -1498,6 +1552,9 @@ class StrategyBacktestService:
                     execution_costs=execution_policy["execution_costs"],
                     entry_price_basis=execution_policy["entry_price_basis"],
                     block_limit_open=execution_policy["block_limit_open"],
+                    allow_same_asset_positions=execution_policy[
+                        "allow_same_asset_positions"
+                    ],
                 )
             )
             if unsupported_rules:
@@ -1534,6 +1591,8 @@ class StrategyBacktestService:
             # 信号分钟收盘价入场, 之后复用日K矩阵模拟的离场与组合管理。
             return self._run_minute_backtest(
                 config, s, params, overrides,
+                execution_policy=execution_policy,
+                cost_model=cost_model,
                 stop_loss=stop_loss,
                 take_profit=take_profit,
                 trailing_stop=trailing_stop,
@@ -1772,6 +1831,14 @@ class StrategyBacktestService:
             max_daily_entries=execution_policy["max_daily_entries"],
             entry_price_basis=execution_policy["entry_price_basis"],
             block_limit_open=execution_policy["block_limit_open"],
+            allow_same_asset_positions=execution_policy[
+                "allow_same_asset_positions"
+            ],
+            finalize_open_at_end=execution_policy["finalize_open_at_end"],
+            corporate_action_unavailable=_normalize_corporate_action_gaps(
+                params.get("_legacy_corporate_action_gaps")
+            ),
+            cost_model=cost_model,
             position_policy_compute=position_policy_compute,
             position_policy_params=position_policy_params,
             minute_fill=config.minute_fill,
@@ -1783,6 +1850,14 @@ class StrategyBacktestService:
         if s.execution_backend == "composite":
             # composite 回测信号生成: 复用 matrix 数据加载, 逐子策略算信号后合并。
             # 退出采用来源投影(composite.merge_signal_matrices), 不串平其他子策略仓位。
+            if any(
+                s.meta.get(key)
+                for key in ("candidate_filter", "scoring_policy", "risk_policy")
+            ):
+                return _err(
+                    "composite 策略不支持顶层 candidate_filter / scoring_policy / "
+                    "risk_policy；请配置到子策略"
+                )
             if composite_children_resolved is None:
                 return _err("叠加策略子策略解析失败")
             if market_data is None:
@@ -1840,6 +1915,7 @@ class StrategyBacktestService:
                     min_confirm,
                     composite_max_hold,
                     timing_ms,
+                    asset_type=config.asset_type,
                 )
             except ValueError as e:
                 return _err(str(e))
@@ -1953,9 +2029,9 @@ class StrategyBacktestService:
                     protect_strategy_cache=prepared is not None,
                 )
                 strategy_params = dict(params)
-                # Keep pre-start warmup bars out of the event universe. The
-                # first-board seed is observable only when its event day is
-                # inside the formal backtest window.
+                # Keep pre-start warmup bars out of the event universe. Event
+                # strategies can observe an event only when its day is inside
+                # the formal backtest window.
                 strategy_params["_event_start"] = config.start.isoformat()
                 if prepared is None:
                     signal_matrix = MatrixStrategyPipeline().run(
@@ -2012,6 +2088,17 @@ class StrategyBacktestService:
                     sim_signal_matrix,
                     entry=overlay_entry,
                 )
+            if any(
+                s.meta.get(key)
+                for key in ("candidate_filter", "risk_policy", "scoring_policy")
+            ):
+                sim_signal_matrix = self._apply_signal_strategy_policies(
+                    self._policy_frame_from_market(sim_market_data),
+                    sim_signal_matrix,
+                    s,
+                    params,
+                    config.asset_type,
+                )
             timing_ms["signals_score"] = round((time.perf_counter() - t_signal) * 1000, 1)
             if not sim_signal_matrix.entry.any():
                 return _err("在指定区间内未产生买入信号")
@@ -2042,7 +2129,7 @@ class StrategyBacktestService:
             try:
                 panel, candidate_mask, entry_mask, raw_exit_mask = self._evaluate_panel_decisions(
                     panel, s, params, overrides, basic_filter, entry_signals, exit_signals,
-                    factor_snapshot=factor_snapshot,
+                    factor_snapshot=factor_snapshot, asset_type=config.asset_type,
                 )
             except ValueError as exc:
                 return _err(str(exc))
@@ -2051,6 +2138,7 @@ class StrategyBacktestService:
                     self._decision_frame(panel, candidate_mask, entry_mask, raw_exit_mask),
                     lambda data: self._decision_frame(*self._evaluate_panel_decisions(
                         data, s, params, overrides, basic_filter, entry_signals, exit_signals,
+                        asset_type=config.asset_type,
                     )),
                 )
             formal_candidate_mask = candidate_mask & formal_range
@@ -2080,6 +2168,14 @@ class StrategyBacktestService:
                     regime_row_mask = panel.get_column("date").is_in(allowed_dates).fill_null(False)
                     formal_candidate_mask = formal_candidate_mask & regime_row_mask
                     entry_mask = entry_mask & regime_row_mask
+            panel, entry_mask = self._apply_panel_risk_policy(
+                panel,
+                entry_mask,
+                s,
+                params,
+                config.asset_type,
+            )
+            raw_exit_mask = self._build_signal_mask(panel, exit_signals, "_exit")
             exit_range = self._date_range_mask(panel, config.start, load_end) if config.mode == "full" else formal_range
             exit_mask = raw_exit_mask & exit_range
             timing_ms["signals_score"] = round((time.perf_counter() - t_signal) * 1000, 1)
@@ -2291,6 +2387,8 @@ class StrategyBacktestService:
         params: dict,
         overrides: dict,
         *,
+        execution_policy: dict,
+        cost_model,
         stop_loss,
         take_profit,
         trailing_stop,
@@ -2327,6 +2425,11 @@ class StrategyBacktestService:
             )
         if config.exit_fill == "signal_next_minute":
             return _err("分钟策略回测暂不支持「信号触发卖出」离场口径")
+        if execution_policy["plan_at_signal_close"]:
+            return _err(
+                "分钟策略按触发分钟收盘价入场，不能同时启用 "
+                "backtest_defaults.plan_at_signal_close；请关闭该规则后重试"
+            )
 
         minute_days = self.engine.repo.list_minute_dates(config.start, config.end, "stock")
         if not minute_days:
@@ -2426,7 +2529,6 @@ class StrategyBacktestService:
             score[time_id, asset_id] = hit.score
             entry_price_override[time_id, asset_id] = hit.entry_price
             trigger_times[(hit.symbol, hit.trade_date)] = hit.trigger_time
-        raw_candidates = int(entry.sum())
         entry.setflags(write=False)
         score.setflags(write=False)
         entry_price_override.setflags(write=False)
@@ -2443,6 +2545,25 @@ class StrategyBacktestService:
             entry_signal_ids=(),
             exit_signal_ids=(),
         )
+        if any(
+            s.meta.get(key)
+            for key in ("candidate_filter", "risk_policy", "scoring_policy")
+        ):
+            policy_market = build_market_data_matrix(
+                sim_panel,
+                field_columns={
+                    name for name in sim_panel.columns
+                    if name not in {"symbol", "date"}
+                },
+            )
+            signals = self._apply_signal_strategy_policies(
+                self._policy_frame_from_market(policy_market),
+                signals,
+                s,
+                params,
+                "stock",
+            )
+        raw_candidates = int(signals.entry.sum())
 
         position_policy_compute, position_policy_params = _resolve_position_policy(config)
         matcher_config = MatcherConfig(
@@ -2465,6 +2586,29 @@ class StrategyBacktestService:
             score_max=score_max,
             initial_capital=config.initial_capital,
             position_sizing=config.position_sizing,
+            score_tiers=execution_policy["score_tiers"],
+            entry_open_gap_range=execution_policy["entry_open_gap_range"],
+            entry_prev_day_change_range=execution_policy[
+                "entry_prev_day_change_range"
+            ],
+            trailing_peak_price=execution_policy["trailing_peak_price"],
+            exit_signal_requires_profit=execution_policy[
+                "exit_signal_requires_profit"
+            ],
+            hold_extension_policy=execution_policy["hold_extension_policy"],
+            execution_costs=execution_policy["execution_costs"],
+            plan_at_signal_close=False,
+            max_daily_entries=execution_policy["max_daily_entries"],
+            entry_price_basis=execution_policy["entry_price_basis"],
+            block_limit_open=execution_policy["block_limit_open"],
+            allow_same_asset_positions=execution_policy[
+                "allow_same_asset_positions"
+            ],
+            finalize_open_at_end=execution_policy["finalize_open_at_end"],
+            corporate_action_unavailable=_normalize_corporate_action_gaps(
+                params.get("_legacy_corporate_action_gaps")
+            ),
+            cost_model=cost_model,
             position_policy_compute=position_policy_compute,
             position_policy_params=position_policy_params,
             # 分钟策略的成交价由 entry_price_override 提供 (触发分钟收盘),
@@ -2807,7 +2951,7 @@ class StrategyBacktestService:
 
     def _evaluate_panel_decisions(
         self, panel, strategy, params, overrides, basic_filter, entry_signals, exit_signals,
-        *, factor_snapshot=None,
+        *, factor_snapshot=None, asset_type: str = "stock",
     ):
         """生产回测与时间切片检查共用信号管线，日期/成交延迟在其后应用。"""
         basic_mask = pl.Series("_basic", [True] * len(panel), dtype=pl.Boolean)
@@ -2820,8 +2964,22 @@ class StrategyBacktestService:
                 logger.warning("basic_filter mask failed: %s", e)
                 raise ValueError(f"基础过滤计算失败: {e}") from e
         candidate = basic_mask & self._build_candidate_filter_mask(panel, strategy, params)
+        panel, candidate = self._apply_panel_candidate_filter(
+            panel,
+            candidate,
+            strategy,
+            params,
+            asset_type,
+        )
         panel = self._apply_score(
             panel, strategy, overrides, universe_mask=candidate, factor_snapshot=factor_snapshot,
+        )
+        panel = self._apply_panel_scoring_policy(
+            panel,
+            candidate,
+            strategy,
+            params,
+            asset_type,
         )
         entry = self._build_entry_mask_from_candidate(panel, candidate, strategy, entry_signals)
         overlay = StrategyEngine._effective_overlay(overrides)
@@ -2832,6 +2990,247 @@ class StrategyBacktestService:
             entry = entry & mask
         exits = self._build_signal_mask(panel, exit_signals, "_exit")
         return panel, candidate, entry, exits
+
+    @staticmethod
+    def _policy_context(
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ):
+        from app.extensions.strategies import build_strategy_policy_context
+
+        return build_strategy_policy_context(
+            asset_type=asset_type,
+            as_of=None,
+            strategy_id=str(s.meta.get("id") or ""),
+            params=params,
+            metadata=s.meta,
+        )
+
+    @staticmethod
+    def _ensure_policy_row_id(panel: pl.DataFrame) -> pl.DataFrame:
+        if "__policy_row_id" in panel.columns:
+            return panel
+        return panel.with_row_index("__policy_row_id")
+
+    def _apply_panel_candidate_filter(
+        self,
+        panel: pl.DataFrame,
+        candidate_mask: pl.Series,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> tuple[pl.DataFrame, pl.Series]:
+        implementation_id = s.meta.get("candidate_filter")
+        if not implementation_id:
+            return panel, candidate_mask
+        from app.extensions.strategies import apply_candidate_filter
+
+        panel = self._ensure_policy_row_id(panel)
+        source = panel.filter(candidate_mask)
+        filtered = apply_candidate_filter(
+            source,
+            str(implementation_id),
+            self._policy_context(s, params, asset_type),
+        )
+        filtered_ids = filtered["__policy_row_id"].to_list()
+        if len(filtered_ids) != len(set(filtered_ids)):
+            raise ValueError("candidate_filter 返回了重复候选行")
+        allowed_ids = set(filtered_ids)
+        candidate_mask = (
+            candidate_mask
+            & panel["__policy_row_id"].is_in(allowed_ids)
+        )
+        added = [name for name in filtered.columns if name not in panel.columns]
+        if added:
+            panel = panel.join(
+                filtered.select(["__policy_row_id", *added]),
+                on="__policy_row_id",
+                how="left",
+            ).sort("__policy_row_id")
+        return panel, candidate_mask
+
+    def _apply_panel_scoring_policy(
+        self,
+        panel: pl.DataFrame,
+        candidate_mask: pl.Series,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> pl.DataFrame:
+        implementation_id = s.meta.get("scoring_policy")
+        if not implementation_id:
+            return panel
+        from app.extensions.strategies import apply_scoring_policy
+
+        panel = self._ensure_policy_row_id(panel)
+        source = panel.filter(candidate_mask)
+        if source.is_empty():
+            return panel
+        scores = apply_scoring_policy(
+            source,
+            str(implementation_id),
+            self._policy_context(s, params, asset_type),
+        )
+        scored = source.select(["__policy_row_id"]).with_columns(
+            scores.alias("__policy_score")
+        )
+        return (
+            panel.join(scored, on="__policy_row_id", how="left")
+            .with_columns(
+                pl.coalesce(
+                    [pl.col("__policy_score"), pl.col("score")]
+                ).alias("score")
+            )
+            .drop("__policy_score")
+            .sort("__policy_row_id")
+        )
+
+    def _apply_panel_risk_policy(
+        self,
+        panel: pl.DataFrame,
+        entry_mask: pl.Series,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> tuple[pl.DataFrame, pl.Series]:
+        implementation_id = s.meta.get("risk_policy")
+        if not implementation_id:
+            return panel, entry_mask
+        from app.extensions.strategies import apply_risk_policy
+
+        panel = self._ensure_policy_row_id(panel)
+        source = panel.filter(entry_mask)
+        filtered = apply_risk_policy(
+            source,
+            str(implementation_id),
+            self._policy_context(s, params, asset_type),
+        )
+        filtered_ids = filtered["__policy_row_id"].to_list()
+        if len(filtered_ids) != len(set(filtered_ids)):
+            raise ValueError("risk_policy 返回了重复候选行")
+        allowed_ids = set(filtered_ids)
+        entry_mask = entry_mask & panel["__policy_row_id"].is_in(allowed_ids)
+        return panel, entry_mask
+
+    @staticmethod
+    def _policy_frame_from_market(market) -> pl.DataFrame:
+        symbols = [str(symbol) for symbol in market.symbols]
+        labels = tuple(str(label) for label in market.timestamp_labels)
+        dates = [
+            date.fromisoformat(label[:10])
+            for label in labels
+            for _ in symbols
+        ]
+        data: dict[str, Any] = {
+            "date": dates,
+            "symbol": symbols * len(labels),
+            "name": [str(name) for name in market.names] * len(labels),
+            "open": market.open.reshape(-1),
+            "high": market.high.reshape(-1),
+            "low": market.low.reshape(-1),
+            "close": market.close.reshape(-1),
+            "volume": market.volume.reshape(-1),
+        }
+        for name, values in market.fields.items():
+            array = np.asarray(values)
+            if array.shape == market.shape:
+                data[str(name)] = array.reshape(-1)
+        return pl.DataFrame(data)
+
+    def _apply_signal_strategy_policies(
+        self,
+        frame: pl.DataFrame,
+        signals: SignalMatrix,
+        s: StrategyDef,
+        params: dict,
+        asset_type: str,
+    ) -> SignalMatrix:
+        candidate_filter_id = s.meta.get("candidate_filter")
+        risk_policy_id = s.meta.get("risk_policy")
+        scoring_policy_id = s.meta.get("scoring_policy")
+        if not (candidate_filter_id or risk_policy_id or scoring_policy_id):
+            return signals
+        from app.extensions.strategies import (
+            apply_candidate_filter,
+            apply_risk_policy,
+            apply_scoring_policy,
+        )
+
+        shape = signals.entry.shape
+        total = int(np.prod(shape))
+        if frame.height != total:
+            raise ValueError(
+                "策略级过滤器需要完整的 date×symbol 矩阵帧: "
+                f"expected {total}, got {frame.height}"
+            )
+        entry_flat = np.asarray(signals.entry, dtype=bool).reshape(-1)
+        policy_frame = frame.with_row_index("__policy_row_id").filter(
+            pl.Series(entry_flat)
+        )
+        context = self._policy_context(s, params, asset_type)
+        if candidate_filter_id:
+            policy_frame = apply_candidate_filter(
+                policy_frame,
+                str(candidate_filter_id),
+                context,
+            )
+        scored_ids = None
+        scored_values = None
+        if scoring_policy_id and policy_frame.height:
+            policy_scores = apply_scoring_policy(
+                policy_frame,
+                str(scoring_policy_id),
+                context,
+            )
+            scored_ids = np.asarray(
+                policy_frame["__policy_row_id"].to_list(),
+                dtype=np.int64,
+            )
+            scored_values = policy_scores.to_numpy()
+            policy_frame = policy_frame.with_columns(
+                policy_scores.alias("score")
+            )
+        if risk_policy_id:
+            policy_frame = apply_risk_policy(
+                policy_frame,
+                str(risk_policy_id),
+                context,
+            )
+        allowed_ids = np.asarray(
+            policy_frame["__policy_row_id"].to_list(),
+            dtype=np.int64,
+        )
+        if (
+            allowed_ids.size
+            and (
+                int(allowed_ids.min()) < 0
+                or int(allowed_ids.max()) >= total
+                or len(set(allowed_ids.tolist())) != allowed_ids.size
+            )
+        ):
+            raise ValueError("策略级过滤器返回了非法或重复的候选行")
+        allowed = np.zeros(total, dtype=bool)
+        allowed[allowed_ids] = True
+        entry = np.where(
+            allowed.reshape(shape),
+            signals.entry,
+            0,
+        ).astype(np.uint8)
+        score = np.array(signals.score, dtype=np.float32, copy=True)
+        if scored_ids is not None:
+            score.reshape(-1)[scored_ids] = scored_values
+        return make_signal_matrix(
+            shape,
+            entry=entry,
+            exit=signals.exit,
+            score=score,
+            entry_signal_code=signals.entry_signal_code,
+            exit_signal_code=signals.exit_signal_code,
+            entry_signal_ids=signals.entry_signal_ids,
+            exit_signal_ids=signals.exit_signal_ids,
+            ranking_score=signals.ranking_score,
+        )
 
     @staticmethod
     def _decision_frame(panel, candidate, entry, exits):
@@ -3139,76 +3538,22 @@ class StrategyBacktestService:
 
     @staticmethod
     def _strategy_execution_policy(s: StrategyDef) -> dict:
-        defaults = s.meta.get("backtest_defaults")
-        if not isinstance(defaults, dict):
-            defaults = {}
+        return parse_backtest_defaults(
+            s.meta.get("backtest_defaults"),
+            context=f"strategy {s.meta.get('id', '<unknown>')}",
+        ).engine_options()
 
-        def _range(name: str) -> tuple[float, float] | None:
-            value = defaults.get(name)
-            if not isinstance(value, (list, tuple)) or len(value) != 2:
-                return None
-            try:
-                return float(value[0]), float(value[1])
-            except (TypeError, ValueError):
-                return None
+    @staticmethod
+    def _resolve_backtest_cost_model(s: StrategyDef):
+        model_id = s.meta.get("backtest_cost_model")
+        if not model_id:
+            return None
+        from app.extensions.strategies import strategy_extension
 
-        raw_tiers = defaults.get("score_tiers")
-        score_tiers: tuple[tuple[float, float], ...] | None = None
-        if isinstance(raw_tiers, list):
-            parsed: list[tuple[float, float]] = []
-            for item in raw_tiers:
-                if not isinstance(item, (list, tuple)) or len(item) != 2:
-                    parsed = []
-                    break
-                try:
-                    parsed.append((float(item[0]), float(item[1])))
-                except (TypeError, ValueError):
-                    parsed = []
-                    break
-            score_tiers = tuple(parsed) if parsed else None
-
-        hold_raw = defaults.get("hold_extension")
-        hold_policy = None
-        if isinstance(hold_raw, dict):
-            hold_policy = HoldExtensionPolicy(
-                decision_days=int(hold_raw.get("decision_days", 5)),
-                strong_hold_days=int(hold_raw.get("strong_hold_days", 10)),
-                strong_hold_min_return=float(
-                    hold_raw.get("strong_hold_min_return", 0.03)
-                ),
-                runner_new_high_days=int(hold_raw.get("runner_new_high_days", 3)),
-                runner_extend_days=int(hold_raw.get("runner_extend_days", 74)),
-            )
-        cost_raw = defaults.get("execution_costs")
-        execution_costs = None
-        if isinstance(cost_raw, dict):
-            execution_costs = ExecutionCostPolicy(
-                min_commission=float(cost_raw.get("min_commission", 0.0)),
-                transfer_fee_pct=float(cost_raw.get("transfer_fee_pct", 0.0)),
-                buy_slippage_tiers=tuple(
-                    (float(item[0]), float(item[1]))
-                    for item in cost_raw.get("buy_slippage_tiers", [])
-                    if isinstance(item, (list, tuple)) and len(item) == 2
-                ),
-            )
-        trailing_peak = str(defaults.get("trailing_peak_price", "high"))
-        if trailing_peak not in {"high", "close"}:
-            raise ValueError("trailing_peak_price must be 'high' or 'close'")
-        return {
-            "score_tiers": score_tiers,
-            "entry_open_gap_range": _range("entry_open_gap_range"),
-            "entry_prev_day_change_range": _range("entry_prev_day_change_range"),
-            "trailing_peak_price": trailing_peak,
-            "exit_signal_requires_profit": bool(
-                defaults.get("exit_signal_requires_profit", False)
-            ),
-            "hold_extension_policy": hold_policy,
-            "execution_costs": execution_costs,
-            "plan_at_signal_close": bool(defaults.get("plan_at_signal_close", False)),
-            "max_daily_entries": defaults.get("max_daily_entries"),
-            "entry_price_basis": str(defaults.get("entry_price_basis", "adjusted")),
-            "block_limit_open": bool(defaults.get("block_limit_open", False)),
-        }
+        model = strategy_extension("backtest_cost_model", str(model_id))
+        if model is None:
+            raise ValueError(f"未注册的回测成本模型: {model_id}")
+        return model
 
     @staticmethod
     def _normalize_params(params: dict, s: StrategyDef) -> dict:
@@ -3266,6 +3611,7 @@ class StrategyBacktestService:
             "blocked_exit_days": getattr(t, "blocked_exit_days", 0),
             "entry_signal_id": getattr(t, "entry_signal_id", None),
             "exit_signal_id": getattr(t, "exit_signal_id", None),
+            "open_at_end": bool(getattr(t, "open_at_end", False)),
         }
 
     def _build_run_provenance(
@@ -3374,6 +3720,10 @@ class StrategyBacktestService:
                 "plan_at_signal_close": matcher_config.plan_at_signal_close,
                 "entry_price_basis": matcher_config.entry_price_basis,
                 "block_limit_open": matcher_config.block_limit_open,
+                "allow_same_asset_positions": (
+                    matcher_config.allow_same_asset_positions
+                ),
+                "finalize_open_at_end": matcher_config.finalize_open_at_end,
                 "execution_costs": _policy(matcher_config.execution_costs),
             },
             "data": {

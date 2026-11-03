@@ -7,7 +7,7 @@ from datetime import date, timedelta
 import polars as pl
 import pytest
 
-from app.factors.linkage import (
+from app.custom.cross_sectional_linkage.compute import (
     LINKAGE_FACTOR_IDS,
     compute_linkage_fields,
     normalize_industry,

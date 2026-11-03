@@ -28,6 +28,7 @@
 | [auction-risk-budget-exposure-20261101/](auction-risk-budget-exposure-20261101/RESULTS.md) | 竞价 D+5 风险预算与市场暴露缩放 |
 | [auction-market-return-model-20261101/](auction-market-return-model-20261101/RESULTS.md) | 竞价 D+5 市场绝对收益模型 |
 | [auction-lockbox-20261101/](auction-lockbox-20261101/PROTOCOL.md) | 竞价 D+5 前瞻锁箱协议（等待数据） |
+| [first-board-right-tail-20261102/](first-board-right-tail-20261102/RESULTS.md) | 首板右尾 v2/v3 动态入场、早盘与市场特征、事件级两阶段及退出变体 pilot（No-Go） |
 
 ## 已迁出的研究档案
 

@@ -257,6 +257,21 @@ def _timeseries_frame(root: Path, config, fields: list) -> pl.DataFrame:
     return frame
 
 
+def load_extension_configs(data_dir: Path):
+    """Public extension-data catalog read used by source extensions."""
+    return _load_configs(data_dir)
+
+
+def timeseries_signature(ts_dir: Path) -> tuple | None:
+    """Public partition signature for extension research cache keys."""
+    return _timeseries_signature(ts_dir)
+
+
+def timeseries_frame(root: Path, config, fields: list) -> pl.DataFrame:
+    """Public full timeseries read for extension research without private APIs."""
+    return _timeseries_frame(root, config, fields)
+
+
 def _snapshot_frame(root: Path, config, fields: list) -> pl.DataFrame:
     """快照扩展帧 (symbol, ext 列); 按 part.parquet (mtime, size) 签名缓存。"""
     path = root / "ext_data" / config.id / "part.parquet"

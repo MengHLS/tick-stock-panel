@@ -22,6 +22,7 @@ import polars as pl
 import pytest
 
 from app.backtest.engine import BacktestEngine
+from app.backtest.execution_policy import parse_backtest_defaults
 from app.backtest.strategy import StrategyBacktestConfig, StrategyBacktestService
 from app.strategy.engine import StrategyEngine
 
@@ -331,6 +332,88 @@ def test_guards(scenario, tmp_path):
     empty_service = _make_service(tmp_path, panel, {})
     result = empty_service.run(_config(days["t1"], days["t3"]))
     assert "分钟K" in (result.error or "")
+
+
+def test_minute_backtest_forwards_execution_policy(scenario, monkeypatch):
+    """minute_filter 不能用空 MatcherConfig 静默丢掉策略执行规则。"""
+    import app.backtest.strategy as strategy_module
+
+    service, _panel, days, _frames = scenario
+    policy = parse_backtest_defaults(
+        {
+            "schema_version": 1,
+            "score_tiers": [[0.0, 0.0], [0.6, 0.2]],
+            "entry_open_gap_range": [-0.03, 0.03],
+            "entry_prev_day_change_range": [-0.05, 0.05],
+            "trailing_peak_price": "close",
+            "exit_signal_requires_profit": True,
+            "hold_extension": {
+                "decision_days": 5,
+                "strong_hold_days": 10,
+                "strong_hold_min_return": 0.03,
+                "runner_new_high_days": 3,
+                "runner_extend_days": 6,
+            },
+            "execution_costs": {"min_commission": 5.0},
+            "max_daily_entries": 2,
+            "entry_price_basis": "raw",
+            "block_limit_open": True,
+        }
+    ).engine_options()
+    captured: dict = {}
+    original_matcher = strategy_module.MatcherConfig
+
+    def capture_matcher(**kwargs):
+        captured.update(kwargs)
+        return original_matcher(**kwargs)
+
+    monkeypatch.setattr(
+        service,
+        "_strategy_execution_policy",
+        staticmethod(lambda _strategy: policy),
+    )
+    monkeypatch.setattr(strategy_module, "MatcherConfig", capture_matcher)
+
+    result = service.run(_config(days["t1"], days["t3"]))
+
+    assert not result.error, result.error
+    for key in (
+        "score_tiers",
+        "entry_open_gap_range",
+        "entry_prev_day_change_range",
+        "trailing_peak_price",
+        "exit_signal_requires_profit",
+        "hold_extension_policy",
+        "execution_costs",
+        "max_daily_entries",
+        "entry_price_basis",
+        "block_limit_open",
+    ):
+        assert captured[key] == policy[key]
+    assert captured["entry_fill"] == "close_t"
+    assert captured["plan_at_signal_close"] is False
+
+
+def test_minute_backtest_rejects_signal_close_planning(scenario, monkeypatch):
+    service, _panel, days, _frames = scenario
+    policy = parse_backtest_defaults(
+        {
+            "schema_version": 1,
+            "entry_fill": "open_t+1",
+            "exit_fill": "open_t+1",
+            "plan_at_signal_close": True,
+        }
+    ).engine_options()
+    monkeypatch.setattr(
+        service,
+        "_strategy_execution_policy",
+        staticmethod(lambda _strategy: policy),
+    )
+
+    result = service.run(_config(days["t1"], days["t3"]))
+
+    assert result.error
+    assert "plan_at_signal_close" in result.error
 
 
 def test_adjusted_panel_entry_price_not_double_discounted(tmp_path):

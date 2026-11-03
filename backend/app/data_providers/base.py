@@ -29,6 +29,7 @@ class ProviderCapabilities:
     realtime: bool = False
     depth5: bool = False
     financial: bool = False
+    st_history: bool = False
 
 
 class MarketDataProvider(Protocol):
@@ -81,3 +82,6 @@ class MarketDataProvider(Protocol):
 
     def get_depth_batch(self, symbols: list[str]) -> dict[str, dict]:
         """Return five-level order books keyed by symbol."""
+
+    def get_st_history(self, symbols: list[str] | None = None) -> pl.DataFrame:
+        """Return normalized symbol/flag_date/st_flag effective-dated records."""

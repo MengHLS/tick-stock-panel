@@ -8,8 +8,12 @@ to use current instrument names.
 
 ## Normalized local dataset
 
-The repository reads `st_history/**/*.parquet` below the configured data
-directory. All files use these columns:
+The `st_history` capability is independently routable in Settings → Data
+Sources. Its default source is the built-in `local_st_history` provider, which
+reads `st_history/**/*.parquet` below the configured data directory. A Python
+plugin or YAML HTTP source may instead declare the `st_history` dataset; the
+core selects that source through `st_history_data_provider`. All sources use
+these normalized columns:
 
 | Column | Type | Meaning |
 | --- | --- | --- |
@@ -22,11 +26,12 @@ The last effective record on or before the market date is used. Future records
 are never filled backward. Conflicting records for the same security and
 effective date are rejected. Missing records are unknown, not normal.
 
-This is a reader for normalized historical data, not an assertion that any
-installed provider already supports automatic ST-history synchronization.
-Data must come from a source that supplies historical status, including normal
-intervals. Current names, current instrument snapshots and inferred price-limit
-percentages must not be converted into synthetic historical records.
+TickFlow does not provide this dataset. Data must come from the local
+normalized dataset or a provider that supplies historical status, including
+normal intervals. Current names, current instrument snapshots and inferred
+price-limit percentages must not be converted into synthetic historical
+records. The provider only normalizes and returns effective-dated records;
+universe filtering and price-limit corrections remain core behavior.
 
 ## Missing coverage
 

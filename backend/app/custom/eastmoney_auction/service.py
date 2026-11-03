@@ -36,9 +36,11 @@ logger = logging.getLogger(__name__)
 PREOPEN_CONFIG = "auction_preopen_live"
 RESULT_CONFIG = "auction_result_live"
 SEED_MARKER = ".eastmoney_auction_live_seeded"
+SCHEDULE_MIGRATION_MARKER = ".eastmoney_auction_pull_scheduler_v2"
+PREOPEN_URL = "builtin://eastmoney-auction/preopen"
+RESULT_URL = "builtin://eastmoney-auction/result"
 SOURCE = "eastmoney.clist"
 FINAL_SAMPLE_SIZE = 20
-_PROCESS_INTERVAL_SECONDS = 45
 _LOCK_TIMEOUT_SECONDS = 30.0
 _LOCK_POLL_SECONDS = 0.05
 
@@ -62,7 +64,16 @@ def preopen_config() -> ExtConfig:
             "累计量沿用东财手口径；未匹配量未提供，不能从累计量反推。"
         ),
         symbol_map={"type": "mapped", "col": "symbol"},
-        pull=PullConfig(time_field="observed_at", enabled=False),
+        pull=PullConfig(
+            url=PREOPEN_URL,
+            time_field="observed_at",
+            schedule_minutes=1,
+            enabled=True,
+            time_window_start="09:15",
+            time_window_end="09:25",
+            schedule_trading_only=True,
+            granularity="intraday",
+        ),
         fields=[
             ExtField("symbol", "string", "标的代码"),
             ExtField("name", "string", "股票简称"),
@@ -88,6 +99,15 @@ def result_config() -> ExtConfig:
             "成交量按东财手数乘 100 转为股，金额始终使用东财原始元值。"
         ),
         symbol_map={"type": "mapped", "col": "symbol"},
+        pull=PullConfig(
+            url=RESULT_URL,
+            schedule_minutes=1,
+            enabled=True,
+            time_window_start="09:27",
+            time_window_end="09:30",
+            schedule_trading_only=True,
+            granularity="intraday",
+        ),
         fields=[
             ExtField("symbol", "string", "标的代码"),
             ExtField("name", "string", "股票简称"),
@@ -115,7 +135,12 @@ def _config_path(data_dir: Path, config_id: str) -> Path:
 
 
 def ensure_auction_configs(data_dir: Path) -> dict[str, ExtConfig | None]:
-    """Seed extension tables once; a user deletion is never undone."""
+    """Seed extension tables once and move owned tables onto PullScheduler.
+
+    The schedule migration runs once for installations created before the
+    unified scheduler. It only rewrites the extension-owned built-in pull
+    configs; user-customized URLs remain untouched.
+    """
     data_dir = Path(data_dir)
     store = ExtConfigStore(data_dir)
     marker = data_dir / "ext_data" / SEED_MARKER
@@ -127,16 +152,36 @@ def ensure_auction_configs(data_dir: Path) -> dict[str, ExtConfig | None]:
             raise ValueError(f"Existing extension config is unreadable: {config_id}")
         existing[config_id] = config
 
-    if marker.exists():
-        return existing
+    if not marker.exists():
+        for config_id, builder in _BUILDERS.items():
+            if existing[config_id] is None:
+                config = builder()
+                store.upsert(config)
+                existing[config_id] = config
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_text(marker, "")
 
-    for config_id, builder in _BUILDERS.items():
-        if existing[config_id] is None:
-            config = builder()
-            store.upsert(config)
-            existing[config_id] = config
-    marker.parent.mkdir(parents=True, exist_ok=True)
-    atomic_write_text(marker, "")
+    migration_marker = data_dir / "ext_data" / SCHEDULE_MIGRATION_MARKER
+    if not migration_marker.exists():
+        for config_id, builder in _BUILDERS.items():
+            current = existing[config_id]
+            if current is None:
+                continue
+            _assert_config_contract(current)
+            old_pull = current.pull
+            if old_pull and old_pull.url not in ("", PREOPEN_URL, RESULT_URL):
+                continue
+            replacement = builder().pull
+            if replacement is not None and old_pull is not None:
+                replacement.last_run = old_pull.last_run
+                replacement.last_status = old_pull.last_status
+                replacement.last_message = old_pull.last_message
+                replacement.last_rows = old_pull.last_rows
+            current.pull = replacement
+            store.upsert(current)
+            existing[config_id] = current
+        migration_marker.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_text(migration_marker, "")
     return existing
 
 
@@ -425,6 +470,7 @@ def sync_preopen_snapshot(
     create_config: bool = True,
     cancel_event: threading.Event | None = None,
     symbols: list[str] | None = None,
+    keep_strategy_cache: bool = False,
 ) -> dict:
     """Fetch one full-market process snapshot before the 09:25 final match."""
     current = _aware_now(now)
@@ -473,6 +519,7 @@ def sync_preopen_snapshot(
             preopen,
             data_dir,
             snapshot_date=current.date(),
+            keep_strategy_cache=keep_strategy_cache,
         )
     return {
         "status": "written",
@@ -490,6 +537,7 @@ def sync_final_results(
     cancel_event: threading.Event | None = None,
     verify_sample_size: int = FINAL_SAMPLE_SIZE,
     symbols: list[str] | None = None,
+    keep_strategy_cache: bool = False,
 ) -> dict:
     """Publish final auction results only inside the verified 09:26 batch window."""
     current = _aware_now(now)
@@ -544,6 +592,7 @@ def sync_final_results(
             result,
             data_dir,
             snapshot_date=current.date(),
+            keep_strategy_cache=keep_strategy_cache,
         )
     return {
         "status": "written",
@@ -557,127 +606,64 @@ def _completion_marker(data_dir: Path, day: date) -> Path:
     return data_dir / "ext_data" / RESULT_CONFIG / ".auto_completed" / day.isoformat()
 
 
-class EastmoneyAuctionScheduler:
-    """Collect process snapshots every 45s, then publish one verified final result."""
-
-    def __init__(self) -> None:
-        self._task: asyncio.Task | None = None
-        self._running = False
-        self._enabled = False
-        self._data_dir: Path | None = None
-        self._repository = None
-        self._cancel_event = threading.Event()
-        self._last_process_at: datetime | None = None
-        self._last_final_at: datetime | None = None
-        self._final_day: date | None = None
-
-    def start(self, data_dir: Path, *, enabled: bool = True, repository=None) -> None:
-        self.stop()
-        self._data_dir = Path(data_dir)
-        self._repository = repository
-        self._enabled = bool(enabled)
-        self._cancel_event = threading.Event()
-        self._last_process_at = None
-        self._last_final_at = None
-        self._final_day = None
-        if not self._enabled:
-            logger.info("EastmoneyAuctionScheduler initialized (disabled)")
-            return
-        self._running = True
-        self._task = asyncio.create_task(self._run_loop())
-        logger.info("EastmoneyAuctionScheduler started")
-
-    def stop(self) -> None:
-        self._running = False
-        self._enabled = False
-        self._cancel_event.set()
-        if self._task is not None:
-            self._task.cancel()
-            self._task = None
-
-    async def _run_loop(self) -> None:
-        try:
-            while self._running:
-                await self.run_once()
-                await asyncio.sleep(5)
-        except asyncio.CancelledError:
-            self._running = False
-            self._cancel_event.set()
-
-    async def run_once(self, now: datetime | None = None) -> dict:
-        if not self._enabled or self._data_dir is None:
-            return {"status": "disabled"}
-        current = _aware_now(now)
-        if current.weekday() >= 5 or trading_day.is_trading_day(current) is False:
-            return {"status": "not_due"}
-
-        clock = _clock_time(current)
-        final_phase = False
-        if time(9, 15) <= clock < time(9, 25):
-            if (
-                self._last_process_at is not None
-                and (current - self._last_process_at).total_seconds()
-                < _PROCESS_INTERVAL_SECONDS
-            ):
-                return {"status": "not_due"}
-            self._last_process_at = current
-            operation = partial(
-                sync_preopen_snapshot,
-                self._data_dir,
-                now=current,
-                create_config=False,
-                cancel_event=self._cancel_event,
-            )
-        elif time(9, 26, 5) <= clock < time(9, 30):
-            final_phase = True
-            marker = _completion_marker(self._data_dir, current.date())
-            if self._final_day == current.date() or marker.exists():
-                self._final_day = current.date()
-                return {"status": "done", "date": current.date().isoformat()}
-            if (
-                self._last_final_at is not None
-                and (current - self._last_final_at).total_seconds() < 15
-            ):
-                return {"status": "not_due"}
-            self._last_final_at = current
-            operation = partial(
-                sync_final_results,
-                self._data_dir,
-                now=current,
-                create_config=False,
-                cancel_event=self._cancel_event,
-            )
-        else:
-            return {"status": "not_due"}
-
-        try:
-            result = await asyncio.to_thread(operation)
-        except SyncCancelledError:
-            return {"status": "cancelled"}
-        except Exception as exc:  # noqa: BLE001 - scheduler must keep retrying
-            if self._cancel_event.is_set():
-                return {"status": "cancelled"}
-            logger.warning("Eastmoney auction sync failed: %s", exc)
-            return {"status": "error", "message": str(exc)}
-
-        if result.get("status") in {"written", "exists"}:
-            clear_cache = getattr(self._repository, "clear_cache", None)
-            if callable(clear_cache):
-                try:
-                    clear_cache()
-                except Exception as exc:  # noqa: BLE001 - retry before marking final done
-                    return {"status": "error", "message": f"cache invalidation: {exc}"}
-
-        if final_phase and result.get("status") in {
-            "written",
-            "exists",
-            "missing_config",
-        }:
-            marker = _completion_marker(self._data_dir, current.date())
-            marker.parent.mkdir(parents=True, exist_ok=True)
-            atomic_write_text(marker, str(result.get("status")))
-            self._final_day = current.date()
-        return result
+def _scheduled_count(
+    result: dict,
+    day: date,
+    *,
+    operation: str,
+) -> tuple[int, str]:
+    status = str(result.get("status") or "")
+    if status == "written":
+        return int(result.get("rows") or 0), day.isoformat()
+    if status in {"holiday", "not_trading"}:
+        return 0, day.isoformat()
+    raise ValueError(f"{operation}未完成: {status or '未知状态'}")
 
 
-auction_scheduler = EastmoneyAuctionScheduler()
+async def run_scheduled_preopen(
+    config: ExtConfig,
+    data_dir: Path,
+    target_date: date,
+) -> tuple[int, str]:
+    """PullScheduler 的竞价过程执行器。"""
+    if config.id != PREOPEN_CONFIG:
+        raise ValueError(f"竞价值拉取适配器配置不匹配: {config.id}")
+    result = await asyncio.to_thread(
+        sync_preopen_snapshot,
+        data_dir,
+        now=cn_now(),
+        create_config=False,
+        keep_strategy_cache=True,
+    )
+    return _scheduled_count(result, target_date, operation="竞价过程采集")
+
+
+async def run_scheduled_result(
+    config: ExtConfig,
+    data_dir: Path,
+    target_date: date,
+) -> tuple[int, str]:
+    """PullScheduler 的最终竞价执行器；当日成功后不再重复请求。"""
+    if config.id != RESULT_CONFIG:
+        raise ValueError(f"竞价结果拉取适配器配置不匹配: {config.id}")
+    marker = _completion_marker(data_dir, target_date)
+    part = (
+        data_dir / "ext_data" / RESULT_CONFIG / "timeseries"
+        / f"date={target_date.isoformat()}" / "part.parquet"
+    )
+    if marker.exists() and part.exists():
+        last_rows = config.pull.last_rows if config.pull else 0
+        return int(last_rows or 0), target_date.isoformat()
+
+    result = await asyncio.to_thread(
+        sync_final_results,
+        data_dir,
+        now=cn_now(),
+        create_config=False,
+        keep_strategy_cache=True,
+    )
+    count = _scheduled_count(result, target_date, operation="竞价结果采集")
+    if result.get("status") == "written":
+        marker.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_text(marker, "written")
+    return count

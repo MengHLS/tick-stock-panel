@@ -9,18 +9,18 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from app.custom.cross_sectional_linkage import store as linkage_store
+from app.custom.cross_sectional_linkage.store import (
+    LinkageCoverageError,
+    attach_linkage_columns,
+    rebuild_linkage_sidecar,
+)
 from app.enriched_generation import (
     CLAIM_STALE_SECONDS,
     EnrichedGenerationUnavailableError,
     EnrichedPublication,
     get_enriched_generation,
     recover_stale_publications,
-)
-from app.factors import linkage_store
-from app.factors.linkage_store import (
-    LinkageCoverageError,
-    attach_linkage_columns,
-    rebuild_linkage_sidecar,
 )
 from app.services.ext_data import ExtConfig, ExtConfigStore, ExtField, PullConfig
 

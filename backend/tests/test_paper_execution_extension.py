@@ -356,9 +356,9 @@ def test_extension_api_and_lifecycle(env, monkeypatch):
 
     from app.custom.paper_execution import routes
 
-    monkeypatch.setattr(routes, "ScreenerService", lambda _repo: env.screener)
     app = FastAPI()
     app.state.repo = SimpleNamespace(store=SimpleNamespace(data_dir=env.root))
+    app.state.screener = env.screener
     app.state.strategy_engine = env.engine
     app.state.quote_service = env.service.quotes
     app.include_router(routes.build_router())
@@ -389,6 +389,7 @@ def test_extension_api_and_lifecycle(env, monkeypatch):
         # 第二个进程/实例拿不到执行租约时仅禁用自身。
         other = FastAPI()
         other.state.repo = app.state.repo
+        other.state.screener = env.screener
         other.state.strategy_engine = env.engine
         other.include_router(routes.build_router())
         with TestClient(other) as second:

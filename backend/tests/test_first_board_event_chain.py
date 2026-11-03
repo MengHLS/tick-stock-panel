@@ -6,7 +6,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from app.factors.event_chain import (
+from app.custom.first_board_event_chain.compute import (
     EVENT_CHAIN_FIELDS,
     EventChainConfig,
     compute_event_chain_outputs,

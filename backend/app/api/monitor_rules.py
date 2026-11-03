@@ -233,7 +233,7 @@ def list_rules(request: Request):
         reason = unavailable_reasons.get(str(rule.get("id")))
         if reason:
             rule["unavailable_reason"] = reason
-            rule["runtime_warning"] = "行业联动因子仅日频可用, 当前盘中监控已降级"
+            rule["runtime_warning"] = "扩展因子条件仅日频可用, 当前盘中监控已降级"
     from app.services.kline_sync import intraday_monitor_support
 
     support = intraday_monitor_support(getattr(request.app.state, "capabilities", None))

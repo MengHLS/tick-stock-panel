@@ -88,6 +88,12 @@ class _DetailRepo:
     def get_minute_range(self, symbols, start, end, asset_type="stock") -> pl.DataFrame:
         return self.minute
 
+    def list_minute_dates(self, start, end, asset_type="stock") -> list[date]:
+        return [_TRADE_DATE]
+
+    def get_minute_by_dates(self, symbols, dates, asset_type="stock") -> pl.DataFrame:
+        return self.minute
+
 
 class _IndexRepo:
     def get_index_instruments(self) -> pl.DataFrame:

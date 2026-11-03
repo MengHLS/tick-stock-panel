@@ -339,6 +339,29 @@ class StrategyEngine:
                     logger.warning("load strategy %s failed: %s", f.name, e)
                     errors.append({"file": str(f), "error": str(e)})
 
+        from app.extensions.strategies import strategy_providers
+
+        for provider in strategy_providers():
+            source = f"provider:{provider.__class__.__name__}"
+            try:
+                definitions = provider.strategy_definitions()
+            except Exception as e:  # noqa: BLE001 - isolate one optional provider
+                errors.append({"file": source, "error": str(e)})
+                continue
+            for strategy in definitions:
+                try:
+                    strategy_id = str(strategy.meta["id"])
+                except Exception as e:  # noqa: BLE001 - malformed provider item
+                    errors.append({"file": source, "error": str(e)})
+                    continue
+                if strategy_id in candidates:
+                    errors.append({
+                        "file": source,
+                        "error": f"duplicate strategy id {strategy_id!r}",
+                    })
+                    continue
+                candidates[strategy_id] = strategy
+
         # 第二阶段: 校验 composite 引用合法性。
         # _load_file 是 staticmethod, 加载单个文件时无法判断 child 是否存在;
         # 此处已拿到全部 candidates, 可做引用、嵌套、asset_types 与数量校验。
@@ -425,7 +448,7 @@ class StrategyEngine:
         dependency_paths = [
             candidate
             for candidate in path.parent.glob("_*.py")
-            if candidate != path
+            if candidate != path and candidate.name != "__init__.py"
         ]
         dependency_names = frozenset(candidate.stem for candidate in dependency_paths)
         try:
@@ -1192,8 +1215,40 @@ class StrategyEngine:
                 else:
                     df = df.filter(overlay_expr.fill_null(False))
 
+        from app.extensions.strategies import (
+            apply_candidate_filter,
+            apply_risk_policy,
+            apply_scoring_policy,
+            build_strategy_policy_context,
+        )
+
+        policy_context = build_strategy_policy_context(
+            asset_type=context.asset_type,
+            as_of=as_of,
+            strategy_id=strategy_id,
+            params=params,
+            metadata=s.meta,
+        )
+        candidate_filter_id = s.meta.get("candidate_filter")
+        if candidate_filter_id:
+            df = apply_candidate_filter(
+                df,
+                str(candidate_filter_id),
+                policy_context,
+            )
         # Stage 3: 评分
         df = self._apply_scoring(df, scoring, scoring_directions)
+        scoring_policy_id = s.meta.get("scoring_policy")
+        if scoring_policy_id:
+            policy_score = apply_scoring_policy(
+                df,
+                str(scoring_policy_id),
+                policy_context,
+            )
+            df = df.with_columns(policy_score.alias("score"))
+        risk_policy_id = s.meta.get("risk_policy")
+        if risk_policy_id:
+            df = apply_risk_policy(df, str(risk_policy_id), policy_context)
         entry_signal_hits = self._collect_signal_hits(df, entry_signals)
         if not entry_signals and (
             s.filter_history_fn or s.filter_fn or s.execution_backend == "minute_filter"
@@ -1285,10 +1340,11 @@ class StrategyEngine:
     ) -> frozenset[str]:
         """Resolve linkage dependencies for a batch without loading market data."""
         from app.backtest.strategy import StrategyDependencyResolver
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
+        from app.extensions.factors import sidecar_factor_ids
 
         params_map = params_map or {}
         overrides_map = overrides_map or {}
+        linkage_ids = sidecar_factor_ids()
         resolver = StrategyDependencyResolver()
         names: set[str] = set()
         for strategy_id in strategy_ids:
@@ -1313,7 +1369,7 @@ class StrategyEngine:
                 asset_type=asset_type,
                 allow_unresolved_signals=True,
             )
-            names.update(plan.linkage_columns & LINKAGE_FACTOR_IDS)
+            names.update(plan.linkage_columns & linkage_ids)
         return frozenset(names)
 
     def _attach_context_linkage(
@@ -1334,71 +1390,35 @@ class StrategyEngine:
             return context
         data_dir = self._user_data_dir()
         if data_dir is None:
-            raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
-        from app.enriched_generation import get_enriched_generation
-        from app.factors.linkage import DEVIATION_FACTOR_IDS
-        from app.factors.linkage_store import (
-            attach_linkage_columns,
-            linkage_finalized_through,
+            raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
+        from app.extensions.factors import (
+            FactorProviderContext,
+            factor_provider_generation,
+            materialize_factor_columns,
         )
 
         expected = context.linkage_generation
         if expected is None:
-            expected = get_enriched_generation(data_dir, "linkage")
-        deviation_names = frozenset(names) & DEVIATION_FACTOR_IDS
-        finalized_through = (
-            linkage_finalized_through(
-                data_dir,
-                expected_generation=expected,
+            expected = factor_provider_generation(
+                names,
+                data_dir=data_dir,
+                asset_type=context.asset_type,
             )
-            if deviation_names
-            else None
+        provider_context = FactorProviderContext(
+            data_dir=data_dir,
+            expected_generation=expected,
+            asset_type=context.asset_type,
+            require_complete=True,
+            allow_tail_nulls=True,
         )
 
         def _attach(frame: pl.DataFrame | None) -> pl.DataFrame | None:
             if frame is None or frame.is_empty() or "date" not in frame.columns:
                 return frame
-            requested = frozenset(names)
-            if deviation_names and finalized_through is not None:
-                indexed = frame.with_row_index("_linkage_row")
-                covered = indexed.filter(pl.col("date") <= finalized_through)
-                beyond = indexed.filter(pl.col("date") > finalized_through)
-                industry_names = requested - deviation_names
-                if industry_names and not beyond.is_empty():
-                    attach_linkage_columns(
-                        beyond,
-                        industry_names,
-                        data_dir,
-                        expected_generation=expected,
-                        require_complete=True,
-                    )
-                if covered.is_empty():
-                    attached_covered = covered
-                else:
-                    attached_covered = attach_linkage_columns(
-                        covered,
-                        requested,
-                        data_dir,
-                        expected_generation=expected,
-                        require_complete=True,
-                    )
-                if not beyond.is_empty():
-                    beyond = beyond.with_columns([
-                        pl.lit(None, dtype=pl.Float64).alias(name)
-                        for name in requested
-                        if name not in beyond.columns
-                    ])
-                attached = pl.concat(
-                    [attached_covered, beyond],
-                    how="diagonal_relaxed",
-                ).sort("_linkage_row")
-                return attached.drop("_linkage_row")
-            return attach_linkage_columns(
+            return materialize_factor_columns(
                 frame,
-                requested,
-                data_dir,
-                expected_generation=expected,
-                require_complete=True,
+                names,
+                context=provider_context,
             )
 
         return replace(
@@ -1793,6 +1813,86 @@ class StrategyEngine:
                     count=len(market.symbols),
                 )
                 entry_active = np.where(allowed, entry_active, 0)
+
+        candidate_filter_id = strategy.meta.get("candidate_filter")
+        risk_policy_id = strategy.meta.get("risk_policy")
+        scoring_policy_id = strategy.meta.get("scoring_policy")
+        policy_scores: dict[str, float] = {}
+        if candidate_filter_id or risk_policy_id or scoring_policy_id:
+            from app.extensions.strategies import (
+                apply_candidate_filter,
+                apply_risk_policy,
+                apply_scoring_policy,
+                build_strategy_policy_context,
+            )
+
+            selected_symbols = [
+                market.symbols[int(asset_id)]
+                for asset_id in np.flatnonzero(entry_active != 0)
+            ]
+            if selected_symbols:
+                policy_frame = target_frame.filter(
+                    pl.col("symbol").cast(pl.Utf8).is_in(selected_symbols)
+                )
+                if policy_frame.height != len(set(selected_symbols)):
+                    raise ValueError(
+                        "矩阵策略当日候选帧必须每个标的仅一行"
+                    )
+                policy_context = build_strategy_policy_context(
+                    asset_type=context.asset_type,
+                    as_of=as_of,
+                    strategy_id=strategy_id,
+                    params=params,
+                    metadata=strategy.meta,
+                )
+                if candidate_filter_id:
+                    policy_frame = apply_candidate_filter(
+                        policy_frame,
+                        str(candidate_filter_id),
+                        policy_context,
+                    )
+                if scoring_policy_id and policy_frame.height:
+                    scores = apply_scoring_policy(
+                        policy_frame,
+                        str(scoring_policy_id),
+                        policy_context,
+                    )
+                    policy_frame = policy_frame.with_columns(
+                        scores.alias("score")
+                    )
+                if risk_policy_id:
+                    policy_frame = apply_risk_policy(
+                        policy_frame,
+                        str(risk_policy_id),
+                        policy_context,
+                    )
+                allowed_symbols = [
+                    str(symbol)
+                    for symbol in policy_frame["symbol"].cast(pl.Utf8).to_list()
+                ]
+                if len(allowed_symbols) != len(set(allowed_symbols)):
+                    raise ValueError("策略级过滤器必须保持每个标的最多一行")
+                unknown = set(allowed_symbols) - set(selected_symbols)
+                if unknown:
+                    raise ValueError(
+                        f"策略级过滤器返回了非候选标的: {sorted(unknown)}"
+                    )
+                allowed_mask = np.fromiter(
+                    (symbol in set(allowed_symbols) for symbol in market.symbols),
+                    dtype=bool,
+                    count=len(market.symbols),
+                )
+                entry_active = np.where(allowed_mask, entry_active, 0)
+                if scoring_policy_id and policy_frame.height:
+                    policy_scores = dict(zip(
+                        allowed_symbols,
+                        (
+                            float(value)
+                            for value in policy_frame["score"].to_list()
+                        ),
+                        strict=True,
+                    ))
+
         entry_signal_hits = self._matrix_signal_hits(
             entry_active,
             signals.entry_signal_code[target_time],
@@ -1825,7 +1925,10 @@ class StrategyEngine:
             row = row_by_symbol.get(symbol)
             if row is None:
                 continue
-            score = float(signals.score[target_time, int(asset_id)])
+            score = policy_scores.get(
+                symbol,
+                float(signals.score[target_time, int(asset_id)]),
+            )
             ranked.append((score, {**row, "score": score}))
         ranked.sort(
             key=lambda item: item[0],
@@ -1865,6 +1968,14 @@ class StrategyEngine:
         from app.strategy import composite as composite_mod
 
         assert strategy.composite is not None
+        if any(
+            strategy.meta.get(key)
+            for key in ("candidate_filter", "scoring_policy", "risk_policy")
+        ):
+            raise ValueError(
+                "composite 策略不支持顶层 candidate_filter / scoring_policy / "
+                "risk_policy；请配置到子策略"
+            )
         overrides = overrides or {}
 
         # 权重: override.children 优先(META 固化值的轻量覆盖), 否则用 META 声明。
@@ -2185,13 +2296,16 @@ class StrategyEngine:
         names = [str(name) for name, weight in scoring.items() if weight]
         if not names:
             return current, history
-        from app.factors.linkage import LINKAGE_FACTOR_IDS
-        from app.factors.linkage_store import attach_linkage_columns
+        from app.extensions.factors import (
+            FactorProviderContext,
+            materialize_factor_columns,
+            sidecar_factor_ids,
+        )
         from app.factors.registry import factor_dependencies
 
         linkage_names = (
             frozenset(names) | factor_dependencies(names)
-        ) & LINKAGE_FACTOR_IDS
+        ) & sidecar_factor_ids()
 
         def _attach(frame: pl.DataFrame | None) -> pl.DataFrame | None:
             if frame is None or frame.is_empty() or not linkage_names:
@@ -2200,13 +2314,14 @@ class StrategyEngine:
             if not missing:
                 return frame
             if data_dir is None:
-                raise ValueError("联动因子需要稳定的数据目录 (data_dir)")
-            return attach_linkage_columns(
+                raise ValueError("扩展 Provider 因子需要稳定的数据目录 (data_dir)")
+            return materialize_factor_columns(
                 frame,
                 missing,
-                data_dir,
-                expected_generation=expected_linkage_generation,
-                require_complete=True,
+                context=FactorProviderContext(
+                    data_dir=data_dir,
+                    expected_generation=expected_linkage_generation,
+                ),
             )
 
         current = _attach(current)
@@ -2234,3 +2349,8 @@ def _sanitize(rows: list[dict]) -> list[dict]:
             if isinstance(v, float) and (v != v or abs(v) == float("inf")):
                 r[k] = None
     return rows
+
+
+def load_strategy_file(path: Path) -> StrategyDef:
+    """Stable entry point for backend extensions that ship strategy files."""
+    return StrategyEngine._load_file(Path(path))

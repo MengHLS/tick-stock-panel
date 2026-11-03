@@ -1285,7 +1285,9 @@ class QuoteService:
             # 通用监控规则评估 (统一引擎: signal/price/market/strategy)
             if self._app_state:
                 engine = getattr(self._app_state, "monitor_engine", None)
-                if engine and engine.rule_count > 0:
+                # Keep this block active even with zero generic rules: extension
+                # quote observers use the same delivery pipeline independently.
+                if engine is not None:
                     # 预构建 symbol → name 映射 (enriched 已 drop name 列, 引擎触发时回填用)。
                     # 股票 + ETF + 指数三表合并走 _monitor_name_map -> repo.get_name_map()
                     # 的进程内 memo, 避免每轮监控对 ~7000 行维表 iter_rows 重建。
@@ -1363,6 +1365,14 @@ class QuoteService:
                                 )
                         except Exception as e:  # noqa: BLE001
                             logger.warning("指数监控评估失败 (不影响股票/ETF 告警): %s", e)
+                    # Extension observers run even when no generic monitor rule exists.
+                    # They receive only symbols they explicitly watch and return the
+                    # same alert-event shape used by the standard delivery pipeline.
+                    rule_events.extend(
+                        self._evaluate_extension_observers(
+                            enriched_today if stock_ready else pl.DataFrame(),
+                        )
+                    )
                     # 模拟盘「绑定即评估」的合成规则事件是沙盒信号: 只喂下面的
                     # 模拟盘钩子, 不进告警流 (留痕/SSE/系统通知/webhook/扩展格式化)。
                     from app.strategy.paper_watch import is_paper_watch_event
@@ -1496,7 +1506,7 @@ class QuoteService:
                     if not isinstance(message, str):
                         raise TypeError("notification formatter must return str")
                     formatted["message"] = message
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001 - isolate one formatter
                     logger.warning(
                         "notification formatter failed %s: %s",
                         registered.implementation_id,
@@ -1504,6 +1514,69 @@ class QuoteService:
                     )
             formatted_events.append(formatted)
         return formatted_events
+
+    def _evaluate_extension_observers(
+        self,
+        enriched: pl.DataFrame,
+        *,
+        observed_at=None,
+    ) -> list[dict]:
+        """Run small extension observers on their own symbol scope.
+
+        Observers are isolated individually: one broken extension must never
+        suppress core monitor rules or other extension alerts.
+        """
+        registry = (
+            getattr(self._app_state, "extension_registry", None)
+            if self._app_state is not None
+            else None
+        )
+        if registry is None or not registry.has_quote_observers:
+            return []
+        if enriched.is_empty() or "symbol" not in enriched.columns:
+            return []
+        from app.extensions.contracts import BACKEND_EXTENSION_API_VERSION, QuoteUpdateContext
+
+        now = observed_at or cn_now()
+        all_events: list[dict] = []
+        for registered in registry.quote_observers():
+            try:
+                symbols = set(registered.implementation.watched_symbols())
+                if not symbols:
+                    continue
+                scoped = enriched.filter(pl.col("symbol").is_in(sorted(symbols)))
+                context = QuoteUpdateContext(
+                    api_version=BACKEND_EXTENSION_API_VERSION,
+                    observed_at=now,
+                    quotes=tuple(scoped.iter_rows(named=True)),
+                )
+                events = registered.implementation.on_quote_update(context)
+                if not isinstance(events, list):
+                    raise TypeError("quote observer must return a list")
+                for event in events:
+                    if not isinstance(event, dict):
+                        raise TypeError("quote observer events must be dictionaries")
+                    normalized = dict(event)
+                    normalized.setdefault("ts", int(now.timestamp() * 1000))
+                    normalized.setdefault("source", "extension")
+                    normalized.setdefault("type", "extension_event")
+                    normalized.setdefault("symbol", "")
+                    normalized.setdefault("name", None)
+                    normalized.setdefault("message", "")
+                    normalized.setdefault("price", None)
+                    normalized.setdefault("change_pct", None)
+                    normalized.setdefault("signals", [])
+                    normalized.setdefault("severity", "info")
+                    normalized.setdefault("conditions", [])
+                    normalized.setdefault("logic", "and")
+                    all_events.append(normalized)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "扩展行情观察器失败 %s: %s",
+                    registered.implementation_id,
+                    exc,
+                )
+        return all_events
 
     def _enrich_alerts_ext(self, alerts: list[dict]) -> None:
         """就地给告警事件按 symbol 追加行业/概念 ext 字段。

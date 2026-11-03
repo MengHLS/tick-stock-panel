@@ -20,6 +20,7 @@ from app.tickflow.capabilities import Cap, CapabilityLimits, CapabilitySet
 # 2026-08-26 是周三; 10:00 处于上午连续竞价, expected(已交易分钟) = 30
 _NOW = datetime(2026, 8, 26, 10, 0, tzinfo=CN_TZ)
 _TODAY = date(2026, 8, 26)
+_PREVIOUS_SESSION = date(2026, 8, 25)
 _LOCAL_ROWS = 30
 
 
@@ -43,13 +44,21 @@ class _FakeRepo:
         return pl.DataFrame({"date": [], "close": []})
 
     def get_minute(self, symbol, trade_date, asset_type="stock") -> pl.DataFrame:
+        day = trade_date
+        row_count = 240 if day == _PREVIOUS_SESSION else _LOCAL_ROWS
         return pl.DataFrame({
             "datetime": [
-                datetime(2026, 8, 26, 9, 30 + offset // 60, offset % 60)
-                for offset in range(_LOCAL_ROWS)
+                datetime(day.year, day.month, day.day, 9, 30 + offset // 60, offset % 60)
+                for offset in range(row_count)
             ],
-            "close": [10.0] * _LOCAL_ROWS,
+            "close": [10.0] * row_count,
         })
+
+    def latest_minute_date(self, symbol, asset_type="stock") -> date:
+        return _PREVIOUS_SESSION
+
+    def latest_daily_date(self) -> date:
+        return _PREVIOUS_SESSION
 
 
 def _client() -> TestClient:
@@ -126,6 +135,27 @@ def test_minute_live_param_falls_back_to_local_off_session(monkeypatch):
     assert resp.status_code == 200
     body = resp.json()
     assert body["source"] == "local"
+
+
+def test_minute_before_open_uses_latest_local_session_without_live_fetch(monkeypatch):
+    before_open = datetime(2026, 8, 26, 2, 0, tzinfo=CN_TZ)
+    monkeypatch.setattr("app.api.kline.cn_now", lambda: before_open)
+    monkeypatch.setattr("app.api.kline.cn_today", lambda: _TODAY)
+    monkeypatch.setattr("app.api.kline.in_continuous_session", lambda: False)
+    monkeypatch.setattr(
+        "app.api.kline.kline_sync.fetch_minute_single",
+        lambda *args, **kwargs: pytest.fail("盘前不应请求远端分钟数据"),
+    )
+
+    resp = _client().get(
+        "/api/kline/minute", params={"symbol": "600000.SH", "live": 1}
+    )
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["source"] == "local"
+    assert body["date"] == _PREVIOUS_SESSION.isoformat()
+    assert len(body["rows"]) == 240
 
 
 @pytest.mark.parametrize(

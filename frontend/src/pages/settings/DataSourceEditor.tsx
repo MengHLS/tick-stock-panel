@@ -9,7 +9,7 @@ import { toast } from '@/components/Toast'
 const INPUT_CLS =
   'w-full h-9 px-2.5 rounded-lg bg-base border-0 ring-1 ring-border/40 text-xs text-foreground placeholder:text-muted/30 focus:outline-none focus:ring-2 focus:ring-accent/40 transition-shadow'
 
-const DATASETS = ['daily', 'adj_factor', 'realtime', 'minute', 'depth5', 'full_minute', 'financial'] as const
+const DATASETS = ['daily', 'adj_factor', 'realtime', 'minute', 'depth5', 'full_minute', 'financial', 'st_history'] as const
 type DatasetKey = typeof DATASETS[number]
 
 const DATASET_LABEL: Record<DatasetKey, string> = {
@@ -20,6 +20,7 @@ const DATASET_LABEL: Record<DatasetKey, string> = {
   depth5: '五档盘口',
   full_minute: '全量分钟',
   financial: '财务数据',
+  st_history: '历史 ST',
 }
 
 // 财务 canonical 全列 (与前端财务页 FIELD_DEFS / fuyao provider 映射对齐)。
@@ -60,12 +61,13 @@ const TARGET_FIELDS: Record<DatasetKey, string[]> = {
   full_minute: ['symbol', 'datetime', 'open', 'high', 'low', 'close', 'volume', 'amount'],
   // 财务只预填骨架三列, 具体指标从"添加映射"下拉按表选择 (全预填 60 行太长)
   financial: ['symbol', 'period_end', 'announce_date'],
+  st_history: ['symbol', 'flag_date', 'st_flag'],
 }
 
 // 财务的映射下拉选项 = 五表 canonical 全列 (预填只给骨架, 下拉覆盖全部)
 const TARGET_OPTIONS: Record<DatasetKey, string[]> = {
   ...Object.fromEntries(
-    (['daily', 'adj_factor', 'realtime', 'minute', 'depth5', 'full_minute'] as DatasetKey[]).map(
+    (['daily', 'adj_factor', 'realtime', 'minute', 'depth5', 'full_minute', 'st_history'] as DatasetKey[]).map(
       k => [k, TARGET_FIELDS[k]],
     ),
   ),
@@ -84,6 +86,8 @@ const FIELD_LABELS: Record<string, string> = {
   volume: '成交量 (手)',
   amount: '成交额 (元)',
   trade_date: '除权日期 (YYYY-MM-DD)',
+  flag_date: '生效日期 (YYYY-MM-DD)',
+  st_flag: '风险警示状态 (true/false)',
   ex_factor: '复权因子',
   name: '股票名称',
   last_price: '最新价',
@@ -460,7 +464,7 @@ function DatasetDetail({
   const [showParams, setShowParams] = useState(false)
   // realtime 为全市场快照不注入任何参数; depth5/financial 逐批注入代码参数但无起止时间
   const showSymbolsParam = datasetKey !== 'realtime'
-  const showTimeParams = datasetKey !== 'realtime' && datasetKey !== 'depth5' && datasetKey !== 'financial'
+  const showTimeParams = datasetKey !== 'realtime' && datasetKey !== 'depth5' && datasetKey !== 'financial' && datasetKey !== 'st_history'
   const test = useMutation({
     mutationFn: () => api.testDataSource(
       providerName,
