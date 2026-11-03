@@ -1,0 +1,86 @@
+name: Sync main from upstream
+
+on:
+  schedule:
+    - cron: '37 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-main-from-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: upstream-sync
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.UPSTREAM_SYNC_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/upstream_sync
+          chmod 600 ~/.ssh/upstream_sync
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/upstream_sync
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+          git remote set-url origin "git@github.com:${GITHUB_REPOSITORY}.git"
+
+      - name: Rebase onto upstream main
+        env:
+          UPSTREAM_REPOSITORY: shy3130/tick-stock-panel
+        run: |
+          set -euo pipefail
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git remote add upstream "https://github.com/${UPSTREAM_REPOSITORY}.git"
+          git fetch --no-tags upstream main
+          git fetch --no-tags origin main
+
+          local_commits=$(git rev-list --count upstream/main..HEAD)
+          unexpected_changes=$(git diff --name-only upstream/main...HEAD | grep -vx '.github/workflows/sync-upstream-main.yml' || true)
+          if [ -n "$unexpected_changes" ]; then
+            echo '::error::main contains fork-only changes outside the upstream sync workflow; refusing to overwrite them.'
+            echo "$unexpected_changes"
+            exit 1
+          fi
+
+          if [ "$local_commits" -le 1 ] && git merge-base --is-ancestor upstream/main HEAD; then
+            echo 'Already up to date with upstream/main.'
+            exit 0
+          fi
+
+          if [ "$local_commits" -eq 0 ]; then
+            git merge --ff-only upstream/main
+          elif ! git merge-base --is-ancestor upstream/main HEAD; then
+            git rebase upstream/main
+          fi
+
+          local_commits=$(git rev-list --count upstream/main..HEAD)
+          if [ "$local_commits" -gt 1 ]; then
+            git reset --soft upstream/main
+            git commit -s -m 'ci: sync main from upstream'
+          fi
+
+          git push --force-with-lease origin HEAD:main
+
+      - name: Remove deploy key
+        if: always()
+        run: |
+          rm -f ~/.ssh/upstream_sync
+          ssh-agent -k >/dev/null 2>&1 || true
