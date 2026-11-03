@@ -1919,6 +1919,7 @@ export interface StrategyBacktestTrade {
   blocked_exit_days?: number
   entry_signal_id?: string | null
   exit_signal_id?: string | null
+  open_at_end?: boolean
 }
 
 export interface StrategyBacktestResult {

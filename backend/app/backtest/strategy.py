@@ -891,6 +891,35 @@ def _panel_backend(execution_backend: str) -> bool:
     return execution_backend not in ("matrix_native", "composite", "minute_filter")
 
 
+def _normalize_corporate_action_gaps(
+    raw: object,
+) -> frozenset[tuple[str, str]] | None:
+    """Normalize ``SYMBOL@YYYY-MM-DD`` parity gaps for the execution engine."""
+    if raw is None:
+        return None
+    if not isinstance(raw, (list, tuple, set, frozenset)):
+        raise ValueError("_legacy_corporate_action_gaps must be a sequence")
+    gaps: set[tuple[str, str]] = set()
+    for item in raw:
+        if not isinstance(item, str) or "@" not in item:
+            raise ValueError(
+                "_legacy_corporate_action_gaps entries must be SYMBOL@YYYY-MM-DD"
+            )
+        symbol, day = item.rsplit("@", 1)
+        try:
+            parsed = date.fromisoformat(day)
+        except ValueError as exc:
+            raise ValueError(
+                "_legacy_corporate_action_gaps entries must use YYYY-MM-DD"
+            ) from exc
+        if not symbol:
+            raise ValueError(
+                "_legacy_corporate_action_gaps entries must include a symbol"
+            )
+        gaps.add((symbol, parsed.isoformat()))
+    return frozenset(gaps)
+
+
 @dataclass(frozen=True)
 class PreparedPanelBacktest:
     """polars_expr 参数网格的共享特征面板 (P2a) — 一次加载, 全部试算复用。
@@ -1487,6 +1516,9 @@ class StrategyBacktestService:
                     execution_costs=execution_policy["execution_costs"],
                     entry_price_basis=execution_policy["entry_price_basis"],
                     block_limit_open=execution_policy["block_limit_open"],
+                    allow_same_asset_positions=execution_policy[
+                        "allow_same_asset_positions"
+                    ],
                 )
             )
             if unsupported_rules:
@@ -1761,6 +1793,13 @@ class StrategyBacktestService:
             max_daily_entries=execution_policy["max_daily_entries"],
             entry_price_basis=execution_policy["entry_price_basis"],
             block_limit_open=execution_policy["block_limit_open"],
+            allow_same_asset_positions=execution_policy[
+                "allow_same_asset_positions"
+            ],
+            finalize_open_at_end=execution_policy["finalize_open_at_end"],
+            corporate_action_unavailable=_normalize_corporate_action_gaps(
+                params.get("_legacy_corporate_action_gaps")
+            ),
             cost_model=cost_model,
             position_policy_compute=position_policy_compute,
             position_policy_params=position_policy_params,
@@ -2518,6 +2557,13 @@ class StrategyBacktestService:
             max_daily_entries=execution_policy["max_daily_entries"],
             entry_price_basis=execution_policy["entry_price_basis"],
             block_limit_open=execution_policy["block_limit_open"],
+            allow_same_asset_positions=execution_policy[
+                "allow_same_asset_positions"
+            ],
+            finalize_open_at_end=execution_policy["finalize_open_at_end"],
+            corporate_action_unavailable=_normalize_corporate_action_gaps(
+                params.get("_legacy_corporate_action_gaps")
+            ),
             cost_model=cost_model,
             position_policy_compute=position_policy_compute,
             position_policy_params=position_policy_params,
@@ -3462,6 +3508,7 @@ class StrategyBacktestService:
             "blocked_exit_days": getattr(t, "blocked_exit_days", 0),
             "entry_signal_id": getattr(t, "entry_signal_id", None),
             "exit_signal_id": getattr(t, "exit_signal_id", None),
+            "open_at_end": bool(getattr(t, "open_at_end", False)),
         }
 
     def _build_run_provenance(
@@ -3570,6 +3617,10 @@ class StrategyBacktestService:
                 "plan_at_signal_close": matcher_config.plan_at_signal_close,
                 "entry_price_basis": matcher_config.entry_price_basis,
                 "block_limit_open": matcher_config.block_limit_open,
+                "allow_same_asset_positions": (
+                    matcher_config.allow_same_asset_positions
+                ),
+                "finalize_open_at_end": matcher_config.finalize_open_at_end,
                 "execution_costs": _policy(matcher_config.execution_costs),
             },
             "data": {

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from _legacy_t74_order import LEGACY_SECURITY_ORDER
 from app.backtest.matrix import (
     MarketDataMatrix,
     SignalMatrix,
@@ -82,6 +83,8 @@ META = {
         "max_daily_entries": 2,
         "entry_price_basis": "raw",
         "block_limit_open": True,
+        "allow_same_asset_positions": True,
+        "finalize_open_at_end": True,
         "execution_costs": {
             "min_commission": 5.0,
             "transfer_fee_pct": 0.00001,
@@ -126,6 +129,9 @@ TRAILING_TAKE_PROFIT_DRAWDOWN = 0.08
 # engine's hold-extension policy still controls the actual exit day.
 MAX_HOLD_DAYS = 74
 RAW_PRICE_DECIMALS = 2
+_LEGACY_SECURITY_ORDER = {
+    symbol: rank for rank, symbol in enumerate(LEGACY_SECURITY_ORDER)
+}
 
 
 class FirstLimitPullback3FRunnerT74MatrixStrategy:
@@ -154,9 +160,15 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
         params: dict,
     ) -> tuple[str, ...]:
         legacy = params.get("legacy_security_ids")
-        if not isinstance(legacy, dict):
-            return symbols
-        return tuple(str(legacy.get(symbol, symbol)) for symbol in symbols)
+        if legacy is not None:
+            if not isinstance(legacy, dict):
+                raise ValueError("legacy_security_ids must be a mapping")
+            return tuple(str(legacy.get(symbol, symbol)) for symbol in symbols)
+        unknown = len(_LEGACY_SECURITY_ORDER)
+        return tuple(
+            f"{_LEGACY_SECURITY_ORDER.get(symbol, unknown):06d}\x00{symbol}"
+            for symbol in symbols
+        )
 
     def exit_signal_for_selected_entries(
         self,
@@ -170,6 +182,39 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             event_start=params.get("_event_start"),
         )
 
+    def event_exit_times_for_selected_entries(
+        self,
+        market: MarketDataMatrix,
+        selected_entry: np.ndarray,
+        params: dict,
+    ) -> dict[tuple[int, int], frozenset[int]]:
+        """Return every MA exit signal on each selected event's own chain."""
+        raw_close = _raw_price_field(market, "close")
+        adjusted_close = market.close.astype(np.float64, copy=False)
+        event_start = params.get("_event_start")
+        out: dict[tuple[int, int], frozenset[int]] = {}
+        for time_id, asset_id in np.argwhere(selected_entry):
+            entry_time = int(time_id)
+            asset = int(asset_id)
+            seed_id = entry_time - 5
+            if seed_id < 0:
+                continue
+            if (
+                event_start is not None
+                and market.timestamp_labels[seed_id][:10] < event_start
+            ):
+                continue
+            exit_times = _event_exit_signal_times(
+                market,
+                raw_close,
+                adjusted_close,
+                asset_id=asset,
+                seed_id=seed_id,
+                entry_time=entry_time,
+            )
+            out[(entry_time, asset)] = exit_times
+        return out
+
     def compute_signals(self, market: MarketDataMatrix, params: dict) -> SignalMatrix:
         ready, pullback, max_amplitude, mean_amplitude, volume_ratio = (
             _first_board_t5_observations(
@@ -177,6 +222,10 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
                 event_start=params.get("_event_start"),
                 excluded_event_keys=_excluded_event_keys(
                     params.get("legacy_excluded_events")
+                ),
+                allowlist=_event_allowlist_mask(
+                    market,
+                    params.get("_event_allowlist"),
                 ),
             )
         )
@@ -220,6 +269,11 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             entry=entry.astype(bool, copy=False),
             event_start=params.get("_event_start"),
         )
+        preclose_unavailable = _preclose_unavailable_for_entries(
+            market,
+            entry=entry.astype(bool, copy=False),
+            gaps=params.get("_legacy_preclose_gaps"),
+        )
         return make_signal_matrix(
             market.shape,
             entry=entry,
@@ -230,7 +284,56 @@ class FirstLimitPullback3FRunnerT74MatrixStrategy:
             entry_signal_ids=("signal_first_limit_pullback_3f",),
             exit_signal_ids=("signal_t74_ma5_ma10_breakdown",),
             ranking_score=score64,
+            preclose_unavailable=preclose_unavailable,
         )
+
+
+def _preclose_unavailable_for_entries(
+    market: MarketDataMatrix,
+    *,
+    entry: np.ndarray,
+    gaps: object,
+) -> dict[tuple[int, int], frozenset[int]] | None:
+    """Map the legacy execution-data preClose gap to (signal time, asset).
+
+    The original forward execution projection kept the frozen baseline row's
+    null ``preClose`` for relative days before its rd17 extension window
+    started. Its simulator therefore rejected a sell quote with ``OTHER`` even
+    though the OHLC fields were filled. This helper reproduces that availability
+    mask only when the caller explicitly supplies the archived gap ledger.
+    """
+    if gaps is None:
+        return None
+    if not isinstance(gaps, dict):
+        raise ValueError("_legacy_preclose_gaps must be a mapping")
+    time_by_date = {
+        label[:10]: time_id for time_id, label in enumerate(market.timestamp_labels)
+    }
+    by_entry: dict[tuple[int, int], frozenset[int]] = {}
+    for time_id, asset_id in np.argwhere(entry):
+        signal_time = int(time_id)
+        seed_id = signal_time - 5
+        if seed_id < 0:
+            continue
+        asset = int(asset_id)
+        event_id = (
+            f"{market.symbols[asset]}@{market.timestamp_labels[seed_id][:10]}"
+        )
+        dates = gaps.get(event_id)
+        if not dates:
+            continue
+        if not isinstance(dates, (list, tuple, set, frozenset)):
+            raise ValueError(
+                f"_legacy_preclose_gaps[{event_id!r}] must be a date sequence"
+            )
+        blocked = {
+            time_by_date[date]
+            for date in dates
+            if isinstance(date, str) and date in time_by_date
+        }
+        if blocked:
+            by_entry[(signal_time, asset)] = frozenset(blocked)
+    return by_entry or None
 
 
 def _first_board_t5_observations(
@@ -238,6 +341,7 @@ def _first_board_t5_observations(
     *,
     event_start: str | None = None,
     excluded_event_keys: frozenset[str] = frozenset(),
+    allowlist: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Observe a first board five trading bars ago using source-raw prices."""
     shape = market.shape
@@ -272,6 +376,8 @@ def _first_board_t5_observations(
                 f"{market.symbols[asset_id]}@{market.timestamp_labels[seed_id][:10]}"
                 in excluded_event_keys
             ):
+                continue
+            if allowlist is not None and not bool(allowlist[seed_id, asset_id]):
                 continue
             if not bool(valid[seed_id : signal_id + 1, asset_id].all()):
                 continue
@@ -317,30 +423,58 @@ def _event_relative_ma_breakdown(
     must neither reset nor borrow rows from the selected event's history.
     """
     out = np.zeros(market.shape, dtype=bool)
-    close = market.close.astype(np.float64, copy=False)
+    raw_close = _raw_price_field(market, "close")
+    adjusted_close = market.close.astype(np.float64, copy=False)
     for asset_id in range(market.shape[1]):
+        history_start: int | None = None
+        prior_scale: float | None = None
         closes: list[float] = []
         for time_id in range(market.shape[0]):
+            append_start: int | None = None
             if entry[time_id, asset_id]:
                 seed_id = time_id - 5
                 if seed_id < 0:
+                    history_start = None
+                    prior_scale = None
                     closes = []
                     continue
                 if (
                     event_start is not None
                     and market.timestamp_labels[seed_id][:10] < event_start
                 ):
+                    history_start = None
+                    prior_scale = None
                     closes = []
                     continue
-                closes = [
-                    float(value)
-                    for value in close[seed_id : time_id + 1, asset_id]
-                    if np.isfinite(value) and value > 0
-                ]
-            elif closes:
-                current_close = float(close[time_id, asset_id])
-                if np.isfinite(current_close) and current_close > 0:
-                    closes.append(current_close)
+                history_start = seed_id
+                prior_scale = None
+                closes = []
+                append_start = seed_id
+            elif history_start is not None:
+                append_start = time_id
+            if history_start is None:
+                continue
+            assert append_start is not None
+            for cursor in range(append_start, time_id + 1):
+                raw = float(raw_close[cursor, asset_id])
+                adjusted = float(adjusted_close[cursor, asset_id])
+                if (
+                    not np.isfinite(raw)
+                    or raw <= 0
+                    or not np.isfinite(adjusted)
+                    or adjusted <= 0
+                ):
+                    continue
+                scale = adjusted / raw
+                if (
+                    prior_scale is not None
+                    and abs(scale / prior_scale - 1.0) > 1e-4
+                    and cursor > (history_start + 5) + 1
+                ):
+                    factor = prior_scale / scale
+                    closes = [value * factor for value in closes]
+                closes.append(raw)
+                prior_scale = scale
             if len(closes) < 10:
                 continue
             current_close = closes[-1]
@@ -349,6 +483,48 @@ def _event_relative_ma_breakdown(
             if current_close < ma5 and current_close < ma10:
                 out[time_id, asset_id] = True
     return out
+
+
+def _event_exit_signal_times(
+    market: MarketDataMatrix,
+    raw_close: np.ndarray,
+    adjusted_close: np.ndarray,
+    *,
+    asset_id: int,
+    seed_id: int,
+    entry_time: int,
+) -> frozenset[int]:
+    closes: list[float] = []
+    prior_scale: float | None = None
+    exit_times: set[int] = set()
+    for time_id in range(seed_id, market.shape[0]):
+        raw = float(raw_close[time_id, asset_id])
+        adjusted = float(adjusted_close[time_id, asset_id])
+        if (
+            not np.isfinite(raw)
+            or raw <= 0
+            or not np.isfinite(adjusted)
+            or adjusted <= 0
+        ):
+            continue
+        scale = adjusted / raw
+        if (
+            prior_scale is not None
+            and abs(scale / prior_scale - 1.0) > 1e-4
+            and time_id > entry_time + 1
+        ):
+            factor = prior_scale / scale
+            closes = [value * factor for value in closes]
+        closes.append(raw)
+        prior_scale = scale
+        if time_id < entry_time or len(closes) < 10:
+            continue
+        current_close = closes[-1]
+        ma5 = sum(closes[-5:]) / 5.0
+        ma10 = sum(closes[-10:]) / 10.0
+        if current_close < ma5 and current_close < ma10:
+            exit_times.add(time_id)
+    return frozenset(exit_times)
 
 
 def _raw_price_field(market: MarketDataMatrix, name: str) -> np.ndarray:
@@ -373,6 +549,34 @@ def _excluded_event_keys(raw: object) -> frozenset[str]:
             )
         keys.add(item)
     return frozenset(keys)
+
+
+def _event_allowlist_mask(
+    market: MarketDataMatrix,
+    raw: object,
+) -> np.ndarray | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, (list, tuple, set, frozenset)):
+        raise ValueError("_event_allowlist must be a list of SYMBOL@YYYY-MM-DD")
+    time_by_date = {
+        label[:10]: time_id
+        for time_id, label in enumerate(market.timestamp_labels)
+    }
+    asset_by_symbol = {
+        symbol: asset_id
+        for asset_id, symbol in enumerate(market.symbols)
+    }
+    mask = np.zeros(market.shape, dtype=bool)
+    for item in raw:
+        if not isinstance(item, str) or "@" not in item:
+            raise ValueError("_event_allowlist entries must be SYMBOL@YYYY-MM-DD")
+        symbol, _, event_date = item.partition("@")
+        time_id = time_by_date.get(event_date)
+        asset_id = asset_by_symbol.get(symbol)
+        if time_id is not None and asset_id is not None:
+            mask[time_id, asset_id] = True
+    return mask
 
 
 def _first_board_mask(market: MarketDataMatrix) -> np.ndarray:

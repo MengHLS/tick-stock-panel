@@ -125,11 +125,38 @@ def attach_matrix_st_history(
     )
     limit_up_locked.flags.writeable = False
     limit_down_locked.flags.writeable = False
+    from app.price_limits import (
+        LEGACY_MAIN_BOARD_ST_LIMIT,
+        MAIN_BOARD_LIMIT,
+        MAIN_BOARD_ST_LIMIT_CHANGE_DATE,
+        numpy_limit_pct_vectors,
+    )
+
+    _, current_pct = numpy_limit_pct_vectors(
+        list(market.symbols),
+        list(market.names),
+    )
+    main_board = current_pct == MAIN_BOARD_LIMIT
+    price_limit_pct = np.empty(market.shape, dtype=np.float32)
+    for time_id, trade_date in enumerate(trading_dates):
+        st_flags = np.isfinite(flags[time_id]) & (flags[time_id] > 0.5)
+        price_limit_pct[time_id] = np.where(
+            (trade_date < MAIN_BOARD_ST_LIMIT_CHANGE_DATE)
+            & main_board
+            & st_flags,
+            LEGACY_MAIN_BOARD_ST_LIMIT,
+            current_pct,
+        )
+    price_limit_pct.flags.writeable = False
     return replace(
         market,
         limit_up_locked=limit_up_locked,
         limit_down_locked=limit_down_locked,
-        fields={**market.fields, "st_flag": flags},
+        fields={
+            **market.fields,
+            "st_flag": flags,
+            "price_limit_pct": price_limit_pct,
+        },
     )
 
 

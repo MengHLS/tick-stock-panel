@@ -12,6 +12,7 @@ from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Literal
 
 import numpy as np
@@ -33,6 +34,19 @@ from app.price_limits import numpy_limit_price
 from app.tickflow.repository import KlineRepository
 
 logger = logging.getLogger(__name__)
+
+_RAW_PRICE_DECIMALS = 2
+
+
+def _round_half_up(value: float, decimals: int) -> float:
+    """Round like the original engine's Number(value.toFixed(decimals)).
+
+    JS rounds the exact binary value to nearest, with exact ties away from zero.
+    Decimal(float) preserves that exact value, so 3.38845 (slightly below the
+    decimal tie) still rounds down while 12.53125 (exact tie) rounds up.
+    """
+    quantum = Decimal(1).scaleb(-decimals)
+    return float(Decimal(value).quantize(quantum, rounding=ROUND_HALF_UP))
 
 
 def _matrix_entry_score(matrix: MarketMatrix, time_id: int, asset_id: int) -> float:
@@ -185,7 +199,10 @@ class ExecutionCostPolicy:
                     bps += extra_bps
                     break
         sign = 1 if side == "buy" else -1
-        return round(price * (1 + sign * bps / 10_000.0), self.price_decimals)
+        return _round_half_up(
+            price * (1 + sign * bps / 10_000.0),
+            self.price_decimals,
+        )
 
 
 @dataclass
@@ -223,6 +240,11 @@ class MatcherConfig:
     plan_at_signal_close: bool = False
     entry_price_basis: Literal["adjusted", "raw"] = "adjusted"
     block_limit_open: bool = False
+    allow_same_asset_positions: bool = False
+    finalize_open_at_end: bool = False
+    # Parity mask for source datasets that omitted a corporate-action row for
+    # a held position. Entries are (symbol, effective date).
+    corporate_action_unavailable: frozenset[tuple[str, str]] | None = None
     execution_costs: ExecutionCostPolicy | None = None
     cost_model: Any | None = None
     # 自定义仓位策略 (position_sizing="policy"): 运行期由 strategy 层解析注入,
@@ -246,6 +268,11 @@ class MatcherConfig:
             raise ValueError("max_daily_entries must be positive")
         if self.entry_price_basis not in {"adjusted", "raw"}:
             raise ValueError("entry_price_basis must be 'adjusted' or 'raw'")
+        if self.corporate_action_unavailable is not None:
+            self.corporate_action_unavailable = frozenset(
+                (str(symbol), str(day)[:10])
+                for symbol, day in self.corporate_action_unavailable
+            )
         if self.plan_at_signal_close and self.entry_fill != "open_t+1":
             raise ValueError("signal-close planning requires next-open entries")
         if self.position_sizing == "score_tier":
@@ -304,6 +331,8 @@ _FULL_UNSUPPORTED_RULES: tuple[tuple[str, str], ...] = (
     ("execution_costs", "执行费用策略"),
     ("entry_price_basis", "原始价入场口径"),
     ("block_limit_open", "开盘涨停门控"),
+    ("allow_same_asset_positions", "同代码多事件并行持仓"),
+    ("finalize_open_at_end", "期末未平仓按收盘估值"),
 )
 
 
@@ -320,6 +349,8 @@ class FullExecutionCapabilities:
     execution_costs: ExecutionCostPolicy | None = None
     entry_price_basis: Literal["adjusted", "raw"] = "adjusted"
     block_limit_open: bool = False
+    allow_same_asset_positions: bool = False
+    finalize_open_at_end: bool = False
 
 
 def unsupported_full_execution_rules(
@@ -336,6 +367,8 @@ def unsupported_full_execution_rules(
         "execution_costs": config.execution_costs is not None,
         "entry_price_basis": config.entry_price_basis == "raw",
         "block_limit_open": bool(config.block_limit_open),
+        "allow_same_asset_positions": bool(config.allow_same_asset_positions),
+        "finalize_open_at_end": bool(config.finalize_open_at_end),
     }
     return [(field, name) for field, name in _FULL_UNSUPPORTED_RULES if enabled[field]]
 
@@ -380,6 +413,7 @@ class TradeRecord:
     entry_signal_date: date | str | None = None
     exit_signal_date: date | str | None = None
     blocked_exit_days: int = 0
+    open_at_end: bool = False
     # 触发买入/卖出的具体信号列名 (如 signal_ma_golden_5_20 / csg_xxx);
     # 仅当该腿由信号触发时填充, 止损/止盈/到期等非信号退出时 exit_signal_id 为 None。
     entry_signal_id: str | None = None
@@ -1271,9 +1305,151 @@ class BacktestEngine:
         )
 
     @staticmethod
+    def _raw_execution_prices(
+        matrix: "MarketMatrix",
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray] | None:
+        """Resolve an all-raw OHLC execution plane when source prices exist."""
+        if matrix.raw_close is None:
+            return None
+        close = np.asarray(matrix.close, dtype=np.float64)
+        raw_close = np.round(
+            np.asarray(matrix.raw_close, dtype=np.float64),
+            _RAW_PRICE_DECIMALS,
+        )
+        valid = (
+            np.isfinite(close)
+            & (close > 0)
+            & np.isfinite(raw_close)
+            & (raw_close > 0)
+        )
+        scale = np.divide(
+            raw_close,
+            close,
+            out=np.ones_like(close),
+            where=valid,
+        )
+
+        def derive(values: np.ndarray) -> np.ndarray:
+            raw_values = np.round(
+                np.asarray(values, dtype=np.float64) * scale,
+                _RAW_PRICE_DECIMALS,
+            )
+            return np.where(
+                np.isfinite(raw_values) & (raw_values > 0),
+                raw_values,
+                np.asarray(values, dtype=np.float64),
+            )
+
+        raw_open = (
+            derive(matrix.open)
+            if matrix.raw_open is None
+            else np.where(
+                np.isfinite(matrix.raw_open) & (matrix.raw_open > 0),
+                matrix.raw_open,
+                derive(matrix.open),
+            )
+        )
+        return (
+            raw_open,
+            derive(matrix.high),
+            derive(matrix.low),
+            np.where(valid, raw_close, close),
+        )
+
+    def _load_corporate_actions(
+        self,
+        matrix: "MarketMatrix",
+        unavailable: frozenset[tuple[str, str]] | None = None,
+    ) -> dict[tuple[int, int], tuple[float, float, float, float]]:
+        """Map matrix cells to raw-price share/cash actions."""
+        if self.repo is None or not matrix.timestamp_labels:
+            return {}
+        get_actions = getattr(self.repo, "get_corporate_actions", None)
+        if not callable(get_actions):
+            return {}
+        try:
+            frame = get_actions(
+                list(matrix.symbols),
+                date.fromisoformat(matrix.timestamp_labels[0][:10]),
+                date.fromisoformat(matrix.timestamp_labels[-1][:10]),
+            )
+        except Exception as exc:  # noqa: BLE001 - keep optional data degradation explicit
+            logger.warning("corporate actions unavailable for raw execution: %s", exc)
+            return {}
+        if frame is None or frame.is_empty():
+            return {}
+        time_by_date = {
+            label[:10]: time_id
+            for time_id, label in enumerate(matrix.timestamp_labels)
+        }
+        asset_by_symbol = {
+            symbol: asset_id
+            for asset_id, symbol in enumerate(matrix.symbols)
+        }
+        events: dict[tuple[int, int], tuple[float, float, float, float]] = {}
+        for row in frame.iter_rows(named=True):
+            symbol = str(row.get("symbol") or "")
+            trade_date = str(row.get("trade_date") or "")[:10]
+            if unavailable is not None and (symbol, trade_date) in unavailable:
+                continue
+            asset_id = asset_by_symbol.get(symbol)
+            time_id = time_by_date.get(trade_date)
+            if asset_id is None or time_id is None:
+                continue
+            bonus = float(row.get("bonus") or 0.0)
+            allot = float(row.get("allot") or 0.0)
+            ex_factor = float(row.get("ex_factor") or 1.0)
+            share_multiplier = 1.0 + bonus + allot
+            dividend = float(row.get("dividend") or 0.0)
+            subscription = allot * float(row.get("allot_price") or 0.0)
+            price_factor = (
+                1.0 / ex_factor
+                if np.isfinite(ex_factor) and ex_factor > 0
+                else 1.0 / share_multiplier
+            )
+            prior_raw_close = None
+            for prior_time in range(time_id - 1, -1, -1):
+                candidate = float(matrix.raw_close[prior_time, asset_id])
+                if np.isfinite(candidate) and candidate > 0:
+                    prior_raw_close = candidate
+                    break
+            if (
+                prior_raw_close is not None
+                and np.isfinite(share_multiplier)
+                and share_multiplier > 0
+            ):
+                total_return_factor = (
+                    prior_raw_close - dividend + subscription
+                ) / (prior_raw_close * share_multiplier)
+                if np.isfinite(total_return_factor) and total_return_factor > 0:
+                    price_factor = total_return_factor
+            if (
+                abs(share_multiplier - 1.0) <= 1e-12
+                and abs(price_factor - 1.0) <= 1e-12
+                and abs(dividend) <= 1e-12
+                and abs(subscription) <= 1e-12
+            ):
+                continue
+            events[(time_id, asset_id)] = (
+                share_multiplier,
+                price_factor,
+                dividend,
+                subscription,
+            )
+        return events
+
+    @staticmethod
     def _resolve_entry_prices(matrix: "MarketMatrix", config: "MatcherConfig") -> np.ndarray:
         """入场价矩阵: 分钟策略的逐格覆盖有限值处优先, 否则按 open/close 惯例。"""
-        base = matrix.open if config.entry_fill == "open_t+1" else matrix.close
+        raw_prices = (
+            BacktestEngine._raw_execution_prices(matrix)
+            if config.entry_price_basis == "raw"
+            else None
+        )
+        if raw_prices is None:
+            base = matrix.open if config.entry_fill == "open_t+1" else matrix.close
+        else:
+            base = raw_prices[0] if config.entry_fill == "open_t+1" else raw_prices[3]
         if matrix.entry_price is None:
             return base
         return np.where(np.isfinite(matrix.entry_price), matrix.entry_price, base)
@@ -2297,10 +2473,31 @@ class BacktestEngine:
         legacy_raw_risk = (
             config.entry_price_basis == "raw" and matrix.raw_close is not None
         )
-        execution_open = matrix.open
-        execution_high = matrix.high
-        execution_low = matrix.low
-        execution_close = matrix.close
+        raw_execution = (
+            self._raw_execution_prices(matrix)
+            if config.entry_price_basis == "raw"
+            else None
+        )
+        if raw_execution is None:
+            execution_open = matrix.open
+            execution_high = matrix.high
+            execution_low = matrix.low
+            execution_close = matrix.close
+        else:
+            (
+                execution_open,
+                execution_high,
+                execution_low,
+                execution_close,
+            ) = raw_execution
+        corporate_actions = (
+            self._load_corporate_actions(
+                matrix,
+                unavailable=config.corporate_action_unavailable,
+            )
+            if raw_execution is not None
+            else {}
+        )
         entry_prices = self._resolve_entry_prices(matrix, config)
         exit_prices = (
             execution_open
@@ -2314,6 +2511,7 @@ class BacktestEngine:
         max_positions = max(int(config.max_positions), 0)
         max_exposure_pct = min(max(float(config.max_exposure_pct), 0.0), 1.0)
         positions: dict[int, dict] = {}
+        next_position_id = 0
         pending_buy_plans: list[dict] = []
         # 每交易日拒卖计数去重: 同一持仓同日多次尝试(开盘/日内/收盘)只记首次。
         blocked_today: set[int] = set()
@@ -2338,6 +2536,8 @@ class BacktestEngine:
             "sell_limit_down": 0,
             "pending_exit": 0,
         }
+        if matrix.preclose_unavailable is not None:
+            execution_stats["sell_missing_preclose"] = 0
         # 新增买入门控只在启用时暴露计数, 未启用时执行统计结构与 legacy 完全一致
         # (一致性回归按 stats["execution"] 逐键比对)。
         if config.entry_open_gap_range is not None:
@@ -2360,9 +2560,14 @@ class BacktestEngine:
         hold_ma5: np.ndarray | None = None
         hold_ma10: np.ndarray | None = None
         if hold_policy is not None:
-            close_valid = np.isfinite(execution_close) & (execution_close > 0)
-            hold_ma5 = valid_rolling_mean(execution_close, close_valid, 5)
-            hold_ma10 = valid_rolling_mean(execution_close, close_valid, 10)
+            ma_close = (
+                matrix.close
+                if raw_execution is not None
+                else execution_close
+            )
+            close_valid = np.isfinite(ma_close) & (ma_close > 0)
+            hold_ma5 = valid_rolling_mean(ma_close, close_valid, 5)
+            hold_ma10 = valid_rolling_mean(ma_close, close_valid, 10)
 
         def _count(key: str) -> None:
             execution_stats[key] = execution_stats.get(key, 0) + 1
@@ -2376,10 +2581,22 @@ class BacktestEngine:
         def _signal_date(signal_time: int, fallback: str) -> str:
             return matrix.timestamp_labels[signal_time][:10] if signal_time >= 0 else fallback
 
-        def _market_value() -> float:
+        def _asset_positions(asset_id: int) -> list[tuple[int, dict]]:
+            return [
+                (position_id, pos)
+                for position_id, pos in positions.items()
+                if int(pos["asset_id"]) == asset_id
+            ]
+
+        def _market_value(time_id: int | None = None) -> float:
             total = 0.0
-            for asset, pos in positions.items():
-                mark = last_close[asset]
+            for pos in positions.values():
+                asset = int(pos["asset_id"])
+                mark = (
+                    execution_close[time_id, asset]
+                    if time_id is not None
+                    else last_close[asset]
+                )
                 if not _valid_price(mark):
                     mark = pos["entry_price"]
                 total += pos["shares"] * mark
@@ -2457,10 +2674,17 @@ class BacktestEngine:
             flag = matrix.limit_up_locked if direction == "up" else matrix.limit_down_locked
             return bool(flag[time_id, asset_id]) and same_price
 
-        def _exit_signal_at(time_id: int, asset_id: int) -> bool:
+        def _exit_signal_at(
+            time_id: int,
+            asset_id: int,
+            pos: dict | None = None,
+        ) -> bool:
             # 信号日谓词: source_exit 是未移位的原始卖点 (信号当日收盘可见),
             # matrix.exit 是已按成交口径移位的执行位。卖出条件只能按信号日判断,
             # 否则会把"入场后才出现的执行位"误当成当日信号, 绕过盈利门槛。
+            if pos is not None and matrix.event_exit_times is not None:
+                key = (int(pos["entry_signal_time"]), asset_id)
+                return time_id in matrix.event_exit_times.get(key, frozenset())
             if matrix.source_exit is not None:
                 return bool(matrix.source_exit[time_id, asset_id])
             return bool(matrix.exit[time_id, asset_id])
@@ -2473,7 +2697,7 @@ class BacktestEngine:
             if not _valid_price(close_price):
                 return False
             peak_close = max(float(pos["max_close"]), close_price)
-            return peak_close > float(pos["entry_price"])
+            return peak_close > float(pos["risk_entry_price"])
 
         def _intraday_entry(time_id: int, asset_id: int) -> bool:
             """该格建仓是否发生在盘中: 分钟策略的逐格价格覆盖 (entry_price) 有限,
@@ -2510,13 +2734,13 @@ class BacktestEngine:
             if config.entry_prev_day_change_range is not None:
                 if time_id < 2:
                     return False, "buy_prev_day_change"
-                if config.entry_price_basis == "raw" and matrix.raw_pre_close is not None:
+                if config.entry_price_basis == "raw" and matrix.raw_close is not None:
                     previous_close = round(
                         float(matrix.raw_close[time_id - 1, asset_id]),
                         2,
                     )
                     prior_close = round(
-                        float(matrix.raw_pre_close[time_id - 1, asset_id]),
+                        float(matrix.raw_close[time_id - 2, asset_id]),
                         2,
                     )
                 else:
@@ -2573,25 +2797,18 @@ class BacktestEngine:
                 np.array([limit_pct]),
                 up=False,
             )[0])
-            current_raw_close = float(matrix.raw_close[time_id, asset_id])
-            current_close = float(matrix.close[time_id, asset_id])
-            if not _valid_price(current_raw_close) or not _valid_price(current_close):
-                return None
-            adjusted_limit_down = (
-                raw_limit_down * current_close / current_raw_close
-            )
             current_low = float(execution_low[time_id, asset_id])
             if (
                 _valid_price(current_low)
                 and current_low
-                < adjusted_limit_down
-                - max(0.011, abs(adjusted_limit_down) * 1e-4)
+                < raw_limit_down
+                - max(0.011, abs(raw_limit_down) * 1e-4)
             ):
                 # Local historical ST identity can disagree with an ex-post
                 # limit rule. An impossible low means the filtered rule is not
                 # evidence of an open-limit event.
                 return None
-            return adjusted_limit_down
+            return raw_limit_down
 
         def _open_risk_trigger_price(
             time_id: int,
@@ -2622,6 +2839,8 @@ class BacktestEngine:
             drawdown: float,
         ) -> float:
             line_pct = 1.0 - abs(float(drawdown))
+            if raw_execution is not None:
+                return adjusted_peak * line_pct
             if not legacy_raw_risk:
                 return adjusted_peak * line_pct
             raw_peak_key = (
@@ -2657,6 +2876,70 @@ class BacktestEngine:
                 return raw_peak * line_pct * adjusted_open / raw_open
             return adjusted_peak * line_pct
 
+        def _open_risk_decision(
+            time_id: int,
+            asset_id: int,
+            pos: dict,
+        ) -> tuple[float, str] | None:
+            """Return the executable same-open risk exit, if any."""
+            open_price = float(execution_open[time_id, asset_id])
+            entry_price = float(pos["risk_entry_price"])
+            if not _valid_price(open_price) or entry_price <= 0:
+                return None
+            peak_price = float(
+                pos["max_close"]
+                if config.trailing_peak_price == "close"
+                else pos["max_high"]
+            )
+            risk_lines: list[tuple[float, str]] = []
+            if config.stop_loss_pct is not None:
+                risk_lines.append(
+                    (entry_price * (1 - abs(config.stop_loss_pct)), "stop_loss")
+                )
+            if config.trailing_stop_pct is not None:
+                risk_lines.append((
+                    _trailing_risk_line(
+                        time_id,
+                        asset_id,
+                        pos,
+                        peak_price,
+                        abs(config.trailing_stop_pct),
+                    ),
+                    "trailing_stop",
+                ))
+            activate = config.trailing_take_profit_activate_pct
+            drawdown = config.trailing_take_profit_drawdown_pct
+            if (
+                activate is not None
+                and drawdown is not None
+                and peak_price > entry_price
+                and peak_price / entry_price - 1 >= abs(float(activate))
+            ):
+                risk_lines.append((
+                    _trailing_risk_line(
+                        time_id,
+                        asset_id,
+                        pos,
+                        peak_price,
+                        abs(float(drawdown)),
+                    ),
+                    "trailing_take_profit",
+                ))
+            valid_risk = [
+                (line, reason) for line, reason in risk_lines if _valid_price(line)
+            ]
+            if not valid_risk:
+                return None
+            stop_price, reason = max(valid_risk, key=lambda item: item[0])
+            override = _open_risk_trigger_price(
+                time_id,
+                asset_id,
+                open_price,
+                float(execution_high[time_id, asset_id]),
+                stop_price,
+            )
+            return None if override is None else (override, reason)
+
         def _can_sell(time_id: int, asset_id: int, override: float | None = None) -> tuple[bool, str]:
             if not matrix.tradable[time_id, asset_id]:
                 return False, "sell_suspended"
@@ -2685,7 +2968,7 @@ class BacktestEngine:
             return True, ""
 
         def _mark_pending(
-            asset_id: int,
+            position_id: int,
             reason: str,
             signal_date: str,
             signal_id: str | None = None,
@@ -2697,7 +2980,7 @@ class BacktestEngine:
             blocked=False 仅用于分钟成交缺失这类按计划顺延到次日开盘的回退:
             它登记挂单但不增加 blocked_exit_days, 也不占当日拒卖计数。
             """
-            pos = positions[asset_id]
+            pos = positions[position_id]
             if not pos.get("pending_exit_reason"):
                 pos["pending_exit_reason"] = reason
                 pos["pending_exit_signal_date"] = signal_date
@@ -2707,22 +2990,23 @@ class BacktestEngine:
                 pos["pending_exit_next_open"] = True
             if not blocked:
                 return False
-            if asset_id in blocked_today:
+            if position_id in blocked_today:
                 return False
-            blocked_today.add(asset_id)
+            blocked_today.add(position_id)
             pos["blocked_exit_days"] += 1
             return True
 
         def _sell(
             time_id: int,
-            asset_id: int,
+            position_id: int,
             reason: str,
             signal_date: str,
             sold_today: set[int],
             override: float | None = None,
         ) -> None:
             nonlocal cash
-            pos = positions.pop(asset_id)
+            pos = positions.pop(position_id)
+            asset_id = int(pos["asset_id"])
             if override is not None and config.execution_costs is not None:
                 exit_price = config.execution_costs.fill_price(
                     float(override), "sell", config.slippage_bps,
@@ -2736,7 +3020,11 @@ class BacktestEngine:
             gross_exit = pos["shares"] * exit_price
             exit_value = gross_exit - _trade_cost(gross_exit, "sell") if config.execution_costs is not None else gross_exit * (1 - sell_cost_pct)
             cash += exit_value
-            pnl_amount = exit_value - pos["entry_value"]
+            pnl_amount = (
+                exit_value
+                + float(pos.get("cash_dividends", 0.0))
+                - pos["entry_value"]
+            )
             pnl_pct = pnl_amount / pos["entry_value"] if pos["entry_value"] > 0 else 0.0
             sold_today.add(asset_id)
             trades.append(TradeRecord(
@@ -2768,19 +3056,20 @@ class BacktestEngine:
 
         def _try_sell(
             time_id: int,
-            asset_id: int,
+            position_id: int,
             reason: str,
             signal_date: str,
             sold_today: set[int],
             override: float | None = None,
         ) -> bool:
+            pos = positions[position_id]
+            asset_id = int(pos["asset_id"])
             signal_id = (
                 _signal_id(int(matrix.exit_signal_code[time_id, asset_id]), matrix.exit_signal_ids)
                 if reason == "signal" else None
             )
             minute_trigger = config.exit_fill == "signal_next_minute" and reason == "signal"
             if minute_trigger and override is None:
-                pos = positions[asset_id]
                 if pos.get("pending_exit_next_open"):
                     override = float(execution_open[time_id, asset_id])
                 else:
@@ -2789,7 +3078,7 @@ class BacktestEngine:
                         # 无后续分钟成交: 按计划顺延次日开盘, 只登记挂单与
                         # fallback 计数, 不算作市场拒卖日。
                         _mark_pending(
-                            asset_id,
+                            position_id,
                             reason,
                             signal_date,
                             signal_id,
@@ -2798,10 +3087,28 @@ class BacktestEngine:
                         )
                         _count("sell_minute_trigger_fallback")
                         return False
+            if (
+                reason == "signal"
+                and
+                matrix.preclose_unavailable is not None
+                and time_id in matrix.preclose_unavailable.get(
+                    (int(pos["entry_signal_time"]), asset_id),
+                    frozenset(),
+                )
+            ):
+                first_today = _mark_pending(
+                    position_id,
+                    reason,
+                    signal_date,
+                    signal_id,
+                )
+                if first_today:
+                    _count("sell_missing_preclose")
+                return False
             ok, blocked = _can_sell(time_id, asset_id, override)
             if not ok:
                 first_today = _mark_pending(
-                    asset_id,
+                    position_id,
                     reason,
                     signal_date,
                     signal_id,
@@ -2810,7 +3117,7 @@ class BacktestEngine:
                 if first_today:
                     _count(blocked)
                 return False
-            _sell(time_id, asset_id, reason, signal_date, sold_today, override)
+            _sell(time_id, position_id, reason, signal_date, sold_today, override)
             return True
 
         def _max_lots(budget: float, price: float, *, estimate_slippage: bool = False) -> int:
@@ -2823,18 +3130,28 @@ class BacktestEngine:
                 else price
             )
             shares = int(np.floor(budget / unit_price / 100.0) * 100)
+            commission_pct = config._commission_pct()
+            min_commission = policy.min_commission if policy is not None else 0.0
             while shares >= 100:
                 gross = shares * unit_price
-                total = gross + _trade_cost(gross, "buy")
+                commission = max(min_commission, gross * commission_pct)
+                total = gross + commission
                 if total <= budget + 1e-8:
                     return shares
                 shares -= 100
             return 0
 
         def _buy_planned(time_id: int, date_text: str, plan: dict, sold_today: set[int]) -> None:
-            nonlocal cash
+            nonlocal cash, next_position_id
             asset_id = int(plan["asset_id"])
-            if asset_id in positions:
+            signal_time = int(plan["signal_time"])
+            existing_asset_positions = _asset_positions(asset_id)
+            if any(
+                int(pos["entry_signal_time"]) == signal_time
+                for _, pos in existing_asset_positions
+            ):
+                return
+            if existing_asset_positions and not config.allow_same_asset_positions:
                 return
             if asset_id in sold_today:
                 _count("buy_same_day_reentry")
@@ -2857,8 +3174,7 @@ class BacktestEngine:
             market_value = _market_value()
             equity = cash + market_value
             capacity = equity * max_exposure_pct - market_value
-            budget = min(float(plan["budget"]), cash, capacity)
-            shares = min(int(plan["shares"]), int(np.floor(budget / price / 100.0) * 100))
+            shares = int(plan["shares"])
             while shares >= 100:
                 gross = shares * price
                 entry_value = gross + _trade_cost(gross, "buy")
@@ -2866,19 +3182,22 @@ class BacktestEngine:
                     break
                 shares -= 100
             if shares <= 0:
-                _count("buy_cash" if budget > 0 else "buy_exposure")
+                _count("buy_cash" if cash > 0 else "buy_exposure")
                 return
 
             gross = shares * price
             entry_value = gross + _trade_cost(gross, "buy")
             cash -= entry_value
             source_time = int(plan["signal_time"])
-            positions[asset_id] = {
+            positions[next_position_id] = {
+                "asset_id": asset_id,
                 "entry_date": date_text,
+                "entry_signal_time": signal_time,
                 "entry_signal_date": matrix.timestamp_labels[source_time][:10],
                 "entry_time_id": time_id,
                 "entry_signal_id": _signal_id(int(plan["signal_code"]), matrix.entry_signal_ids),
                 "entry_price": price,
+                "risk_entry_price": price,
                 "entry_value": entry_value,
                 "shares": shares,
                 "lots": shares / 100,
@@ -2890,7 +3209,7 @@ class BacktestEngine:
                 "max_raw_close": 0.0,
                 "max_raw_high_scale": 0.0,
                 "max_raw_close_scale": 0.0,
-                "hold_days": 0,
+                "hold_days": 1,
                 "hold_plan": None,
                 "hold_limit_days": None,
                 "next_open_exit_reason": None,
@@ -2900,7 +3219,9 @@ class BacktestEngine:
                 "pending_exit_signal_id": None,
                 "pending_exit_next_open": False,
                 "blocked_exit_days": 0,
+                "cash_dividends": 0.0,
             }
+            next_position_id += 1
 
         def _plan_buys(
             time_id: int,
@@ -2917,7 +3238,15 @@ class BacktestEngine:
             candidates: list[tuple[int, float, float]] = []
             for asset_id in np.flatnonzero(source[time_id]):
                 asset = int(asset_id)
-                if asset in positions or asset in sold_today:
+                existing_asset_positions = _asset_positions(asset)
+                if any(
+                    int(pos["entry_signal_time"]) == time_id
+                    for _, pos in existing_asset_positions
+                ):
+                    continue
+                if existing_asset_positions and not config.allow_same_asset_positions:
+                    continue
+                if asset in sold_today and not config.allow_same_asset_positions:
                     continue
                 score = float(matrix.score[time_id, asset])
                 tier_score = (
@@ -2942,7 +3271,7 @@ class BacktestEngine:
             if not selected:
                 return
 
-            market_value = _market_value()
+            market_value = _market_value(time_id)
             planning_cash = cash if cash_available is None else cash_available
             equity = planning_cash + market_value
             capacity = max(0.0, equity * max_exposure_pct - market_value)
@@ -3024,12 +3353,13 @@ class BacktestEngine:
             sold_today: set[int],
         ) -> None:
             """按当日成交时点建仓: open_t+1 在开盘阶段, 其余在收盘阶段。"""
-            nonlocal cash
+            nonlocal cash, next_position_id
 
             candidates: list[tuple[int, float]] = []
             for asset_id in np.flatnonzero(matrix.entry[time_id]):
                 asset = int(asset_id)
-                if asset in positions:
+                existing_asset_positions = _asset_positions(asset)
+                if existing_asset_positions and not config.allow_same_asset_positions:
                     continue
                 if asset in sold_today:
                     _count("buy_same_day_reentry")
@@ -3157,16 +3487,22 @@ class BacktestEngine:
                             _count("buy_exposure")
                             continue
                         cash -= entry_value
-                        positions[asset_id] = {
+                        source_time = int(matrix.entry_signal_time[time_id, asset_id])
+                        if source_time < 0:
+                            source_time = time_id
+                        positions[next_position_id] = {
+                            "asset_id": asset_id,
                             "entry_date": date_text,
                             "entry_time_id": time_id,
+                            "entry_signal_time": source_time,
                             "entry_signal_date": _signal_date(
-                                int(matrix.entry_signal_time[time_id, asset_id]), date_text
+                                source_time, date_text
                             ),
                             "entry_signal_id": _signal_id(
                                 int(matrix.entry_signal_code[time_id, asset_id]), matrix.entry_signal_ids
                             ),
                             "entry_price": entry_price,
+                            "risk_entry_price": entry_price,
                             "entry_value": entry_value,
                             "shares": shares,
                             "lots": shares / 100,
@@ -3190,7 +3526,9 @@ class BacktestEngine:
                             "pending_exit_signal_id": None,
                             "pending_exit_next_open": False,
                             "blocked_exit_days": 0,
+                            "cash_dividends": 0.0,
                         }
+                        next_position_id += 1
 
         for time_id, date_label in enumerate(matrix.timestamp_labels):
             date_text = date_label[:10]
@@ -3209,12 +3547,53 @@ class BacktestEngine:
                     except Exception:
                         pass
 
+            if corporate_actions:
+                scaled_assets: set[int] = set()
+                for pos in list(positions.values()):
+                    asset_id = int(pos["asset_id"])
+                    action = corporate_actions.get((time_id, asset_id))
+                    if action is None:
+                        continue
+                    (
+                        share_multiplier,
+                        price_factor,
+                        dividend_per_share,
+                        subscription_per_share,
+                    ) = action
+                    old_shares = float(pos["shares"])
+                    old_entry_price = float(pos["entry_price"])
+                    subscription = subscription_per_share * old_shares
+                    if subscription > 0:
+                        cash -= subscription
+                        pos["entry_value"] += subscription
+                    if dividend_per_share > 0:
+                        dividend_cash = dividend_per_share * old_shares
+                        cash += dividend_cash
+                        pos["cash_dividends"] = (
+                            float(pos.get("cash_dividends", 0.0)) + dividend_cash
+                        )
+                    new_shares = old_shares * share_multiplier
+                    if not np.isfinite(new_shares) or new_shares <= 0:
+                        continue
+                    pos["shares"] = new_shares
+                    pos["lots"] = new_shares / 100.0
+                    pos["entry_price"] = (
+                        old_entry_price * old_shares + subscription
+                    ) / new_shares
+                    pos["risk_entry_price"] = (
+                        float(pos["risk_entry_price"]) * price_factor
+                    )
+                    pos["max_high"] = float(pos["max_high"]) * price_factor
+                    pos["max_close"] = float(pos["max_close"]) * price_factor
+                    if (
+                        asset_id not in scaled_assets
+                        and np.isfinite(last_close[asset_id])
+                    ):
+                        last_close[asset_id] *= price_factor
+                        scaled_assets.add(asset_id)
+
             sold_today: set[int] = set()
             blocked_today.clear()
-            if config.plan_at_signal_close and pending_buy_plans:
-                plans, pending_buy_plans = pending_buy_plans, []
-                for plan in plans:
-                    _buy_planned(time_id, date_text, plan, sold_today)
             for pos in positions.values():
                 pos["hold_days"] += 1
 
@@ -3229,10 +3608,11 @@ class BacktestEngine:
                     if time_id > 0
                     else ""
                 )
-                for asset_id in list(positions):
-                    pos = positions.get(asset_id)
+                for position_id in list(positions):
+                    pos = positions.get(position_id)
                     if pos is None or pos["entry_date"] == date_text:
                         continue
+                    asset_id = int(pos["asset_id"])
                     if pos.get("pending_exit_reason"):
                         # 挂单按约定时点重试: signal_next_minute 的顺延挂单在次日
                         # 开盘成交, 不再回到收盘阶段重复尝试。
@@ -3243,7 +3623,7 @@ class BacktestEngine:
                         )
                         _try_sell(
                             time_id,
-                            asset_id,
+                            position_id,
                             str(pos["pending_exit_reason"]),
                             str(pos.get("pending_exit_signal_date") or date_text),
                             sold_today,
@@ -3261,112 +3641,32 @@ class BacktestEngine:
                         if next_open_reason:
                             _try_sell(
                                 time_id,
-                                asset_id,
+                                position_id,
                                 str(next_open_reason),
                                 str(next_open_signal_date),
                                 sold_today,
                                 open_price,
                             )
                         continue
-                    entry_price = float(pos["entry_price"])
-                    if _valid_price(open_price) and entry_price > 0:
-                        peak_price = float(
-                            pos["max_close"]
-                            if config.trailing_peak_price == "close"
-                            else pos["max_high"]
-                        )
-                        open_risk: list[tuple[float, str]] = []
-                        if config.stop_loss_pct is not None:
-                            open_risk.append(
-                                (entry_price * (1 - abs(config.stop_loss_pct)), "stop_loss")
-                            )
-                        if config.trailing_stop_pct is not None:
-                            open_risk.append(
-                                (
-                                    _trailing_risk_line(
-                                        time_id,
-                                        asset_id,
-                                        pos,
-                                        peak_price,
-                                        abs(config.trailing_stop_pct),
-                                    ),
-                                    "trailing_stop",
-                                )
-                            )
-                        activate = config.trailing_take_profit_activate_pct
-                        drawdown = config.trailing_take_profit_drawdown_pct
-                        if (
-                            activate is not None
-                            and drawdown is not None
-                            and peak_price > entry_price
-                            and peak_price / entry_price - 1 >= abs(float(activate))
-                        ):
-                            open_risk.append((
-                                _trailing_risk_line(
-                                    time_id,
-                                    asset_id,
-                                    pos,
-                                    peak_price,
-                                    abs(float(drawdown)),
-                                ),
-                                "trailing_take_profit",
-                            ))
-                        valid_risk = [
-                            (line, risk_reason)
-                            for line, risk_reason in open_risk
-                            if _valid_price(line)
-                        ]
-                        if valid_risk:
-                            stop_price, risk_reason = max(
-                                valid_risk, key=lambda item: item[0]
-                            )
-                            override = _open_risk_trigger_price(
-                                time_id,
-                                asset_id,
-                                open_price,
-                                float(execution_high[time_id, asset_id]),
-                                stop_price,
-                            )
-                            if override is not None:
-                                _try_sell(
-                                    time_id,
-                                    asset_id,
-                                    risk_reason,
-                                    date_text,
-                                    sold_today,
-                                    override,
-                                )
-                                continue
-                        if config.take_profit_pct is not None:
-                            take_profit = entry_price * (
-                                1 + abs(float(config.take_profit_pct))
-                            )
-                            if open_price >= take_profit:
-                                _try_sell(
-                                    time_id,
-                                    asset_id,
-                                    "take_profit",
-                                    date_text,
-                                    sold_today,
-                                    open_price,
-                                )
-                                continue
+                    # A gap through a same-open risk line takes priority over a
+                    # planned next-open sale. Leave it for the risk phase below;
+                    # attempting the planned sale first would both understate
+                    # the exit price and leave the wrong pending reason.
+                    if _open_risk_decision(time_id, asset_id, pos) is not None:
+                        continue
                     # 建仓发生在当日收盘处理之后, 建仓日收盘的卖点只能在次日开盘
                     # 补执行; 盈利门槛按信号日(建仓日)已完成收盘判断, signal_date
                     # 保留真实信号日。已成立的次日退出计划(如建仓日止损)优先于
                     # 卖点, 不能被同日信号改写原因。
                     if (
-                        matrix.source_exit is not None
-                        and not pos.get("next_open_exit_reason")
-                        and matrix.exit[time_id, asset_id]
-                        and not matrix.source_exit[time_id, asset_id]
+                        not pos.get("next_open_exit_reason")
                         and pos["entry_date"] == previous_date
-                        and bool(matrix.source_exit[time_id - 1, asset_id])
+                        and _exit_signal_at(time_id - 1, asset_id, pos)
                         and _exit_signal_profit_armed(time_id - 1, asset_id, pos)
                     ):
                         _try_sell(
                             time_id,
-                            asset_id,
+                            position_id,
                             "signal",
                             previous_date,
                             sold_today,
@@ -3379,12 +3679,59 @@ class BacktestEngine:
                     if next_open_reason:
                         _try_sell(
                             time_id,
-                            asset_id,
+                            position_id,
                             str(next_open_reason),
                             str(next_open_signal_date),
                             sold_today,
                         )
                         continue
+
+            # Prior-close buy plans execute after planned exits but before
+            # same-open risk exits. The original engine submits planned orders
+            # before evaluating intraday/open stop triggers, so an open stop
+            # does not free cash for a buy that was already planned.
+            if config.plan_at_signal_close and pending_buy_plans:
+                plans, pending_buy_plans = pending_buy_plans, []
+                for plan in plans:
+                    _buy_planned(time_id, date_text, plan, sold_today)
+
+            # Same-open risk exits execute after the prior close's buy plans.
+            if open_phase and config.exit_fill == "open_t+1":
+                for position_id in list(positions):
+                    pos = positions.get(position_id)
+                    if pos is None or pos["entry_date"] == date_text:
+                        continue
+                    asset_id = int(pos["asset_id"])
+                    open_price = float(execution_open[time_id, asset_id])
+                    entry_price = float(pos["risk_entry_price"])
+                    if not _valid_price(open_price) or entry_price <= 0:
+                        continue
+                    risk_exit = _open_risk_decision(time_id, asset_id, pos)
+                    if risk_exit is not None:
+                        override, risk_reason = risk_exit
+                        _try_sell(
+                            time_id,
+                            position_id,
+                            risk_reason,
+                            date_text,
+                            sold_today,
+                            override,
+                        )
+                        continue
+                    if config.take_profit_pct is not None:
+                        take_profit = entry_price * (
+                            1 + abs(float(config.take_profit_pct))
+                        )
+                        if open_price >= take_profit:
+                            _try_sell(
+                                time_id,
+                                position_id,
+                                "take_profit",
+                                date_text,
+                                sold_today,
+                                open_price,
+                            )
+                            continue
 
             # 非计划 open_t+1 建仓在开盘阶段完成: 只能使用开盘时点已释放的
             # 现金与仓位, 不能使用当日日内/收盘卖出后才释放的资金。
@@ -3398,20 +3745,24 @@ class BacktestEngine:
 
             # 日内阶段: 只处理开盘未退出且无挂单的持仓。风控线使用截至上一交易日
             # 的峰值 (当日 high/close 在收盘后才并入峰值), 不引入未来数据。
-            for asset_id in list(positions):
-                pos = positions.get(asset_id)
+            for position_id in list(positions):
+                pos = positions.get(position_id)
                 if (
                     pos is None
                     or pos["entry_date"] == date_text
                     or pos.get("pending_exit_reason")
                 ):
                     continue
-                if not matrix.tradable[time_id, asset_id] or pos["entry_price"] <= 0:
+                asset_id = int(pos["asset_id"])
+                if (
+                    not matrix.tradable[time_id, asset_id]
+                    or pos["risk_entry_price"] <= 0
+                ):
                     continue
                 open_price = float(execution_open[time_id, asset_id])
                 low_price = float(execution_low[time_id, asset_id])
                 high_price = float(execution_high[time_id, asset_id])
-                entry_price = float(pos["entry_price"])
+                entry_price = float(pos["risk_entry_price"])
                 peak_price = float(
                     pos["max_close"]
                     if config.trailing_peak_price == "close"
@@ -3460,23 +3811,45 @@ class BacktestEngine:
                     elif _valid_price(low_price) and low_price <= stop_price:
                         override = stop_price
                     if override is not None:
-                        _try_sell(time_id, asset_id, reason, date_text, sold_today, override)
+                        _try_sell(
+                            time_id,
+                            position_id,
+                            reason,
+                            date_text,
+                            sold_today,
+                            override,
+                        )
                         continue
                 if config.take_profit_pct is not None:
                     take_profit = entry_price * (1 + abs(float(config.take_profit_pct)))
                     if _valid_price(open_price) and open_price >= take_profit:
-                        _try_sell(time_id, asset_id, "take_profit", date_text, sold_today, open_price)
+                        _try_sell(
+                            time_id,
+                            position_id,
+                            "take_profit",
+                            date_text,
+                            sold_today,
+                            open_price,
+                        )
                     elif _valid_price(high_price) and high_price >= take_profit:
-                        _try_sell(time_id, asset_id, "take_profit", date_text, sold_today, take_profit)
+                        _try_sell(
+                            time_id,
+                            position_id,
+                            "take_profit",
+                            date_text,
+                            sold_today,
+                            take_profit,
+                        )
 
             cash_for_plan = cash
-            for asset_id in list(positions):
-                pos = positions.get(asset_id)
+            for position_id in list(positions):
+                pos = positions.get(position_id)
                 if pos is None:
                     continue
+                asset_id = int(pos["asset_id"])
                 if pos["entry_date"] == date_text:
                     if config.stop_loss_pct is not None:
-                        stop_line = float(pos["entry_price"]) * (
+                        stop_line = float(pos["risk_entry_price"]) * (
                             1 - abs(float(config.stop_loss_pct))
                         )
                         current_close = float(execution_close[time_id, asset_id])
@@ -3493,7 +3866,7 @@ class BacktestEngine:
                             else:
                                 pos["next_open_exit_reason"] = "stop_loss"
                                 pos["next_open_exit_signal_date"] = date_text
-                    exit_signal = _exit_signal_at(time_id, asset_id)
+                    exit_signal = _exit_signal_at(time_id, asset_id, pos)
                     # 风控计划优先于信号: 建仓日收盘已跌破止损线时, 同日卖点不能
                     # 改写次日开盘的退出原因。分钟模式遵守 T+1: 建仓日收盘信号也
                     # 只能登记次日开盘回退, 不能当日按分钟价卖出。
@@ -3513,7 +3886,7 @@ class BacktestEngine:
                     if config.exit_fill == "close_t":
                         _try_sell(
                             time_id,
-                            asset_id,
+                            position_id,
                             str(pos["pending_exit_reason"]),
                             str(pos.get("pending_exit_signal_date") or date_text),
                             sold_today,
@@ -3530,7 +3903,7 @@ class BacktestEngine:
                 reason = ""
                 signal_date = date_text
                 if (
-                    _exit_signal_at(time_id, asset_id)
+                    _exit_signal_at(time_id, asset_id, pos)
                     and _exit_signal_profit_armed(time_id, asset_id, pos)
                 ):
                     if config.exit_fill == "open_t+1":
@@ -3560,7 +3933,9 @@ class BacktestEngine:
                             plan = "runner"
                             pos["hold_limit_days"] = hold_policy.runner_extend_days
                         else:
-                            current_close = float(execution_close[time_id, asset_id])
+                            current_close = float(
+                                execution_close[time_id, asset_id]
+                            )
                             fast = (
                                 float(hold_ma5[time_id, asset_id])
                                 if hold_ma5 is not None
@@ -3571,11 +3946,24 @@ class BacktestEngine:
                                 if hold_ma10 is not None
                                 else np.nan
                             )
+                            if raw_execution is not None:
+                                adjusted_close = float(
+                                    matrix.close[time_id, asset_id]
+                                )
+                                if (
+                                    _valid_price(adjusted_close)
+                                    and _valid_price(current_close)
+                                ):
+                                    adjustment_ratio = (
+                                        adjusted_close / current_close
+                                    )
+                                    fast /= adjustment_ratio
+                                    slow /= adjustment_ratio
                             strong = (
                                 _valid_price(current_close)
                                 and np.isfinite(fast)
                                 and np.isfinite(slow)
-                                and current_close / float(pos["entry_price"]) - 1.0
+                                and current_close / float(pos["risk_entry_price"]) - 1.0
                                 >= hold_policy.strong_hold_min_return
                                 and current_close > fast
                                 and current_close > slow
@@ -3595,10 +3983,16 @@ class BacktestEngine:
                         pos["next_open_exit_signal_date"] = date_text
                 elif config.max_hold_days is not None and pos["hold_days"] >= config.max_hold_days:
                     reason = "max_hold"
-                elif time_id == time_count - 1:
+                elif time_id == time_count - 1 and not config.finalize_open_at_end:
                     reason = "end"
                 if reason:
-                    _try_sell(time_id, asset_id, reason, signal_date, sold_today)
+                    _try_sell(
+                        time_id,
+                        position_id,
+                        reason,
+                        signal_date,
+                        sold_today,
+                    )
 
             if config.plan_at_signal_close:
                 _plan_buys(time_id, date_text, sold_today, cash_available=cash_for_plan)
@@ -3613,7 +4007,8 @@ class BacktestEngine:
             # 峰值在收盘后并入: 建仓日也已完成的 high/close 必须计入, 供次日移动
             # 止盈/移动止损使用; 当日决策仍使用昨日的峰值, 不构成前视。close_t 在
             # 当日收盘成交, 全天 high 发生在买入之前, 不能计入买入后峰值。
-            for asset_id, pos in positions.items():
+            for pos in positions.values():
+                asset_id = int(pos["asset_id"])
                 high_price = float(execution_high[time_id, asset_id])
                 # close_t 且收盘价成交的当日建仓: 当日 high 在建仓之前, 不进移动
                 # 止损峰值; 盘中成交 (override/minute_fill) 与 open 成交仍计入。
@@ -3659,7 +4054,7 @@ class BacktestEngine:
             peak = max(peak, equity)
             drawdown = (equity - peak) / peak if peak > 0 else 0.0
             exposure = market_value / equity if equity > 0 else 0.0
-            equity_value = round(float(equity), 2)
+            equity_value = _round_half_up(float(equity), 2)
             exposure_value = round(float(exposure), 4)
             equity_values.append(equity_value)
             exposure_values.append(exposure_value)
@@ -3676,25 +4071,64 @@ class BacktestEngine:
                     "value": round(float(drawdown), 4),
                 })
 
-        # 期末仍持仓 (含被封板/停牌递延的): 不再只计入 pending_exit_positions 而
-        # 静默丢弃交易记录 — 按该标的最后一个价格有效日强制落账,
-        # blocked_exit_days 保留"曾受阻"痕迹 (与独立路径的期末兜底同口径,
-        # n_trades/win_rate 与权益口径不再分裂)。先取 pending 计数再清仓。
+        # 期末仍持仓 (含被封板/停牌递延的): 默认按最后一个价格有效日强制落账。
+        # T74 原始执行模型则保留为 openAtEnd — 只按最后收盘价估值，不伪造卖出
+        # 成交、不计已实现盈亏或卖出费用。
         pending_exit_count = sum(1 for pos in positions.values() if pos.get("pending_exit_reason"))
-        for asset_id in list(positions):
-            last_time = None
-            for t in range(time_count - 1, -1, -1):
-                if _valid_price(exit_prices[t, asset_id]):
-                    last_time = t
-                    break
-            if last_time is None:
-                continue
-            _sell(
-                last_time, asset_id,
-                str(positions[asset_id].get("pending_exit_reason") or "end"),
-                matrix.timestamp_labels[last_time][:10],
-                set(),
-            )
+        if config.finalize_open_at_end:
+            for position_id in list(positions):
+                pos = positions.pop(position_id)
+                asset_id = int(pos["asset_id"])
+                last_time = None
+                for t in range(time_count - 1, -1, -1):
+                    if _valid_price(execution_close[t, asset_id]):
+                        last_time = t
+                        break
+                if last_time is None:
+                    continue
+                exit_price = float(execution_close[last_time, asset_id])
+                shares = float(pos["shares"])
+                trades.append(TradeRecord(
+                    symbol=matrix.symbols[asset_id],
+                    name=matrix.names[asset_id],
+                    entry_date=pos["entry_date"],
+                    exit_date=matrix.timestamp_labels[last_time][:10],
+                    entry_price=round(float(pos["entry_price"]), 4),
+                    exit_price=round(exit_price, 4),
+                    pnl_pct=0.0,
+                    duration=0,
+                    exit_reason="end",
+                    shares=round(shares, 4),
+                    lots=round(shares / 100.0, 2),
+                    position_pct=round(float(pos["position_pct"]), 6),
+                    entry_value=round(float(pos["entry_value"]), 2),
+                    exit_value=round(shares * exit_price, 2),
+                    pnl_amount=0.0,
+                    entry_score=round(float(pos["entry_score"]), 2),
+                    entry_signal_date=pos["entry_signal_date"],
+                    exit_signal_date=matrix.timestamp_labels[last_time][:10],
+                    blocked_exit_days=int(pos["blocked_exit_days"]),
+                    open_at_end=True,
+                    entry_signal_id=pos["entry_signal_id"],
+                ))
+        else:
+            for position_id in list(positions):
+                pos = positions[position_id]
+                asset_id = int(pos["asset_id"])
+                last_time = None
+                for t in range(time_count - 1, -1, -1):
+                    if _valid_price(exit_prices[t, asset_id]):
+                        last_time = t
+                        break
+                if last_time is None:
+                    continue
+                _sell(
+                    last_time,
+                    position_id,
+                    str(pos.get("pending_exit_reason") or "end"),
+                    matrix.timestamp_labels[last_time][:10],
+                    set(),
+                )
 
         statistics_started = time.perf_counter()
         stats = self._calc_portfolio_stats_from_values(
@@ -4850,8 +5284,10 @@ class BacktestEngine:
         _std = float(np.std(daily, ddof=1)) if len(daily) > 1 else 0.0
         sharpe = float(np.mean(daily) / _std * np.sqrt(252)) if _std > 0 else 0.0
         sortino = BacktestEngine._sortino_ratio(daily)
-        pnls = np.array([t.pnl_pct for t in trades], dtype=float) if trades else np.array([])
-        durations = np.array([t.duration for t in trades], dtype=float) if trades else np.array([])
+        closed_trades = [t for t in trades if not t.open_at_end]
+        open_at_end_count = len(trades) - len(closed_trades)
+        pnls = np.array([t.pnl_pct for t in closed_trades], dtype=float)
+        durations = np.array([t.duration for t in closed_trades], dtype=float)
         exposures = np.array(exposure_values, dtype=float)
         wins = pnls[pnls > 0]
         losses = pnls[pnls <= 0]
@@ -4864,9 +5300,11 @@ class BacktestEngine:
             "sharpe": round(float(sharpe), 2),
             "sortino": round(float(sortino), 2) if sortino is not None else None,
             "calmar": round(float(annual_return / abs(max_drawdown)), 2) if abs(max_drawdown) > 0.001 else 0.0,
-            "win_rate": round(float(len(wins) / len(pnls)), 4) if len(pnls) else 0.0,
+            "win_rate": round(float(len(wins) / len(closed_trades)), 4) if closed_trades else 0.0,
             "profit_factor": round(float(avg_win / avg_loss), 2) if avg_loss > 0 else None,
             "n_trades": len(trades),
+            "completed_trade_count": len(closed_trades),
+            "open_at_end_count": open_at_end_count,
             "avg_pnl": round(float(np.mean(pnls)), 4) if len(pnls) else 0.0,
             "avg_win": round(avg_win, 4),
             "avg_loss": round(avg_loss, 4),

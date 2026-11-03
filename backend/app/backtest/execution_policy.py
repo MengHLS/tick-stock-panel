@@ -47,6 +47,8 @@ _KNOWN_FIELDS = frozenset({
     "max_daily_entries",
     "entry_price_basis",
     "block_limit_open",
+    "allow_same_asset_positions",
+    "finalize_open_at_end",
 })
 
 _POSITION_SIZING = frozenset({"equal", "score_weight", "score_tier", "policy"})
@@ -75,6 +77,8 @@ class ExecutionPolicy:
     max_daily_entries: int | None = None
     entry_price_basis: Literal["adjusted", "raw"] = "adjusted"
     block_limit_open: bool = False
+    allow_same_asset_positions: bool = False
+    finalize_open_at_end: bool = False
 
     def engine_options(self) -> dict[str, object]:
         """Return the subset consumed by ``MatcherConfig``."""
@@ -90,6 +94,8 @@ class ExecutionPolicy:
             "max_daily_entries": self.max_daily_entries,
             "entry_price_basis": self.entry_price_basis,
             "block_limit_open": self.block_limit_open,
+            "allow_same_asset_positions": self.allow_same_asset_positions,
+            "finalize_open_at_end": self.finalize_open_at_end,
         }
 
 
@@ -195,6 +201,16 @@ def parse_backtest_defaults(raw: object, *, context: str = "strategy") -> Execut
         block_limit_open=_bool(
             payload.get("block_limit_open", False),
             "block_limit_open",
+            context,
+        ),
+        allow_same_asset_positions=_bool(
+            payload.get("allow_same_asset_positions", False),
+            "allow_same_asset_positions",
+            context,
+        ),
+        finalize_open_at_end=_bool(
+            payload.get("finalize_open_at_end", False),
+            "finalize_open_at_end",
             context,
         ),
     )

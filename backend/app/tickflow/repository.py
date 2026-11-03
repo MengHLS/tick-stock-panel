@@ -537,6 +537,37 @@ class KlineRepository:
 
         return load_st_history(self.store.data_dir)
 
+    def get_corporate_actions(
+        self,
+        symbols: list[str] | None,
+        start: date,
+        end: date,
+    ) -> pl.DataFrame:
+        """Read exchange corporate-action rows used by raw-price execution."""
+        rows = self.execute_all(
+            """
+            SELECT symbol, trade_date, ex_factor, dividend, bonus, allot,
+                   allot_price
+            FROM adj_factor
+            WHERE trade_date >= ? AND trade_date <= ?
+            ORDER BY trade_date, symbol
+            """,
+            [start, end],
+        )
+        schema = {
+            "symbol": pl.String,
+            "trade_date": pl.Date,
+            "ex_factor": pl.Float64,
+            "dividend": pl.Float64,
+            "bonus": pl.Float64,
+            "allot": pl.Float64,
+            "allot_price": pl.Float64,
+        }
+        frame = pl.DataFrame(rows, schema=schema, orient="row")
+        if symbols and not frame.is_empty():
+            frame = frame.filter(pl.col("symbol").is_in(symbols))
+        return frame
+
     def __init__(self, store: DataStore) -> None:
         self.store = store
         self.db = store.db
@@ -579,6 +610,9 @@ class KlineRepository:
         self._etf_symbol_set_cache: set[str] | None = None
         self._index_enriched_cache: pl.DataFrame | None = None
         self._index_enriched_cache_date: date | None = None
+        # 日期分区目录索引: root mtime 未变时复用，避免每次逐项 stat 数千目录。
+        self._partition_dates_cache: dict[tuple[str, bool], tuple[int, list[date]]] = {}
+        self._partition_dates_lock = threading.Lock()
 
         # ---- enriched 后台预热 ----
         # 启动时 compute_indicators (107万行, 低配机 50s+) 移出 lifespan 关键路径,
@@ -1856,6 +1890,41 @@ class KlineRepository:
         # 回退 scan_parquet
         return self._scan_daily_batch(symbols, start, end, columns)
 
+    def get_enriched_by_dates(
+        self,
+        symbols: list[str],
+        dates: list[date],
+        asset_type: str = "stock",
+        columns: list[str] | None = None,
+    ) -> pl.DataFrame:
+        """按日期分区精确读取 enriched 行，避免扫描全历史日线目录。"""
+        if not symbols or not dates:
+            return pl.DataFrame()
+        root = self.store.data_dir / enriched_dirname(asset_type)
+        parts = [
+            str(path)
+            for day in dates
+            if (path := root / f"date={day.isoformat()}" / "part.parquet").is_file()
+        ]
+        if not parts:
+            return pl.DataFrame()
+        try:
+            available = set(scan_enriched_parquet(
+                parts[:1],
+                cast_options=pl.ScanCastOptions(integer_cast="allow-float"),
+            ).collect_schema().names())
+            lf = scan_enriched_parquet(
+                parts,
+                cast_options=pl.ScanCastOptions(integer_cast="allow-float"),
+            )
+            lf = lf.filter(pl.col("symbol").is_in(symbols)).sort(["symbol", "date"])
+            if columns:
+                lf = lf.select([name for name in columns if name in available])
+            return guarded_collect(lf)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("enriched 按日期查询失败: %s", e)
+            return pl.DataFrame()
+
     def get_index_daily(
         self,
         symbol: str,
@@ -1936,6 +2005,10 @@ class KlineRepository:
         """按资产类型选择分钟K parquet glob。ETF 分钟数据独立存储于 kline_etf_minute。"""
         return self._etf_minute_glob if asset_type == "etf" else self._minute_glob
 
+    def _minute_root_for(self, asset_type: str) -> Path:
+        dirname = "kline_etf_minute" if asset_type == "etf" else "kline_minute"
+        return self.store.data_dir / dirname
+
     def _maybe_adjust_minute(self, df: pl.DataFrame, asset_type: str) -> pl.DataFrame:
         """原始基准标记开启时应用读取时复权投影 (services/minute_adjust 三层架构)。
 
@@ -1952,9 +2025,8 @@ class KlineRepository:
 
     def _minute_partition_path(self, asset_type: str, trade_date: date) -> str | None:
         """单日分钟K分区文件路径; 不存在 (含存量未迁移的旧 symbol= 分区) 返回 None。"""
-        base = self._minute_glob_for(asset_type).rsplit("/", 2)[0]
-        p = f"{base}/date={trade_date.isoformat()}/part.parquet"
-        return p if Path(p).exists() else None
+        p = self._minute_root_for(asset_type) / f"date={trade_date.isoformat()}" / "part.parquet"
+        return str(p) if p.exists() else None
 
     def get_minute(
         self,
@@ -2059,22 +2131,24 @@ class KlineRepository:
         """
         if not symbols or not dates:
             return pl.DataFrame()
-        base = self._etf_minute_glob.rsplit("/", 2)[0] if asset_type == "etf" else self._minute_glob.rsplit("/", 2)[0]
+        base = self._minute_root_for(asset_type)
         # 收集存在的分区文件路径, 避免对不存在的文件 scan 报错
         parts: list[str] = []
         for d in dates:
-            p = f"{base}/date={d.isoformat()}/part.parquet"
-            if Path(p).exists():
-                parts.append(p)
+            p = base / f"date={d.isoformat()}" / "part.parquet"
+            if p.exists():
+                parts.append(str(p))
         if not parts:
             return pl.DataFrame()
         try:
-            lf = pl.scan_parquet(parts)
-            available = set(lf.collect_schema().names())
+            # 同一数据契约的分区 schema 一致；只探测首文件，避免 collect_schema
+            # 逐个打开所有日期文件后又由 collect 重复打开一次。
+            available = set(pl.scan_parquet(parts[0]).collect_schema().names())
             select_cols = [c for c in ["symbol", "datetime", "open", "high", "low", "close", "volume", "amount"] if c in available]
             df = guarded_collect(
-                lf.select(select_cols)
+                pl.scan_parquet(parts)
                 .filter(pl.col("symbol").is_in(symbols))
+                .select(select_cols)
                 .sort(["symbol", "datetime"]),
                 streaming=True,
             )
@@ -2248,6 +2322,27 @@ class KlineRepository:
     # ================================================================
 
     def latest_minute_date(self, symbol: str, asset_type: str = "stock") -> date | None:
+        """单标的最新分钟K日期。
+
+        优先从最近的 date= 分区按批精确过滤，避免 DuckDB 对全部历史分钟视图
+        做 max(datetime) 扫描；仅在存量旧分区完全不可用时回退冷路径。
+        """
+        from datetime import timedelta
+
+        today = cn_today()
+        recent_dates = self.list_minute_dates(
+            today - timedelta(days=45),
+            today,
+            asset_type=asset_type,
+        )
+        if recent_dates:
+            for end in range(len(recent_dates), 0, -10):
+                batch = recent_dates[max(0, end - 10):end]
+                df = self.get_minute_by_dates([symbol], batch, asset_type=asset_type)
+                if not df.is_empty() and "datetime" in df.columns:
+                    return max(df["datetime"].dt.date().to_list())
+
+        # 兼容尚未迁移的 symbol= 旧分区。正常 date= 分区路径不会走到这里。
         # 注意: 必须走 execute_one (cursor+close)。直连 self.db.execute(...).fetchone()
         # 的未消费结果集会把首个分区 parquet 的句柄钉在共享连接上, Windows 下阻塞
         # 同步写入的 os.replace → 个股分时"补齐数据"500。
@@ -2310,18 +2405,11 @@ class KlineRepository:
         minute_dir = self.store.data_dir / dirname
         if not minute_dir.exists():
             return []
-        out: list[date] = []
-        for entry in minute_dir.iterdir():
-            if not (entry.is_dir() and entry.name.startswith("date=")):
-                continue
-            try:
-                day = date.fromisoformat(entry.name[5:])
-            except ValueError:
-                continue
-            if start <= day <= end:
-                out.append(day)
-        out.sort()
-        return out
+        return [
+            day
+            for day in self._list_partition_dates(minute_dir, require_part=False)
+            if start <= day <= end
+        ]
 
     def latest_daily_date(self) -> date | None:
         """本地日K数据的最新日期。"""
@@ -2363,17 +2451,49 @@ class KlineRepository:
         root = self.store.data_dir / dirname
         if not root.is_dir():
             return []
+        return [
+            day
+            for day in self._list_partition_dates(root, require_part=True)
+            if start <= day <= end
+        ]
+
+    def _list_partition_dates(self, root: Path, *, require_part: bool) -> list[date]:
+        """列出 date=* 分区；仅当所有目录都有 part.parquet 时缓存 enriched 结果。
+
+        os.scandir 使用 Windows 目录项元数据，避免 Path.is_dir() 每项额外 stat。
+        分钟目录只要求目录存在；reader 会继续跳过尚未写入 part.parquet 的日期。
+        """
+        try:
+            root_mtime_ns = root.stat().st_mtime_ns
+        except OSError:
+            return []
+        cache_key = (str(root), require_part)
+        with self._partition_dates_lock:
+            cached = self._partition_dates_cache.get(cache_key)
+        if cached is not None and cached[0] == root_mtime_ns:
+            return list(cached[1])
+
         dates: list[date] = []
-        for partition in root.glob("date=*"):
-            if not (partition / "part.parquet").is_file():
-                continue
-            try:
-                value = date.fromisoformat(partition.name.removeprefix("date="))
-            except ValueError:
-                continue
-            if start <= value <= end:
-                dates.append(value)
-        return sorted(set(dates))
+        all_complete = True
+        with os.scandir(root) as entries:
+            for entry in entries:
+                if not entry.name.startswith("date=") or not entry.is_dir(follow_symlinks=False):
+                    continue
+                try:
+                    day = date.fromisoformat(entry.name[5:])
+                except ValueError:
+                    continue
+                if require_part and not os.path.isfile(os.path.join(entry.path, "part.parquet")):
+                    all_complete = False
+                    continue
+                dates.append(day)
+
+        result = sorted(set(dates))
+        # 有半写目录时不缓存，待 part.parquet 落盘后下一次会重新扫描。
+        if not require_part or all_complete:
+            with self._partition_dates_lock:
+                self._partition_dates_cache[cache_key] = (root_mtime_ns, result)
+        return result
 
     def get_matrix_data_generation(self, asset_type: str = "stock") -> str:
         """Return the stable generation for managed enriched readers."""
