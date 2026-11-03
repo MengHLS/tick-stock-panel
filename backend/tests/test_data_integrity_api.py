@@ -32,6 +32,7 @@ def app_env(tmp_path, monkeypatch):
     monkeypatch.setattr(heavy_job_limiter, "shared_heavy_job_limiter", heavy_job_limiter.HeavyJobLimiter())
     monkeypatch.setattr(heavy_job_limiter, "_memory_admission_ok", lambda: True)
     monkeypatch.setattr(preferences, "load", lambda: {})
+    real_recompute_daily_symbols = pipeline.recompute_daily_symbols
     monkeypatch.setattr(pipeline, "recompute_daily_symbols", lambda *args, **kwargs: None)
     monkeypatch.setattr(integrity_check, "cn_today", lambda: date(2026, 10, 30))
     monkeypatch.setattr(data_integrity, "_trading_calendar", lambda: {date(2026, 10, 29)})
@@ -47,6 +48,7 @@ def app_env(tmp_path, monkeypatch):
 
     app = FastAPI()
     app.include_router(data.router)
+    app.state.real_recompute_daily_symbols = real_recompute_daily_symbols
     app.state.repo = KlineRepository(DataStore(tmp_path))
     monkeypatch.setattr(app.state.repo, "get_instruments_asset", lambda asset: pl.DataFrame({"symbol": ["600001.SH"]}))
     app.state.capabilities = SimpleNamespace(has=lambda cap: True)
@@ -98,6 +100,67 @@ def test_api_scan_and_repair_publish_rechecked_report(app_env, monkeypatch):
         final = client.get("/api/data/integrity").json()["report"]
         assert final["status"] == "clean" and final["issues"] == []
         assert paused == ["pause", "resume"]
+
+
+def test_api_repair_reports_old_history_and_next_attempt_repairs_it(app_env, monkeypatch):
+    from app.indicators import pipeline
+    from app.services import daily_health, kline_sync
+
+    app, store, root, paused = app_env
+    monkeypatch.setattr(
+        pipeline, "recompute_daily_symbols", app.state.real_recompute_daily_symbols,
+    )
+    old, recent = date(2026, 8, 31), date(2026, 10, 29)
+    symbol = "600001.SH"
+    monkeypatch.setattr(data_integrity, "_trading_calendar", lambda: {old, recent})
+
+    def frame(day, bad=False):
+        return pl.DataFrame({
+            "symbol": [symbol], "date": [day], "open": [10.0], "high": [11.0],
+            "low": [9.0], "close": [999.0 if bad else 10.0],
+            "volume": [100.0], "amount": [1000.0],
+        })
+
+    for day in (old, recent):
+        app.state.repo.append_daily(frame(day, bad=day == old))
+        app.state.repo.append_enriched(frame(day))
+    factor_dir = root / "adj_factor"
+    factor_dir.mkdir(exist_ok=True)
+    pl.DataFrame({
+        "symbol": [symbol, symbol],
+        "trade_date": [old, recent],
+        "ex_factor": [1.0, 1.0],
+    }).write_parquet(factor_dir / "all.parquet")
+    issue = data_integrity.IntegrityIssue(recent, "kline_daily", "invalid", symbols=(symbol,))
+    daily_health.record_scan(root, [issue], assets=["stock"], start=recent, end=recent)
+    daily_health.record_scan(root, [], assets=["stock"], start=recent, end=recent)
+    fetched = []
+
+    def fetch(symbols, _caps, **kwargs):
+        fetched.append((kwargs["start_time"].date(), symbols))
+        yield frame(old)
+
+    monkeypatch.setattr(kline_sync, "iter_daily_frames", fetch)
+    with TestClient(app) as client:
+        response = client.post("/api/data/integrity/scan", json={"lookback_days": 30, "asset_types": ["stock"]})
+        assert finished(store, response.json()["job_id"])["status"] == "succeeded"
+        report = client.get("/api/data/integrity").json()["report"]
+        response = client.post("/api/data/integrity/repair", json={"report_id": report["id"]})
+        failure = finished(store, response.json()["job_id"])
+        assert failure["status"] == "failed"
+        assert "2026-08-31" in failure["error"] and symbol in failure["error"]
+        result = client.get("/api/data/integrity").json()
+        assert result["blocking_assets"] == ["stock"]
+        historical = next(i for i in result["report"]["issues"] if i["date"] == old.isoformat())
+        assert historical["symbols"] == [symbol] and "最高价" in historical["reason"]
+        assert fetched == []
+        response = client.post("/api/data/integrity/repair", json={"report_id": result["report"]["id"]})
+        assert finished(store, response.json()["job_id"])["status"] == "succeeded"
+        final = client.get("/api/data/integrity").json()
+        assert final["report"]["status"] == "clean" and final["blocking_assets"] == []
+        assert final["report"]["lookback_days"] == 30
+        assert fetched == [(old, [symbol])]
+        assert paused == ["pause", "resume", "pause", "resume"]
 
 
 @pytest.mark.parametrize("body", [
