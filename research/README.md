@@ -28,3 +28,4 @@ research/
 | 目录 | 说明 |
 | --- | --- |
 | [archive/2026-10-27-firstboard-classification/](archive/2026-10-27-firstboard-classification/README.md) | 首板分类研究冻结档案，入口 `event-replay-v01/README.md` |
+| [industry-chains-20261105/](industry-chains-20261105/README.md) | 商业航天、机器人、新能源汽车与电池产业链分层建议 |

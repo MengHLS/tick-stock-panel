@@ -58,6 +58,9 @@ export const QK = {
   minuteBatch:          () => ['minute-batch'] as const,
   instrumentSearch:     (q: string, assetTypes?: string) => ['instrument-search', q, assetTypes ?? 'stock'] as const,
 
+  // 通用主题分析器 (用户自建主题 + 股票池)
+  themeAnalyzerRoot:     ['theme-analyzer'] as const,
+
   // Screener
   screener:             ['screener'] as const,
   screenerStrategies:   (assetType: string = 'stock', timeframe: '1d' | '1m' | 'all' = '1d') => ['screener-strategies', assetType, timeframe] as const,
@@ -168,6 +171,12 @@ export const QK = {
 
   // 概念涨幅轮动矩阵
   rpsRotation:          (days: number) => ['rps-rotation', days] as const,
+
+  // 产业链图谱与分析 (图谱写入后统一失效 industryChainRoot)
+  industryChainRoot:    ['industry-chain'] as const,
+  industryChainGraph:   ['industry-chain', 'graph'] as const,
+  industryChainAnalysis: (chainId: string, nodeId?: string | null) =>
+                          ['industry-chain', 'analysis', chainId, nodeId ?? ''] as const,
 
   // 市场环境(Regime) — 日级离线计算, 不进 SSE 刷新
   // 历史查询键 = 实际请求三元组 (影响结果的参数全部进键): 'all' 在 coverage

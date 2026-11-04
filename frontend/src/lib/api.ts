@@ -2820,9 +2820,143 @@ export interface LabReport {
   }
 }
 
+export interface IndustryChainCategory {
+  id: string
+  name: string
+  order: number
+}
+
+export interface IndustryChain {
+  id: string
+  category_id: string
+  name: string
+  order: number
+}
+
+export interface IndustryChainNode {
+  id: string
+  chain_id: string
+  parent_id: string | null
+  name: string
+  kind: 'segment' | 'product' | 'application'
+  description: string
+  order: number
+}
+
+export interface IndustryChainStockLink {
+  id: string
+  node_id: string
+  symbol: string
+  reason_short: string
+  note: string
+  source_url: string
+  evidence_status: 'verified' | 'pending'
+  basis: 'main_business' | 'supply' | 'theme_clue'
+  sort_order: number
+}
+
+export interface IndustryChainGraph {
+  version: 1
+  updated_at: string
+  categories: IndustryChainCategory[]
+  chains: IndustryChain[]
+  nodes: IndustryChainNode[]
+  stock_links: IndustryChainStockLink[]
+  /** 后端按关联代码批量回填的股票名称，不写入图谱文件 */
+  stock_names?: Record<string, string>
+}
+
+export type IndustryChainWindowKey = 'd1' | 'd5' | 'd20'
+
+export interface IndustryChainAnalysisWindow {
+  return_pct: number | null
+  up_count: number
+  down_count: number
+  flat_count: number
+  priced_count: number
+  stock_count: number
+  amount: number
+}
+
+export interface IndustryChainAnalysisStock {
+  symbol: string
+  name: string
+  latest_close: number | null
+  amount: number | null
+  returns: Record<IndustryChainWindowKey, number | null>
+  missing_price: boolean
+  links: Array<IndustryChainStockLink & { node_name: string }>
+}
+
+export interface IndustryChainAnalysis {
+  chain: {
+    id: string
+    name: string
+    category_id: string
+    category_name: string
+  }
+  node: {
+    id: string
+    name: string
+    parent_id: string | null
+    path: Array<{ id: string; name: string }>
+  } | null
+  scope_node_ids: string[]
+  start: string
+  end: string
+  method: {
+    return_basis: string
+    aggregation: string
+    membership: string
+  }
+  link_count: number
+  stock_count: number
+  coverage: {
+    priced_count: number
+    missing_count: number
+    missing_symbols: string[]
+  }
+  windows: Record<IndustryChainWindowKey, IndustryChainAnalysisWindow>
+  relative: {
+    parent: {
+      node_id: string | null
+      name: string | null
+      windows: Record<IndustryChainWindowKey, number | null>
+    }
+    chain: {
+      windows: Record<IndustryChainWindowKey, number | null>
+    }
+  }
+  stocks: IndustryChainAnalysisStock[]
+  series: Array<{ date: string; return_pct: number; sample_count: number }>
+}
+
 // ===== API surface =====
 export const api = {
   health: () => request<{ status: string; version: string; mode: string }>('/health'),
+
+  industryChainGraph: () =>
+    request<IndustryChainGraph>('/api/custom/industry-chain/graph'),
+  industryChainSaveGraph: (graph: IndustryChainGraph, expectedUpdatedAt?: string | null) =>
+    request<IndustryChainGraph>('/api/custom/industry-chain/graph', {
+      method: 'PUT',
+      body: JSON.stringify({
+        graph,
+        expected_updated_at: expectedUpdatedAt ?? graph.updated_at,
+      }),
+    }),
+  industryChainAnalysis: (params: {
+    chainId: string
+    nodeId?: string | null
+    start?: string
+    end?: string
+  }) => {
+    const query = new URLSearchParams({ chain_id: params.chainId })
+    if (params.nodeId) query.set('node_id', params.nodeId)
+    if (params.start) query.set('start', params.start)
+    if (params.end) query.set('end', params.end)
+    return request<IndustryChainAnalysis>(`/api/custom/industry-chain/analysis?${query.toString()}`)
+  },
 
   // ===== Auth (访问认证) =====
   authStatus: () =>
