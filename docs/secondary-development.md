@@ -19,7 +19,6 @@
 - 数据源 Provider 与 `plugin.yaml` 机制：详见 [`plugin-development.md`](plugin-development.md)。
 - 扩展数据与声明式分析页面：适合不需要自定义 React 交互的页面。
 - 前端源码扩展注册：`frontend/src/custom/<namespace>/extension.tsx`，支持静态页面、导航和已开放插槽。
-- 首板回放已迁移到 `frontend/src/custom/first-board-replay/`，保留 `/research/firstboard` 路径以兼容旧链接和导航偏好。
 - 后端源码扩展注册：`backend/app/custom/<package>/__init__.py`（也兼容单文件模块），支持 FastAPI 路由、启动钩子、通知格式化、受限实时行情观察器和策略级扩展。
 - 外部后端扩展包及配套页面安装：`data/extensions/<id>/versions/<version>/`，复用现有注册契约，静态预览、重启生效、失败保留旧版本。入口为「设置 → 导入与备份」，见 [统一导入与外部后端扩展包](extension-packages.md)。
 - 统一扩展数据定时拉取（已实现）：非 HTTP 采集器用稳定的 `builtin://...` 地址标识配置，并通过 `app.services.ext_pull.register_pull_handler(config_id, handler)` 接入既有 `PullScheduler`；调度、启停、状态和 `next_run` 必须复用该调度器，禁止扩展另建定时循环。

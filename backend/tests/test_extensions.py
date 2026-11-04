@@ -179,7 +179,7 @@ def test_quote_observer_failure_is_isolated_and_does_not_drop_other_events() -> 
             {"000001.SZ"},
             events=[
                 {
-                    "source": "first_board_right_tail",
+                    "source": "company.valid",
                     "type": "buy_trigger",
                     "symbol": "000001.SZ",
                     "name": "A",
