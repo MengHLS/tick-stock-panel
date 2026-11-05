@@ -18,13 +18,18 @@ START = date(2026, 1, 1)
 DATES = [START + timedelta(days=index) for index in range(40)]
 SYMBOL_A = "000001.SZ"
 SYMBOL_B = "000002.SZ"
+SYMBOL_GEM = "300001.SZ"
 
 
 def _daily_rows() -> list[dict]:
     closes_a = [10.0] * 20 + [11.0, 12.0, 13.0] + [10.0] * 11 + [11.0, 12.0, 13.0] + [10.0] * 3
     rows: list[dict] = []
     for index, day in enumerate(DATES):
-        for symbol, close in ((SYMBOL_A, closes_a[index]), (SYMBOL_B, 20.0)):
+        for symbol, close in (
+            (SYMBOL_A, closes_a[index]),
+            (SYMBOL_B, 20.0),
+            (SYMBOL_GEM, 30.0),
+        ):
             rows.append({
                 "symbol": symbol,
                 "date": day,
@@ -133,8 +138,8 @@ class FakeMarketData:
     def get_instruments(self, asset_type: str = "stock") -> pl.DataFrame:
         assert asset_type == "stock"
         return pl.DataFrame({
-            "symbol": [SYMBOL_A, SYMBOL_B],
-            "name": ["甲阳股份", "乙洋股份"],
+            "symbol": [SYMBOL_A, SYMBOL_B, SYMBOL_GEM],
+            "name": ["甲阳股份", "乙洋股份", "丙创股份"],
         })
 
     def get_historical_shares(self) -> pl.DataFrame:
@@ -317,6 +322,31 @@ def test_analysis_window_returns_and_activity(tmp_path: Path) -> None:
     assert result["seal"]["sealed_count"] == 1
     assert result["seal"]["broken_count"] == 1
     assert result["seal"]["seal_rate"] == pytest.approx(0.5)
+
+
+def test_analysis_defaults_to_mainboard_and_returns_explainable_core() -> None:
+    service = ThemeAnalyzerService(FakeMarketData())
+    theme = {**_theme(), "symbols": [SYMBOL_A, SYMBOL_B, SYMBOL_GEM]}
+    result = service.analyze(theme, start=DATES[0], end=DATES[-1])
+
+    assert result["mainboard_only"] is True
+    assert result["pool_count"] == 3
+    assert result["candidate_count"] == 2
+    assert result["filtered_count"] == 1
+    assert SYMBOL_GEM not in {row["symbol"] for row in result["leaders"]}
+    assert result["core_stocks"]
+    assert len(result["core_stocks"]) <= 5
+    assert all(item["reasons"] for item in result["core_stocks"])
+    core = next(item for item in result["core_stocks"] if item["symbol"] == SYMBOL_A)
+    assert "区间涨幅峰值" in " ".join(core["reasons"])
+    assert result["core_series"][SYMBOL_A][0] == pytest.approx(100.0)
+    assert len(result["core_series"][SYMBOL_A]) == len(result["index"]["dates"])
+
+    all_boards = service.analyze(
+        theme, start=DATES[0], end=DATES[-1], mainboard_only=False,
+    )
+    assert all_boards["candidate_count"] == 3
+    assert SYMBOL_GEM in {row["symbol"] for row in all_boards["leaders"]}
 
 
 def test_limit_route_marks_start_switch_and_relay() -> None:
@@ -526,6 +556,32 @@ def test_analysis_api_serializes_route_and_empty_theme(tmp_path: Path) -> None:
     assert empty.json()["limit_route"]["rows"] == []
 
 
+def test_analysis_api_rejects_reversed_window_and_passes_board_filter(tmp_path: Path) -> None:
+    app = FastAPI()
+    app.include_router(router)
+    app.dependency_overrides[get_extension_runtime] = lambda: SimpleNamespace(
+        data_dir=tmp_path, market_data=FakeMarketData(),
+    )
+    client = TestClient(app)
+    theme = store.create_theme(
+        tmp_path, name="主题", symbols=[SYMBOL_A, SYMBOL_B, SYMBOL_GEM],
+    )
+    url = f"/api/custom/theme-analyzer/themes/{theme['id']}/analysis"
+    reversed_window = client.get(url, params={
+        "start": DATES[-1].isoformat(),
+        "end": DATES[0].isoformat(),
+    })
+    assert reversed_window.status_code == 400
+    assert "开始日期" in reversed_window.json()["detail"]
+    filtered = client.get(url, params={
+        "start": DATES[0].isoformat(),
+        "end": DATES[-1].isoformat(),
+        "mainboard_only": "true",
+    }).json()
+    assert filtered["filtered_count"] == 1
+    assert SYMBOL_GEM not in {row["symbol"] for row in filtered["leaders"]}
+
+
 def test_minute_overlay_aligns_table_and_features() -> None:
     service = ThemeAnalyzerService(FakeMarketData())
     result = service.minute_overlay(
@@ -539,6 +595,7 @@ def test_minute_overlay_aligns_table_and_features() -> None:
     assert result["table"]["series"][SYMBOL_A][-1] == pytest.approx(4.0)
     assert result["features"][SYMBOL_A]["day"] == pytest.approx(4.0)
     assert result["features"][SYMBOL_A]["up_ratio"] == pytest.approx(100.0)
+    assert result["stocks"][0]["limit_pct"] == pytest.approx(10.0)
     assert result["missing"] == []
 
 
@@ -547,6 +604,19 @@ def test_minute_overlay_no_data() -> None:
     result = service.minute_overlay(_theme(), date(2026, 11, 2), [SYMBOL_A])
     assert result["status"] == "no_data"
     assert result["missing"] == [SYMBOL_A]
+
+
+def test_minute_overlay_applies_same_mainboard_filter() -> None:
+    service = ThemeAnalyzerService(FakeMarketData())
+    theme = {**_theme(), "symbols": [SYMBOL_A, SYMBOL_GEM]}
+    result = service.minute_overlay(
+        theme,
+        date(2026, 11, 2),
+        [SYMBOL_GEM, SYMBOL_A],
+    )
+    assert result["status"] == "ok"
+    assert [stock["symbol"] for stock in result["stocks"]] == [SYMBOL_A]
+    assert SYMBOL_GEM not in result["series"]
 
 
 def test_api_rejects_bad_symbol_and_missing_theme(tmp_path: Path) -> None:

@@ -167,6 +167,7 @@ def analyze_theme(
     runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
     start: Annotated[date | None, Query()] = None,
     end: Annotated[date | None, Query()] = None,
+    mainboard_only: Annotated[bool, Query()] = True,
 ) -> dict[str, Any]:
     theme = store.get_theme(runtime.data_dir, theme_id)
     if theme is None:
@@ -175,10 +176,13 @@ def analyze_theme(
         theme = resolve_theme(runtime.data_dir, theme, strict=True)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
+    if start and end and start > end:
+        raise HTTPException(400, "开始日期不能晚于结束日期")
     return ThemeAnalyzerService(runtime.market_data).analyze(
         theme,
         start=start,
         end=end,
+        mainboard_only=mainboard_only,
     )
 
 
@@ -188,6 +192,7 @@ def minute_overlay(
     trade_date: Annotated[date, Query(alias="date")],
     runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
     symbols: Annotated[str | None, Query()] = None,
+    mainboard_only: Annotated[bool, Query()] = True,
 ) -> dict[str, Any]:
     theme = store.get_theme(runtime.data_dir, theme_id)
     if theme is None:
@@ -207,5 +212,6 @@ def minute_overlay(
         theme,
         trade_date,
         selected,
+        mainboard_only=mainboard_only,
     )
 

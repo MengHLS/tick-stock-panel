@@ -8,6 +8,7 @@ from typing import Any
 import polars as pl
 
 from app.extensions.contracts import MarketDataRead
+from app.price_limits import is_risk_warning_name, price_limit_pct
 
 from .store import SYMBOL_RE, normalize_symbols
 
@@ -21,8 +22,10 @@ BENCH_PREF: dict[str, tuple[str, ...]] = {
 BENCH_SYMBOLS = {symbol for values in BENCH_PREF.values() for symbol in values}
 INDEX_SERIES_SYMBOL = "000001.SH"
 DEFAULT_WINDOW_TRADING_DAYS = 60
-LOOKBACK_CALENDAR_DAYS = 120
-MINUTE_SAMPLE_LIMIT = 12
+# Covers the 120-trading-day shortcut plus the 30-day route context.
+LOOKBACK_CALENDAR_DAYS = 220
+MINUTE_SAMPLE_LIMIT = 5
+CORE_STOCK_LIMIT = 5
 EVENT_COLUMNS = [
     "trade_date",
     "symbol",
@@ -49,6 +52,25 @@ def benchmark_key(symbol: str) -> str:
     if symbol.endswith(".SZ"):
         return "GEM" if code.startswith("30") else "SZ"
     return "SH"
+
+
+def board_of(symbol: str) -> str:
+    code = symbol.split(".", 1)[0]
+    if symbol.endswith(".BJ"):
+        return "北交所"
+    if code.startswith("68"):
+        return "科创板"
+    if code.startswith(("30", "301", "302")):
+        return "创业板"
+    if symbol.endswith(".SH"):
+        return "沪主板"
+    if symbol.endswith(".SZ"):
+        return "深主板"
+    return "其他"
+
+
+def is_main_board_symbol(symbol: str) -> bool:
+    return board_of(symbol) in {"沪主板", "深主板"}
 
 
 def _ratio(value: float | None) -> float | None:
@@ -153,13 +175,29 @@ class ThemeAnalyzerService:
         *,
         start: date | None = None,
         end: date | None = None,
+        mainboard_only: bool = True,
     ) -> dict[str, Any]:
-        symbols = normalize_symbols(theme.get("symbols") or [])
+        pool_symbols = normalize_symbols(theme.get("symbols") or [])
+        symbols = [
+            symbol
+            for symbol in pool_symbols
+            if not mainboard_only or is_main_board_symbol(symbol)
+        ]
+        filtered_count = len(pool_symbols) - len(symbols)
         names = self.names(symbols)
         latest_daily = self._latest_daily_date()
         resolved_end = min(end, latest_daily) if end and latest_daily else (end or latest_daily)
         if resolved_end is None:
-            return self._empty_payload(theme, symbols, names, start, end)
+            return self._empty_payload(
+                theme,
+                symbols,
+                names,
+                start,
+                end,
+                pool_count=len(pool_symbols),
+                filtered_count=filtered_count,
+                mainboard_only=mainboard_only,
+            )
 
         trading_dates: list[date] = []
         try:
@@ -180,7 +218,16 @@ class ThemeAnalyzerService:
         if resolved_start > resolved_end:
             resolved_start, resolved_end = resolved_end, resolved_start
         if not symbols:
-            return self._empty_payload(theme, symbols, names, resolved_start, resolved_end)
+            return self._empty_payload(
+                theme,
+                symbols,
+                names,
+                resolved_start,
+                resolved_end,
+                pool_count=len(pool_symbols),
+                filtered_count=filtered_count,
+                mainboard_only=mainboard_only,
+            )
 
         load_start = resolved_start - timedelta(days=LOOKBACK_CALENDAR_DAYS)
         daily = self._load_daily(
@@ -197,6 +244,9 @@ class ThemeAnalyzerService:
                 resolved_start,
                 resolved_end,
                 latest_daily=resolved_end,
+                pool_count=len(pool_symbols),
+                filtered_count=filtered_count,
+                mainboard_only=mainboard_only,
             )
 
         daily = daily.with_columns(
@@ -213,6 +263,9 @@ class ThemeAnalyzerService:
                 resolved_start,
                 resolved_end,
                 latest_daily=resolved_end,
+                pool_count=len(pool_symbols),
+                filtered_count=filtered_count,
+                mainboard_only=mainboard_only,
             )
 
         index_daily = self._load_index_daily(load_start, resolved_end)
@@ -297,6 +350,13 @@ class ThemeAnalyzerService:
             minute_dates,
             available_dates,
         )
+        core_stocks = self._core_stocks(leaders, limit_route)
+        core_series = self._stock_series(
+            rows_by_symbol,
+            window_dates,
+            all_dates=available_dates,
+            symbols=[str(item["symbol"]) for item in core_stocks],
+        )
         sh_return = _ratio(
             (index_payload["sh"][-1] / 100.0 - 1) if index_payload["sh"] and index_payload["sh"][-1] is not None else None
         )
@@ -310,16 +370,22 @@ class ThemeAnalyzerService:
             "window_start": resolved_start.isoformat(),
             "window_end": resolved_end.isoformat(),
             "default_window_days": DEFAULT_WINDOW_TRADING_DAYS,
-            "pool_count": len(symbols),
+            "pool_count": len(pool_symbols),
+            "candidate_count": len(symbols),
+            "filtered_count": filtered_count,
             "quoted_count": len(leaders),
             "active_count": len(active_set),
+            "mainboard_only": mainboard_only,
             "active_return": _ratio(active_last / 100.0 - 1) if active_last is not None else None,
             "pool_return": _ratio(pool_last / 100.0 - 1) if pool_last is not None else None,
             "sh_return": sh_return,
             "latest_minute_date": minute_dates[-1].isoformat() if minute_dates else None,
             "minute_dates": [day.isoformat() for day in minute_dates],
+            "recent_dates": [day.isoformat() for day in available_dates[-120:]],
+            "core_stocks": core_stocks,
             "leaders": leaders,
             "index": index_payload,
+            "core_series": core_series,
             "heatmap": {
                 "dates": [day.isoformat() for day in window_dates],
                 "rows": heat_rows,
@@ -334,9 +400,19 @@ class ThemeAnalyzerService:
         theme: dict[str, Any],
         trade_date: date,
         symbols: list[str] | None = None,
+        *,
+        mainboard_only: bool = True,
     ) -> dict[str, Any]:
-        theme_symbols = normalize_symbols(theme.get("symbols") or [])
-        selected = normalize_symbols(symbols or [])[:MINUTE_SAMPLE_LIMIT]
+        theme_symbols = [
+            symbol
+            for symbol in normalize_symbols(theme.get("symbols") or [])
+            if not mainboard_only or is_main_board_symbol(symbol)
+        ]
+        selected = [
+            symbol
+            for symbol in normalize_symbols(symbols or [])
+            if not mainboard_only or is_main_board_symbol(symbol)
+        ][:MINUTE_SAMPLE_LIMIT]
         if not selected:
             selected = theme_symbols[:MINUTE_SAMPLE_LIMIT]
         if not selected:
@@ -352,6 +428,17 @@ class ThemeAnalyzerService:
                 "missing": [],
             }
         names = self.names(selected)
+        limit_pct = {
+            symbol: round(
+                price_limit_pct(
+                    symbol,
+                    trade_date,
+                    is_risk_warning=is_risk_warning_name(names.get(symbol)),
+                ) * 100.0,
+                2,
+            )
+            for symbol in selected
+        }
         try:
             minute_dates = self.market_data.list_minute_dates(trade_date, trade_date)
         except Exception:  # noqa: BLE001 - empty response below
@@ -362,7 +449,11 @@ class ThemeAnalyzerService:
                 "date": trade_date.isoformat(),
                 "status": "no_data",
                 "stocks": [
-                    {"symbol": symbol, "name": names.get(symbol, symbol)}
+                    {
+                        "symbol": symbol,
+                        "name": names.get(symbol, symbol),
+                        "limit_pct": limit_pct[symbol],
+                    }
                     for symbol in selected
                 ],
                 "times": [],
@@ -382,7 +473,11 @@ class ThemeAnalyzerService:
                 "date": trade_date.isoformat(),
                 "status": "no_data",
                 "stocks": [
-                    {"symbol": symbol, "name": names.get(symbol, symbol)}
+                    {
+                        "symbol": symbol,
+                        "name": names.get(symbol, symbol),
+                        "limit_pct": limit_pct[symbol],
+                    }
                     for symbol in selected
                 ],
                 "times": [],
@@ -458,6 +553,7 @@ class ThemeAnalyzerService:
                     "name": names.get(symbol, symbol),
                     "prev_close": _round(prev_close.get(symbol), 3),
                     "has_data": symbol not in missing,
+                    "limit_pct": limit_pct[symbol],
                 }
                 for symbol in selected
             ],
@@ -652,6 +748,8 @@ class ThemeAnalyzerService:
         summary: dict[str, Any] = {
             "symbol": symbol,
             "name": name,
+            "board": board_of(symbol),
+            "is_mainboard": is_main_board_symbol(symbol),
             "active": symbol in active_set,
             "last_date": dates[-1].isoformat() if dates and dates[-1] is not None else None,
             "last_close": _round(closes[-1], 3) if closes and closes[-1] is not None else None,
@@ -824,6 +922,97 @@ class ThemeAnalyzerService:
             "active": active,
             "pool": pool,
         }
+
+    def _stock_series(
+        self,
+        rows_by_symbol: dict[str, list[dict[str, Any]]],
+        window_dates: list[date],
+        *,
+        all_dates: list[date],
+        symbols: list[str],
+    ) -> dict[str, list[float | None]]:
+        """Normalize each stock to its close on the trading day before the window."""
+        if not window_dates:
+            return {}
+        ordered_dates = sorted(day for day in set(all_dates) if day <= window_dates[-1])
+        before = [day for day in ordered_dates if day < window_dates[0]]
+        base_day = before[-1] if before else None
+        result: dict[str, list[float | None]] = {}
+        for symbol in symbols:
+            close_by_day = {
+                day: float(row["close"])
+                for row in rows_by_symbol.get(symbol, [])
+                if (day := _as_date(row.get("date"))) is not None
+                and row.get("close") is not None
+            }
+            base = close_by_day.get(base_day) if base_day is not None else None
+            if not base:
+                base = next(
+                    (close_by_day[day] for day in window_dates if day in close_by_day),
+                    None,
+                )
+            if not base:
+                result[symbol] = [None for _ in window_dates]
+                continue
+            result[symbol] = [
+                round(close_by_day[day] / base * 100.0, 2)
+                if day in close_by_day
+                else None
+                for day in window_dates
+            ]
+        return result
+
+    def _core_stocks(
+        self,
+        leaders: list[dict[str, Any]],
+        limit_route: dict[str, Any],
+        *,
+        limit: int = CORE_STOCK_LIMIT,
+    ) -> list[dict[str, Any]]:
+        """Pick a small, explainable review list from the whole-window result."""
+        route_by_symbol = {
+            str(row.get("symbol")): row
+            for row in limit_route.get("rows", [])
+            if row.get("symbol")
+        }
+        candidates = [row for row in leaders if row.get("last_close") is not None]
+
+        def rank(row: dict[str, Any]) -> tuple[Any, ...]:
+            symbol = str(row.get("symbol") or "")
+            route = route_by_symbol.get(symbol, {})
+            return (
+                route.get("is_space_leader") is not True,
+                -(int(route.get("max_consec") or 0)),
+                -(int(route.get("total_lu") or 0)),
+                -float(row.get("max_ret_30") or 0.0),
+                -float(row.get("latest_ret_3") or 0.0),
+                symbol,
+            )
+
+        selected: list[dict[str, Any]] = []
+        for row in sorted(candidates, key=rank)[:limit]:
+            symbol = str(row["symbol"])
+            route = route_by_symbol.get(symbol, {})
+            reasons: list[str] = []
+            if route.get("is_space_leader"):
+                reasons.append("区间涨幅峰值")
+            if int(route.get("max_consec") or 0) >= 2:
+                reasons.append(f"最高 {int(route['max_consec'])} 连板")
+            if int(route.get("total_lu") or 0) > 0:
+                reasons.append(f"区间涨停 {int(route['total_lu'])} 次")
+            if route.get("first_seal_date"):
+                reasons.append(f"首次封板 {route['first_seal_date']}")
+            if row.get("max_ret_30") is not None:
+                reasons.append(f"30日峰值 {float(row['max_ret_30']) * 100:.1f}%")
+            if not reasons:
+                reasons.append("区间涨幅居前")
+            selected.append({
+                "symbol": symbol,
+                "name": str(row.get("name") or symbol),
+                "board": str(row.get("board") or board_of(symbol)),
+                "reasons": reasons[:3],
+            })
+        return selected
 
     def _benchmark_series(
         self,
@@ -1525,6 +1714,9 @@ class ThemeAnalyzerService:
         end: date | None,
         *,
         latest_daily: date | None = None,
+        pool_count: int | None = None,
+        filtered_count: int = 0,
+        mainboard_only: bool = True,
     ) -> dict[str, Any]:
         today = date.today()
         resolved_end = end or latest_daily or today
@@ -1536,18 +1728,25 @@ class ThemeAnalyzerService:
             "window_start": resolved_start.isoformat(),
             "window_end": resolved_end.isoformat(),
             "default_window_days": DEFAULT_WINDOW_TRADING_DAYS,
-            "pool_count": len(symbols),
+            "pool_count": pool_count if pool_count is not None else len(symbols),
+            "candidate_count": len(symbols),
+            "filtered_count": filtered_count,
             "quoted_count": 0,
             "active_count": 0,
+            "mainboard_only": mainboard_only,
             "active_return": None,
             "pool_return": None,
             "sh_return": None,
             "latest_minute_date": None,
             "minute_dates": [],
+            "recent_dates": [],
+            "core_stocks": [],
             "leaders": [
                 {
                     "symbol": symbol,
                     "name": names.get(symbol, symbol),
+                    "board": board_of(symbol),
+                    "is_mainboard": is_main_board_symbol(symbol),
                     "active": False,
                     "last_date": None,
                     "last_close": None,
@@ -1565,6 +1764,7 @@ class ThemeAnalyzerService:
                 for symbol in symbols
             ],
             "index": {"dates": [], "active": [], "pool": [], "sh": []},
+            "core_series": {},
             "heatmap": {"dates": [], "rows": []},
             "breadth": [],
             "seal": {

@@ -2864,6 +2864,8 @@ export interface ThemeAnalyzerTheme {
 export interface ThemeAnalyzerLeader {
   symbol: string
   name: string
+  board: '沪主板' | '深主板' | '创业板' | '科创板' | '北交所' | '其他'
+  is_mainboard: boolean
   active: boolean
   last_date: string | null
   last_close: number | null
@@ -3003,6 +3005,13 @@ export interface ThemeAnalyzerLimitRoute {
   space_leader_peak_date: string | null
 }
 
+export interface ThemeAnalyzerCoreStock {
+  symbol: string
+  name: string
+  board: ThemeAnalyzerLeader['board']
+  reasons: string[]
+}
+
 export interface ThemeAnalyzerAnalysis {
   theme_id: string
   theme_name: string
@@ -3011,13 +3020,18 @@ export interface ThemeAnalyzerAnalysis {
   window_end: string
   default_window_days: number
   pool_count: number
+  candidate_count: number
+  filtered_count: number
   quoted_count: number
   active_count: number
+  mainboard_only: boolean
   active_return: number | null
   pool_return: number | null
   sh_return: number | null
   latest_minute_date: string | null
   minute_dates: string[]
+  recent_dates: string[]
+  core_stocks: ThemeAnalyzerCoreStock[]
   leaders: ThemeAnalyzerLeader[]
   index: {
     dates: string[]
@@ -3025,6 +3039,7 @@ export interface ThemeAnalyzerAnalysis {
     pool: (number | null)[]
     sh: (number | null)[]
   }
+  core_series: Record<string, (number | null)[]>
   heatmap: {
     dates: string[]
     rows: ThemeAnalyzerHeatRow[]
@@ -3065,6 +3080,7 @@ export interface ThemeAnalyzerMinute {
     name: string
     prev_close?: number | null
     has_data?: boolean
+    limit_pct?: number | null
   }[]
   times: string[]
   series: Record<string, (number | null)[]>
@@ -3841,64 +3857,6 @@ export const api = {
       `/api/kline/instruments/search?q=${encodeURIComponent(q)}&limit=${limit}${assetTypes ? `&asset_types=${encodeURIComponent(assetTypes)}` : ''}`,
     ),
 
-  // ✅ 通用主题分析器: 主题 CRUD + 分析 + 分钟叠加
-  themeAnalyzerThemes: () =>
-    request<{ items: ThemeAnalyzerTheme[] }>('/api/custom/theme-analyzer/themes'),
-  themeAnalyzerCreate: (payload: {
-    name: string
-    description?: string
-    color?: string
-    symbols?: string[]
-    industry_source?: ThemeIndustrySource | null
-  }) =>
-    request<ThemeAnalyzerTheme>('/api/custom/theme-analyzer/themes', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  themeAnalyzerUpdate: (id: string, payload: {
-    name?: string
-    description?: string
-    color?: string
-    symbols?: string[]
-    industry_source?: ThemeIndustrySource | null
-  }) =>
-    request<ThemeAnalyzerTheme>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    }),
-  themeAnalyzerDelete: (id: string) =>
-    request<{ ok: boolean }>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-    }),
-  themeAnalyzerAddStocks: (id: string, symbols: string[]) =>
-    request<ThemeAnalyzerTheme>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/stocks`, {
-      method: 'POST',
-      body: JSON.stringify({ symbols }),
-    }),
-  themeAnalyzerRemoveStock: (id: string, symbol: string) =>
-    request<ThemeAnalyzerTheme>(
-      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/stocks/${encodeURIComponent(symbol)}`,
-      { method: 'DELETE' },
-    ),
-  themeAnalyzerAnalysis: (id: string, params?: { start?: string; end?: string }) => {
-    const query = new URLSearchParams()
-    if (params?.start) query.set('start', params.start)
-    if (params?.end) query.set('end', params.end)
-    const suffix = query.toString()
-    return request<ThemeAnalyzerAnalysis>(
-      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/analysis${suffix ? `?${suffix}` : ''}`,
-      { timeoutMs: 120_000 },
-    )
-  },
-  themeAnalyzerMinute: (id: string, date: string, symbols: string[]) => {
-    const query = new URLSearchParams({ date })
-    if (symbols.length) query.set('symbols', symbols.join(','))
-    return request<ThemeAnalyzerMinute>(
-      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/minute?${query.toString()}`,
-      { timeoutMs: 120_000 },
-    )
-  },
-
   /** 批量查股票名称 (传入 symbol 列表, 返回 {symbol: name}) */
   instrumentNames: (symbols: string[]) =>
     request<{ names: Record<string, string> }>('/api/kline/instruments/names', {
@@ -4163,6 +4121,69 @@ export const api = {
   // 概念涨幅轮动矩阵: 每列(日期)各自把所有概念按当天涨幅从高到低排序
   rpsRotation: (days: number, kind?: 'concept' | 'industry', level?: number) =>
     request<RpsRotationData>(`/api/rps/rotation?days=${days}${kind ? `&kind=${kind}` : ''}${level ? `&level=${level}` : ''}`),
+
+  themeAnalyzerThemes: () =>
+    request<{ items: ThemeAnalyzerTheme[] }>('/api/custom/theme-analyzer/themes'),
+  themeAnalyzerCreate: (payload: {
+    name: string
+    description?: string
+    color?: string
+    symbols?: string[]
+    industry_source?: ThemeIndustrySource | null
+  }) =>
+    request<ThemeAnalyzerTheme>('/api/custom/theme-analyzer/themes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  themeAnalyzerUpdate: (id: string, payload: {
+    name?: string
+    description?: string
+    color?: string
+    symbols?: string[]
+    industry_source?: ThemeIndustrySource | null
+  }) =>
+    request<ThemeAnalyzerTheme>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  themeAnalyzerDelete: (id: string) =>
+    request<{ ok: boolean }>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+  themeAnalyzerAddStocks: (id: string, symbols: string[]) =>
+    request<ThemeAnalyzerTheme>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/stocks`, {
+      method: 'POST',
+      body: JSON.stringify({ symbols }),
+    }),
+  themeAnalyzerRemoveStock: (id: string, symbol: string) =>
+    request<ThemeAnalyzerTheme>(
+      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/stocks/${encodeURIComponent(symbol)}`,
+      { method: 'DELETE' },
+    ),
+  themeAnalyzerAnalysis: (id: string, params?: {
+    start?: string
+    end?: string
+    mainboardOnly?: boolean
+  }) => {
+    const query = new URLSearchParams()
+    if (params?.start) query.set('start', params.start)
+    if (params?.end) query.set('end', params.end)
+    if (params?.mainboardOnly != null) query.set('mainboard_only', String(params.mainboardOnly))
+    const suffix = query.size ? `?${query.toString()}` : ''
+    return request<ThemeAnalyzerAnalysis>(
+      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/analysis${suffix}`,
+      { timeoutMs: COMPUTE_REQUEST_TIMEOUT_MS },
+    )
+  },
+  themeAnalyzerMinute: (id: string, date: string, symbols: string[], mainboardOnly = true) => {
+    const query = new URLSearchParams({ date })
+    if (symbols.length) query.set('symbols', symbols.join(','))
+    query.set('mainboard_only', String(mainboardOnly))
+    return request<ThemeAnalyzerMinute>(
+      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/minute?${query.toString()}`,
+      { timeoutMs: COMPUTE_REQUEST_TIMEOUT_MS },
+    )
+  },
 
   // 市场环境(Regime)
   regimeHistory: (start?: string, end?: string, limit?: number) => {

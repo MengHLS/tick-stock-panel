@@ -75,14 +75,6 @@ export const QK = {
   minuteBatch:          () => ['minute-batch'] as const,
   instrumentSearch:     (q: string, assetTypes?: string) => ['instrument-search', q, assetTypes ?? 'stock'] as const,
 
-  // 通用主题分析器 (用户自建主题 + 股票池)
-  themeAnalyzerRoot:     ['theme-analyzer'] as const,
-  themeAnalyzerThemes:   ['theme-analyzer', 'themes'] as const,
-  themeAnalyzerAnalysis: (id: string, start?: string, end?: string, poolKey = '') =>
-                           ['theme-analyzer', 'analysis', id, start ?? '', end ?? '', poolKey] as const,
-  themeAnalyzerMinute:   (id: string, date: string, symbolsKey: string, poolKey = '') =>
-                           ['theme-analyzer', 'minute', id, date, symbolsKey, poolKey] as const,
-
   // Screener
   screener:             ['screener'] as const,
   screenerStrategies:   (assetType: string = 'stock', timeframe: '1d' | '1m' | 'all' = '1d') => ['screener-strategies', assetType, timeframe] as const,
@@ -94,6 +86,14 @@ export const QK = {
   extSeries:           (colsKey: string, date?: string | null, symbolsKey?: string) => ['ext-series', colsKey, date ?? '', symbolsKey ?? ''] as const,
   marketSnapshot:       ['market-snapshot'] as const,
   limitLadder:          (asOf?: string) => ['limit-ladder', asOf] as const,
+
+  // 通用主题分析器 (用户自建主题 + 股票池)
+  themeAnalyzerRoot:     ['theme-analyzer'] as const,
+  themeAnalyzerThemes:   ['theme-analyzer', 'themes'] as const,
+  themeAnalyzerAnalysis: (id: string, start?: string, end?: string, mainboardOnly = true, poolKey = '') =>
+                           ['theme-analyzer', 'analysis', id, start ?? '', end ?? '', mainboardOnly, poolKey] as const,
+  themeAnalyzerMinute:   (id: string, date: string, symbolsKey: string, mainboardOnly = true, poolKey = '') =>
+                           ['theme-analyzer', 'minute', id, date, symbolsKey, mainboardOnly, poolKey] as const,
 
   // Backtest
   backtestStatus:       ['backtest-status'] as const,

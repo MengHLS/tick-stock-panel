@@ -56,79 +56,84 @@ export function ThemeTrendChart({
   className,
 }: BaseChartProps & { analysis: ThemeAnalyzerAnalysis }) {
   const ct = useChartTheme()
-  const option = useMemo<EChartsOption>(() => ({
-    backgroundColor: 'transparent',
-    animation: false,
-    color: ['#F59E0B', '#22D3EE', '#94A3B8'],
-    textStyle: baseText(ct),
-    legend: {
-      top: 4,
-      right: 8,
+  const option = useMemo<EChartsOption>(() => {
+    const colors = ['#F59E0B', '#22D3EE', '#FB7185', '#A78BFA', '#A3E635']
+    const core = analysis.core_stocks ?? []
+    return {
+      backgroundColor: 'transparent',
+      animation: false,
+      color: [...colors, '#64748B', '#94A3B8'],
       textStyle: baseText(ct),
-      itemWidth: 16,
-      itemHeight: 2,
-      data: ['活跃等权', '主题池等权', '上证指数'],
-    },
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: ct.tooltipBg,
-      borderColor: ct.tooltipBorder,
-      textStyle: { color: ct.tooltipText, fontSize: 11 },
-      axisPointer: { type: 'line', lineStyle: { color: ct.crosshair } },
-      valueFormatter: (value: unknown) =>
-        typeof value === 'number' ? value.toFixed(1) : '—',
-    },
-    grid: { left: 44, right: 18, top: 42, bottom: 28 },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: analysis.index.dates,
-      axisLine: { lineStyle: { color: ct.border } },
-      axisTick: { show: false },
-      axisLabel: {
-        ...baseText(ct),
-        formatter: (value: string) => value.slice(5),
-        hideOverlap: true,
+      legend: {
+        top: 4,
+        right: 8,
+        type: 'scroll',
+        textStyle: baseText(ct),
+        itemWidth: 16,
+        itemHeight: 2,
+        data: [...core.map(item => item.name), '题材等权', '上证指数'],
       },
-    },
-    yAxis: {
-      type: 'value',
-      scale: true,
-      name: '起点=100',
-      nameTextStyle: baseText(ct),
-      axisLabel: baseText(ct),
-      splitLine: { lineStyle: { color: ct.grid } },
-    },
-    series: [
-      {
-        name: '活跃等权',
-        type: 'line',
-        data: analysis.index.active,
-        showSymbol: false,
-        connectNulls: true,
-        lineStyle: { width: 2.4 },
-        areaStyle: { opacity: 0.06 },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: ct.tooltipBg,
+        borderColor: ct.tooltipBorder,
+        textStyle: { color: ct.tooltipText, fontSize: 11 },
+        axisPointer: { type: 'line', lineStyle: { color: ct.crosshair } },
+        valueFormatter: (value: unknown) =>
+          typeof value === 'number' ? value.toFixed(1) : '—',
       },
-      {
-        name: '主题池等权',
-        type: 'line',
-        data: analysis.index.pool,
-        showSymbol: false,
-        connectNulls: true,
-        lineStyle: { width: 1.8 },
+      grid: { left: 44, right: 18, top: 42, bottom: 28 },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: analysis.index.dates,
+        axisLine: { lineStyle: { color: ct.border } },
+        axisTick: { show: false },
+        axisLabel: {
+          ...baseText(ct),
+          formatter: (value: string) => value.slice(5),
+          hideOverlap: true,
+        },
       },
-      {
-        name: '上证指数',
-        type: 'line',
-        data: analysis.index.sh,
-        showSymbol: false,
-        connectNulls: true,
-        lineStyle: { width: 1.4, type: 'dashed' },
+      yAxis: {
+        type: 'value',
+        scale: true,
+        name: '前收=100',
+        nameTextStyle: baseText(ct),
+        axisLabel: baseText(ct),
+        splitLine: { lineStyle: { color: ct.grid } },
       },
-    ],
-  }), [analysis.index, ct])
+      series: [
+        ...core.map((stock, index) => ({
+          name: stock.name,
+          type: 'line' as const,
+          data: analysis.core_series[stock.symbol] ?? [],
+          showSymbol: false,
+          lineStyle: { width: index === 0 ? 2.6 : 1.8, color: colors[index % colors.length] },
+          itemStyle: { color: colors[index % colors.length] },
+          emphasis: { focus: 'series' as const },
+        })),
+        {
+          name: '题材等权',
+          type: 'line',
+          data: analysis.index.pool,
+          showSymbol: false,
+          connectNulls: true,
+          lineStyle: { width: 1.4, color: '#64748B' },
+        },
+        {
+          name: '上证指数',
+          type: 'line',
+          data: analysis.index.sh,
+          showSymbol: false,
+          connectNulls: true,
+          lineStyle: { width: 1.2, type: 'dashed', color: '#94A3B8' },
+        },
+      ],
+    }
+  }, [analysis.core_series, analysis.core_stocks, analysis.index, ct])
   const ref = useEChart(option)
-  return <div ref={ref} className={className} style={{ height }} aria-label="主题等权路径图" />
+  return <div ref={ref} className={className} style={{ height }} aria-label="核心股整波路径图" />
 }
 
 export function ThemeQuadrantChart({
@@ -282,5 +287,114 @@ export function MinuteOverlayChart({
   }, [colors, ct, minute])
   const ref = useEChart(option)
   return <div ref={ref} className={className} style={{ height }} aria-label="关键日多股分钟叠加图" />
+}
+
+function MinuteMiniChart({
+  name,
+  values,
+  color,
+  times,
+  limitPct,
+}: {
+  name: string
+  values: (number | null)[]
+  color: string
+  times: string[]
+  limitPct?: number | null
+}) {
+  const ct = useChartTheme()
+  const option = useMemo<EChartsOption>(() => ({
+    backgroundColor: 'transparent',
+    animation: false,
+    textStyle: baseText(ct),
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: ct.tooltipBg,
+      borderColor: ct.tooltipBorder,
+      textStyle: { color: ct.tooltipText, fontSize: 10 },
+      valueFormatter: (value: unknown) =>
+        typeof value === 'number' ? `${value > 0 ? '+' : ''}${value.toFixed(2)}%` : '—',
+    },
+    grid: { left: 30, right: 8, top: 16, bottom: 20 },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: times,
+      axisLine: { lineStyle: { color: ct.border } },
+      axisTick: { show: false },
+      axisLabel: {
+        ...baseText(ct),
+        fontSize: 9,
+        interval: (index: number, value: string) =>
+          ['10:30', '11:30', '14:00', '15:00'].includes(value) || index === times.length - 1,
+        hideOverlap: true,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { ...baseText(ct), fontSize: 9, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: ct.grid } },
+    },
+    series: [{
+      name,
+      type: 'line',
+      data: values,
+      showSymbol: false,
+      lineStyle: { width: 1.6, color },
+      itemStyle: { color },
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        label: { show: false },
+        lineStyle: { color: ct.border, type: 'dashed' },
+        data: limitPct
+          ? [
+              { yAxis: 0 },
+              {
+                yAxis: limitPct,
+                lineStyle: { color: '#F59E0B', type: 'dashed' },
+                label: {
+                  show: true,
+                  formatter: `涨停 +${limitPct.toFixed(0)}%`,
+                  color: '#F59E0B',
+                  fontSize: 9,
+                  position: 'insideEndTop',
+                },
+              },
+            ]
+          : [{ yAxis: 0 }],
+      },
+    }],
+  }), [color, ct, limitPct, name, times, values])
+  const ref = useEChart(option)
+  return <div ref={ref} style={{ height: 132 }} aria-label={`${name} 当日分时`} />
+}
+
+export function MinuteSmallMultiples({
+  minute,
+  colors,
+}: {
+  minute: ThemeAnalyzerMinute
+  colors: Record<string, string>
+}) {
+  return (
+    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+      {minute.stocks.map(stock => (
+        <div key={stock.symbol} className="min-w-0 rounded-xl border border-border/70 bg-base/40 p-1.5">
+          <div className="flex items-center justify-between gap-2 px-1 text-[10px]">
+            <span className="truncate font-medium text-secondary">{stock.name}</span>
+            <span className="shrink-0 font-mono text-muted">{stock.symbol}</span>
+          </div>
+          <MinuteMiniChart
+            name={stock.name}
+            times={minute.times}
+            values={minute.series[stock.symbol] ?? []}
+            color={colors[stock.symbol] ?? '#94A3B8'}
+            limitPct={stock.limit_pct}
+          />
+        </div>
+      ))}
+    </div>
+  )
 }
 
