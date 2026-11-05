@@ -9,6 +9,10 @@ from pydantic import BaseModel, Field, field_validator
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 _SYMBOL_RE = re.compile(r"^\d{6}\.(SH|SZ|BJ)$")
 
+# Bump when seeded structure or descriptions need a one-time upgrade for
+# existing user graph.json files. User edits made after the upgrade are kept.
+CURRENT_GRAPH_CONTENT_VERSION = 2
+
 
 class IndustryChainCategory(BaseModel):
     id: str
@@ -99,6 +103,7 @@ class IndustryChainStockLink(BaseModel):
 
 class IndustryChainGraph(BaseModel):
     version: Literal[1] = 1
+    content_version: int = Field(default=0, ge=0)
     updated_at: str = ""
     categories: list[IndustryChainCategory] = Field(default_factory=list)
     chains: list[IndustryChain] = Field(default_factory=list)

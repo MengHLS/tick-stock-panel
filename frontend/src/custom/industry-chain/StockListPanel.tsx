@@ -1,7 +1,12 @@
-import { useMemo, useState } from 'react'
-import { BarChart3, List, Pencil, Plus, Search, X } from 'lucide-react'
-import type { IndustryChainGraph, IndustryChainStockLink } from '@/lib/api'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { List, Pencil, Plus, Search, X } from 'lucide-react'
+import type {
+  IndustryChainGraph,
+  IndustryChainQuotes,
+  IndustryChainStockLink,
+} from '@/lib/api'
 import { cn } from '@/lib/cn'
+import { fmtPct, priceColorClass } from '@/lib/format'
 import { LINK_BASIS_LABELS, stockLinksForScope } from './layout'
 
 type RelationFilter = 'all' | 'main_business' | 'supply' | 'theme_clue' | 'equity' | 'cooperation' | 'rumor'
@@ -29,18 +34,40 @@ export interface StockListTarget {
   nodeId: string | null
   name: string
   filter?: string
+  initialSymbol?: string
 }
 
 interface Props {
   graph: IndustryChainGraph
   target: StockListTarget
-  onClose: () => void
+  quotes?: IndustryChainQuotes
+  quotesLoading?: boolean
+  quotesError?: string | null
+  embedded?: boolean
+  selectedSymbol?: string | null
+  onSelect?: (symbol: string) => void
+  onVisibleSymbolsChange?: (symbols: string[]) => void
+  onClose?: () => void
   onOpenLink: (link: IndustryChainStockLink) => void
-  onAnalyze: () => void
+  onAnalyze?: () => void
   onAddStock: () => void
 }
 
-export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, onAddStock }: Props) {
+export function StockListPanel({
+  graph,
+  target,
+  quotes,
+  quotesLoading = false,
+  quotesError = null,
+  embedded = false,
+  selectedSymbol = null,
+  onSelect,
+  onVisibleSymbolsChange,
+  onClose,
+  onOpenLink,
+  onAnalyze,
+  onAddStock,
+}: Props) {
   const [filter, setFilter] = useState(target.filter ?? '')
   const [relationFilter, setRelationFilter] = useState<RelationFilter>('all')
   const [verifiedOnly, setVerifiedOnly] = useState(false)
@@ -64,6 +91,10 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
     () => new Map(graph.nodes.map(node => [node.id, node.name])),
     [graph.nodes],
   )
+  const quoteBySymbol = useMemo(
+    () => new Map((quotes?.rows ?? []).map(row => [row.symbol, row])),
+    [quotes],
+  )
   const query = filter.trim().toLowerCase().replace(/\s+/g, '')
   const filtered = visibleStocks.filter(stock => !query || [
     stock.symbol, stock.name,
@@ -71,32 +102,57 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
   ].some(text => text.toLowerCase().replace(/\s+/g, '').includes(query)))
   const filteredLinkCount = filtered.reduce((sum, stock) => sum + stock.links.length, 0)
   const hasChipFilter = relationFilter !== 'all' || verifiedOnly
+  const visibleKey = filtered.map(stock => stock.symbol).join(',')
+  const visibleCallback = useRef(onVisibleSymbolsChange)
+  visibleCallback.current = onVisibleSymbolsChange
+
+  useEffect(() => {
+    visibleCallback.current?.(visibleKey ? visibleKey.split(',') : [])
+  }, [visibleKey])
 
   return (
-    <aside
+    <div
       aria-label={`${target.name}股票列表`}
-      className="absolute inset-y-0 right-0 z-20 flex w-full max-w-[440px] flex-col border-l border-border bg-surface shadow-2xl"
+      className={cn(
+        'flex min-h-0 flex-col bg-surface',
+        embedded
+          ? 'min-h-[320px] w-full md:h-full md:min-h-0 border-r border-border'
+          : 'absolute inset-y-0 right-0 z-20 w-full max-w-[440px] border-l border-border shadow-2xl',
+      )}
     >
       <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 text-[10px] text-muted">
             <List className="h-3 w-3" />
-            成分股票
+            {embedded ? '关联股票' : '成分股票'}
           </div>
-          <h2 className="mt-0.5 truncate text-[16px] font-semibold text-foreground">{target.name}</h2>
+          {!embedded && (
+            <h2 className="mt-0.5 truncate text-[16px] font-semibold text-foreground">{target.name}</h2>
+          )}
           <p className="mt-1 text-[10px] text-muted">
             {stocks.length} 只股票 · {links.length} 条关联
             {hasChipFilter && ` · 筛选后 ${filtered.length} 只 / ${filteredLinkCount} 条`}
           </p>
+          <p
+            aria-live="polite"
+            className={cn(
+              'mt-1 text-[10px]',
+              quotes?.available && !quotes.is_today ? 'text-warning' : 'text-muted',
+            )}
+          >
+            {quoteMeta(quotes, quotesLoading, quotesError)}
+          </p>
         </div>
-        <button
-          type="button"
-          aria-label="关闭股票列表"
-          onClick={onClose}
-          className="grid h-7 w-7 place-items-center rounded text-muted hover:bg-elevated hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {!embedded && onClose && (
+          <button
+            type="button"
+            aria-label="关闭股票列表"
+            onClick={onClose}
+            className="grid h-7 w-7 place-items-center rounded text-muted hover:bg-elevated hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       <div className="space-y-2 border-b border-border px-4 py-3">
@@ -153,14 +209,15 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
               清除筛选
             </button>
           )}
-          <button
-            type="button"
-            onClick={onAnalyze}
-            className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted hover:text-foreground"
-          >
-            <BarChart3 className="h-3 w-3" />
-            查看行情分析
-          </button>
+          {onAnalyze && (
+            <button
+              type="button"
+              onClick={onAnalyze}
+              className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted hover:text-foreground"
+            >
+              行情分析
+            </button>
+          )}
           {target.nodeId && (
             <button
               type="button"
@@ -174,7 +231,7 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4 pb-20">
+      <div className={cn('min-h-0 flex-1 space-y-2 overflow-y-auto p-4', !embedded && 'pb-20')}>
         {filtered.length === 0 && (
           <p className="py-10 text-center text-[12px] text-muted">
             {stocks.length === 0
@@ -184,23 +241,53 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
                 : '未找到匹配股票'}
           </p>
         )}
-        {filtered.map(stock => (
-          <div key={stock.symbol} className="rounded-xl border border-border bg-base/60 p-3">
+        {filtered.map(stock => {
+          const selected = selectedSymbol === stock.symbol
+          return (
+          <div
+            key={stock.symbol}
+            onClick={() => onSelect?.(stock.symbol)}
+            className={cn(
+              'cursor-pointer rounded-xl border bg-base/60 p-3 transition-colors',
+              selected ? 'border-accent/60 bg-accent/[0.06]' : 'border-border',
+            )}
+          >
             <div className="flex items-center justify-between gap-2">
-              <span className="truncate text-[13px] font-semibold text-foreground">{stock.name}</span>
-              <span className="shrink-0 font-mono text-[10px] text-muted">{stock.symbol}</span>
+              <button
+                type="button"
+                aria-label={`选择${stock.name}`}
+                aria-pressed={selected}
+                onClick={() => onSelect?.(stock.symbol)}
+                className="min-w-0 truncate text-left text-[13px] font-semibold text-foreground hover:text-accent"
+              >
+                {stock.name}
+              </button>
+              <span className="flex shrink-0 items-baseline gap-2 font-mono text-[10px]">
+                <span className="text-muted">{stock.symbol}</span>
+                <span
+                  className={cn(
+                    'w-[58px] text-right tabular-nums',
+                    priceColorClass(quoteBySymbol.get(stock.symbol)?.change_pct),
+                  )}
+                  title={quoteBySymbol.get(stock.symbol) ? '相对昨收的当日涨跌幅' : '暂无行情'}
+                >
+                  {fmtPct(quoteBySymbol.get(stock.symbol)?.change_pct)}
+                </span>
+              </span>
             </div>
             <div className="mt-2 space-y-1">
               {stock.links.map(link => {
                 const tags = relationTags(link)
                 return (
-                  <button
+                  <div
                     key={link.id}
-                    type="button"
-                    aria-label={`编辑${stock.name}关联：${nodeNames.get(link.node_id) ?? ''}`}
-                    onClick={() => onOpenLink(link)}
-                    className="group block w-full rounded-lg px-2 py-2 text-left hover:bg-elevated"
+                    className="group flex items-start gap-1 rounded-lg px-2 py-2 hover:bg-elevated"
                   >
+                    <button
+                      type="button"
+                      onClick={() => onSelect?.(stock.symbol)}
+                      className="min-w-0 flex-1 text-left"
+                    >
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-[12px] leading-5 text-secondary">{link.reason_short}</span>
                       <span className="flex shrink-0 items-center gap-1">
@@ -217,7 +304,6 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
                             {RELATION_TAG_LABELS[tag]}
                           </span>
                         ))}
-                        <Pencil className="mt-1 h-3 w-3 text-muted opacity-50 group-hover:opacity-100" />
                       </span>
                     </div>
                     <div className="mt-1 flex items-center justify-between gap-2 text-[10px]">
@@ -230,15 +316,63 @@ export function StockListPanel({ graph, target, onClose, onOpenLink, onAnalyze, 
                         {link.evidence_status === 'verified' ? '已核验' : '待核验'}
                       </span>
                     </div>
-                  </button>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`编辑${stock.name}关联：${nodeNames.get(link.node_id) ?? ''}`}
+                      onClick={event => {
+                        event.stopPropagation()
+                        onOpenLink(link)
+                      }}
+                      className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded text-muted hover:bg-surface hover:text-foreground"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                    </div>
                 )
               })}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
-    </aside>
+    </div>
   )
+}
+
+export function quoteMeta(
+  quotes: IndustryChainQuotes | undefined,
+  loading: boolean,
+  error: string | null,
+): string {
+  if (loading && !quotes) return '行情加载中…'
+  if (error && !quotes) return '行情读取失败，涨跌幅暂不可用'
+  if (!quotes) return '行情未加载'
+  if (!quotes.available) return '行情服务不可用'
+
+  const date = quotes.as_of
+    ? `${quotes.is_today ? '今日' : '缓存行情日期'} ${quotes.as_of}${quotes.is_today ? '' : ' · 非今日行情'}`
+    : '行情日期未知'
+  const time = quotes.last_fetch_ms
+    ? new Date(quotes.last_fetch_ms).toLocaleString('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+    : null
+  const messages = [date]
+  if (quotes.status.enabled === false) messages.push('行情已关闭，显示缓存')
+  else if (quotes.status.paused) messages.push('行情已暂停，显示缓存')
+  else if (quotes.status.running === false) messages.push('行情服务已停止，显示缓存')
+  else if (quotes.status.running !== true) messages.push('行情服务状态未知')
+  if (quotes.status.final_sync_failed) messages.push('定版失败，缓存尚未确认')
+  if (error) messages.push('更新失败，显示上一份有效行情')
+  messages.push(time ? `最后拉取 ${time}（北京时间）` : '最后拉取时间未知')
+  return messages.join(' · ')
 }
 
 function groupStockLinks(

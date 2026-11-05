@@ -147,6 +147,30 @@ it('新的搜索仍展开命中路径并定位节点', () => {
   expect(transform()).not.toBe(before)
 })
 
+it('节点说明作为单行副标题，并通过 title 暴露全文', () => {
+  const description = '为 AI 训练和推理提供算力、芯片与网络等底层能力。'
+  const described: IndustryChainGraph = {
+    ...graph,
+    nodes: graph.nodes.map(node => node.id === 'base' ? { ...node, description } : node),
+  }
+  const search = searchGraph(described, '')
+  act(() => root.render(
+    <GraphCanvas
+      layout={buildLayout(described, new Set([chainKey('ai')]), search)}
+      search={search}
+      resetSignal={1}
+      onToggle={vi.fn()}
+      onAnalyze={vi.fn()}
+      onAddStock={vi.fn()}
+      onOpenStocks={vi.fn()}
+    />,
+  ))
+
+  const card = host.querySelector<HTMLElement>(`[aria-label^="基础层，${description}"]`)
+  expect(card?.getAttribute('title')).toBe(description)
+  expect(card?.textContent).toContain(description)
+})
+
 it('末级环节打开右侧股票列表，不展开股票节点或改变视角', () => {
   const withStocks: IndustryChainGraph = {
     ...graph,
@@ -178,4 +202,23 @@ it('末级环节打开右侧股票列表，不展开股票节点或改变视角'
   expect(host.textContent).not.toContain('浪潮信息')
   click('[aria-label="查看基础层股票列表"]')
   expect(openStocks).toHaveBeenLastCalledWith({ chainId: 'ai', nodeId: 'base', name: '基础层' })
+})
+
+it('无关联股票的末级节点同样打开统一股票弹窗', () => {
+  const openStocks = vi.fn()
+  const toggle = vi.fn()
+  act(() => root.render(
+    <GraphCanvas
+      layout={buildLayout(graph, new Set([chainKey('ai'), nodeKey('base')]), searchGraph(graph, ''))}
+      search={searchGraph(graph, '')}
+      resetSignal={1}
+      onToggle={toggle}
+      onAnalyze={vi.fn()}
+      onAddStock={vi.fn()}
+      onOpenStocks={openStocks}
+    />,
+  ))
+  click('[aria-label="末级 0"]')
+  expect(openStocks).toHaveBeenCalledWith({ chainId: 'ai', nodeId: 'leaf-0', name: '末级 0' })
+  expect(toggle).not.toHaveBeenCalled()
 })

@@ -3113,6 +3113,8 @@ export interface IndustryChainStockLink {
 
 export interface IndustryChainGraph {
   version: 1
+  /** 默认图谱内容版本；旧缓存可能缺省 */
+  content_version?: number
   updated_at: string
   categories: IndustryChainCategory[]
   chains: IndustryChain[]
@@ -3120,6 +3122,30 @@ export interface IndustryChainGraph {
   stock_links: IndustryChainStockLink[]
   /** 后端按关联代码批量回填的股票名称，不写入图谱文件 */
   stock_names?: Record<string, string>
+}
+
+export interface IndustryChainQuoteRow {
+  symbol: string
+  price: number | null
+  prev_close: number | null
+  /** 相对昨收的当日涨跌幅，小数口径 (0.0366 = 3.66%) */
+  change_pct: number | null
+  change_amount: number | null
+}
+
+export interface IndustryChainQuotes {
+  available: boolean
+  as_of: string | null
+  is_today: boolean
+  last_fetch_ms: number | null
+  status: {
+    enabled?: boolean
+    running?: boolean
+    paused?: boolean
+    market_phase?: string
+    final_sync_failed?: unknown
+  }
+  rows: IndustryChainQuoteRow[]
 }
 
 export type IndustryChainWindowKey = 'd1' | 'd5' | 'd20'
@@ -3193,6 +3219,8 @@ export const api = {
 
   industryChainGraph: () =>
     request<IndustryChainGraph>('/api/custom/industry-chain/graph'),
+  industryChainQuotes: () =>
+    request<IndustryChainQuotes>('/api/custom/industry-chain/quotes'),
   industryChainSaveGraph: (graph: IndustryChainGraph, expectedUpdatedAt?: string | null) =>
     request<IndustryChainGraph>('/api/custom/industry-chain/graph', {
       method: 'PUT',

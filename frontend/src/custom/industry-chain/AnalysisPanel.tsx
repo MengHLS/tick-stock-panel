@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn'
 import { LINK_BASIS_LABELS } from './layout'
 
 const WINDOW_LABELS: Record<IndustryChainWindowKey, string> = {
-  d1: '今日',
+  d1: '最近交易日',
   d5: '近 5 日',
   d20: '近 20 日',
 }
@@ -23,6 +23,7 @@ interface Props {
   loading: boolean
   error: string | null
   canAddStock: boolean
+  embedded?: boolean
   onAddStock: () => void
   onClose: () => void
   onOpenLink: (link: IndustryChainStockLink) => void
@@ -34,12 +35,18 @@ export function AnalysisPanel({
   loading,
   error,
   canAddStock,
+  embedded = false,
   onAddStock,
   onClose,
   onOpenLink,
 }: Props) {
   return (
-    <aside className="absolute inset-y-0 right-0 z-20 flex w-full max-w-[440px] flex-col border-l border-border bg-surface/95 shadow-2xl backdrop-blur dark:bg-[#0b1018]/97">
+    <aside className={cn(
+      'flex min-h-0 flex-col bg-surface/95 backdrop-blur dark:bg-[#0b1018]/97',
+      embedded
+        ? 'h-full w-full'
+        : 'absolute inset-y-0 right-0 z-20 w-full max-w-[440px] border-l border-border shadow-2xl',
+    )}>
       <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-amber-600 dark:text-amber-300">
@@ -170,7 +177,7 @@ export function AnalysisPanel({
             <section>
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-[12px] font-semibold text-foreground">成分股票</h3>
-                <span className="text-[9px] text-muted">按今日等权收益排序</span>
+                <span className="text-[9px] text-muted">按最近交易日收益排序</span>
               </div>
               <div className="space-y-1.5">
                 {analysis.stocks.length === 0 && (

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import date, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,13 +11,16 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.custom.industry_chain.defaults import build_default_graph
+from app.custom.industry_chain.descriptions import NODE_DESCRIPTIONS
 from app.custom.industry_chain.migration import (
     expand_market_chains,
     expand_new_energy_chain,
+    migrate_graph,
     refine_ai_server_chain,
     reorganize_industry_chains,
 )
 from app.custom.industry_chain.models import (
+    CURRENT_GRAPH_CONTENT_VERSION,
     IndustryChainGraph,
     IndustryChainStockLink,
     validate_graph,
@@ -26,6 +30,7 @@ from app.custom.industry_chain.service import analyze_graph
 from app.custom.industry_chain.store import ConflictError, load_graph, save_graph
 from app.extensions.contracts import BACKEND_EXTENSION_API_VERSION
 from app.extensions.registry import BackendExtensionRegistrar
+from app.market_time import cn_today
 
 
 class FakeMarketData:
@@ -208,6 +213,24 @@ def test_default_graph_includes_ai_industry_chain() -> None:
     assert "国产半导体产业链" in ai_node_by_id["ai-chip"].description
     assert not any(node.id.startswith(("oc-", "mlcc-")) for node in ai_nodes)
     assert any(link.symbol == "300408.SZ" for link in ai_links)
+
+
+def test_every_default_node_has_a_business_description() -> None:
+    graph = validate_graph(build_default_graph())
+    node_ids = {node.id for node in graph.nodes}
+
+    assert node_ids <= set(NODE_DESCRIPTIONS)
+    assert all(node.description.strip() for node in graph.nodes)
+    assert graph.content_version == CURRENT_GRAPH_CONTENT_VERSION
+    assert len({node.description for node in graph.nodes}) == len(graph.nodes)
+
+
+def test_each_default_chain_has_unique_node_names() -> None:
+    graph = build_default_graph()
+
+    for chain in graph.chains:
+        names = [node.name for node in graph.nodes if node.chain_id == chain.id]
+        assert len(names) == len(set(names)), f"{chain.id} 存在重复节点名称"
 
 
 def test_default_graph_refines_ai_server_subsegments() -> None:
@@ -446,6 +469,71 @@ def test_new_energy_migration_preserves_links_and_is_idempotent() -> None:
     )
 
 
+def test_store_migrates_legacy_graph_and_preserves_user_content(tmp_path: Path) -> None:
+    legacy = build_default_graph().model_dump()
+    legacy.pop("content_version", None)
+    for node in legacy["nodes"]:
+        node["description"] = ""
+    legacy["nodes"].append({
+        "id": "user-custom-node",
+        "chain_id": "ai-industry",
+        "parent_id": "ai-app",
+        "name": "用户自定义应用",
+        "kind": "application",
+        "description": "",
+        "order": 99,
+    })
+    legacy["nodes"].append({
+        "id": "ai-media",
+        "chain_id": "ai-industry",
+        "parent_id": "ai-app",
+        "name": "AI 影视与内容",
+        "kind": "application",
+        "description": "",
+        "order": 50,
+    })
+    legacy["stock_links"].append({
+        "id": "user-custom-link",
+        "node_id": "user-custom-node",
+        "symbol": "000001.SZ",
+        "reason_short": "用户自定义关联理由",
+        "note": "保留用户备注",
+        "source_url": "https://example.com/evidence",
+        "evidence_status": "verified",
+        "basis": "main_business",
+        "sort_order": 99,
+    })
+    legacy["nodes"][0]["description"] = "用户修改过的节点说明"
+    path = tmp_path / "user_data" / "industry_chain" / "graph.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(legacy, ensure_ascii=False), encoding="utf-8")
+
+    migrated = load_graph(tmp_path)
+
+    assert migrated["content_version"] == CURRENT_GRAPH_CONTENT_VERSION
+    assert all(
+        node["description"]
+        for node in migrated["nodes"]
+        if node["id"] != "user-custom-node"
+    )
+    assert next(
+        node for node in migrated["nodes"] if node["id"] == "user-custom-node"
+    )["description"] == ""
+    assert next(
+        node for node in migrated["nodes"] if node["id"] == "ai-media"
+    )["description"] == NODE_DESCRIPTIONS["ai-media"]
+    assert next(
+        node for node in migrated["nodes"] if node["id"] == legacy["nodes"][0]["id"]
+    )["description"] == "用户修改过的节点说明"
+    custom_link = next(
+        link for link in migrated["stock_links"] if link["id"] == "user-custom-link"
+    )
+    assert custom_link["note"] == "保留用户备注"
+    assert custom_link["source_url"] == "https://example.com/evidence"
+    assert custom_link["evidence_status"] == "verified"
+    assert migrate_graph(IndustryChainGraph.model_validate(migrated)) == IndustryChainGraph.model_validate(migrated)
+
+
 def test_market_chain_migration_adds_chains_and_refines_battery() -> None:
     legacy = build_default_graph().model_copy(deep=True)
     legacy.categories = [
@@ -629,14 +717,43 @@ class FakeAnalysis:
         return {symbol: f"名称-{symbol}" for symbol in symbols}
 
 
+class FakeQuoteService:
+    def __init__(self, frame: pl.DataFrame, as_of: date) -> None:
+        self.frame = frame
+        self.as_of = as_of
+        self.calls = 0
+
+    def get_enriched_today(self):
+        self.calls += 1
+        return self.frame, self.as_of
+
+    def status(self) -> dict:
+        return {
+            "enabled": True,
+            "running": True,
+            "market_phase": "continuous",
+            "last_fetch_ms": 1_760_000_000_000,
+            "final_sync_failed": None,
+        }
+
+
 def _client(tmp_path: Path) -> TestClient:
     frame, latest = _daily_frame()
+    quote_day = cn_today() - timedelta(days=1)
+    quote_frame = pl.DataFrame([
+        {"symbol": "300308.SZ", "close": 103.66, "prev_close": 100.0, "change_pct": 0.0366, "change_amount": 3.66},
+        {"symbol": "300408.SZ", "close": 99.0, "prev_close": 100.0, "change_pct": -0.01, "change_amount": -1.0},
+        {"symbol": "688041.SH", "close": 50.0, "prev_close": 50.0, "change_pct": 0.0, "change_amount": 0.0},
+        {"symbol": "000977.SZ", "close": None, "prev_close": None, "change_pct": None, "change_amount": None},
+        {"symbol": "999999.SZ", "close": 10.0, "prev_close": 9.0, "change_pct": 0.1111, "change_amount": 1.0},
+    ])
     app = FastAPI()
     app.include_router(build_router())
     app.state.extension_runtime = SimpleNamespace(
         data_dir=tmp_path,
         market_data=FakeMarketData(frame, latest),
         analysis=FakeAnalysis(),
+        quote_service=FakeQuoteService(quote_frame, quote_day),
     )
     return TestClient(app)
 
@@ -670,6 +787,82 @@ def test_api_round_trip_and_analysis(tmp_path: Path) -> None:
     assert payload["stock_count"] == 3
     assert payload["method"]["membership"] == "current_graph"
     assert all(stock["name"].startswith("名称-") for stock in payload["stocks"])
+
+
+def test_quotes_endpoint_returns_batch_day_change_and_omits_unknown_symbols(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+
+    response = client.get("/api/custom/industry-chain/quotes")
+
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["available"] is True
+    assert payload["as_of"] == (cn_today() - timedelta(days=1)).isoformat()
+    assert payload["is_today"] is False
+    assert payload["last_fetch_ms"] == 1_760_000_000_000
+    rows = {row["symbol"]: row for row in payload["rows"]}
+    assert rows["300308.SZ"]["change_pct"] == pytest.approx(0.0366)
+    assert rows["300408.SZ"]["change_pct"] == pytest.approx(-0.01)
+    assert rows["688041.SH"]["change_pct"] == 0.0
+    assert rows["000977.SZ"]["change_pct"] is None
+    assert rows["000977.SZ"]["price"] is None
+    assert "999999.SZ" not in rows
+    assert client.app.state.extension_runtime.quote_service.calls == 1
+
+
+def test_quotes_endpoint_fails_closed_without_quote_service(tmp_path: Path) -> None:
+    app = FastAPI()
+    app.include_router(build_router())
+    app.state.extension_runtime = SimpleNamespace(
+        data_dir=tmp_path,
+        quote_service=None,
+    )
+    client = TestClient(app)
+
+    response = client.get("/api/custom/industry-chain/quotes")
+
+    assert response.status_code == 200
+    assert response.json()["available"] is False
+    assert response.json()["rows"] == []
+
+
+@pytest.mark.parametrize("state", [
+    {"enabled": False, "running": False, "paused": False},
+    {"enabled": True, "running": False, "paused": False},
+    {"enabled": True, "running": True, "paused": True},
+    {"enabled": True, "running": True, "final_sync_failed": "未通过定版确认"},
+])
+def test_quotes_expose_service_state_without_discarding_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, state: dict,
+) -> None:
+    client = _client(tmp_path)
+    service = client.app.state.extension_runtime.quote_service
+    monkeypatch.setattr(service, "status", lambda: state)
+
+    response = client.get("/api/custom/industry-chain/quotes")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == state
+    assert response.json()["rows"]
+
+
+def test_api_refuses_future_graph_read_and_write_without_data_loss(tmp_path: Path) -> None:
+    client = _client(tmp_path)
+    path = tmp_path / "user_data" / "industry_chain" / "graph.json"
+    path.parent.mkdir(parents=True)
+    future = build_default_graph().model_dump()
+    future.update(content_version=3, future_field="保留")
+    original = json.dumps(future, ensure_ascii=False).encode("utf-8")
+    path.write_bytes(original)
+
+    assert client.get("/api/custom/industry-chain/graph").status_code == 400
+    assert client.get("/api/custom/industry-chain/quotes").status_code == 400
+    response = client.put(
+        "/api/custom/industry-chain/graph",
+        json={"graph": build_default_graph().model_dump()},
+    )
+    assert response.status_code == 400
+    assert path.read_bytes() == original
 
 
 def test_api_rejects_bad_reason_and_missing_chain(tmp_path: Path) -> None:

@@ -8,15 +8,14 @@ import {
   X,
 } from 'lucide-react'
 import { PageHeader } from '@/components/PageHeader'
-import { StockPreviewDialog } from '@/components/StockPreviewDialog'
 import { toast } from '@/components/Toast'
-import { ApiError, api, type IndustryChainGraph, type IndustryChainStockLink } from '@/lib/api'
+import { ApiError, api, type IndustryChainGraph } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { cn } from '@/lib/cn'
-import { AnalysisPanel } from './AnalysisPanel'
 import { GraphCanvas } from './GraphCanvas'
-import { StockLinkDrawer, type StockDrawerTarget } from './StockLinkDrawer'
-import { StockListPanel, type StockListTarget } from './StockListPanel'
+import type { StockDrawerTarget } from './StockLinkDrawer'
+import type { StockListTarget } from './StockListPanel'
+import { StockWorkspaceDialog } from './StockWorkspaceDialog'
 import {
   EMPTY_SEARCH,
   buildLayout,
@@ -38,11 +37,10 @@ export function IndustryChainPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [resetSignal, setResetSignal] = useState(0)
-  const [analysisTarget, setAnalysisTarget] = useState<AnalysisTarget | null>(null)
+  const [workspaceAnalysis, setWorkspaceAnalysis] = useState(false)
   const [stockListTarget, setStockListTarget] = useState<StockListTarget | null>(null)
-  const [drawer, setDrawer] = useState<StockDrawerTarget | null>(null)
+  const [workspaceEditor, setWorkspaceEditor] = useState<StockDrawerTarget | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<{ symbol: string; name: string } | null>(null)
 
   const graphQuery = useQuery({
     queryKey: QK.industryChainGraph,
@@ -74,24 +72,24 @@ export function IndustryChainPage() {
     )
     const node = matched && graph.nodes.find(item => item.id === matched.node_id)
     if (!node) return
-    setAnalysisTarget(null)
-    setDrawer(null)
+    setWorkspaceAnalysis(false)
+    setWorkspaceEditor(null)
     setStockListTarget({
-      chainId: node.chain_id, nodeId: node.id, name: node.name, filter: searchState.query,
+      chainId: node.chain_id,
+      nodeId: node.id,
+      name: node.name,
+      filter: searchState.query,
+      initialSymbol: matched.symbol,
     })
   }, [graph, searchState])
 
-  const analysisQuery = useQuery({
-    queryKey: QK.industryChainAnalysis(
-      analysisTarget?.chainId ?? '',
-      analysisTarget?.nodeId ?? null,
-    ),
-    queryFn: () => api.industryChainAnalysis({
-      chainId: analysisTarget!.chainId,
-      nodeId: analysisTarget!.nodeId,
-    }),
-    enabled: !!analysisTarget,
-    staleTime: 60_000,
+  const quotesQuery = useQuery({
+    queryKey: QK.industryChainQuotes,
+    queryFn: api.industryChainQuotes,
+    enabled: !!stockListTarget,
+    // 面板打开时一次拉取全图谱股票；SSE 到达时立即失效，轮询仅作兜底。
+    staleTime: 15_000,
+    refetchInterval: stockListTarget ? 30_000 : false,
   })
 
   const saveMutation = useMutation({
@@ -100,8 +98,8 @@ export function IndustryChainPage() {
     onSuccess: saved => {
       queryClient.setQueryData(QK.industryChainGraph, saved)
       queryClient.invalidateQueries({ queryKey: QK.industryChainRoot })
+      queryClient.invalidateQueries({ queryKey: QK.industryChainQuotes })
       queryClient.invalidateQueries({ queryKey: QK.themeAnalyzerRoot })
-      setDrawer(null)
       setSaveError(null)
       toast('股票关联已保存', 'success')
     },
@@ -123,49 +121,47 @@ export function IndustryChainPage() {
   }
 
   const openAnalysis = (target: AnalysisTarget) => {
-    setDrawer(null)
+    setWorkspaceEditor(null)
     setSaveError(null)
-    setAnalysisTarget(target)
-    setStockListTarget(null)
+    setWorkspaceAnalysis(true)
+    setStockListTarget(target)
   }
 
   const openStocks = (target: StockListTarget) => {
-    setAnalysisTarget(null)
-    setDrawer(null)
+    setWorkspaceAnalysis(false)
+    setWorkspaceEditor(null)
     setSaveError(null)
     setStockListTarget(target)
   }
 
-  const openLink = (link: IndustryChainStockLink) => {
-    if (!graph) return
-    const node = graph.nodes.find(item => item.id === link.node_id)
-    setSaveError(null)
-    setDrawer({
-      mode: 'edit',
-      nodeId: link.node_id,
-      nodeName: node?.name ?? '未知节点',
-      link,
-    })
-  }
-
   const openAddStock = (nodeId: string, nodeName: string) => {
+    if (!graph) return
+    const node = graph.nodes.find(item => item.id === nodeId)
+    if (!node) return
+    setWorkspaceAnalysis(false)
     setSaveError(null)
-    setDrawer({ mode: 'add', nodeId, nodeName })
+    setStockListTarget({ chainId: node.chain_id, nodeId, name: nodeName })
+    setWorkspaceEditor({ mode: 'add', nodeId, nodeName })
   }
 
   const resetView = () => {
     if (graph) setExpanded(defaultExpandedKeys(graph))
     setSearch('')
-    setAnalysisTarget(null)
+    setWorkspaceAnalysis(false)
     setStockListTarget(null)
-    setDrawer(null)
+    setWorkspaceEditor(null)
     setSaveError(null)
     setResetSignal(value => value + 1)
   }
 
   const refresh = () => {
     void graphQuery.refetch()
-    if (analysisTarget) void analysisQuery.refetch()
+    if (stockListTarget && workspaceAnalysis) {
+      void queryClient.invalidateQueries({
+        queryKey: QK.industryChainAnalysis(stockListTarget.chainId, stockListTarget.nodeId),
+      })
+    }
+    if (stockListTarget) void quotesQuery.refetch()
   }
 
   const subtitle = graph
@@ -272,63 +268,37 @@ export function IndustryChainPage() {
               )}
 
               {stockListTarget && (
-                <StockListPanel
-                  key={`${stockListTarget.nodeId ?? stockListTarget.chainId}:${stockListTarget.filter ?? ''}`}
+                <StockWorkspaceDialog
+                  key={`${stockListTarget.nodeId ?? stockListTarget.chainId}:${stockListTarget.filter ?? ''}:${stockListTarget.initialSymbol ?? ''}`}
                   graph={graph}
                   target={stockListTarget}
-                  onClose={() => setStockListTarget(null)}
-                  onOpenLink={openLink}
-                  onAnalyze={() => openAnalysis(stockListTarget)}
-                  onAddStock={() => {
-                    if (stockListTarget.nodeId) openAddStock(stockListTarget.nodeId, stockListTarget.name)
-                  }}
-                />
-              )}
-
-              {analysisTarget && (
-                <AnalysisPanel
-                  title={analysisTarget.name}
-                  analysis={analysisQuery.data}
-                  loading={analysisQuery.isLoading}
-                  error={analysisQuery.isError
-                    ? (analysisQuery.error instanceof Error
-                      ? analysisQuery.error.message
-                      : String(analysisQuery.error))
+                  quotes={quotesQuery.data}
+                  quotesLoading={quotesQuery.isLoading}
+                  quotesError={quotesQuery.isError || quotesQuery.isRefetchError
+                    ? (quotesQuery.error instanceof Error
+                      ? quotesQuery.error.message
+                      : String(quotesQuery.error))
                     : null}
-                  canAddStock={!!analysisTarget.nodeId}
-                  onAddStock={() => {
-                    if (!analysisTarget.nodeId) return
-                    openAddStock(analysisTarget.nodeId, analysisTarget.name)
+                  saving={saveMutation.isPending}
+                  saveError={saveError}
+                  initialEditor={workspaceEditor}
+                  initialAnalysis={workspaceAnalysis}
+                  onClose={() => {
+                    setStockListTarget(null)
+                    setWorkspaceEditor(null)
+                    setWorkspaceAnalysis(false)
+                    setSaveError(null)
                   }}
-                  onClose={() => setAnalysisTarget(null)}
-                  onOpenLink={openLink}
+                  onSaveGraph={next => saveMutation.mutateAsync(next)}
+                  onDeleteGraph={next => saveMutation.mutateAsync(next)}
                 />
               )}
 
-              {drawer && (
-                <StockLinkDrawer
-                  key={drawer.link?.id ?? drawer.nodeId}
-                  graph={graph}
-                  target={drawer}
-                  saving={saveMutation.isPending}
-                  error={saveError}
-                  onClose={() => { setDrawer(null); setSaveError(null) }}
-                  onSave={next => saveMutation.mutate(next)}
-                  onDelete={next => saveMutation.mutate(next)}
-                  onOpenQuote={(symbol, name) => setPreview({ symbol, name })}
-                  onOpenRelated={openLink}
-                />
-              )}
             </>
           )}
         </div>
       </div>
 
-      <StockPreviewDialog
-        symbol={preview?.symbol ?? null}
-        name={preview?.name}
-        onClose={() => setPreview(null)}
-      />
     </div>
   )
 }

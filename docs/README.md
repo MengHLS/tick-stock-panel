@@ -24,7 +24,7 @@
 
 | 文档 | 用途 |
 | --- | --- |
-| [features.md](features.md) | 功能手册，面向使用者；含截面联动因子的数据口径 |
+| [features.md](features.md) | 功能手册，面向使用者；含截面联动因子口径、产业链分类依据及图谱兼容规则 |
 | [configuration.md](configuration.md) | `.env` 配置项与优先级 |
 | [deployment.md](deployment.md) | Docker / 本机 / 桌面部署 |
 | [deploy-password.md](deploy-password.md) | 公网访问密码 |

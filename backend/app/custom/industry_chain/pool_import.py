@@ -8,6 +8,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import date
 
+from app.custom.industry_chain.descriptions import NODE_DESCRIPTIONS
 from app.custom.industry_chain.models import (
     IndustryChainGraph,
     IndustryChainNode,
@@ -629,6 +630,7 @@ def merge_pool_observations(
                     node = IndustryChainNode(
                         id=node_id, chain_id=parent.chain_id, parent_id=parent_id,
                         name=name, kind=kind, order=order,
+                        description=NODE_DESCRIPTIONS.get(node_id, ""),
                     )
                     updated.nodes.append(node)
                     nodes[node_id] = node
