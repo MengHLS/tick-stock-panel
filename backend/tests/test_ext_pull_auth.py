@@ -300,6 +300,38 @@ def test_configure_pull_persists_pagination_fields(monkeypatch, tmp_path) -> Non
     assert (pull.page_start, pull.max_pages) == (0, 7)
 
 
+def test_configure_pull_persists_and_clears_date_value_template(monkeypatch, tmp_path) -> None:
+    """日期值模板: 提交值保存; 缺省保留旧值; 空串清除; 缺占位符拒绝。"""
+    monkeypatch.setattr("app.api.ext_data.pull_scheduler.refresh", lambda *a, **k: None)
+    store = _make_config(tmp_path)
+    req = _request(tmp_path)
+    template = '{"json":{"date":"{date}"}}'
+
+    configure_pull(req, "demo", PullConfigReq(
+        url="https://x.test/d",
+        date_param="input",
+        date_value_template=template,
+    ))
+    assert store.get("demo").pull.date_value_template == template
+
+    configure_pull(req, "demo", PullConfigReq(url="https://x.test/d"))
+    assert store.get("demo").pull.date_value_template == template
+
+    configure_pull(req, "demo", PullConfigReq(
+        url="https://x.test/d",
+        date_param="input",
+        date_value_template="",
+    ))
+    assert store.get("demo").pull.date_value_template is None
+
+    with pytest.raises(Exception, match="日期值模板"):
+        configure_pull(req, "demo", PullConfigReq(
+            url="https://x.test/d",
+            date_param="input",
+            date_value_template="no-placeholder",
+        ))
+
+
 def test_delete_config_clears_residual_key(monkeypatch, tmp_path) -> None:
     from app.api.ext_data import delete_config
 

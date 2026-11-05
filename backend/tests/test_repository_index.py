@@ -83,6 +83,14 @@ def test_name_map_cache_invalidated_on_instruments_refresh(repo):
     assert repo.get_name_map(["301999.SZ"]) == {"301999.SZ": "新股股份"}
 
 
+def test_name_map_cold_repo_loads_instruments(repo):
+    """新仓库未预热时也能直接解析名称 (不再依赖先加载 instruments)。"""
+    pl.DataFrame({
+        "symbol": ["600000.SH"], "name": ["浦发银行"], "code": ["600000"],
+    }).write_parquet(repo.store.data_dir / "instruments" / "instruments.parquet")
+    assert repo.get_name_map(["600000.SH"]) == {"600000.SH": "浦发银行"}
+
+
 import datetime as _dt
 
 

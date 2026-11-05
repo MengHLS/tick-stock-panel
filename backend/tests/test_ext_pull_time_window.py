@@ -13,6 +13,7 @@ Docker 部署时轮询窗口与真实交易时段完全错开」。
 from __future__ import annotations
 
 import asyncio
+import threading
 from datetime import date, datetime, timedelta
 
 import pytest
@@ -192,7 +193,7 @@ async def test_window_mode_honors_schedule_minutes(monkeypatch) -> None:
     assert pulls[0].strftime("%Y-%m-%d %H:%M") == "2026-03-02 09:35"
 
 
-async def test_scheduled_pull_invalidates_dependent_repository_cache(
+async def test_scheduled_pull_refreshes_dependent_cache_off_event_loop(
     monkeypatch,
 ) -> None:
     config = ExtConfig(
@@ -204,15 +205,24 @@ async def test_scheduled_pull_invalidates_dependent_repository_cache(
     )
     store = _FakeStore(config)
     invalidated: list[str] = []
+    invalidation_threads: list[int] = []
+    loop_thread = threading.get_ident()
 
     async def fake_fetch_ingest(*_args, **_kwargs):
         return 1, "2026-03-02"
 
     monkeypatch.setattr(ext_pull, "fetch_and_ingest", fake_fetch_ingest)
     scheduler = ext_pull.PullScheduler()
-    scheduler.start("/tmp/unused", on_data_written=lambda: invalidated.append("clear"))
+    scheduler.start(
+        "/tmp/unused",
+        on_data_written=lambda: (
+            invalidated.append("clear"),
+            invalidation_threads.append(threading.get_ident()),
+        ),
+    )
 
     await scheduler._execute_pull(config, store)
 
     assert invalidated == ["clear"]
+    assert invalidation_threads and invalidation_threads[0] != loop_thread
     assert config.pull.last_status == "success"

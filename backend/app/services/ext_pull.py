@@ -211,12 +211,27 @@ def _format_date_value(day: date, date_format: str) -> str:
     return day.isoformat()
 
 
-def _with_date_param(url: str, date_param: str | None, day: date, date_format: str = "iso") -> str:
-    """接口按日查询参数: ?{date_param}={按格式序列化的日期} (已有 query 用 &)。"""
+def _with_date_param(
+    url: str,
+    date_param: str | None,
+    day: date,
+    date_format: str = "iso",
+    date_value_template: str | None = None,
+) -> str:
+    """接口按日查询参数: ?{date_param}={按格式序列化的日期} (已有 query 用 &)。
+
+    date_value_template 用于把日期包进 JSON 等非纯文本结构:
+    模板中的 {date} 先按 date_format 替换, 整个值再 URL 编码。
+    """
     if not date_param:
         return url
+    value = _format_date_value(day, date_format)
+    if date_value_template:
+        from urllib.parse import quote
+
+        value = quote(date_value_template.replace("{date}", value), safe="")
     sep = "&" if "?" in url else "?"
-    return f"{url}{sep}{date_param}={_format_date_value(day, date_format)}"
+    return f"{url}{sep}{date_param}={value}"
 
 
 def since_cursor(data_dir, config: ExtConfig, day: date) -> str | None:
@@ -386,7 +401,16 @@ async def _request_json(
     if url_override is not None:
         url = url_override
     else:
-        url = _with_date_param(pull.url, pull.date_param, day, pull.date_format) if day else pull.url
+        url = (
+            _with_date_param(
+                pull.url,
+                pull.date_param,
+                day,
+                pull.date_format,
+                getattr(pull, "date_value_template", None),
+            )
+            if day else pull.url
+        )
     if extra_params:
         url = _append_query_params(url, extra_params)
     # 每配置超时 (PullConfig.timeout_seconds, 默认 30 与历史行为一致);
@@ -767,8 +791,9 @@ class PullScheduler:
 
         enabled=False 时仍建立事件循环引用，保证后续 configure_pull 调用
         refresh() 安全 no-op，而不是因 _loop 为空抛 500。
-        on_data_written 用于清理依赖扩展表的进程内缓存；调度器不持有
-        repository，避免业务任务重新绑定核心数据服务。
+        on_data_written 用于刷新依赖扩展表的进程内缓存；调度器不持有
+        repository，避免业务任务重新绑定核心数据服务。回调可能包含 Polars
+        重算，执行时放到工作线程，不能阻塞调度器事件循环。
         """
         self._running = True
         self._data_dir = data_dir
@@ -857,7 +882,7 @@ class PullScheduler:
             )
             if self._on_data_written is not None:
                 try:
-                    self._on_data_written()
+                    await asyncio.to_thread(self._on_data_written)
                 except Exception as exc:  # noqa: BLE001 - cache cleanup is best effort
                     logger.warning(
                         "PullScheduler: %s cache invalidation failed: %s",
@@ -870,7 +895,7 @@ class PullScheduler:
             fresh.pull.last_rows = n
             await run_ext_data_io(store.upsert, fresh, keep_strategy_cache=True)
             logger.info("PullScheduler: %s success, %d rows", fresh.id, n)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - 单配置失败只记录状态, 不中断调度
             fresh2 = await run_ext_data_io(store.get, fresh.id)
             if fresh2 and fresh2.pull:
                 fresh2.pull.last_run = datetime.now(UTC).isoformat()

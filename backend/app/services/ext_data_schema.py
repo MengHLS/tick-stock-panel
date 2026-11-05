@@ -63,6 +63,9 @@ class PullConfigReq(BaseModel):
     date_param: str | None = Field(None, min_length=1, max_length=16, pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
     # 日期参数值的格式: iso/compact/ts_s/ts_ms (时间戳=该交易日北京时间 00:00:00), 缺省 iso
     date_format: str = "iso"
+    # 日期参数值的模板 (可选): 源接口要求 JSON 等结构时填, 如 '{"json":{"date":"{date}"}}'
+    # {date} 会被替换并整体 URL 编码; 缺省 None = 保留现有值, 空串 = 清除
+    date_value_template: str | None = Field(None, max_length=500)
     # 日内序列表时间列名 (字段映射后的列名, 如 "ts"): 配置后同 symbol 允许多行,
     # 按 [symbol, time_field] 去重; 留空 = 每日快照表 (按 symbol 去重)
     time_field: str | None = Field(None, max_length=32)

@@ -136,9 +136,11 @@ def _hist_snapshot(repo: Any) -> dict[str, Any]:
         cols = ["symbol", *[c for c in ("name", "close", "change_pct",
                                         "deviate_3d", "deviate_10d", "deviate_30d") if c in df.columns]]
         df = df.select(cols)
+        name_map = repo.get_name_map(df["symbol"].to_list())
         for r in df.iter_rows(named=True):
-            rows[str(r["symbol"])] = {
-                "name": r.get("name"),
+            symbol = str(r["symbol"])
+            rows[symbol] = {
+                "name": name_map.get(symbol) or r.get("name"),
                 "close": r.get("close"),
                 "rt_pct": r.get("change_pct"),
                 "deviate_3d": r.get("deviate_3d"),
@@ -185,8 +187,19 @@ def build_overview(
     *,
     min_closeness: float = 0.5,
     limit: int = 200,
+    window: str | None = None,
+    direction: str = "both",
+    board: str | None = None,
+    exclude_st: bool = False,
+    symbols: set[str] | None = None,
+    query: str | None = None,
 ) -> dict[str, Any]:
-    """返回异动边缘总览: 规则表 + 按接近度排序的个股列表。"""
+    """返回异动边缘总览: 规则表 + 按接近度排序的个股列表。
+
+    筛选必须在 ``limit`` 截断之前完成。调用方 (页面/监控规则) 会按窗口、
+    方向、板块等继续过滤; 若先截断再过滤, 接近度靠前但板块/窗口不匹配的
+    标的会占满结果, 让其余筛选项看起来“没有数据”。
+    """
     hist = _hist_snapshot(repo)
     cache_date = hist.get("cache_date")
     hist_rows: dict[str, dict[str, Any]] = hist["rows"]
@@ -209,9 +222,20 @@ def build_overview(
     if not includes_today and (today.weekday() >= 5 or _is_closed_session()):
         includes_today = True
 
+    window_key = window if window in {f"{n}d" for n in DEVIATION_WINDOWS} else None
+    direction_key = direction if direction in ("up", "down") else "both"
+    query_key = (query or "").strip().lower()
     out_rows: list[dict[str, Any]] = []
     for symbol, base in hist_rows.items():
         rule = rule_for(symbol, base.get("name"))
+        if board is not None and rule.board != board:
+            continue
+        if exclude_st and rule.st:
+            continue
+        if symbols is not None and symbol not in symbols:
+            continue
+        if query_key and query_key not in f"{symbol} {base.get('name') or ''}".lower():
+            continue
         rt_pct = base.get("rt_pct")
         rt_delta = 0.0 if includes_today else (
             (rt_pct or 0.0) - bench_by_key.get(_bench_key_of(symbol), 0.0)
@@ -235,6 +259,18 @@ def build_overview(
             max_closeness = max(max_closeness, closeness)
         if not windows or max_closeness < min_closeness:
             continue
+        if window_key is not None:
+            selected = windows.get(window_key)
+            if selected is None or selected["closeness"] < min_closeness:
+                continue
+        if direction_key != "both":
+            focus = windows.get(window_key) if window_key else max(
+                windows.values(), key=lambda w: w["closeness"]
+            )
+            if (direction_key == "up" and focus["value"] <= 0) or (
+                direction_key == "down" and focus["value"] >= 0
+            ):
+                continue
         out_rows.append({
             "symbol": symbol,
             "name": base.get("name"),
@@ -248,6 +284,7 @@ def build_overview(
         })
 
     out_rows.sort(key=lambda r: r["max_closeness"], reverse=True)
+    total = len(out_rows)
     counts = {
         _STATUS_TRIGGERED: sum(1 for r in out_rows if r["status"] == _STATUS_TRIGGERED),
         _STATUS_EDGE: sum(1 for r in out_rows if r["status"] == _STATUS_EDGE),
@@ -260,6 +297,7 @@ def build_overview(
         "includes_today": includes_today,
         "rules": RULES_META,
         "counts": counts,
+        "total": total,
         "rows": out_rows[:limit],
     }
 
@@ -306,11 +344,14 @@ def build_intraday(repo: Any, limit: int = 500) -> dict[str, Any]:
     sig_cols = {k: hits[c].fill_null(False).to_list() for c, k in present}
     base_cols = [c for c in _INTRADAY_COLS if c in hits.columns]
     base = hits.select(base_cols).to_dicts()
+    name_map = repo.get_name_map([str(r["symbol"]) for r in base])
     rows: list[dict[str, Any]] = []
     for i, r in enumerate(base):
         signals = [k for k, flags in sig_cols.items() if flags[i]]
+        symbol = str(r["symbol"])
         rows.append({
             **{c: r.get(c) for c in base_cols},
+            "name": name_map.get(symbol) or r.get("name"),
             "signals": signals,
             "_prio": min((_INTRADAY_PRIORITY[s] for s in signals), default=99),
         })

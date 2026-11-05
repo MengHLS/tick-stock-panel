@@ -158,6 +158,23 @@ def test_with_date_param_formats():
     assert _with_date_param("https://x/api", "date", d, "bogus") == "https://x/api?date=2026-01-05"
 
 
+def test_with_date_param_value_template_encodes_json():
+    """JSON 查询参数: {date} 替换后整体 URL 编码, 不破坏既有 query。"""
+    from urllib.parse import parse_qs, urlsplit
+
+    d = date(2026, 1, 5)
+    template = '{"json":{"date":"{date}"}}'
+    url = _with_date_param("https://x/api", "input", d, "iso", template)
+    assert url.startswith("https://x/api?input=")
+    assert parse_qs(urlsplit(url).query)["input"] == [template.replace("{date}", "2026-01-05")]
+
+    with_query = _with_date_param("https://x/api?a=1", "input", d, "compact", template)
+    assert parse_qs(urlsplit(with_query).query) == {
+        "a": ["1"],
+        "input": [template.replace("{date}", "20260105")],
+    }
+
+
 def test_pull_config_date_format_roundtrip_and_normalize():
     """date_format 配置往返保留; 手改 config.json 写入非法值时归一为 iso。"""
     cfg = PullConfig(url="https://x/api", date_param="ts", date_format="ts_ms")
@@ -166,6 +183,17 @@ def test_pull_config_date_format_roundtrip_and_normalize():
     assert restored.date_format == "ts_ms"
     assert PullConfig(date_param="date", date_format="bogus").date_format == "iso"
     assert PullConfig.from_dict({"date_param": "date"}).date_format == "iso"  # 旧配置缺字段
+
+
+def test_pull_config_date_value_template_roundtrip_and_normalize():
+    """日期值模板往返保留; 缺占位符/超长模板 fail-closed 归一 None。"""
+    template = '{"json":{"date":"{date}"}}'
+    cfg = PullConfig(url="https://x/api", date_param="input", date_value_template=template)
+    assert cfg.date_value_template == template
+    assert PullConfig.from_dict(cfg.to_dict()).date_value_template == template
+    assert PullConfig(date_value_template="no-placeholder").date_value_template is None
+    assert PullConfig(date_value_template="x" * 501).date_value_template is None
+    assert PullConfig.from_dict({"url": "u"}).date_value_template is None
 
 
 def test_assert_rows_date_contract():

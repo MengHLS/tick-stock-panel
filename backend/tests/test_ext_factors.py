@@ -275,6 +275,88 @@ def test_routine_pull_keeps_strategy_cache_but_default_clears(data_dir):
     assert strategy_cache.read_cache(data_dir) is None
 
 
+def test_repository_refreshes_extension_columns_without_rebuilding_indicators(data_dir):
+    """定时拉取只换扩展列/信号, 不清指标历史、live_agg、维表和名称缓存。"""
+    from app.indicators import pipeline
+    from app.tickflow.repository import DataStore, KlineRepository
+
+    pipeline.invalidate_custom_signals()
+    try:
+        _mk_config(data_dir, mode="timeseries")
+        _save_signal(data_dir)
+        cfg = ExtConfigStore(data_dir).get("tags")
+        write_ext_parquet(
+            pl.DataFrame({
+                "symbol": ["600000.SH", "000001.SZ"],
+                "hot": [0.9, 0.1],
+            }),
+            cfg,
+            data_dir,
+            snapshot_date=date(2026, 1, 5),
+            keep_strategy_cache=True,
+        )
+
+        repo = KlineRepository(DataStore(data_dir))
+        history = pl.DataFrame({
+            "symbol": ["000001.SZ", "600000.SH"],
+            "date": [date(2026, 1, 5), date(2026, 1, 5)],
+            "close": [20.0, 10.0],
+            "ma5": [19.5, 9.5],
+            COL: [0.1, 0.9],
+            "csg_ext_hot": [False, True],
+        })
+        latest = history.filter(pl.col("symbol") == "600000.SH").with_columns(
+            pl.lit("09:35:00").alias("quote_ts")
+        )
+        live_agg = pl.DataFrame({"symbol": ["600000.SH"], "ma5": [9.5]})
+        instruments = pl.DataFrame({"symbol": ["600000.SH"], "name": ["浦发银行"]})
+        repo._enriched_history_cache = history
+        repo._enriched_history_start = date(2026, 1, 5)
+        repo._enriched_cache = latest
+        repo._enriched_cache_date = date(2026, 1, 5)
+        repo._live_agg_cache = live_agg
+        repo._instruments_cache = instruments
+        repo._name_map_cache = {"600000.SH": "浦发银行"}
+
+        def unexpected_refresh() -> None:
+            raise AssertionError(
+                "routine extension refresh must not rebuild indicators"
+            )
+
+        repo._refresh_enriched = unexpected_refresh  # type: ignore[method-assign]
+
+        write_ext_parquet(
+            pl.DataFrame({
+                "symbol": ["600000.SH", "000001.SZ"],
+                "hot": [0.1, 0.8],
+            }),
+            cfg,
+            data_dir,
+            snapshot_date=date(2026, 1, 5),
+            keep_strategy_cache=True,
+        )
+        repo.refresh_extension_columns()
+
+        refreshed = repo._enriched_history_cache
+        assert refreshed is not None and refreshed is not history
+        by_symbol = {
+            row["symbol"]: row
+            for row in refreshed.select("symbol", COL, "csg_ext_hot", "ma5").to_dicts()
+        }
+        assert by_symbol["600000.SH"][COL] == 0.1
+        assert by_symbol["000001.SZ"][COL] == 0.8
+        assert by_symbol["600000.SH"]["csg_ext_hot"] is False
+        assert by_symbol["000001.SZ"]["csg_ext_hot"] is True
+        assert by_symbol["600000.SH"]["ma5"] == 9.5
+        assert repo._enriched_cache is not None
+        assert repo._enriched_cache["quote_ts"].to_list() == ["09:35:00"]
+        assert repo._live_agg_cache is live_agg
+        assert repo._instruments_cache is instruments
+        assert repo._name_map_cache == {"600000.SH": "浦发银行"}
+    finally:
+        pipeline.invalidate_custom_signals()
+
+
 def test_scheduler_status_upsert_keeps_strategy_cache(data_dir):
     """定时拉取循环的 last_run/next_run 例行回写 (keep_strategy_cache=True)
     不清策略结果缓存; UI 保存配置 (默认) 仍全清。

@@ -219,6 +219,9 @@ class _FakeRepo:
     def get_enriched_latest(self):
         return self._df, date(2026, 8, 19)
 
+    def get_name_map(self, symbols=None):
+        return {}
+
 
 class _FakeQuotes:
     def get_index_quotes(self):
@@ -370,6 +373,57 @@ def test_build_overview_negative_side_stricter_threshold() -> None:
     main = rule_for("600000.SH", "正常股")
     assert main.thresholds[10] == (1.00, 0.50)
     assert main.thresholds[30] == (2.00, 0.70)
+
+
+def test_build_overview_filters_before_limit() -> None:
+    """板块/窗口筛选必须先于 limit 截断。
+
+    回归: 盘中接近度最高的前 N 行可能被同一板块 (如北交所 30 日偏离)
+    占满; 若先截断再由前端过滤, 选「主板/3日/正向」会显示空列表。
+    """
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    df = pl.DataFrame(
+        {
+            "symbol": ["920001.BJ", "600000.SH", "000001.SZ", "600002.SH"],
+            "name": ["北交股", "沪主板", "深主板", "*ST 风险"],
+            "close": [10.0, 20.0, 30.0, 40.0],
+            "change_pct": [0.0, 0.0, 0.0, 0.0],
+            "deviate_3d": [0.05, 0.13, -0.15, 0.19],
+            "deviate_10d": [None, 0.10, 0.10, 0.10],
+            "deviate_30d": [2.50, 0.10, 0.10, 0.10],
+        }
+    )
+    repo = _FakeRepo(df)
+
+    unfiltered = build_overview(repo, None, min_closeness=0.5, limit=1)
+    assert [r["symbol"] for r in unfiltered["rows"]] == ["920001.BJ"]
+    assert unfiltered["total"] == 4
+
+    main_board = build_overview(repo, None, min_closeness=0.5, limit=1, board="主板")
+    assert [r["symbol"] for r in main_board["rows"]] == ["600002.SH"]
+    assert main_board["total"] == 3
+
+    three_day = build_overview(repo, None, min_closeness=0.5, limit=1, window="3d")
+    assert [r["symbol"] for r in three_day["rows"]] == ["600002.SH"]
+    assert three_day["total"] == 3
+
+    down = build_overview(
+        repo, None, min_closeness=0.5, limit=10, window="3d", direction="down",
+    )
+    assert [r["symbol"] for r in down["rows"]] == ["000001.SZ"]
+
+    no_st = build_overview(repo, None, min_closeness=0.5, limit=10, exclude_st=True)
+    assert "600002.SH" not in {r["symbol"] for r in no_st["rows"]}
+    assert no_st["total"] == 3
+
+    selected = build_overview(
+        repo, None, min_closeness=0.5, limit=10, symbols={"600000.SH"},
+    )
+    assert [r["symbol"] for r in selected["rows"]] == ["600000.SH"]
+
+    searched = build_overview(repo, None, min_closeness=0.5, limit=10, query="风险")
+    assert [r["symbol"] for r in searched["rows"]] == ["600002.SH"]
 
 
 # ── 监控规则接入 (type=abnormal) ────────────────────────

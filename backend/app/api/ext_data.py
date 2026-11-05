@@ -1138,6 +1138,10 @@ def configure_pull(request: Request, config_id: str, body: PullConfigReq):
         rejected = session_cookie_rejection(new_auth, get_ext_api_key(config_id))
         if rejected:
             raise HTTPException(400, rejected)
+    if body.date_value_template is not None:
+        template = body.date_value_template.strip()
+        if template and "{date}" not in template:
+            raise HTTPException(400, "日期值模板必须包含 {date} 占位符")
     config.pull = PullConfig(
         url=body.url,
         method=body.method,
@@ -1155,6 +1159,11 @@ def configure_pull(request: Request, config_id: str, body: PullConfigReq):
         time_window_end=body.time_window_end,
         date_param=body.date_param,
         date_format=body.date_format,
+        date_value_template=(
+            body.date_value_template
+            if body.date_value_template is not None
+            else (old_pull.date_value_template if old_pull else None)
+        ),
         time_field=body.time_field,
         since_param=body.since_param,
         granularity=body.granularity,
@@ -1238,7 +1247,13 @@ async def test_pull(request: Request, config_id: str):
 
     pull = config.pull
     try:
-        data = await _request_json(pull, config.id)
+        # 按日查询接口必须带日期才能测出真实响应; 无 date_param 的当日快照
+        # 保持旧行为 (不带日期)。测试不写盘, 只做响应解析预览。
+        data = await _request_json(
+            pull,
+            config.id,
+            day=cn_today() if pull.date_param else None,
+        )
         rows = _extract_rows(data, pull.response_path)
         preview = _apply_field_map(rows[:5], pull.field_map)
         return {

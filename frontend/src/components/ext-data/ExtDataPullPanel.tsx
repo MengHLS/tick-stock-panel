@@ -287,6 +287,7 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
   const [timeWindowEnd, setTimeWindowEnd] = useState(pull?.time_window_end ?? '')
   const [dateParam, setDateParam] = useState(pull?.date_param ?? '')
   const [dateFormat, setDateFormat] = useState(pull?.date_format ?? 'iso')
+  const [dateValueTemplate, setDateValueTemplate] = useState(pull?.date_value_template ?? '')
   const [timeField, setTimeField] = useState(pull?.time_field ?? '')
   // 序列粒度: auto=按数据形态判断 | intraday=日内多盘 | daily=日级别 (钉死判断)
   const [granularity, setGranularity] = useState<'auto' | 'intraday' | 'daily'>(pull?.granularity ?? 'auto')
@@ -366,6 +367,8 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
       time_window_end: timeWindowEnd || null,
       date_param: dateParam.trim() || null,
       date_format: dateFormat,
+      // 空串 = 清除模板; 不用 null, 后端把 null 当「保留现有值」
+      date_value_template: dateValueTemplate,
       time_field: timeField.trim() || null,
       since_param: sinceParam.trim() || null,
       granularity,
@@ -924,6 +927,18 @@ function ExtPullConfigDialog({ config, onSaved, onClose }: {
                     <option value="ts_ms">毫秒时间戳</option>
                   </select>
                 </div>
+                <input
+                  value={dateValueTemplate} onChange={e => setDateValueTemplate(e.target.value)}
+                  placeholder='日期值模板（可选）· {"json":{"date":"{date}"}}'
+                  disabled={!dateParam.trim()}
+                  title="接口要求把日期包进 JSON 等结构时填写；{date} 会按上方格式替换，并整体 URL 编码"
+                  className="mt-1.5 h-9 w-full rounded-lg border border-border bg-base px-3 text-xs font-mono text-foreground placeholder:text-muted/40 focus:outline-none focus:ring-1 focus:ring-accent/25 focus:border-accent/50 transition-shadow disabled:opacity-40"
+                />
+                {dateParam.trim() && (
+                  <div className="mt-1 text-[10px] text-muted/70">
+                    仅 JSON 参数接口需要；<code>{'{date}'}</code> 占位符会被替换后 URL 编码
+                  </div>
+                )}
               </div>
               <div>
                 <div className="text-[11px] font-medium text-secondary mb-1.5">

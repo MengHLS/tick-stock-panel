@@ -618,11 +618,15 @@ class KlineRepository:
         # symbol 集合 memo (随对应 instruments 缓存失效): 供每请求资产分流用
         self._index_symbol_set_cache: set[str] | None = None
         self._etf_symbol_set_cache: set[str] | None = None
+        self._name_map_cache: dict[str, str] | None = None
         self._index_enriched_cache: pl.DataFrame | None = None
         self._index_enriched_cache_date: date | None = None
         # 日期分区目录索引: root mtime 未变时复用，避免每次逐项 stat 数千目录。
         self._partition_dates_cache: dict[tuple[str, bool], tuple[int, list[date]]] = {}
         self._partition_dates_lock = threading.Lock()
+        # 扩展数据例行更新只重算扩展列/依赖信号; 与全量 enriched 刷新互斥,
+        # 避免两边同时替换内存快照。
+        self._ext_refresh_lock = threading.Lock()
 
         # ---- enriched 后台预热 ----
         # 启动时 compute_indicators (107万行, 低配机 50s+) 移出 lifespan 关键路径,
@@ -844,6 +848,128 @@ class KlineRepository:
         self._name_map_cache = None
         self._index_enriched_cache = None
         self._index_enriched_cache_date = None
+
+    def _extension_dependent_columns(self, frame: pl.DataFrame) -> set[str]:
+        """返回帧内由扩展表派生的列 (扩展列本身 + 依赖它们的注册表因子)。"""
+        from app.factors import ext_factors
+        from app.factors.registry import all_factors, factor_dependencies
+
+        present = set(frame.columns)
+        dependent = {
+            col for col in present if col.startswith(ext_factors.EXT_PREFIX)
+        }
+        for spec in all_factors():
+            if spec.id not in present or spec.id in dependent:
+                continue
+            deps = factor_dependencies([spec.id])
+            if any(dep.startswith(ext_factors.EXT_PREFIX) for dep in deps):
+                dependent.add(spec.id)
+        return dependent
+
+    def _refresh_extension_frame(self, frame: pl.DataFrame) -> pl.DataFrame:
+        """只重算帧上的扩展列与扩展依赖信号, 不重算指标历史。"""
+        from app.factors import ext_factors
+        from app.indicators.pipeline import compute_signals
+        from app.strategy import custom_signals
+
+        drop = self._extension_dependent_columns(frame)
+        # 信号输出列由 compute_signals 统一重建; 显式 column 未必带 csg_ 前缀。
+        for sig in custom_signals.load_all(self.store.data_dir):
+            try:
+                drop.add(custom_signals.resolve_column(sig))
+            except (KeyError, TypeError, ValueError):
+                continue
+        drop.update(
+            col for col in frame.columns
+            if col.startswith(("csg_", "signal_"))
+        )
+        stripped = frame.drop(sorted(drop & set(frame.columns))) if drop else frame
+        stripped = ext_factors.attach_ext_columns(
+            stripped,
+            include_snapshot=False,
+            data_dir=self.store.data_dir,
+        )
+        return compute_signals(stripped, attach_extensions=False)
+
+    def refresh_extension_columns(self) -> None:
+        """扩展表例行写入后刷新内存 enriched 的扩展列, 保留指标与基础缓存。
+
+        `clear_cache` 会把 300 天 enriched 历史全部丢弃, 下一次请求同步重算
+        数十秒; 扩展表定时拉取每 5 分钟一次, 页面因此周期性卡顿。这里只替换
+        依赖扩展表的列和信号, 并原子换入新帧; 指标、live_agg、维表和名称映射
+        保持原对象。
+        """
+        from app.factors import ext_factors
+        from app.services.heavy_job_limiter import shared_heavy_job_limiter
+
+        if not ext_factors.load_extension_configs(self.store.data_dir):
+            return
+
+        with self._ext_refresh_lock, shared_heavy_job_limiter.slot("normal"):
+            started = time.perf_counter()
+            history = self._enriched_history_cache
+            refreshed_history: pl.DataFrame | None = None
+            if history is not None and not history.is_empty():
+                refreshed_history = self._refresh_extension_frame(history)
+                if self._enriched_history_cache is history:
+                    self._enriched_history_cache = refreshed_history
+                    snapshot = self._enriched_history_snapshot
+                    if snapshot is not None and snapshot[0] is history:
+                        self._enriched_history_snapshot = (refreshed_history, snapshot[1])
+
+            latest = self._enriched_cache
+            latest_date = self._enriched_cache_date
+            if (
+                refreshed_history is not None
+                and latest is not None
+                and not latest.is_empty()
+                and latest_date is not None
+                and "date" in refreshed_history.columns
+            ):
+                refreshed_latest = refreshed_history.filter(
+                    pl.col("date") == latest_date
+                )
+                if not refreshed_latest.is_empty():
+                    # 实时缓存可能只覆盖订阅池/自选子集; 不用历史全市场替换其范围。
+                    refreshed_latest = refreshed_latest.join(
+                        latest.select("symbol").unique(),
+                        on="symbol",
+                        how="semi",
+                    )
+                    # 保留实时路径独有且不依赖扩展表的列 (quote_ts/评分列等)。
+                    reload_cols = self._extension_dependent_columns(latest)
+                    reload_cols.update(
+                        col for col in latest.columns
+                        if col.startswith(("csg_", "signal_"))
+                    )
+                    keep = [
+                        col for col in latest.columns
+                        if col not in refreshed_latest.columns
+                        and col not in reload_cols
+                    ]
+                    if keep:
+                        extras = latest.select("symbol", *keep).unique(
+                            subset=["symbol"], keep="last"
+                        )
+                        refreshed_latest = refreshed_latest.join(
+                            extras, on="symbol", how="left"
+                        )
+                    if self._enriched_cache is latest:
+                        self._enriched_cache = refreshed_latest.sort("symbol")
+
+            for attr in ("_etf_enriched_cache", "_index_enriched_cache"):
+                frame = getattr(self, attr)
+                if frame is None or frame.is_empty():
+                    continue
+                if any(col.startswith(ext_factors.EXT_PREFIX) for col in frame.columns):
+                    refreshed = self._refresh_extension_frame(frame)
+                    if getattr(self, attr) is frame:
+                        setattr(self, attr, refreshed)
+
+            logger.info(
+                "extension cache refresh done (%.2fs)",
+                time.perf_counter() - started,
+            )
 
     def _refresh_enriched(self) -> bool:
         """刷新 enriched 内存缓存。返回 True 表示因数据换代被丢弃、可重试。

@@ -41,7 +41,24 @@ export const QK = {
   watchlistQuotes:      ['watchlist-quotes'] as const,
   watchlistEnriched:    (ext?: string) => ['watchlist-enriched', ext ?? ''] as const,
   // 异动边缘总览 (开启监控时才查询, 参数为 min_closeness/limit)
-  abnormalOverview:     (minCloseness: number, limit: number) => ['abnormal-overview', minCloseness, limit] as const,
+  abnormalOverview:     (minCloseness: number, limit: number, filters: {
+                           window?: string
+                           direction?: string
+                           board?: string
+                           excludeSt?: boolean
+                           watchlistOnly?: boolean
+                           query?: string
+                         } = {}) => [
+                           'abnormal-overview',
+                           minCloseness,
+                           limit,
+                           filters.window ?? '',
+                           filters.direction ?? 'both',
+                           filters.board ?? '',
+                           filters.excludeSt ? 1 : 0,
+                           filters.watchlistOnly ? 1 : 0,
+                           filters.query ?? '',
+                         ] as const,
   // 盘中异动信号聚合 (异动监控「盘中」tab)
   abnormalIntraday:     (limit: number) => ['abnormal-intraday', limit] as const,
   // 不用 watchlist- 前缀: 日K历史盘中几乎不变, 若被 SSE quotes_updated 高频失效
@@ -60,6 +77,11 @@ export const QK = {
 
   // 通用主题分析器 (用户自建主题 + 股票池)
   themeAnalyzerRoot:     ['theme-analyzer'] as const,
+  themeAnalyzerThemes:   ['theme-analyzer', 'themes'] as const,
+  themeAnalyzerAnalysis: (id: string, start?: string, end?: string, poolKey = '') =>
+                           ['theme-analyzer', 'analysis', id, start ?? '', end ?? '', poolKey] as const,
+  themeAnalyzerMinute:   (id: string, date: string, symbolsKey: string, poolKey = '') =>
+                           ['theme-analyzer', 'minute', id, date, symbolsKey, poolKey] as const,
 
   // Screener
   screener:             ['screener'] as const,

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import {
@@ -53,6 +53,74 @@ const BOARDS = ['主板', '创业板', '科创板', '北交所'] as const
 const REFRESH_MS = 60_000
 
 type AbnormalTab = 'auction' | 'intraday' | 'deviation'
+type SortDir = 'asc' | 'desc'
+type SortState<K extends string> = { key: K; dir: SortDir }
+type SortValue = string | number | null | undefined
+
+function nextSort<K extends string>(
+  prev: SortState<K> | null,
+  key: K,
+  firstDir: SortDir,
+): SortState<K> | null {
+  if (!prev || prev.key !== key) return { key, dir: firstDir }
+  if (prev.dir === firstDir) return { key, dir: firstDir === 'asc' ? 'desc' : 'asc' }
+  return null
+}
+
+function sortRows<T, K extends string>(
+  rows: T[],
+  sort: SortState<K> | null,
+  getValue: (row: T, key: K) => SortValue,
+): T[] {
+  if (!sort) return rows
+  return [...rows].sort((a, b) => {
+    const av = getValue(a, sort.key)
+    const bv = getValue(b, sort.key)
+    if (av == null && bv == null) return 0
+    if (av == null) return 1
+    if (bv == null) return -1
+    if (typeof av === 'number' && typeof bv === 'number') {
+      return sort.dir === 'asc' ? av - bv : bv - av
+    }
+    const delta = String(av).localeCompare(String(bv), 'zh-CN')
+    return sort.dir === 'asc' ? delta : -delta
+  })
+}
+
+function SortTh<K extends string>({ label, sortKey, sort, onSort, align = 'left', title }: {
+  label: ReactNode
+  sortKey: K
+  sort: SortState<K> | null
+  onSort: (key: K) => void
+  align?: 'left' | 'right' | 'center'
+  title?: string
+}) {
+  const active = sort?.key === sortKey
+  const alignCls = align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'
+  return (
+    <th
+      aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+      className={`group/th px-2 py-2 font-normal ${alignCls}`}
+    >
+      <button
+        type="button"
+        title={title}
+        onClick={() => onSort(sortKey)}
+        className={`inline-flex items-center gap-0.5 transition-colors hover:text-foreground ${
+          active ? 'text-foreground' : ''
+        } ${align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : ''}`}
+      >
+        {label}
+        <span
+          aria-hidden="true"
+          className={active ? 'opacity-80' : 'opacity-0 transition-opacity group-hover/th:opacity-40'}
+        >
+          {active ? (sort.dir === 'asc' ? '↑' : '↓') : '↕'}
+        </span>
+      </button>
+    </th>
+  )
+}
 
 const TAB_META: Array<{ key: AbnormalTab; label: string; icon: typeof Compass; desc: string }> = [
   { key: 'auction', label: '竞价异动', icon: Compass, desc: '盘前 9:15-9:25 · 同花顺风向标 + 竞价扫描' },
@@ -378,6 +446,16 @@ function BenchmarkCard({ q, onOpenStock }: {
 // 盘中异动 tab
 // ================================================================
 
+type IntradaySortKey = 'symbol' | 'close' | 'change_pct' | 'signals' | 'vol_ratio_5d' | 'amplitude' | 'turnover_rate'
+
+function intradaySortValue(row: AbnormalIntradayRow, key: IntradaySortKey): SortValue {
+  if (key === 'symbol') return row.symbol
+  if (key === 'signals') {
+    return row.signals.reduce((best, signal) => Math.min(best, SIGNAL_KEYS.indexOf(signal)), SIGNAL_KEYS.length)
+  }
+  return row[key]
+}
+
 function IntradayView({ onPreview }: {
   onPreview: (r: AbnormalIntradayRow, navList?: NavItem[]) => void
 }) {
@@ -385,6 +463,7 @@ function IntradayView({ onPreview }: {
   const [boardFilter, setBoardFilter] = useState<'all' | (typeof BOARDS)[number]>('all')
   const [query, setQuery] = useState('')
   const [excludeSt, setExcludeSt] = useState(true)
+  const [sort, setSort] = useState<SortState<IntradaySortKey> | null>(null)
 
   // 交易时段感知 (共享 Layout 的同 key 缓存, 无额外请求): 非交易时段停轮询
   const { data: quoteStatus } = useQuoteStatus()
@@ -410,8 +489,11 @@ function IntradayView({ onPreview }: {
     if (excludeSt) list = list.filter(r => !(r.name ?? '').toUpperCase().includes('ST'))
     const s = query.trim().toLowerCase()
     if (s) list = list.filter(r => `${r.symbol} ${r.name ?? ''}`.toLowerCase().includes(s))
-    return list
-  }, [data, sigFilter, boardFilter, excludeSt, query])
+    return sortRows(list, sort, intradaySortValue)
+  }, [data, sigFilter, boardFilter, excludeSt, query, sort])
+
+  const handleSort = (key: IntradaySortKey) =>
+    setSort(prev => nextSort(prev, key, key === 'symbol' || key === 'signals' ? 'asc' : 'desc'))
 
   // 切股导航列表: 当前筛选后的行序
   const navItems = useMemo(() => toNavItems(rows), [rows])
@@ -481,13 +563,13 @@ function IntradayView({ onPreview }: {
           <thead className="sticky top-0 z-10 bg-surface">
             <tr className="border-b border-border text-[10px] uppercase tracking-wider text-muted">
               <th className="w-10 px-2 py-2 text-right">#</th>
-              <th className="px-2 py-2 text-left">代码 / 名称</th>
-              <th className="px-2 py-2 text-right">现价</th>
-              <th className="px-2 py-2 text-right">今日</th>
-              <th className="px-2 py-2 text-left">信号</th>
-              <th className="px-2 py-2 text-right" title="当日成交量 / 前5日平均成交量">量比</th>
-              <th className="px-2 py-2 text-right" title="当日高低价差 / 前收盘价">振幅</th>
-              <th className="px-2 py-2 text-right">换手</th>
+              <SortTh label="代码 / 名称" sortKey="symbol" sort={sort} onSort={handleSort} />
+              <SortTh label="现价" sortKey="close" sort={sort} onSort={handleSort} align="right" />
+              <SortTh label="今日" sortKey="change_pct" sort={sort} onSort={handleSort} align="right" />
+              <SortTh label="信号" sortKey="signals" sort={sort} onSort={handleSort} />
+              <SortTh label="量比" sortKey="vol_ratio_5d" sort={sort} onSort={handleSort} align="right" title="当日成交量 / 前5日平均成交量" />
+              <SortTh label="振幅" sortKey="amplitude" sort={sort} onSort={handleSort} align="right" title="当日高低价差 / 前收盘价" />
+              <SortTh label="换手" sortKey="turnover_rate" sort={sort} onSort={handleSort} align="right" />
             </tr>
           </thead>
           <tbody>
@@ -609,6 +691,23 @@ const IntradayRowView = memo(function IntradayRowView({ row, rank, onPreview }: 
 // 偏移异动 tab (原有异动边缘监控, 逻辑保持不变)
 // ================================================================
 
+type DeviationSortKey = 'symbol' | 'close' | 'rt_pct' | WindowKey | 'closeness' | 'status'
+
+const STATUS_SORT_RANK: Record<AbnormalStatus, number> = {
+  triggered: 0,
+  edge: 1,
+  watch: 2,
+}
+
+function deviationSortValue(row: AbnormalRow, key: DeviationSortKey): SortValue {
+  if (key === 'symbol') return row.symbol
+  if (key === 'close') return row.close
+  if (key === 'rt_pct') return row.rt_pct
+  if (key === 'closeness') return dominantWindow(row)?.closeness ?? null
+  if (key === 'status') return STATUS_SORT_RANK[row.status]
+  return row.windows[key]?.value ?? null
+}
+
 function DeviationView({ onPreview }: {
   onPreview: (r: AbnormalRow, navList?: NavItem[]) => void
 }) {
@@ -625,14 +724,28 @@ function DeviationView({ onPreview }: {
   const [boardFilter, setBoardFilter] = useState<'all' | (typeof BOARDS)[number]>('all')
   const [minCloseness, setMinCloseness] = useState(0.5)
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [watchlistOnly, setWatchlistOnly] = useState(false)
   // 默认过滤 ST/*ST 风险警示股票 (口径与后端 is_st_name 一致: 名称含 ST)
   const [excludeSt, setExcludeSt] = useState(true)
+  const [sort, setSort] = useState<SortState<DeviationSortKey> | null>(null)
 
   const { data: quoteStatus } = useQuoteStatus()
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(query.trim()), 250)
+    return () => window.clearTimeout(timer)
+  }, [query])
+  const overviewFilters = useMemo(() => ({
+    window: windowFilter === 'all' ? undefined : windowFilter,
+    direction,
+    board: boardFilter === 'all' ? undefined : boardFilter,
+    excludeSt,
+    watchlistOnly,
+    query: debouncedQuery || undefined,
+  }), [windowFilter, direction, boardFilter, excludeSt, watchlistOnly, debouncedQuery])
   const overview = useQuery({
-    queryKey: QK.abnormalOverview(minCloseness, 300),
-    queryFn: () => api.abnormalOverview(minCloseness, 300),
+    queryKey: QK.abnormalOverview(minCloseness, 300, overviewFilters),
+    queryFn: () => api.abnormalOverview(minCloseness, 300, overviewFilters),
     enabled, // 关闭时零计算
     // 非交易时段偏离快照不变, 60s → 5min 兜底 (开盘后自动恢复); 字段缺失保持原频率
     refetchInterval: () => (enabled && quoteStatus?.is_trading_hours !== false ? REFRESH_MS : 300_000),
@@ -656,11 +769,15 @@ function DeviationView({ onPreview }: {
   }
 
   const data = overview.data
+  // 暂停监控后仍允许在本地切换筛选, 因此只持久化未加窗口/板块/自选/搜索的
+  // 宽快照; 若把服务端筛选后的子集写回, 关掉监控再切筛选会只剩空列表。
+  const broadView = !watchlistOnly && windowFilter === 'all'
+    && direction === 'both' && boardFilter === 'all' && !debouncedQuery
   useEffect(() => {
-    if (!data) return
+    if (!data || !broadView) return
     setLastResult(data)
     storage.abnormalLastResult.set(data)
-  }, [data])
+  }, [data, broadView])
 
   // 展示数据源: 开启 → 实时结果; 关闭 → 上次计算结果 (可能为空)
   const view = enabled ? data : lastResult
@@ -693,8 +810,11 @@ function DeviationView({ onPreview }: {
     if (q) {
       list = list.filter(r => `${r.symbol} ${r.name ?? ''}`.toLowerCase().includes(q))
     }
-    return list
-  }, [view, windowFilter, direction, boardFilter, watchlistOnly, excludeSt, watchSymbols, query, minCloseness])
+    return sortRows(list, sort, deviationSortValue)
+  }, [view, windowFilter, direction, boardFilter, watchlistOnly, excludeSt, watchSymbols, query, minCloseness, sort])
+
+  const handleSort = (key: DeviationSortKey) =>
+    setSort(prev => nextSort(prev, key, key === 'symbol' || key === 'status' ? 'asc' : 'desc'))
 
   // 切股导航列表: 当前筛选后的行序
   const navItems = useMemo(() => toNavItems(rows), [rows])
@@ -779,6 +899,11 @@ function DeviationView({ onPreview }: {
             <StatusChip label="已触发" count={counts?.triggered} tone="danger" />
             <StatusChip label="异动边缘" count={counts?.edge} tone="warning" />
             <StatusChip label="观察" count={counts?.watch} tone="muted" />
+            {view && (view.total ?? view.rows.length) > view.rows.length && (
+              <span className="text-[10px] text-muted">
+                当前筛选共 {view.total} 条 · 显示前 {view.rows.length} 条
+              </span>
+            )}
             {enabled && (
               <span className="text-[10px] text-muted">
                 数据截至 {data?.cache_date ?? '—'}
@@ -892,6 +1017,7 @@ function DeviationView({ onPreview }: {
               <input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
+                maxLength={64}
                 placeholder="搜索代码/名称"
                 className="h-7 w-40 rounded border border-border bg-base pl-7 pr-2 text-[11px] text-foreground"
               />
@@ -904,23 +1030,27 @@ function DeviationView({ onPreview }: {
               <thead className="sticky top-0 z-10 bg-surface">
                 <tr className="border-b border-border text-[10px] uppercase tracking-wider text-muted">
                   <th className="w-10 px-2 py-2 text-right">#</th>
-                  <th className="px-2 py-2 text-left">代码 / 名称</th>
-                  <th className="px-2 py-2 text-right">现价</th>
-                  <th className="px-2 py-2 text-right">今日</th>
+                  <SortTh label="代码 / 名称" sortKey="symbol" sort={sort} onSort={handleSort} />
+                  <SortTh label="现价" sortKey="close" sort={sort} onSort={handleSort} align="right" />
+                  <SortTh label="今日" sortKey="rt_pct" sort={sort} onSort={handleSort} align="right" />
                   {WINDOW_KEYS.map(w => (
-                    <th key={w} className="px-2 py-2 text-right">
-                      {WINDOW_LABELS[w]}
-                      <span className="ml-1 normal-case text-muted/60">(阈值)</span>
-                    </th>
+                    <SortTh
+                      key={w}
+                      label={<>{WINDOW_LABELS[w]}<span className="ml-1 normal-case text-muted/60">(阈值)</span></>}
+                      sortKey={w}
+                      sort={sort}
+                      onSort={handleSort}
+                      align="right"
+                    />
                   ))}
-                  <th
-                    className="w-36 px-2 py-2 text-left"
+                  <SortTh
+                    label={<>接近度<span className="ml-1 normal-case text-muted/60">(最高档)</span></>}
+                    sortKey="closeness"
+                    sort={sort}
+                    onSort={handleSort}
                     title="取 3日/10日/30日 三档中最高的 |偏离值|÷对应档阈值; ≥100% 已触发, ≥70% 边缘, ≥50% 观察"
-                  >
-                    接近度
-                    <span className="ml-1 normal-case text-muted/60">(最高档)</span>
-                  </th>
-                  <th className="px-2 py-2 text-center">状态</th>
+                  />
+                  <SortTh label="状态" sortKey="status" sort={sort} onSort={handleSort} align="center" />
                 </tr>
               </thead>
               <tbody>

@@ -145,7 +145,7 @@ class PullConfig:
         "field_map", "schedule_minutes", "enabled",
         "last_run", "last_status", "last_message", "last_rows",
         "next_run", "time_window_start", "time_window_end", "date_param",
-        "date_format", "time_field", "auth", "timeout_seconds",
+        "date_format", "date_value_template", "time_field", "auth", "timeout_seconds",
         "page_param", "page_size_param", "page_size", "page_start", "max_pages",
         "fanout", "schedule_time", "schedule_period", "schedule_day",
         "schedule_trading_only", "since_param", "granularity",
@@ -170,6 +170,7 @@ class PullConfig:
         time_window_end: str | None = None,
         date_param: str | None = None,
         date_format: str = "iso",
+        date_value_template: str | None = None,
         time_field: str | None = None,
         auth: dict | None = None,
         timeout_seconds: int = 30,
@@ -207,6 +208,20 @@ class PullConfig:
         self.date_param = date_param
         # 日期参数值的格式; config.json 被手改写入非法值时归一为 iso (fail-closed)
         self.date_format = date_format if date_format in PULL_DATE_FORMATS else "iso"
+        # 日期参数值的模板 (可选): 源接口要求把日期包进 JSON 等结构时使用,
+        # 如 '{"json":{"date":"{date}"}}'。{date} 按 date_format 序列化后替换,
+        # 替换结果整体 URL 编码; 非法模板 (缺占位符/过长) 归一 None (fail-closed)。
+        raw_date_value_template = (
+            date_value_template.strip()
+            if isinstance(date_value_template, str) else ""
+        )
+        self.date_value_template = (
+            raw_date_value_template
+            if raw_date_value_template
+            and "{date}" in raw_date_value_template
+            and len(raw_date_value_template) <= 500
+            else None
+        )
         # 日内序列表: 响应行里的时间列名 (字段映射后的列名, 如 "ts")。配置后同一
         # symbol 允许多行 (按 [symbol, time_field] 去重), 用于集合竞价等日内多盘
         # 数据; None = 每日快照表 (按 symbol 去重, 默认)
@@ -295,6 +310,7 @@ class PullConfig:
             "time_window_end": self.time_window_end,
             "date_param": self.date_param,
             "date_format": self.date_format,
+            "date_value_template": self.date_value_template,
             "time_field": self.time_field,
             "since_param": self.since_param,
             "granularity": self.granularity,
@@ -334,6 +350,7 @@ class PullConfig:
             time_window_end=d.get("time_window_end"),
             date_param=d.get("date_param"),
             date_format=d.get("date_format", "iso"),
+            date_value_template=d.get("date_value_template"),
             time_field=d.get("time_field"),
             since_param=d.get("since_param"),
             granularity=d.get("granularity", "auto"),

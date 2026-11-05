@@ -6,6 +6,7 @@
 
 | 目录 | 主题 |
 | --- | --- |
+| [khunter-feasibility-20261105/](khunter-feasibility-20261105/RESULTS.md) | KHunter 策略源码、接入可行性与指标方向隔离验证 |
 | [first-board-entry-study-20261026/](first-board-entry-study-20261026/REPORT.md) | 首板事件链入场研究 |
 | [first-board-entry-exit-study-20261026/](first-board-entry-exit-study-20261026/REPORT.md) | 入场 × 退出二维研究 |
 | [first-board-rationing-study-20261026/](first-board-rationing-study-20261026/REPORT.md) | 首板候选配给研究 |
