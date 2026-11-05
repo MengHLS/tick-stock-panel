@@ -468,3 +468,32 @@ def test_http_chat_endpoint_streams_ndjson(monkeypatch: pytest.MonkeyPatch) -> N
     assert events[0]["type"] == "error"
     assert events[0]["kind"] == "no_key"
     assert events[-1]["type"] == "done"
+
+
+def test_http_chat_injects_runtime_market_data(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, Any] = {}
+
+    async def fake_chat_stream(**kwargs: Any):
+        captured.update(kwargs)
+        yield '{"type": "done"}'
+
+    monkeypatch.setattr(assistant_routes, "chat_stream", fake_chat_stream)
+    runtime = SimpleNamespace(
+        strategy_engine=None,
+        data_dir=Path("."),
+        analysis=None,
+        screener=None,
+        capabilities=None,
+        financial_scheduler=None,
+        market_data=object(),
+    )
+    app = FastAPI()
+    app.include_router(assistant_routes.build_router())
+    app.dependency_overrides[assistant_routes.get_extension_runtime] = lambda: runtime
+
+    response = TestClient(app).post("/api/custom/assistant/chat", json={
+        "messages": [{"role": "user", "content": "我有哪些策略?"}],
+    })
+
+    assert response.status_code == 200
+    assert captured["market_data"] is runtime.market_data

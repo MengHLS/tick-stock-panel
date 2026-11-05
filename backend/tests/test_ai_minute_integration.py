@@ -32,7 +32,12 @@ def context(tmp_path):
     custom.mkdir(parents=True)
     (custom / "custom_minute.py").write_text(MINUTE_CODE, encoding="utf-8")
     engine = StrategyEngine([custom, tmp_path / "strategies" / "ai"])
-    return assistant_tools.ToolContext(data_dir=tmp_path, engine=engine, repo=SimpleNamespace())
+    return assistant_tools.ToolContext(
+        data_dir=tmp_path,
+        engine=engine,
+        screener=ScreenerService(SimpleNamespace()),
+        market_data=SimpleNamespace(),
+    )
 
 
 def test_generator_accepts_minute_entrypoint_and_output_scoring():
@@ -103,7 +108,7 @@ async def test_structural_repair_keeps_minute_backend(monkeypatch, code):
 def test_assistant_executes_latest_minute_partition(monkeypatch, context):
     day = date(2026, 10, 20)
     minute_day = date(2026, 10, 21)
-    context.repo.latest_minute_date_global = lambda: minute_day
+    context.market_data.latest_minute_date = lambda *a, **kw: minute_day
     monkeypatch.setattr(ScreenerService, "latest_date", lambda self: day)
     monkeypatch.setattr(ScreenerService, "_assert_integrity", lambda *a, **kw: None)
     monkeypatch.setattr(ScreenerService, "_load_enriched_for_date", lambda self, d: pl.DataFrame({
@@ -167,7 +172,7 @@ def test_assistant_rejects_unsupported_target_before_reading_data(context, args)
 
 def test_assistant_reports_missing_minute_data(monkeypatch, context):
     monkeypatch.setattr(ScreenerService, "latest_date", lambda self: date(2026, 10, 21))
-    context.repo.latest_minute_date_global = lambda: None
+    context.market_data.latest_minute_date = lambda *a, **kw: None
     with pytest.raises(ValueError, match="本地无分钟K"):
         assistant_tools._run_strategy({"strategy_id": "custom_minute"}, context)
 
@@ -220,7 +225,8 @@ async def test_backtest_and_final_iteration_select_etf(monkeypatch, context):
     )
     assert payload["ok"], payload
     final = await AIStrategyIterator()._backtest_final(
-        str(context.data_dir), "custom_etf", engine=context.engine, repo=context.repo,
+        str(context.data_dir), "custom_etf", engine=context.engine,
+        market_data=context.market_data,
     )
     assert final == {"n_trades": 2}
     assert seen == ["etf", "etf"]
@@ -229,7 +235,7 @@ async def test_backtest_and_final_iteration_select_etf(monkeypatch, context):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("earliest", [None, date(2026, 10, 21)])
 async def test_minute_backtest_rejects_missing_coverage_before_worker(monkeypatch, context, earliest):
-    context.repo.earliest_minute_date = lambda: earliest
+    context.market_data.earliest_minute_date = lambda *a, **kw: earliest
     worker = []
     monkeypatch.setattr("app.backtest.worker.make_worker_task", lambda *a: worker.append(a))
     result = await assistant_tools.execute_assistant_tool("run_backtest", {
@@ -241,7 +247,7 @@ async def test_minute_backtest_rejects_missing_coverage_before_worker(monkeypatc
 
 @pytest.mark.asyncio
 async def test_minute_backtest_preserves_params_and_worker_contract(monkeypatch, context):
-    context.repo.earliest_minute_date = lambda: date(2026, 10, 20)
+    context.market_data.earliest_minute_date = lambda *a, **kw: date(2026, 10, 20)
     seen = []
 
     def task(kind, data_dir, cfg):
@@ -307,9 +313,10 @@ def test_api_and_ai_share_minute_backtest_coverage_error(context):
 
     from app.api.backtest import _guard_minute_strategy_backtest
 
-    context.repo.earliest_minute_date = lambda: date(2026, 10, 21)
+    repo = SimpleNamespace()
+    repo.earliest_minute_date = lambda: date(2026, 10, 21)
     request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(
-        strategy_engine=context.engine, repo=context.repo,
+        strategy_engine=context.engine, repo=repo,
     )))
     with pytest.raises(HTTPException) as error:
         _guard_minute_strategy_backtest(request, "custom_minute", date(2026, 10, 20), "stock")

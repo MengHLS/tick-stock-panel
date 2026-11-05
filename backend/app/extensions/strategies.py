@@ -241,6 +241,39 @@ def _validate_filtered_frame(
             f"{kind} {implementation_id} 不能增加候选行: "
             f"{source.height} -> {result.height}"
         )
+    if result.height == 0:
+        return result
+
+    # 过滤只能保留输入行: 结果中的每一行(按输入列原值)都必须能在输入中找到,
+    # 且同一行不能超过输入中的出现次数。仅比较行数会放过改写行值或重复行。
+    keys = source.columns
+    source_counts = (
+        source.select(keys)
+        .group_by(keys)
+        .len(name="_source_rows")
+    )
+    result_counts = (
+        result.select(keys)
+        .group_by(keys)
+        .len(name="_result_rows")
+    )
+    overflow = (
+        result_counts.join(
+            source_counts,
+            on=keys,
+            how="left",
+            nulls_equal=True,
+        )
+        .filter(
+            pl.col("_source_rows").is_null()
+            | (pl.col("_result_rows") > pl.col("_source_rows"))
+        )
+    )
+    if overflow.height:
+        raise ValueError(
+            f"{kind} {implementation_id} 只能保留输入中的原始行, "
+            "不能改写行值或重复行"
+        )
     return result
 
 
@@ -250,7 +283,9 @@ def apply_candidate_filter(
     context: StrategyPolicyContext,
 ) -> pl.DataFrame:
     implementation = _resolve_policy("candidate_filter", implementation_id)
-    result = implementation.filter_candidates(frame, context)
+    # 扩展拿到独立工作副本; 原始 frame 仅作校验基准, 防止原地修改污染调用方。
+    working = frame.clone()
+    result = implementation.filter_candidates(working, context)
     return _validate_filtered_frame(
         "candidate_filter",
         implementation_id,
@@ -265,7 +300,8 @@ def apply_risk_policy(
     context: StrategyPolicyContext,
 ) -> pl.DataFrame:
     implementation = _resolve_policy("risk_policy", implementation_id)
-    result = implementation.filter_entries(frame, context)
+    working = frame.clone()
+    result = implementation.filter_entries(working, context)
     return _validate_filtered_frame(
         "risk_policy",
         implementation_id,

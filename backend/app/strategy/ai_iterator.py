@@ -15,7 +15,7 @@ from typing import Any
 
 from app.services import tool_catalog
 from app.services.ai_provider import generate_ai_text_with_tools
-from app.strategy.ai_generator import AIStrategyGenerator, _SYSTEM_PREFIX, find_meta_assignment
+from app.strategy.ai_generator import _SYSTEM_PREFIX, AIStrategyGenerator, find_meta_assignment
 
 # 每轮 (生成/诊断/修改一次) 内部的工具调用预算: 至少 2 次 LLM 调用
 # (1 次发起 run_backtest, 1 次读结果产出改进版), 留少量检索/换参余量。
@@ -140,12 +140,14 @@ class AIStrategyIterator:
             "final_meta": current_meta,
         }
 
-    async def _backtest_final(self, data_dir: str, draft_id: str, *, engine=None, repo=None) -> dict | None:
+    async def _backtest_final(
+        self, data_dir: str, draft_id: str, *, engine=None, repo=None, market_data=None,
+    ) -> dict | None:
         """对最终版草稿补一次回测, 返回精简 stats; 失败返回 None (末行证据尽力而为)。"""
         try:
             payload = await tool_catalog.execute_tool(
                 tool_catalog.RUN_BACKTEST, {"strategy_id": draft_id},
-                engine=engine, repo=repo, data_dir=data_dir,
+                engine=engine, repo=repo, market_data=market_data, data_dir=data_dir,
             )
             return payload["result"].get("stats") if payload["ok"] else None
         except Exception:  # noqa: BLE001 — 末行证据不强依赖回测成功

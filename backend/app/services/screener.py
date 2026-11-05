@@ -69,6 +69,16 @@ class ScreenerService:
         from app.tickflow.repository import enriched_dirname
         self._enriched_dirname = enriched_dirname(asset_type)
 
+    def for_asset_type(self, asset_type: str) -> ScreenerService:
+        """Return a screener bound to another asset type without exposing the repository."""
+        if asset_type == self.asset_type:
+            return self
+        return ScreenerService(self.repo, asset_type=asset_type)
+
+    def load_enriched_for_date(self, target_date: date) -> pl.DataFrame:
+        """Public read entry for callers that only receive the screener runtime contract."""
+        return self._load_enriched_for_date(target_date)
+
     @staticmethod
     def clear_history_cache(asset_type: str | None = None) -> None:
         """清空进程级 _history_cache (TTL 缓存)。

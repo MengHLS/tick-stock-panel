@@ -221,6 +221,7 @@ def run_backtest(
     asset_type: str = "stock",
     strategy=None,
     repo=None,
+    market_data=None,
 ) -> dict[str, Any]:
     """回测工具桥: 复用 StrategyBacktestConfig + make_worker_task/run_worker_task。
 
@@ -237,7 +238,13 @@ def run_backtest(
         date.fromisoformat(start) if start else end_date - timedelta(days=_DEFAULT_BACKTEST_DAYS)
     )
     if strategy is not None:
-        validate_minute_backtest_coverage(strategy, repo, start_date, asset_type)
+        validate_minute_backtest_coverage(
+            strategy,
+            repo,
+            start_date,
+            asset_type,
+            market_data=market_data,
+        )
 
     cfg = StrategyBacktestConfig(
         strategy_id=strategy_id,
@@ -271,6 +278,7 @@ async def execute_tool(
     *,
     engine=None,
     repo=None,
+    market_data=None,
     data_dir: str | Path | None = None,
 ) -> dict[str, Any]:
     """按 name 分发执行, 返回 {"ok": bool, "result": ... | "error": str}。
@@ -323,6 +331,7 @@ async def execute_tool(
                 asset_type=asset_type,
                 strategy=strategy,
                 repo=repo,
+                market_data=market_data,
             )
         else:
             return {"ok": False, "error": f"未知工具: {name}"}

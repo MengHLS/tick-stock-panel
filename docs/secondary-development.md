@@ -271,7 +271,7 @@ SSE、系统通知和扩展格式化。观察器运行在监控评估线程，�
 
 启动钩子注入的 `ExtensionContext` 还提供：
 
-- `market_data: MarketDataRead`：标的维表、历史股本、日线、分钟线、交易日、ST 历史；
+- `market_data: MarketDataRead`：标的维表、历史股本、日线、分钟线（含最新/最早分钟日期）、交易日、ST 历史；
 - `enriched_panel: EnrichedPanelRead`：最新/区间 enriched 面板、数据 generation；
 - `backtest_read: BacktestRead`：只读面板加载和 generation 等待，不暴露 `BacktestEngine` 构造器。
 - `backtest_results: BacktestResultRead`：只读已完成运行缓存和已保存结果快照，支持分页列表、按保存 ID 读取和按 run ID 读取；返回深拷贝，调用方不能修改核心缓存。
@@ -329,7 +329,9 @@ def setup(registrar: BackendExtensionRegistrar) -> None:
 
 候选过滤、评分和入场风控按 `candidate_filter → scoring_policy → risk_policy`
 的顺序执行，并统一接入选股、矩阵策略、分钟策略和回测路径。过滤实现只能保留或
-删除输入行，不能增加行，且必须保留输入列；评分实现必须返回与输入行等长、非空且
+删除输入行，不能增加行，且必须保留输入列；过滤实现拿到工作副本，原地改写不会
+污染调用方，但仍会按调用前快照拒绝。保留行按输入列原值比较（空值与空值视为
+相等），不得改写行值或重复同一行；评分实现必须返回与输入行等长、非空且
 有限的 `polars.Series`。`backtest_cost_model` 与
 `backtest_defaults.execution_costs` 互斥，同时声明时回测 fail-closed，避免成本口径
 被静默覆盖。叠加策略的上述三个策略级接口须配置在子策略上；顶层声明会 fail-closed。

@@ -157,6 +157,7 @@ async def chat_stream(
     engine: Any = None,
     data_dir: str | None = None,
     repo: Any = None,
+    market_data: Any = None,
     screener: Any = None,
     quote_service: Any = None,
     depth_service: Any = None,
@@ -193,6 +194,7 @@ async def chat_stream(
     tool_ctx = assistant_tools.ToolContext.build(
         analysis=analysis,
         repo=repo,
+        market_data=market_data,
         screener=screener,
         quote_service=quote_service,
         depth_service=depth_service,
