@@ -960,6 +960,7 @@ def set_review_push_mode(mode: str) -> str:
 SSE_REFRESH_PAGES_DEFAULT = {
     "watchlist": True,
     "limit-ladder": False,
+    "industry-chain-quotes": True,
 }
 
 

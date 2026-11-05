@@ -145,3 +145,181 @@ it('题材线索的免责声明不会被误判为供货关联', () => {
     host.remove()
   }
 })
+
+it('展示每只股票的当日涨跌幅，缺失行情显示破折号', () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+  const host = document.createElement('div')
+  document.body.append(host)
+  const root = createRoot(host)
+  const graphWithThirdStock: IndustryChainGraph = {
+    ...graph,
+    stock_names: {
+      ...graph.stock_names,
+      '688041.SH': '海光信息',
+      '002371.SZ': '北方华创',
+    },
+    stock_links: [
+      ...graph.stock_links,
+      {
+        id: 'server-hygon',
+        node_id: 'server',
+        symbol: '688041.SH',
+        reason_short: '国产算力芯片与服务器',
+        note: '',
+        source_url: '',
+        evidence_status: 'verified',
+        basis: 'main_business',
+        sort_order: 30,
+      },
+      {
+        id: 'server-naura',
+        node_id: 'server',
+        symbol: '002371.SZ',
+        reason_short: '半导体设备配套算力硬件',
+        note: '',
+        source_url: '',
+        evidence_status: 'pending',
+        basis: 'theme_clue',
+        sort_order: 40,
+      },
+    ],
+  }
+  try {
+    act(() => root.render(
+      <StockListPanel
+        graph={graphWithThirdStock}
+        target={{ chainId: 'ai', nodeId: 'root', name: '算力硬件' }}
+        quotes={{
+          available: true,
+          as_of: '2026-11-05',
+          is_today: true,
+          last_fetch_ms: 1_760_000_000_000,
+          status: { running: true },
+          rows: [
+            {
+              symbol: '000977.SZ',
+              price: 103.66,
+              prev_close: 100,
+              change_pct: 0.0366,
+              change_amount: 3.66,
+            },
+            {
+              symbol: '603019.SH',
+              price: 99,
+              prev_close: 100,
+              change_pct: -0.01,
+              change_amount: -1,
+            },
+            {
+              symbol: '688041.SH',
+              price: 50,
+              prev_close: 50,
+              change_pct: 0,
+              change_amount: 0,
+            },
+          ],
+        }}
+        onClose={vi.fn()}
+        onOpenLink={vi.fn()}
+        onAnalyze={vi.fn()}
+        onAddStock={vi.fn()}
+      />,
+    ))
+
+    expect(host.textContent).toContain('今日 2026-11-05')
+    expect(host.textContent).toContain('+3.66%')
+    expect(host.textContent).toContain('-1.00%')
+    expect(host.textContent).toContain('0.00%')
+    expect(host.textContent).toContain('—')
+    expect(host.textContent).toContain('浪潮信息')
+    expect(host.textContent).toContain('中科曙光')
+    expect(host.textContent).toContain('海光信息')
+    expect(host.textContent).toContain('北方华创')
+  } finally {
+    act(() => root.unmount())
+    host.remove()
+  }
+})
+
+it('跨交易日或刷新失败时标明行情状态并保留上一份数据', () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+  const host = document.createElement('div')
+  document.body.append(host)
+  const root = createRoot(host)
+  try {
+    act(() => root.render(
+      <StockListPanel
+        graph={graph}
+        target={{ chainId: 'ai', nodeId: 'root', name: '算力硬件' }}
+        quotes={{
+          available: true,
+          as_of: '2026-11-04',
+          is_today: false,
+          last_fetch_ms: 1_760_000_000_000,
+          status: { running: false },
+          rows: [{
+            symbol: '000977.SZ',
+            price: 103.66,
+            prev_close: 100,
+            change_pct: 0.0366,
+            change_amount: 3.66,
+          }],
+        }}
+        quotesError="网络错误"
+        onClose={vi.fn()}
+        onOpenLink={vi.fn()}
+        onAnalyze={vi.fn()}
+        onAddStock={vi.fn()}
+      />,
+    ))
+
+    expect(host.textContent).toContain('缓存行情日期 2026-11-04')
+    expect(host.textContent).toContain('更新失败，显示上一份有效行情')
+    expect(host.textContent).toContain('+3.66%')
+  } finally {
+    act(() => root.unmount())
+    host.remove()
+  }
+})
+
+it.each([
+  [{ enabled: false, running: false }, '行情已关闭'],
+  [{ enabled: true, running: false }, '行情服务已停止'],
+  [{ enabled: true, running: true, paused: true }, '行情已暂停'],
+  [{ enabled: true, running: true, final_sync_failed: '收盘快照未确认' }, '定版失败'],
+  [{}, '行情服务状态未知'],
+])('成功读取缓存时仍展示服务状态：%j', (status, expected) => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+  const host = document.createElement('div')
+  document.body.append(host)
+  const root = createRoot(host)
+  try {
+    act(() => root.render(
+      <StockListPanel
+        graph={graph}
+        target={{ chainId: 'ai', nodeId: 'root', name: '算力硬件' }}
+        quotes={{
+          available: true,
+          as_of: '2026-10-01',
+          is_today: false,
+          last_fetch_ms: 1_760_000_000_000,
+          status,
+          rows: [],
+        }}
+        onClose={vi.fn()}
+        onOpenLink={vi.fn()}
+        onAnalyze={vi.fn()}
+        onAddStock={vi.fn()}
+      />,
+    ))
+    expect(host.textContent).toContain(expected)
+    expect(host.textContent).toContain('缓存行情日期 2026-10-01')
+    expect(host.textContent).toContain('非今日行情')
+    expect(host.textContent).toContain('最后拉取')
+    expect(host.textContent).not.toContain('最近交易日')
+    expect(host.textContent).not.toContain(' · 更新 ')
+  } finally {
+    act(() => root.unmount())
+    host.remove()
+  }
+})

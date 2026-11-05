@@ -1,12 +1,17 @@
 """Seed graph shipped with the industry-chain extension."""
 from __future__ import annotations
 
-from app.custom.industry_chain.models import IndustryChainGraph
+from app.custom.industry_chain.descriptions import NODE_DESCRIPTIONS
+from app.custom.industry_chain.models import (
+    CURRENT_GRAPH_CONTENT_VERSION,
+    IndustryChainGraph,
+)
 
 
 def build_default_graph() -> IndustryChainGraph:
     return IndustryChainGraph.model_validate({
         "version": 1,
+        "content_version": CURRENT_GRAPH_CONTENT_VERSION,
         "categories": [
             {"id": "hard-tech", "name": "硬科技底座", "order": 10},
             {"id": "aerospace", "name": "航空航天", "order": 40},
@@ -201,7 +206,7 @@ def build_default_graph() -> IndustryChainGraph:
             _node("bat-storage", "power-battery", "bat-cell", "储能电池", "product", 80),
             _node("bat-demand", "power-battery", "ne-battery", "下游应用", "segment", 30),
             _node("bat-ev", "power-battery", "bat-demand", "新能源汽车", "application", 10),
-            _node("bat-grid", "power-battery", "bat-demand", "储能系统", "application", 20),
+            _node("bat-grid", "power-battery", "bat-demand", "储能电站", "application", 20),
             _node("bat-consumer", "power-battery", "bat-demand", "消费电池", "application", 30),
             _node("bat-swap", "power-battery", "bat-demand", "换电与梯次", "application", 40),
             _node("bat-recycle", "power-battery", "ne-battery", "回收与循环", "segment", 35),
@@ -212,7 +217,7 @@ def build_default_graph() -> IndustryChainGraph:
             _node("bat-tech", "power-battery", "ne-battery", "技术专题", "segment", 40),
             _node("bat-solid", "power-battery", "bat-tech", "固态电池", "product", 10),
             _node("bat-solid-material", "power-battery", "bat-tech", "固态电池材料", "product", 20),
-            _node("bat-sodium", "power-battery", "bat-tech", "钠离子电池", "product", 30),
+            _node("bat-sodium", "power-battery", "bat-tech", "钠离子电池技术", "product", 30),
             _node("bat-4680", "power-battery", "bat-tech", "大圆柱与 4680", "product", 40),
             _node("bat-composite-foil", "power-battery", "bat-tech", "复合集流体", "product", 50),
             _node("bat-fast-charge", "power-battery", "bat-tech", "快充与 4C/6C", "product", 60),
@@ -455,7 +460,7 @@ def build_default_graph() -> IndustryChainGraph:
             _node("rb-int-energy", "robotics", "rb-integration", "锂电与光伏", "application", 20),
             _node("rb-int-logistics", "robotics", "rb-integration", "物流仓储", "application", 30),
             _node("rb-int-medical", "robotics", "rb-integration", "医疗养老", "application", 40),
-            _node("rb-upstream", "robotics", None, "上游材料与装备", "segment", 50),
+            _node("rb-upstream", "robotics", None, "上游材料与装备", "segment", 5),
             _node("rb-magnet", "robotics", "rb-upstream", "稀土永磁", "product", 10),
             _node("rb-metal", "robotics", "rb-upstream", "轴承钢与轻合金", "product", 20),
             _node("rb-machine", "robotics", "rb-upstream", "精密机床与刀具", "product", 30),
@@ -980,7 +985,7 @@ def _node(
         "parent_id": parent_id,
         "name": name,
         "kind": kind,
-        "description": description,
+        "description": description or NODE_DESCRIPTIONS.get(node_id, ""),
         "order": order,
     }
 

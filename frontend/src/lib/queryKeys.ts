@@ -175,6 +175,7 @@ export const QK = {
   // 产业链图谱与分析 (图谱写入后统一失效 industryChainRoot)
   industryChainRoot:    ['industry-chain'] as const,
   industryChainGraph:   ['industry-chain', 'graph'] as const,
+  industryChainQuotes:  ['industry-chain-quotes'] as const,
   industryChainAnalysis: (chainId: string, nodeId?: string | null) =>
                           ['industry-chain', 'analysis', chainId, nodeId ?? ''] as const,
 
@@ -221,4 +222,6 @@ export const SSE_INVALIDATE_PREFIXES = [
   // 概念/行业分析的全市场快照 (#419): 后端读最新日内缓存, 行情更新后需重取,
   // 否则停留页面时板块聚合数值一直停留旧值。仅两页打开时才实际发请求。
   'market-snapshot',
+  // 产业链股票列表的当日涨跌幅；仅在面板打开时存在活动查询
+  'industry-chain-quotes',
 ] as const

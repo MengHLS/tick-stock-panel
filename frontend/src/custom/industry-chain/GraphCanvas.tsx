@@ -273,7 +273,8 @@ export function GraphCanvas({
       </div>
 
       <div className="pointer-events-none absolute bottom-3 left-3 hidden rounded-lg border border-border bg-surface/90 px-2.5 py-1.5 text-[10px] text-muted shadow-sm backdrop-blur md:block">
-        拖拽空白平移 · 滚轮缩放 · 点击环节展开 · 末级股票在右侧列表展示
+        <p>树线表示分类/包含关系，不代表实际供货关系</p>
+        <p className="mt-0.5">拖拽空白平移 · 滚轮缩放 · 点击环节展开</p>
       </div>
     </div>
   )
@@ -307,16 +308,9 @@ function GraphNodeCard({
       onToggle(node.key)
       return
     }
-    if (canAnalyze && node.stockCount > 0) {
+    if (canAnalyze) {
       openStocks()
       return
-    }
-    if (canAnalyze && node.chainId) {
-      onAnalyze({
-        chainId: node.chainId,
-        nodeId: node.type === 'chain' ? null : node.id,
-        name: node.name,
-      })
     }
   }
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -337,7 +331,8 @@ function GraphNodeCard({
       <div
         role="button"
         tabIndex={0}
-        aria-label={`${node.name}${node.hasChildren ? (node.expanded ? '，已展开' : '，已折叠') : node.stockCount > 0 ? '，查看股票列表' : ''}`}
+        title={node.description || node.subtitle || undefined}
+        aria-label={`${node.name}${node.description ? `，${node.description}` : ''}${node.hasChildren ? (node.expanded ? '，已展开' : '，已折叠') : node.stockCount > 0 ? '，查看股票列表' : ''}`}
         onClick={handleActivate}
         onKeyDown={onKeyDown}
         className={cn(

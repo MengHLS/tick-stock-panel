@@ -18,6 +18,7 @@ export interface LayoutNode {
   id: string
   chainId: string | null
   name: string
+  description: string
   subtitle: string
   kind: IndustryChainNode['kind'] | null
   x: number
@@ -70,6 +71,7 @@ interface TreeItem {
   id: string
   chainId: string | null
   name: string
+  description: string
   subtitle: string
   kind: IndustryChainNode['kind'] | null
   parentKey: string | null
@@ -413,6 +415,7 @@ export function buildLayout(
       id: node.id,
       chainId: node.chain_id,
       name: node.name,
+      description: node.description,
       subtitle: node.description || parts.join(' · ') || '待补充成员',
       kind: node.kind,
       parentKey,
@@ -446,7 +449,8 @@ export function buildLayout(
       id: chain.id,
       chainId: chain.id,
       name: chain.name,
-      subtitle: `${roots.length} 个方向 · ${symbols.size} 只股票`,
+      description: '',
+      subtitle: `分类树 · ${roots.length} 个方向 · ${symbols.size} 只股票`,
       kind: null,
       parentKey,
       order: chain.order,
@@ -476,6 +480,7 @@ export function buildLayout(
         id: category.id,
         chainId: null,
         name: category.name,
+        description: '',
         subtitle: `${chains.length} 条产业链`,
         kind: null,
         parentKey: 'root',
@@ -505,6 +510,7 @@ export function buildLayout(
     id: 'root',
     chainId: null,
     name: '产业链研究',
+    description: '',
     subtitle: `${graph.chains.length} 条产业链 · ${totalSymbols} 只股票`,
     kind: null,
     parentKey: null,
@@ -555,6 +561,7 @@ export function buildLayout(
       id: item.id,
       chainId: item.chainId,
       name: item.name,
+      description: item.description,
       subtitle: item.subtitle,
       kind: item.kind,
       x: xByDepth.get(depth) ?? PADDING,

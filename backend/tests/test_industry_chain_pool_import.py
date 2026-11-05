@@ -3,6 +3,7 @@ from datetime import date
 import polars as pl
 
 from app.custom.industry_chain.defaults import build_default_graph
+from app.custom.industry_chain.descriptions import NODE_DESCRIPTIONS
 from app.custom.industry_chain.pool_import import (
     PoolObservation,
     merge_pool_observations,
@@ -196,6 +197,8 @@ def test_adds_needed_subsegments_and_deduplicates_source_dates():
     links = imported_links(graph)
     assert {link.node_id for link in links} == {"ai-media", "bat-solid"}
     media = next(link for link in links if link.node_id == "ai-media")
+    media_node = next(node for node in graph.nodes if node.id == "ai-media")
+    assert media_node.description == NODE_DESCRIPTIONS["ai-media"]
     assert "2026-08-04" in media.note and "2026-11-04" in media.note
     assert "2 个交易日" in media.note
     assert "limit_board_events" in media.note and "ext_limit_up_platform" in media.note

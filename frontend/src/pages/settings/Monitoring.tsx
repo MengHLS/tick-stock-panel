@@ -31,6 +31,7 @@ const PAGE_LABELS: Record<string, string> = {
   watchlist: '自选页',
   'limit-ladder': '连板梯队',
   'market-snapshot': '概念/行业分析',
+  'industry-chain-quotes': '产业链股票列表',
 }
 
 const EMPTY_EMAIL_SMTP: EmailSmtpConfig = {

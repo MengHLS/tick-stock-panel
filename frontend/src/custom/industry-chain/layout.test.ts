@@ -116,6 +116,20 @@ describe('industry-chain layout', () => {
     expect(stockLinksForScope(GRAPH, 'optical', 'module').map(link => link.id)).toEqual(['l1', 'l2'])
   })
 
+  it('节点说明优先作为单行副标题，股票数量仍在节点底部展示', () => {
+    const described: IndustryChainGraph = {
+      ...GRAPH,
+      nodes: GRAPH.nodes.map(node => node.id === 'datacom'
+        ? { ...node, description: '数据中心和 AI 集群使用的 400G/800G 光模块。' }
+        : node),
+    }
+    const layout = buildLayout(described, defaultExpandedKeys(described), searchGraph(described, ''))
+    const node = layout.byKey.get(nodeKey('datacom'))
+
+    expect(node?.subtitle).toBe('数据中心和 AI 集群使用的 400G/800G 光模块。')
+    expect(node?.stockCount).toBe(1)
+  })
+
   it('搜索股票代码自动展开祖先并保留其它链作为暗化上下文', () => {
     const search = searchGraph(GRAPH, '300308')
     expect(search.count).toBe(2)

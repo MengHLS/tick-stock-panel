@@ -268,6 +268,9 @@ export function StockDailyKChart({
       )}
       {kline.isLoading && <div className="text-sm text-muted py-4">加载中…</div>}
       {kline.isError && <div className="text-sm text-danger py-2">日K加载失败</div>}
+      {!kline.isLoading && !kline.isError && (kline.data?.rows?.length ?? 0) === 0 && (
+        <div className="text-sm text-muted py-4">暂无日线数据</div>
+      )}
       {!kline.isLoading && !kline.isError && (kline.data?.rows?.length ?? 0) > 0 && rows.length === 0 && (
         <div className="text-sm text-danger py-2">数据格式异常，请刷新页面</div>
       )}

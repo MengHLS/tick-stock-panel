@@ -13,6 +13,7 @@ interface Props {
   refetchIntervalMs?: number
   onPriceDoubleClick?: (price: number, currentPrice: number) => void
   priceLines?: { value: number; label?: string; color?: string }[]
+  onSessionsChange?: (dates: string[]) => void
 }
 
 function errorMessage(error: unknown): string {
@@ -26,6 +27,7 @@ export function StockMultiDayIntradayChart({
   refetchIntervalMs,
   onPriceDoubleClick,
   priceLines,
+  onSessionsChange,
 }: Props) {
   const queryClient = useQueryClient()
   const history = useQuery({
@@ -58,6 +60,12 @@ export function StockMultiDayIntradayChart({
       .sort((left, right) => left.date.localeCompare(right.date))
       .slice(-days)
   }, [days, history.data?.sessions, latest.data])
+  const sessionsCallback = useRef(onSessionsChange)
+  sessionsCallback.current = onSessionsChange
+  const sessionKey = sessions.map(session => session.date).join(',')
+  useEffect(() => {
+    sessionsCallback.current?.(sessionKey ? sessionKey.split(',') : [])
+  }, [sessionKey])
 
   const syncMinute = useMutation({
     mutationFn: () => api.syncMinuteSingle(symbol, days),

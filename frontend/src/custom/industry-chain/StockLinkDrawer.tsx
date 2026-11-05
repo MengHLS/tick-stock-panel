@@ -18,6 +18,7 @@ interface Props {
   target: StockDrawerTarget
   saving: boolean
   error: string | null
+  embedded?: boolean
   onClose: () => void
   onSave: (graph: IndustryChainGraph) => void
   onDelete: (graph: IndustryChainGraph) => void
@@ -30,6 +31,7 @@ export function StockLinkDrawer({
   target,
   saving,
   error,
+  embedded = false,
   onClose,
   onSave,
   onDelete,
@@ -129,14 +131,19 @@ export function StockLinkDrawer({
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex justify-end">
-      <button
-        type="button"
-        aria-label="关闭股票关联面板"
-        className="absolute inset-0 bg-black/30 backdrop-blur-[1px] dark:bg-black/45"
-        onClick={onClose}
-      />
-      <aside className="relative flex h-full w-full max-w-[420px] flex-col border-l border-border bg-surface shadow-2xl">
+    <div className={embedded ? 'flex h-full min-h-0 w-full' : 'absolute inset-0 z-30 flex justify-end'}>
+      {!embedded && (
+        <button
+          type="button"
+          aria-label="关闭股票关联面板"
+          className="absolute inset-0 bg-black/30 backdrop-blur-[1px] dark:bg-black/45"
+          onClick={onClose}
+        />
+      )}
+      <aside className={cn(
+        'flex h-full w-full flex-col bg-surface',
+        embedded ? 'min-h-0' : 'relative max-w-[420px] border-l border-border shadow-2xl',
+      )}>
         <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
           <div className="min-w-0">
             <div className="text-[10px] uppercase tracking-[0.16em] text-muted">
@@ -183,7 +190,7 @@ export function StockLinkDrawer({
                     <div className="font-mono text-[10px] text-muted">{symbol}</div>
                   )}
                 </div>
-                {target.mode === 'edit' ? (
+                {target.mode === 'edit' ? !embedded && (
                   <button
                     type="button"
                     onClick={() => onOpenQuote(symbol, stockName || symbol)}

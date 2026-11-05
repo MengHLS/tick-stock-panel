@@ -4,7 +4,13 @@ from __future__ import annotations
 import hashlib
 
 from app.custom.industry_chain.defaults import build_default_graph
-from app.custom.industry_chain.models import IndustryChainGraph, validate_graph
+from app.custom.industry_chain.descriptions import NODE_DESCRIPTIONS
+from app.custom.industry_chain.models import (
+    CURRENT_GRAPH_CONTENT_VERSION,
+    IndustryChainGraph,
+    validate_graph,
+)
+from app.custom.industry_chain.pool_import import NODE_SPECS
 
 AI_SERVER_LINK_TARGETS: dict[str, tuple[str, str]] = {
     "000977.SZ": ("ai-server-oem", "AI服务器与智算整机"),
@@ -433,4 +439,30 @@ def expand_market_chains(graph: IndustryChainGraph) -> IndustryChainGraph:
         existing_link_ids.add(link.id)
         existing_pairs.add(pair)
 
+    return validate_graph(updated)
+
+
+def migrate_graph(graph: IndustryChainGraph) -> IndustryChainGraph:
+    """Fill missing descriptions without replaying historical structure migrations."""
+    if graph.content_version >= CURRENT_GRAPH_CONTENT_VERSION:
+        return graph
+
+    updated = validate_graph(graph).model_copy(deep=True)
+    defaults = {node.id: node for node in build_default_graph().nodes}
+    identities = {
+        node.id: (node.chain_id, node.parent_id, node.name, node.kind)
+        for node in defaults.values()
+    }
+    for node_id, (parent_id, name, kind, _) in NODE_SPECS.items():
+        parent = defaults.get(parent_id)
+        if node_id not in identities and parent is not None:
+            identities[node_id] = (parent.chain_id, parent_id, name, kind)
+
+    for node in updated.nodes:
+        if not node.description and identities.get(node.id) == (
+            node.chain_id, node.parent_id, node.name, node.kind,
+        ):
+            node.description = NODE_DESCRIPTIONS.get(node.id, "")
+
+    updated.content_version = CURRENT_GRAPH_CONTENT_VERSION
     return validate_graph(updated)
