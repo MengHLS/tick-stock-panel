@@ -80,6 +80,7 @@ def build_router() -> APIRouter:
                 context=context,
                 engine=runtime.strategy_engine,
                 data_dir=str(runtime.data_dir),
+                market_data=runtime.market_data,
                 analysis=runtime.analysis,
                 screener=runtime.screener,
                 capabilities=runtime.capabilities,

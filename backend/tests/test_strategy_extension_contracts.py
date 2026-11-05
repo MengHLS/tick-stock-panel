@@ -21,6 +21,11 @@ from app.extensions import (
     register_strategy_extension,
     strategy_extension,
 )
+from app.extensions.strategies import (
+    apply_candidate_filter,
+    apply_risk_policy,
+    build_strategy_policy_context,
+)
 from app.strategy.engine import (
     StrategyDataContext,
     StrategyDef,
@@ -241,6 +246,256 @@ def test_scoring_policy_rejects_non_finite_scores() -> None:
                     "date": [date(2026, 1, 5)],
                 }),
             ),
+        )
+
+
+def test_engine_rejects_in_place_candidate_mutation() -> None:
+    class _Mutating(CandidateFilter):
+        def filter_candidates(self, frame, context):
+            del context
+            frame.replace_column(
+                frame.columns.index("close"),
+                pl.Series("close", [999.0] * frame.height),
+            )
+            return frame
+
+    register_strategy_extension("candidate_filter", "test.engine-in-place", _Mutating())
+    engine = StrategyEngine(strategy_dirs=[])
+    strategy = _strategy({
+        "id": "test_engine_in_place",
+        "candidate_filter": "test.engine-in-place",
+    })
+    engine._strategies[strategy.meta["id"]] = strategy
+
+    with pytest.raises(ValueError, match="只能保留输入中的原始行"):
+        engine.run(
+            strategy.meta["id"],
+            StrategyDataContext(
+                asset_type="stock",
+                timeframe="1d",
+                as_of=date(2026, 1, 5),
+                current=pl.DataFrame({
+                    "symbol": ["A", "B"],
+                    "close": [10.0, 20.0],
+                    "date": [date(2026, 1, 5)] * 2,
+                }),
+            ),
+        )
+
+
+def test_engine_allows_null_candidate_rows() -> None:
+    class _Identity(CandidateFilter):
+        def filter_candidates(self, frame, context):
+            del context
+            return frame
+
+    register_strategy_extension("candidate_filter", "test.engine-null", _Identity())
+    engine = StrategyEngine(strategy_dirs=[])
+    strategy = _strategy({
+        "id": "test_engine_null",
+        "candidate_filter": "test.engine-null",
+    })
+    engine._strategies[strategy.meta["id"]] = strategy
+
+    result = engine.run(
+        strategy.meta["id"],
+        StrategyDataContext(
+            asset_type="stock",
+            timeframe="1d",
+            as_of=date(2026, 1, 5),
+            current=pl.DataFrame({
+                "symbol": ["A", "B"],
+                "close": [10.0, 20.0],
+                "ma60": pl.Series([None, None], dtype=pl.Float64),
+                "date": [date(2026, 1, 5)] * 2,
+            }),
+        ),
+    )
+
+    assert result.total == 2
+    assert [row["symbol"] for row in result.rows] == ["A", "B"]
+
+
+class _StaticFilter(CandidateFilter):
+    def __init__(self, result: pl.DataFrame) -> None:
+        self._result = result
+
+    def filter_candidates(self, frame, context):
+        del frame, context
+        return self._result
+
+
+class _InPlaceMutator(CandidateFilter, RiskPolicy):
+    def __init__(self, column: str, value) -> None:
+        self.column = column
+        self.value = value
+
+    def _mutate(self, frame: pl.DataFrame) -> pl.DataFrame:
+        frame.replace_column(
+            frame.columns.index(self.column),
+            pl.Series(self.column, [self.value] * frame.height),
+        )
+        return frame
+
+    def filter_candidates(self, frame, context):
+        del context
+        return self._mutate(frame)
+
+    def filter_entries(self, frame, context):
+        del context
+        return self._mutate(frame)
+
+
+@pytest.mark.parametrize(
+    "kind,column,value",
+    [
+        ("candidate_filter", "close", 999.0),
+        ("candidate_filter", "symbol", "OUTSIDE"),
+        ("risk_policy", "close", 999.0),
+        ("risk_policy", "symbol", "OUTSIDE"),
+    ],
+    ids=[
+        "candidate-value",
+        "candidate-symbol",
+        "risk-value",
+        "risk-symbol",
+    ],
+)
+def test_filters_reject_in_place_mutation(kind: str, column: str, value) -> None:
+    implementation_id = f"test.in-place-{kind}-{column}"
+    register_strategy_extension(kind, implementation_id, _InPlaceMutator(column, value))
+    source = pl.DataFrame({"symbol": ["A", "B"], "close": [10.0, 20.0]})
+    expected = source[column].to_list()
+    apply = apply_candidate_filter if kind == "candidate_filter" else apply_risk_policy
+
+    with pytest.raises(ValueError, match="只能保留输入中的原始行"):
+        apply(
+            source,
+            implementation_id,
+            build_strategy_policy_context(asset_type="stock", strategy_id="test"),
+        )
+
+    assert source[column].to_list() == expected
+
+
+@pytest.mark.parametrize(
+    "result",
+    [
+        pl.DataFrame({"symbol": ["A", "A"], "close": [10.0, 10.0]}),
+        pl.DataFrame({"symbol": ["A", "B"], "close": [10.0, 99.0]}),
+        pl.DataFrame({"symbol": ["OUTSIDE", "B"], "close": [1.0, 20.0]}),
+    ],
+    ids=["duplicate", "rewritten-value", "outside-input"],
+)
+def test_candidate_filter_rejects_rows_not_preserved_from_input(
+    result: pl.DataFrame,
+) -> None:
+    register_strategy_extension("candidate_filter", "test.bad-rows", _StaticFilter(result))
+    source = pl.DataFrame({"symbol": ["A", "B"], "close": [10.0, 20.0]})
+
+    with pytest.raises(ValueError, match="只能保留输入中的原始行"):
+        apply_candidate_filter(
+            source,
+            "test.bad-rows",
+            build_strategy_policy_context(asset_type="stock", strategy_id="test"),
+        )
+
+
+def test_candidate_filter_allows_reordered_subset_from_input() -> None:
+    source = pl.DataFrame({"symbol": ["A", "B", "C"], "close": [10.0, 20.0, 30.0]})
+    register_strategy_extension(
+        "candidate_filter",
+        "test.reordered-subset",
+        _StaticFilter(source.filter(pl.col("symbol") != "B").sort("symbol", descending=True)),
+    )
+
+    result = apply_candidate_filter(
+        source,
+        "test.reordered-subset",
+        build_strategy_policy_context(asset_type="stock", strategy_id="test"),
+    )
+
+    assert result["symbol"].to_list() == ["C", "A"]
+
+
+@pytest.mark.parametrize(
+    "nulls",
+    [[None, 19.0], [None, None]],
+    ids=["partial-null", "all-null"],
+)
+def test_candidate_filter_allows_null_rows(nulls: list[float | None]) -> None:
+    source = pl.DataFrame({
+        "symbol": ["A", "B"],
+        "close": [10.0, 20.0],
+        "ma60": pl.Series(nulls, dtype=pl.Float64),
+    })
+    register_strategy_extension(
+        "candidate_filter",
+        "test.null-rows",
+        _StaticFilter(source),
+    )
+
+    result = apply_candidate_filter(
+        source,
+        "test.null-rows",
+        build_strategy_policy_context(asset_type="stock", strategy_id="test"),
+    )
+
+    assert result.equals(source)
+
+
+def test_candidate_filter_allows_empty_result() -> None:
+    source = pl.DataFrame({"symbol": ["A", "B"], "close": [10.0, 20.0]})
+    register_strategy_extension(
+        "candidate_filter",
+        "test.empty-result",
+        _StaticFilter(source.head(0)),
+    )
+
+    result = apply_candidate_filter(
+        source,
+        "test.empty-result",
+        build_strategy_policy_context(asset_type="stock", strategy_id="test"),
+    )
+
+    assert result.height == 0
+
+
+def test_candidate_filter_rejects_null_value_rewrite() -> None:
+    source = pl.DataFrame({
+        "symbol": ["A", "B"],
+        "close": [10.0, 20.0],
+        "ma60": [None, 19.0],
+    })
+    register_strategy_extension(
+        "candidate_filter",
+        "test.null-rewrite",
+        _StaticFilter(source.with_columns(pl.lit(1.0).alias("ma60"))),
+    )
+
+    with pytest.raises(ValueError, match="只能保留输入中的原始行"):
+        apply_candidate_filter(
+            source,
+            "test.null-rewrite",
+            build_strategy_policy_context(asset_type="stock", strategy_id="test"),
+        )
+
+
+def test_risk_policy_rejects_duplicated_input_rows() -> None:
+    source = pl.DataFrame({"symbol": ["A", "B"], "close": [10.0, 20.0]})
+
+    class _Risk(RiskPolicy):
+        def filter_entries(self, frame, context):
+            del frame, context
+            return pl.concat([source.head(1), source.head(1)])
+
+    register_strategy_extension("risk_policy", "test.duplicate-risk", _Risk())
+
+    with pytest.raises(ValueError, match="只能保留输入中的原始行"):
+        apply_risk_policy(
+            source,
+            "test.duplicate-risk",
+            build_strategy_policy_context(asset_type="stock", strategy_id="test"),
         )
 
 

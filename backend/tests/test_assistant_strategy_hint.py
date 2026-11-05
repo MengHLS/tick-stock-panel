@@ -66,7 +66,7 @@ def test_run_strategy_uses_runtime_screener() -> None:
         def has(self, strategy_id: str) -> bool:
             return strategy_id == "s1"
 
-        def run(self, strategy_id, context, overrides=None):
+        def run(self, strategy_id, context, overrides=None, params=None):
             calls.append(("run", strategy_id, context, overrides))
             return SimpleNamespace(
                 rows=[{"symbol": "000001.SZ"}],
@@ -80,7 +80,9 @@ def test_run_strategy_uses_runtime_screener() -> None:
             calls.append(("latest_date",))
             return date(2026, 11, 2)
 
-        def build_strategy_context(self, engine, as_of, strategy_ids, overrides_map):
+        def build_strategy_context(
+            self, engine, as_of, strategy_ids, overrides_map, **kwargs,
+        ):
             calls.append(("context", as_of, strategy_ids, overrides_map))
             return {"as_of": as_of}
 

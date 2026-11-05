@@ -878,6 +878,119 @@ def test_matrix_backtest_consumes_strategy_policies():
     )
 
 
+def _null_policy_panel() -> pl.DataFrame:
+    return _policy_panel().with_columns(
+        pl.lit(None, dtype=pl.Float64).alias("ma60")
+    )
+
+
+class _AllEntriesMatrix:
+    def required_fields(self):
+        return frozenset({"open", "high", "low", "close", "volume"})
+
+    def required_warmup_bars(self, params):
+        del params
+        return 1
+
+    def compute_signals(self, market, params):
+        del params
+        return make_signal_matrix(
+            market.shape,
+            entry=np.ones(market.shape, dtype=np.uint8),
+            score=np.ones(market.shape, dtype=np.float32),
+        )
+
+
+def _policy_backtest_strategy(*, matrix_native: bool, candidate_filter: str) -> StrategyDef:
+    return _strategy(
+        meta={
+            "id": "test",
+            "name": "test",
+            "scoring": {},
+            "params": [],
+            "limit": 100,
+            "candidate_filter": candidate_filter,
+        },
+        basic_filter={"enabled": False},
+        filter_fn=None if matrix_native else (lambda _frame, _params: pl.lit(True)),
+        execution_backend="matrix_native" if matrix_native else "polars_expr",
+        matrix_strategy=_AllEntriesMatrix() if matrix_native else None,
+    )
+
+
+@pytest.mark.parametrize("matrix_native", [False, True], ids=["panel", "matrix"])
+def test_backtest_allows_null_candidate_rows(matrix_native: bool) -> None:
+    class _Candidate(CandidateFilter):
+        def filter_candidates(self, frame, context):
+            del context
+            return frame.filter(pl.col("symbol") == "B")
+
+    register_strategy_extension(
+        "candidate_filter", "test.backtest-null-candidate", _Candidate()
+    )
+    start = date(2024, 1, 1)
+    engine = _EngineStub(_null_policy_panel())
+    service = StrategyBacktestService(
+        engine=engine,
+        strategy_engine=_StrategyEngineStub(_policy_backtest_strategy(
+            matrix_native=matrix_native,
+            candidate_filter="test.backtest-null-candidate",
+        )),
+    )
+
+    result = service.run(StrategyBacktestConfig(
+        strategy_id="test",
+        symbols=None,
+        start=start,
+        end=start + timedelta(days=2),
+        matching="close_t",
+        mode="position",
+    ))
+
+    assert result.error is None
+    assert engine.sim_matrix is not None
+    assert engine.sim_matrix.entry[:, 1].tolist() == [1, 1, 1]
+
+
+@pytest.mark.parametrize("matrix_native", [False, True], ids=["panel", "matrix"])
+def test_backtest_rejects_in_place_candidate_mutation(matrix_native: bool) -> None:
+    class _Mutating(CandidateFilter):
+        def filter_candidates(self, frame, context):
+            del context
+            frame.replace_column(
+                frame.columns.index("close"),
+                pl.Series("close", [999.0] * frame.height),
+            )
+            return frame
+
+    register_strategy_extension(
+        "candidate_filter", "test.backtest-in-place", _Mutating()
+    )
+    start = date(2024, 1, 1)
+    service = StrategyBacktestService(
+        engine=_EngineStub(_policy_panel()),
+        strategy_engine=_StrategyEngineStub(_policy_backtest_strategy(
+            matrix_native=matrix_native,
+            candidate_filter="test.backtest-in-place",
+        )),
+    )
+
+    try:
+        result = service.run(StrategyBacktestConfig(
+            strategy_id="test",
+            symbols=None,
+            start=start,
+            end=start + timedelta(days=2),
+            matching="close_t",
+            mode="position",
+        ))
+    except ValueError as exc:
+        assert "只能保留输入中的原始行" in str(exc)
+    else:
+        assert result.error is not None
+        assert "只能保留输入中的原始行" in result.error
+
+
 def test_backtest_cost_model_and_execution_costs_fail_closed():
     class _Cost(BacktestCostModel):
         def buy_cost_pct(self, config):

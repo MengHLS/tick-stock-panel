@@ -37,6 +37,14 @@ class _Repository:
         self.calls.append(("minute_dates", start, end, asset_type))
         return [start]
 
+    def latest_minute_date_global(self):
+        self.calls.append(("latest_minute",))
+        return date(2026, 11, 2)
+
+    def earliest_minute_date(self):
+        self.calls.append(("earliest_minute",))
+        return date(2026, 10, 1)
+
     def list_enriched_dates(self, start, end, asset_type="stock"):
         self.calls.append(("trading_dates", start, end, asset_type))
         return [end]
@@ -78,6 +86,8 @@ def test_repository_adapters_expose_stable_market_and_enriched_reads() -> None:
     ).height == 1
     assert market_data.get_minute_batch(["000001.SZ"], day).height == 1
     assert market_data.list_minute_dates(day, day) == [day]
+    assert market_data.latest_minute_date("stock") == date(2026, 11, 2)
+    assert market_data.earliest_minute_date("stock") == date(2026, 10, 1)
     assert market_data.list_trading_dates(day, day) == [day]
     assert market_data.latest_daily_date() == date(2026, 11, 1)
     assert market_data.get_st_history().height == 1

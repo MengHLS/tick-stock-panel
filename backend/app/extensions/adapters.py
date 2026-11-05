@@ -54,6 +54,30 @@ class RepositoryMarketData:
             asset_type=asset_type,
         )
 
+    def latest_minute_date(self, asset_type: str = "stock") -> date | None:
+        if asset_type == "stock":
+            getter = getattr(self._repository, "latest_minute_date_global", None)
+            if callable(getter):
+                return getter()
+        dates = self._repository.list_minute_dates(
+            date.min,
+            date.max,
+            asset_type=asset_type,
+        )
+        return max(dates, default=None)
+
+    def earliest_minute_date(self, asset_type: str = "stock") -> date | None:
+        if asset_type == "stock":
+            getter = getattr(self._repository, "earliest_minute_date", None)
+            if callable(getter):
+                return getter()
+        dates = self._repository.list_minute_dates(
+            date.min,
+            date.max,
+            asset_type=asset_type,
+        )
+        return min(dates, default=None)
+
     def list_trading_dates(
         self,
         start: date,
@@ -406,6 +430,14 @@ class FileMarketData:
     ) -> list[date]:
         dataset = "kline_minute" if asset_type == "stock" else f"kline_{asset_type}_minute"
         return self.dataset_partition_dates(dataset, start, end)
+
+    def latest_minute_date(self, asset_type: str = "stock") -> date | None:
+        dates = self.list_minute_dates(date.min, date.max, asset_type)
+        return dates[-1] if dates else None
+
+    def earliest_minute_date(self, asset_type: str = "stock") -> date | None:
+        dates = self.list_minute_dates(date.min, date.max, asset_type)
+        return dates[0] if dates else None
 
     def list_trading_dates(
         self,

@@ -39,7 +39,13 @@ class StrategyRuntimeRead(Protocol):
 
 
 class ScreenerRuntimeRead(Protocol):
+    asset_type: str
+
     def latest_date(self) -> date | None: ...
+
+    def for_asset_type(self, asset_type: str) -> ScreenerRuntimeRead: ...
+
+    def load_enriched_for_date(self, target_date: date) -> Any: ...
 
     def build_strategy_context(self, *args: Any, **kwargs: Any) -> Any: ...
 

@@ -48,6 +48,10 @@ class MarketDataRead(Protocol):
         asset_type: str = "stock",
     ) -> list[date]: ...
 
+    def latest_minute_date(self, asset_type: str = "stock") -> date | None: ...
+
+    def earliest_minute_date(self, asset_type: str = "stock") -> date | None: ...
+
     def list_trading_dates(
         self,
         start: date,

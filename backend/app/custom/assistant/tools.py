@@ -160,7 +160,7 @@ QUICK_SUGGESTS: list[dict[str, str]] = [
 class ToolContext:
     analysis: AnalysisRead | None = None
     screener: Any = None
-    repo: Any = None
+    market_data: Any = None
     engine: Any = None
     data_dir: Path | None = None
     capabilities: Any = None
@@ -173,6 +173,7 @@ class ToolContext:
         screener: Any = None,
         engine: Any = None,
         data_dir: str | Path | None = None,
+        market_data: Any = None,
         capabilities: Any = None,
         financial_scheduler: Any = None,
         analysis: AnalysisRead | None = None,
@@ -187,7 +188,7 @@ class ToolContext:
         return cls(
             analysis=analysis,
             screener=screener,
-            repo=repo,
+            market_data=market_data,
             engine=engine,
             data_dir=Path(data_dir) if data_dir else None,
             capabilities=capabilities,
@@ -625,7 +626,6 @@ def _list_signals(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
 
 
 def _run_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
-    from app.services.screener import ScreenerService
     from app.strategy.config import load_override
 
     if ctx.engine is None:
@@ -655,44 +655,37 @@ def _run_strategy(args: dict[str, Any], ctx: ToolContext) -> dict[str, Any]:
     if timeframe == "1m" and asset_type != "stock":
         raise ValueError("分钟策略当前仅支持 A 股 (stock)")
 
-    if ctx.repo is not None:
-        svc = ScreenerService(ctx.repo, asset_type=asset_type)
-        extended_context = True
-    else:
-        svc = ctx.screener
-        extended_context = False
+    svc = ctx.screener
     if svc is None:
         raise ValueError("策略筛选服务未就绪。")
+    asset_factory = getattr(svc, "for_asset_type", None)
+    if callable(asset_factory):
+        svc = asset_factory(asset_type)
+    elif getattr(svc, "asset_type", asset_type) != asset_type:
+        raise ValueError("策略筛选服务不支持目标资产类型。")
     as_of = svc.latest_date()
     if as_of is None:
         raise ValueError("本地暂无行情数据, 无法执行策略。")
     overrides = load_override(ctx.data_dir, strategy_id) or {} if ctx.data_dir else {}
     current = None
     if timeframe == "1m":
-        if ctx.repo is None:
-            raise ValueError("行情数据仓库未就绪, 请确认后端已完成启动。")
-        minute_day = ctx.repo.latest_minute_date_global()
+        if ctx.market_data is None:
+            raise ValueError("行情数据接口未就绪, 请确认后端已完成启动。")
+        minute_day = ctx.market_data.latest_minute_date(asset_type)
         if minute_day is None:
             raise ValueError("本地无分钟K数据，请先同步分钟K或开启盘中分钟刷新")
         # 日线可能尚未收盘，基础信息取已存在的日线快照，分钟窗口取最新分钟分区。
-        current = svc._load_enriched_for_date(min(as_of, minute_day))
+        current = svc.load_enriched_for_date(min(as_of, minute_day))
         as_of = minute_day
-        extended_context = True
 
-    if extended_context:
-        context = svc.build_strategy_context(
-            ctx.engine, as_of, [strategy_id], overrides_map={strategy_id: overrides},
-            timeframe=timeframe, current=current,
-            params_map={strategy_id: args.get("params") or {}},
-        )
-        result = ctx.engine.run(
-            strategy_id, context, overrides=overrides or None, params=args.get("params"),
-        )
-    else:
-        context = svc.build_strategy_context(
-            ctx.engine, as_of, [strategy_id], overrides_map={strategy_id: overrides},
-        )
-        result = ctx.engine.run(strategy_id, context, overrides=overrides or None)
+    context = svc.build_strategy_context(
+        ctx.engine, as_of, [strategy_id], overrides_map={strategy_id: overrides},
+        timeframe=timeframe, current=current,
+        params_map={strategy_id: args.get("params") or {}},
+    )
+    result = ctx.engine.run(
+        strategy_id, context, overrides=overrides or None, params=args.get("params"),
+    )
     rows = [_clean_obj(r) for r in (getattr(result, "rows", None) or [])][:30]
     return {
         "strategy_id": strategy_id,
@@ -1640,7 +1633,7 @@ async def execute_assistant_tool(name: str, args: dict[str, Any], ctx: ToolConte
         name,
         args,
         engine=ctx.engine,
-        repo=ctx.repo,
+        market_data=ctx.market_data,
         data_dir=str(ctx.data_dir) if ctx.data_dir else None,
     )
 

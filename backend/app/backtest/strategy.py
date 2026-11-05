@@ -89,16 +89,19 @@ _INSTRUMENT_COLUMNS = frozenset({"name", "total_shares", "float_shares"})
 
 
 def validate_minute_backtest_coverage(
-    strategy: StrategyDef, repo, start: date, asset_type: str,
+    strategy: StrategyDef, repo, start: date, asset_type: str, *, market_data=None,
 ) -> None:
     """页面与 AI 工具共用分钟回测前置检查，不改变逐日回放的缺分区语义。"""
     if strategy.execution_backend != "minute_filter":
         return
     if asset_type != "stock":
         raise ValueError("分钟策略回测当前仅支持 A 股 (stock)")
-    if repo is None:
-        raise ValueError("行情仓库未注入，无法检查分钟K覆盖范围")
-    earliest = repo.earliest_minute_date()
+    if market_data is not None:
+        earliest = market_data.earliest_minute_date(asset_type)
+    elif repo is not None:
+        earliest = repo.earliest_minute_date()
+    else:
+        raise ValueError("行情数据接口未注入，无法检查分钟K覆盖范围")
     if earliest is None or start < earliest:
         have = f"最早到 {earliest}, " if earliest else ""
         raise ValueError(
