@@ -2827,6 +2827,260 @@ export interface LabReport {
   }
 }
 
+// ===== 通用主题分析器 =====
+export interface ThemeIndustrySource {
+  chain_id: string
+  node_ids: string[]
+}
+
+export interface ThemeAnalyzerTheme {
+  id: string
+  name: string
+  description: string
+  color: string
+  symbols: string[]
+  industry_source?: ThemeIndustrySource | null
+  manual_symbols?: string[]
+  inherited_symbols?: string[]
+  excluded_symbols?: string[]
+  stock_segments?: Record<string, string[]>
+  source_name?: string
+  source_error?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ThemeAnalyzerLeader {
+  symbol: string
+  name: string
+  board: '沪主板' | '深主板' | '创业板' | '科创板' | '北交所' | '其他'
+  is_mainboard: boolean
+  active: boolean
+  last_date: string | null
+  last_close: number | null
+  max_ret_3: number | null
+  max_ret_3_date: string | null
+  max_high_ret_3?: number | null
+  max_high_ret_3_date?: string | null
+  max_ret_10: number | null
+  max_ret_10_date: string | null
+  max_high_ret_10?: number | null
+  max_high_ret_10_date?: string | null
+  max_ret_30: number | null
+  max_ret_30_date: string | null
+  max_high_ret_30?: number | null
+  max_high_ret_30_date?: string | null
+  latest_ret_3: number | null
+  latest_ret_10: number | null
+  latest_ret_30: number | null
+  active_gt2: number
+  avg_deviate: number | null
+  max_deviate: number | null
+  avg_close_pos: number | null
+  active_days: number
+  event_count: number
+}
+
+export interface ThemeAnalyzerHeatRow {
+  symbol: string
+  name: string
+  active: boolean
+  values: (number | null)[]
+  markers: string[]
+}
+
+export interface ThemeAnalyzerSealRow {
+  symbol: string
+  name: string
+  total_lu: number
+  consec: number
+  first: string
+  last: string
+  opens: number | null
+  money: number | null
+  reason: string
+}
+
+export interface ThemeAnalyzerBrokenRow {
+  symbol: string
+  name: string
+  first: string
+  last: string
+  opens: number | null
+  reason: string
+}
+
+export interface ThemeAnalyzerLimitEvent {
+  date: string
+  type: 'seal' | 'broken'
+  first_time: string
+  last_time: string
+  opens: number | null
+  consec: number
+  money: number | null
+  reason: string
+  catch_up: boolean
+  relay: boolean
+}
+
+export interface ThemeAnalyzerLimitRouteRow {
+  symbol: string
+  name: string
+  active: boolean
+  first_date: string | null
+  first_seal_date: string | null
+  first_time: string
+  last_date: string
+  total_lu: number
+  max_consec: number
+  max_ret_30: number | null
+  max_ret_30_date: string | null
+  is_space_leader: boolean
+  start_rank: number
+  events: ThemeAnalyzerLimitEvent[]
+}
+
+export interface ThemeAnalyzerDailyLeader {
+  date: string
+  symbol: string
+  name: string
+  consec: number
+  total_lu: number
+  first_time: string
+  switch: boolean
+}
+
+export interface ThemeAnalyzerLeaderPhase {
+  symbol: string
+  name: string
+  start: string
+  end: string
+  days: number
+}
+
+export interface ThemeAnalyzerSwitchDay {
+  date: string
+  label: string
+  reason: string
+  symbols: string[]
+  minute_symbols: string[]
+  sealed: {
+    symbol: string
+    name: string
+    consec: number
+    first_time: string
+    catch_up: boolean
+    relay: boolean
+  }[]
+  broken: { symbol: string; name: string; first_time: string }[]
+  new_starters: { symbol: string; name: string }[]
+  daily_leader: string | null
+  leader_name: string | null
+  previous_leader: string | null
+  previous_leader_name: string | null
+  has_minute: boolean
+}
+
+export interface ThemeAnalyzerLimitRoute {
+  dates: string[]
+  rows: ThemeAnalyzerLimitRouteRow[]
+  daily_leaders: ThemeAnalyzerDailyLeader[]
+  leader_phases: ThemeAnalyzerLeaderPhase[]
+  switch_days: ThemeAnalyzerSwitchDay[]
+  event_count: number
+  seal_count: number
+  space_leader_symbol: string | null
+  space_leader_name: string | null
+  space_leader_peak_date: string | null
+}
+
+export interface ThemeAnalyzerCoreStock {
+  symbol: string
+  name: string
+  board: ThemeAnalyzerLeader['board']
+  reasons: string[]
+}
+
+export interface ThemeAnalyzerAnalysis {
+  theme_id: string
+  theme_name: string
+  as_of: string | null
+  window_start: string
+  window_end: string
+  default_window_days: number
+  pool_count: number
+  candidate_count: number
+  filtered_count: number
+  quoted_count: number
+  active_count: number
+  mainboard_only: boolean
+  active_return: number | null
+  pool_return: number | null
+  sh_return: number | null
+  latest_minute_date: string | null
+  minute_dates: string[]
+  recent_dates: string[]
+  core_stocks: ThemeAnalyzerCoreStock[]
+  leaders: ThemeAnalyzerLeader[]
+  index: {
+    dates: string[]
+    active: (number | null)[]
+    pool: (number | null)[]
+    sh: (number | null)[]
+  }
+  core_series: Record<string, (number | null)[]>
+  heatmap: {
+    dates: string[]
+    rows: ThemeAnalyzerHeatRow[]
+  }
+  breadth: { date: string; touched: number; sealed: number; broken: number }[]
+  seal: {
+    date: string
+    sealed: ThemeAnalyzerSealRow[]
+    broken: ThemeAnalyzerBrokenRow[]
+    sealed_count: number
+    broken_count: number
+    touched: number
+    seal_rate: number | null
+    share: number | null
+  }
+  limit_route: ThemeAnalyzerLimitRoute
+}
+
+export interface ThemeAnalyzerMinuteFeature {
+  sample: number
+  complete: boolean
+  day: number | null
+  open30: number | null
+  am: number | null
+  pm: number | null
+  tail30: number | null
+  max_dd: number | null
+  vwap_dev: number | null
+  up_ratio: number | null
+}
+
+export interface ThemeAnalyzerMinute {
+  theme_id: string
+  date: string
+  status: 'ok' | 'no_data' | 'empty'
+  stocks: {
+    symbol: string
+    name: string
+    prev_close?: number | null
+    has_data?: boolean
+    limit_pct?: number | null
+  }[]
+  times: string[]
+  series: Record<string, (number | null)[]>
+  table: {
+    times: string[]
+    series: Record<string, (number | null)[]>
+  }
+  features: Record<string, ThemeAnalyzerMinuteFeature>
+  missing: string[]
+}
+
 export interface IndustryChainCategory {
   id: string
   name: string
@@ -3828,6 +4082,69 @@ export const api = {
   // 概念涨幅轮动矩阵: 每列(日期)各自把所有概念按当天涨幅从高到低排序
   rpsRotation: (days: number, kind?: 'concept' | 'industry', level?: number) =>
     request<RpsRotationData>(`/api/rps/rotation?days=${days}${kind ? `&kind=${kind}` : ''}${level ? `&level=${level}` : ''}`),
+
+  themeAnalyzerThemes: () =>
+    request<{ items: ThemeAnalyzerTheme[] }>('/api/custom/theme-analyzer/themes'),
+  themeAnalyzerCreate: (payload: {
+    name: string
+    description?: string
+    color?: string
+    symbols?: string[]
+    industry_source?: ThemeIndustrySource | null
+  }) =>
+    request<ThemeAnalyzerTheme>('/api/custom/theme-analyzer/themes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  themeAnalyzerUpdate: (id: string, payload: {
+    name?: string
+    description?: string
+    color?: string
+    symbols?: string[]
+    industry_source?: ThemeIndustrySource | null
+  }) =>
+    request<ThemeAnalyzerTheme>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  themeAnalyzerDelete: (id: string) =>
+    request<{ ok: boolean }>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+  themeAnalyzerAddStocks: (id: string, symbols: string[]) =>
+    request<ThemeAnalyzerTheme>(`/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/stocks`, {
+      method: 'POST',
+      body: JSON.stringify({ symbols }),
+    }),
+  themeAnalyzerRemoveStock: (id: string, symbol: string) =>
+    request<ThemeAnalyzerTheme>(
+      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/stocks/${encodeURIComponent(symbol)}`,
+      { method: 'DELETE' },
+    ),
+  themeAnalyzerAnalysis: (id: string, params?: {
+    start?: string
+    end?: string
+    mainboardOnly?: boolean
+  }) => {
+    const query = new URLSearchParams()
+    if (params?.start) query.set('start', params.start)
+    if (params?.end) query.set('end', params.end)
+    if (params?.mainboardOnly != null) query.set('mainboard_only', String(params.mainboardOnly))
+    const suffix = query.size ? `?${query.toString()}` : ''
+    return request<ThemeAnalyzerAnalysis>(
+      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/analysis${suffix}`,
+      { timeoutMs: COMPUTE_REQUEST_TIMEOUT_MS },
+    )
+  },
+  themeAnalyzerMinute: (id: string, date: string, symbols: string[], mainboardOnly = true) => {
+    const query = new URLSearchParams({ date })
+    if (symbols.length) query.set('symbols', symbols.join(','))
+    query.set('mainboard_only', String(mainboardOnly))
+    return request<ThemeAnalyzerMinute>(
+      `/api/custom/theme-analyzer/themes/${encodeURIComponent(id)}/minute?${query.toString()}`,
+      { timeoutMs: COMPUTE_REQUEST_TIMEOUT_MS },
+    )
+  },
 
   // 市场环境(Regime)
   regimeHistory: (start?: string, end?: string, limit?: number) => {
