@@ -24,6 +24,7 @@ export function Auth() {
   const [confirmPassword, setConfirmPassword] = useState('')  // 仅设密码时用
   const [showPwd, setShowPwd] = useState(false)
   const [localError, setLocalError] = useState('')
+  const [statusError, setStatusError] = useState('')
 
   // 取认证状态(是否已设密码)
   const [status, setStatus] = useState<{ configured: boolean } | null>(null)
@@ -32,7 +33,9 @@ export function Auth() {
       setStatus(s)
       // 已登录的话直接进面板(避免登录页死循环)
       if (s.authenticated) navigate('/', { replace: true })
-    }).catch(() => setStatus({ configured: false }))
+    }).catch((err: unknown) => {
+      setStatusError(err instanceof Error ? err.message : '认证状态读取失败')
+    })
   }, [navigate])
 
   const isSetup = !status?.configured  // configured=false → 设密码模式
@@ -65,6 +68,18 @@ export function Auth() {
       if (password !== confirmPassword) { setLocalError('两次密码不一致'); return }
     }
     submitMut.mutate()
+  }
+
+  if (!status && statusError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base px-4">
+        <div className="w-full max-w-sm rounded-card border border-danger/30 bg-surface/90 p-6 text-center shadow-2xl">
+          <ShieldAlert className="mx-auto h-6 w-6 text-danger" />
+          <h1 className="mt-3 text-sm font-medium text-foreground">认证状态不可用</h1>
+          <p className="mt-1 text-[11px] leading-relaxed text-muted">{statusError}</p>
+        </div>
+      </div>
+    )
   }
 
   if (!status) {

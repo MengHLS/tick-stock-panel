@@ -43,6 +43,10 @@ _sessions: dict[str, float] = {}
 _configured_cache: bool | None = None
 
 
+class AuthStoreError(RuntimeError):
+    """auth.json cannot be read, parsed, or validated safely."""
+
+
 def _path() -> Path:
     from app.config import settings
     p = settings.data_dir / "user_data" / "auth.json"
@@ -52,12 +56,48 @@ def _path() -> Path:
 
 def _load() -> dict:
     p = _path()
-    if p.exists():
-        try:
-            return json.loads(p.read_text(encoding="utf-8"))
-        except Exception as e:  # noqa: BLE001
-            logger.warning("auth.json malformed: %s", e)
-    return {}
+    if not p.exists():
+        return {}
+    try:
+        raw = p.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as e:
+        raise AuthStoreError("认证配置读取失败") from e
+    try:
+        data = json.loads(raw)
+    except ValueError as e:
+        raise AuthStoreError("认证配置格式损坏") from e
+    if not isinstance(data, dict):
+        raise AuthStoreError("认证配置格式无效")
+    return data
+
+
+def _configured_state(data: dict) -> bool:
+    """Validate auth fields and return whether a password is configured.
+
+    A file with only session data is the legacy empty-store shape and remains
+    unconfigured. Once a password hash is present, malformed hash/salt fields
+    are storage corruption rather than "no password".
+    """
+    password_hash = data.get("password_hash")
+    password_salt = data.get("password_salt")
+    if password_hash is None and password_salt is None:
+        sessions = data.get("sessions")
+        if sessions is not None and not isinstance(sessions, dict):
+            raise AuthStoreError("认证会话配置无效")
+        return False
+    if not isinstance(password_hash, str) or not password_hash:
+        raise AuthStoreError("认证密码配置无效")
+    if not isinstance(password_salt, str) or not password_salt:
+        raise AuthStoreError("认证密码配置无效")
+    try:
+        bytes.fromhex(password_hash)
+        bytes.fromhex(password_salt)
+    except ValueError as e:
+        raise AuthStoreError("认证密码配置无效") from e
+    sessions = data.get("sessions")
+    if sessions is not None and not isinstance(sessions, dict):
+        raise AuthStoreError("认证会话配置无效")
+    return True
 
 
 def _save(data: dict) -> None:
@@ -80,7 +120,7 @@ def _verify_password(password: str, salt_hex: str, hash_hex: str) -> bool:
     try:
         salt = bytes.fromhex(salt_hex)
         expected = bytes.fromhex(hash_hex)
-    except ValueError:
+    except (TypeError, ValueError):
         return False
     actual = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, _PBKDF2_ITER)
     return _secrets.compare_digest(actual, expected)
@@ -98,7 +138,12 @@ def invalidate_runtime_caches() -> None:
     """
     global _configured_cache
     _configured_cache = None
-    _restore_sessions()
+    try:
+        _restore_sessions()
+    except AuthStoreError as e:
+        logger.warning("auth store reload failed: %s", e)
+        with _lock:
+            _sessions.clear()
 
 
 def is_configured() -> bool:
@@ -109,8 +154,7 @@ def is_configured() -> bool:
     """
     global _configured_cache
     if _configured_cache is None:
-        d = _load()
-        _configured_cache = bool(d.get("password_hash"))
+        _configured_cache = _configured_state(_load())
     return _configured_cache
 
 
@@ -155,7 +199,12 @@ def bootstrap_from_env() -> bool:
             pwd = raw_pwd.strip()
     if not pwd:
         return False
-    if is_configured():
+    try:
+        configured = is_configured()
+    except AuthStoreError as e:
+        logger.error("AUTH_PASSWORD bootstrap skipped: auth store unavailable: %s", e)
+        return False
+    if configured:
         # 已设过密码, 不覆盖 (避免环境变量反复重置用户在 UI 改的密码)
         return False
     try:
@@ -171,7 +220,7 @@ def bootstrap_from_env() -> bool:
 def verify_and_create_session(password: str) -> str | None:
     """验证密码, 成功则创建会话并返回 token, 失败返回 None。"""
     d = _load()
-    if not d.get("password_hash"):
+    if not _configured_state(d):
         return None
     if not _verify_password(password, d.get("password_salt", ""), d["password_hash"]):
         return None
@@ -187,7 +236,10 @@ def revoke_session(token: str) -> None:
     """注销会话(登出)。"""
     with _lock:
         _sessions.pop(token, None)
-        _persist_sessions_locked()
+        try:
+            _persist_sessions_locked()
+        except AuthStoreError as e:
+            logger.warning("auth session not persisted: %s", e)
 
 
 def is_valid_session(token: str) -> bool:
@@ -200,7 +252,10 @@ def is_valid_session(token: str) -> bool:
             return False
         if time.time() > expire:
             _sessions.pop(token, None)
-            _persist_sessions_locked()
+            try:
+                _persist_sessions_locked()
+            except AuthStoreError as e:
+                logger.warning("auth session not persisted: %s", e)
             return False
         return True
 
@@ -208,6 +263,8 @@ def is_valid_session(token: str) -> bool:
 def _persist_sessions_locked() -> None:
     """把当前内存会话写回 auth.json(需持锁调用)。"""
     d = _load()
+    if not _configured_state(d):
+        return
     d["sessions"] = {t: exp for t, exp in _sessions.items()}
     _save(d)
 
@@ -216,6 +273,7 @@ def _restore_sessions() -> None:
     """启动时从 auth.json 恢复未过期会话(支持进程重启不丢登录态)。"""
     with _lock:
         d = _load()
+        _configured_state(d)
         now = time.time()
         saved = d.get("sessions") or {}
         for token, expire in saved.items():

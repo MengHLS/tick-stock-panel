@@ -698,7 +698,18 @@ async def auth_middleware(request: Request, call_next):
 
     from app.services import auth as auth_service
     # 情况 1+2: 未设密码
-    if not auth_service.is_configured():
+    try:
+        configured = auth_service.is_configured()
+    except auth_service.AuthStoreError as exc:
+        logger.error("auth store unavailable: %s", exc)
+        return JSONResponse(
+            status_code=503,
+            content={
+                "detail": "认证配置损坏或不可读,请检查服务端日志",
+                "code": "AUTH_STORE_UNAVAILABLE",
+            },
+        )
+    if not configured:
         # 本机/内网 → 放行(服务器主人可访问, 并去 /login 设密码)
         if auth_api._is_local_network(auth_api._client_ip(request)):
             return await call_next(request)

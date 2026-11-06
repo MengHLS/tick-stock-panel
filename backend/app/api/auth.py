@@ -58,7 +58,7 @@ def _client_ip(request: Request) -> str:
 def _check_login_rate_limit(ip: str) -> None:
     """登录失败限流检查, 触发则抛 429。锁定过期后重置计数(重新给 5 次机会)。"""
     with _fail_lock:
-        count, until = _fail_counter.get(ip, (0, 0.0))
+        _, until = _fail_counter.get(ip, (0, 0.0))
         now = time.time()
         if until > now:
             wait = int(until - now)
@@ -93,6 +93,14 @@ def _clear_login_fails(ip: str) -> None:
         _fail_counter.pop(ip, None)
 
 
+def _store_unavailable(exc: Exception) -> HTTPException:
+    logger.error("auth store unavailable: %s", exc)
+    return HTTPException(
+        status_code=503,
+        detail="认证配置损坏或不可读,请检查服务端日志",
+    )
+
+
 # ================================================================
 # 端点
 # ================================================================
@@ -114,10 +122,13 @@ class ChangePasswordIn(BaseModel):
 def auth_status(request: Request) -> dict:
     """认证状态: 是否已设密码 + 当前请求是否已登录。"""
     token = request.cookies.get(COOKIE_NAME)
-    return {
-        "configured": auth.is_configured(),
-        "authenticated": bool(token and auth.is_valid_session(token)),
-    }
+    try:
+        return {
+            "configured": auth.is_configured(),
+            "authenticated": bool(token and auth.is_valid_session(token)),
+        }
+    except auth.AuthStoreError as exc:
+        raise _store_unavailable(exc) from exc
 
 
 @router.post("/setup")
@@ -135,8 +146,11 @@ def setup_password(req: PasswordIn, request: Request) -> dict:
             detail="首次设置密码仅允许本机或内网访问,请通过 SSH/本地浏览器操作",
         )
 
-    if auth.is_configured():
-        raise HTTPException(status_code=409, detail="密码已设置,如需修改请登录后使用改密码功能")
+    try:
+        if auth.is_configured():
+            raise HTTPException(status_code=409, detail="密码已设置,如需修改请登录后使用改密码功能")
+    except auth.AuthStoreError as exc:
+        raise _store_unavailable(exc) from exc
 
     auth.set_password(req.password)
     logger.info("access password set up from %s", client_ip)
@@ -149,10 +163,12 @@ def login(req: LoginIn, request: Request, response: Response) -> dict:
     ip = _client_ip(request)
     _check_login_rate_limit(ip)
 
-    if not auth.is_configured():
-        raise HTTPException(status_code=409, detail="尚未设置访问密码")
-
-    token = auth.verify_and_create_session(req.password)
+    try:
+        if not auth.is_configured():
+            raise HTTPException(status_code=409, detail="尚未设置访问密码")
+        token = auth.verify_and_create_session(req.password)
+    except auth.AuthStoreError as exc:
+        raise _store_unavailable(exc) from exc
     if not token:
         _record_login_fail(ip)
         raise HTTPException(status_code=401, detail="密码错误")
@@ -188,11 +204,13 @@ def change_password(req: ChangePasswordIn, request: Request) -> dict:
     if not (token and auth.is_valid_session(token)):
         raise HTTPException(status_code=401, detail="请先登录")
 
-    if not auth.is_configured():
-        raise HTTPException(status_code=409, detail="尚未设置访问密码")
-
-    # 验证旧密码
-    new_token = auth.verify_and_create_session(req.old_password)
+    try:
+        if not auth.is_configured():
+            raise HTTPException(status_code=409, detail="尚未设置访问密码")
+        # 验证旧密码
+        new_token = auth.verify_and_create_session(req.old_password)
+    except auth.AuthStoreError as exc:
+        raise _store_unavailable(exc) from exc
     if not new_token:
         ip = _client_ip(request)
         _record_login_fail(ip)
