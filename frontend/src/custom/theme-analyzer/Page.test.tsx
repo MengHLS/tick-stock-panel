@@ -236,3 +236,47 @@ it('keeps stock-pool edits local until save', async () => {
   expect(mocks.remove).not.toHaveBeenCalled()
   expect(mocks.add).not.toHaveBeenCalled()
 })
+
+it('formats minute percentage points without multiplying by 100 again', async () => {
+  mocks.minute.mockResolvedValue({
+    theme_id: 'ai',
+    date: '2026-11-04',
+    status: 'ok',
+    stocks: [{
+      symbol: '000001.SZ',
+      name: '股票1',
+      prev_close: 10,
+      has_data: true,
+      limit_pct: 10,
+    }],
+    times: ['09:31'],
+    series: { '000001.SZ': [10.4] },
+    table: { times: ['09:31'], series: { '000001.SZ': [4.0] } },
+    features: {
+      '000001.SZ': {
+        sample: 5,
+        complete: false,
+        day: 4.0,
+        open30: 4.0,
+        am: 4.0,
+        pm: 0.0,
+        tail30: 0.0,
+        max_dd: -1.0,
+        vwap_dev: 0.0,
+        up_ratio: 100.0,
+      },
+    },
+    missing: [],
+  })
+
+  act(() => root.render(
+    <QueryClientProvider client={queryClient}>
+      <ThemeAnalyzerPage />
+    </QueryClientProvider>,
+  ))
+  await vi.waitFor(() => expect(host.textContent).toContain('+4.00%'), { timeout: 2_000 })
+
+  expect(host.textContent).toContain('-1.00%')
+  expect(host.textContent).not.toContain('+400.00%')
+  expect(host.textContent).not.toContain('-100.00%')
+})

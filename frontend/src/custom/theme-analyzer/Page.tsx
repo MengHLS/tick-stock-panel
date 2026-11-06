@@ -43,7 +43,7 @@ import {
 } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { cn } from '@/lib/cn'
-import { fmtPct, priceColorClass } from '@/lib/format'
+import { fmtPct, fmtPctPoint, priceColorClass } from '@/lib/format'
 import { MinuteSmallMultiples, ThemeTrendChart } from './charts'
 import { LimitRouteMap } from './LimitRouteMap'
 import { IndustrySourcePicker } from './IndustrySourcePicker'
@@ -885,12 +885,12 @@ function MinuteLab({
                     return (
                       <tr key={stock.symbol} className="border-b border-border/40 last:border-0">
                         <td className="px-2 py-1.5 text-foreground">{stock.name}</td>
-                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.day))}>{fmtPct(feature?.day, 2)}</td>
-                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.open30))}>{fmtPct(feature?.open30, 2)}</td>
-                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.am))}>{fmtPct(feature?.am, 2)}</td>
-                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.pm))}>{fmtPct(feature?.pm, 2)}</td>
-                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.tail30))}>{fmtPct(feature?.tail30, 2)}</td>
-                        <td className="px-2 py-1.5 text-right font-mono text-bear">{fmtPct(feature?.max_dd, 2)}</td>
+                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.day))}>{fmtPctPoint(feature?.day, 2)}</td>
+                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.open30))}>{fmtPctPoint(feature?.open30, 2)}</td>
+                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.am))}>{fmtPctPoint(feature?.am, 2)}</td>
+                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.pm))}>{fmtPctPoint(feature?.pm, 2)}</td>
+                        <td className={cn('px-2 py-1.5 text-right font-mono', priceColorClass(feature?.tail30))}>{fmtPctPoint(feature?.tail30, 2)}</td>
+                        <td className="px-2 py-1.5 text-right font-mono text-bear">{fmtPctPoint(feature?.max_dd, 2)}</td>
                       </tr>
                     )
                   })}

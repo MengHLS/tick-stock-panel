@@ -11,6 +11,13 @@ export function fmtPct(v: number | null | undefined, digits = 2): string {
   return `${sign}${(v * 100).toFixed(digits)}%`
 }
 
+/** Format a value already expressed in percentage points (4.0 means 4%). */
+export function fmtPctPoint(v: number | null | undefined, digits = 2): string {
+  if (v == null || Number.isNaN(v)) return '—'
+  const sign = v > 0 ? '+' : ''
+  return `${sign}${v.toFixed(digits)}%`
+}
+
 export function fmtVolume(v: number | null | undefined): string {
   if (v == null || Number.isNaN(v)) return '—'
   const sign = v < 0 ? '-' : ''
