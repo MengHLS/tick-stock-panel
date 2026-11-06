@@ -79,7 +79,8 @@ COPY README.md /README.md
 COPY backend/pyproject.toml backend/uv.lock* ./
 # uv 原生支持同时挂多个 index(主源 + 备用源),会自动在两源中查找,
 # 比逐个重试更稳健 —— 任一源缺包时另一源补位。
-# 发布构建不保留非冻结回退: 锁不一致或解析失败必须让构建失败。
+# 发布构建不保留非冻结回退; --locked 还会校验 pyproject 与 uv.lock 一致,
+# 因此声明变更但未更新锁文件时同样显式失败。
 RUN if [ "$USE_CN_MIRROR" = "1" ]; then \
       export UV_DEFAULT_INDEX="$PYPI_INDEX" UV_EXTRA_INDEX_URL="$PYPI_FALLBACK"; \
     fi; \
@@ -87,7 +88,7 @@ RUN if [ "$USE_CN_MIRROR" = "1" ]; then \
     for extra in $BACKEND_EXTRAS; do \
       set -- "$@" --extra "$extra"; \
     done; \
-    uv sync --frozen "$@"
+    uv sync --locked "$@"
 
 # Backend code
 # 注意:Docker 里 WORKDIR=/app, 而 config.py 的 _PROJECT_ROOT 是按开发布局
