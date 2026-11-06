@@ -256,7 +256,7 @@ def _classify(
     if not pid_consistent:
         return False, "无法核验持有者身份或 pid 已被复用，请重新检查；不会自动终止进程"
     if active_runs:
-        return False, f"仍有 {active_runs} 个进行中的挖掘运行, 不能终止持有者"
+        return False, f"仍有 {active_runs} 个进行中的研究运行, 不能终止持有者"
     if store_idle is not None and store_idle < stale_after:
         return False, (
             f"挖掘存储 {store_idle:.0f} 秒内仍有写入 (陈旧阈值 {stale_after:.0f}s), "
@@ -285,37 +285,45 @@ def _pid_matches_start_time(pid: int, started_at: Any, process_started_at: Any =
         return False
 
 
-def _runs_dir(data_dir: Path | str) -> Path:
-    return Path(data_dir) / "research" / "mining" / "runs"
+_RUN_NAMESPACES = ("mining", "guardian")
+
+
+def _runs_dirs(data_dir: Path | str) -> list[Path]:
+    """Both namespaces share the process lock and must share stale checks."""
+    return [
+        Path(data_dir) / "research" / namespace / "runs"
+        for namespace in _RUN_NAMESPACES
+    ]
 
 
 def _count_active_runs(data_dir: Path | str) -> int:
     count = 0
-    for manifest in _runs_dir(data_dir).glob("*/manifest.json"):
-        try:
-            value = json.loads(manifest.read_text(encoding="utf-8"))
-        except (OSError, UnicodeError, json.JSONDecodeError):
-            continue
-        if isinstance(value, dict) and value.get("status") in ACTIVE_RUN_STATUSES:
-            count += 1
+    for runs_dir in _runs_dirs(data_dir):
+        for manifest in runs_dir.glob("*/manifest.json"):
+            try:
+                value = json.loads(manifest.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                continue
+            if isinstance(value, dict) and value.get("status") in ACTIVE_RUN_STATUSES:
+                count += 1
     return count
 
 
 def _store_idle_seconds(data_dir: Path | str, *, now: float) -> float | None:
-    """挖掘 run 存储最近一次写入距今的秒数; 无任何文件返回 None (视为足够陈旧)。"""
-    runs_dir = _runs_dir(data_dir)
-    if not runs_dir.is_dir():
-        return None
+    """Both run stores' latest write age; no files at all means stale enough."""
     latest: float | None = None
-    for path in runs_dir.rglob("*"):
-        if not path.is_file():
+    for runs_dir in _runs_dirs(data_dir):
+        if not runs_dir.is_dir():
             continue
-        try:
-            mtime = path.stat().st_mtime
-        except OSError:
-            continue
-        if latest is None or mtime > latest:
-            latest = mtime
+        for path in runs_dir.rglob("*"):
+            if not path.is_file():
+                continue
+            try:
+                mtime = path.stat().st_mtime
+            except OSError:
+                continue
+            if latest is None or mtime > latest:
+                latest = mtime
     if latest is None:
         return None
     return max(0.0, now - latest)

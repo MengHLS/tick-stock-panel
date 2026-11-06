@@ -271,6 +271,56 @@ def test_count_active_runs_tolerates_corrupt_manifest(tmp_path):
     assert _count_active_runs(tmp_path) == 0
 
 
+def test_guardian_runs_are_included_in_shared_lock_state(tmp_path, monkeypatch):
+    from app.services import mining_lock_admin as admin
+
+    guardian_runs = tmp_path / "research" / "guardian" / "runs"
+    active = guardian_runs / "guardian-live"
+    active.mkdir(parents=True)
+    (active / "manifest.json").write_text(json.dumps({"status": "running"}))
+
+    assert _count_active_runs(tmp_path) == 1
+    idle = _store_idle_seconds(tmp_path, now=time.time())
+    assert idle is not None and idle < 60
+
+    monkeypatch.setattr(admin, "probe_lock_held", lambda _: True)
+    monkeypatch.setattr(
+        admin,
+        "read_lock_holder",
+        lambda _: {"pid": os.getpid(), "started_at": "2026-01-01T00:00:00+00:00"},
+    )
+    monkeypatch.setattr(admin, "_pid_alive", lambda _: True)
+    monkeypatch.setattr(admin, "_pid_matches_start_time", lambda *args, **kwargs: True)
+
+    status = lock_status(tmp_path, lock=Mock(acquired=False))
+    assert status["active_runs"] == 1
+    assert status["force_releasable"] is False
+    assert "进行中" in status["reason"]
+
+
+def test_guardian_recent_write_blocks_force_release(tmp_path, monkeypatch):
+    from app.services import mining_lock_admin as admin
+
+    guardian_runs = tmp_path / "research" / "guardian" / "runs"
+    done = guardian_runs / "guardian-done"
+    done.mkdir(parents=True)
+    (done / "manifest.json").write_text(json.dumps({"status": "succeeded"}))
+
+    monkeypatch.setattr(admin, "probe_lock_held", lambda _: True)
+    monkeypatch.setattr(
+        admin,
+        "read_lock_holder",
+        lambda _: {"pid": os.getpid(), "started_at": "2026-01-01T00:00:00+00:00"},
+    )
+    monkeypatch.setattr(admin, "_pid_alive", lambda _: True)
+    monkeypatch.setattr(admin, "_pid_matches_start_time", lambda *args, **kwargs: True)
+
+    status = lock_status(tmp_path, lock=Mock(acquired=False))
+    assert status["active_runs"] == 0
+    assert status["force_releasable"] is False
+    assert "仍有写入" in status["reason"]
+
+
 # ── 强制释放 (真实外部持有进程, POSIX) ─────────────────────────
 
 
