@@ -46,7 +46,7 @@ def create_theme(
     payload: ThemeCreate,
     runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
 ) -> dict[str, Any]:
-    service = ThemeAnalyzerService(runtime.market_data)
+    service = ThemeAnalyzerService(runtime.market_data, data_dir=runtime.data_dir)
     try:
         symbols = service.validate_symbols(payload.symbols)
         source = payload.industry_source.model_dump() if payload.industry_source else {}
@@ -73,7 +73,9 @@ def update_theme(
     symbols = payload.symbols
     if symbols is not None:
         try:
-            symbols = ThemeAnalyzerService(runtime.market_data).validate_symbols(symbols)
+            symbols = ThemeAnalyzerService(
+                runtime.market_data, data_dir=runtime.data_dir,
+            ).validate_symbols(symbols)
         except ValueError as exc:
             raise HTTPException(400, str(exc)) from exc
     current = store.get_theme(runtime.data_dir, theme_id)
@@ -121,7 +123,9 @@ def add_stocks(
     runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
 ) -> dict[str, Any]:
     try:
-        symbols = ThemeAnalyzerService(runtime.market_data).validate_symbols(payload.symbols)
+        symbols = ThemeAnalyzerService(
+            runtime.market_data, data_dir=runtime.data_dir,
+        ).validate_symbols(payload.symbols)
         current = store.get_theme(runtime.data_dir, theme_id)
         inherited: list[str] = []
         if current is not None:
@@ -178,7 +182,7 @@ def analyze_theme(
         raise HTTPException(400, str(exc)) from exc
     if start and end and start > end:
         raise HTTPException(400, "开始日期不能晚于结束日期")
-    return ThemeAnalyzerService(runtime.market_data).analyze(
+    return ThemeAnalyzerService(runtime.market_data, data_dir=runtime.data_dir).analyze(
         theme,
         start=start,
         end=end,
@@ -208,7 +212,7 @@ def minute_overlay(
     ]
     if len(selected) > MINUTE_SAMPLE_LIMIT:
         raise HTTPException(400, f"分钟叠加最多选择 {MINUTE_SAMPLE_LIMIT} 只股票")
-    return ThemeAnalyzerService(runtime.market_data).minute_overlay(
+    return ThemeAnalyzerService(runtime.market_data, data_dir=runtime.data_dir).minute_overlay(
         theme,
         trade_date,
         selected,

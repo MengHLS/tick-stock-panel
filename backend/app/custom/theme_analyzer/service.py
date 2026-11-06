@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import polars as pl
@@ -118,8 +119,14 @@ def _dataframe_from_rows(rows: list[dict[str, Any]]) -> pl.DataFrame:
 
 
 class ThemeAnalyzerService:
-    def __init__(self, market_data: MarketDataRead) -> None:
+    def __init__(
+        self,
+        market_data: MarketDataRead,
+        *,
+        data_dir: Path | str | None = None,
+    ) -> None:
         self.market_data = market_data
+        self.data_dir = Path(data_dir) if data_dir is not None else None
         self._instrument_cache: pl.DataFrame | None = None
 
     def _instruments(self) -> pl.DataFrame:
@@ -604,6 +611,10 @@ class ThemeAnalyzerService:
         stable partition reader first and keep the batch API as a compatibility
         fallback for providers that do not expose daily partitions.
         """
+        if self.data_dir is not None:
+            from app.services.daily_health import assert_usable
+
+            assert_usable(self.data_dir, "stock", end=end, enriched_only=True)
 
         try:
             dates = self.market_data.dataset_partition_dates(

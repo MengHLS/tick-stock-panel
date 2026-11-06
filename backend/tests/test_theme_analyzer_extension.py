@@ -1,6 +1,7 @@
 """Theme analyzer store, computation, and API contracts."""
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,6 +14,7 @@ from fastapi.testclient import TestClient
 from app.custom.theme_analyzer import router, store
 from app.custom.theme_analyzer.service import ThemeAnalyzerService
 from app.extensions.runtime import get_extension_runtime
+from app.services.daily_health import DailyIntegrityError
 
 START = date(2026, 1, 1)
 DATES = [START + timedelta(days=index) for index in range(40)]
@@ -293,6 +295,57 @@ def test_store_crud_and_symbol_deduplication(tmp_path: Path) -> None:
     assert store.delete_theme(tmp_path, created["id"]) is False
 
 
+def _write_theme_store(tmp_path: Path, payload: dict | str) -> Path:
+    path = tmp_path / "user_data" / "theme_analyzer" / "themes.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = payload if isinstance(payload, str) else json.dumps(payload)
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def test_theme_writes_refuse_incompatible_store(tmp_path: Path) -> None:
+    original = {
+        "version": 2,
+        "themes": [{
+            "id": "original",
+            "name": "原主题",
+            "symbols": [SYMBOL_A],
+        }],
+    }
+    path = _write_theme_store(tmp_path, original)
+    before = path.read_bytes()
+
+    for operation in (
+        lambda: store.create_theme(tmp_path, name="新主题"),
+        lambda: store.update_theme(tmp_path, "original", name="改名"),
+        lambda: store.delete_theme(tmp_path, "original"),
+        lambda: store.add_symbols(tmp_path, "original", [SYMBOL_B]),
+        lambda: store.remove_symbol(tmp_path, "original", SYMBOL_A),
+    ):
+        with pytest.raises(store.ThemeStoreError):
+            operation()
+        assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("payload", ["{broken", None])
+def test_theme_writes_refuse_corrupt_or_unreadable_store(
+    tmp_path: Path,
+    payload: str | None,
+) -> None:
+    if payload is None:
+        path = tmp_path / "user_data" / "theme_analyzer" / "themes.json"
+        path.mkdir(parents=True)
+    else:
+        path = _write_theme_store(tmp_path, payload)
+
+    with pytest.raises(store.ThemeStoreError):
+        store.create_theme(tmp_path, name="新主题")
+    if payload is None:
+        assert path.is_dir()
+    else:
+        assert path.read_text(encoding="utf-8") == payload
+
+
 def test_seed_theme_is_created_once(tmp_path: Path) -> None:
     data = FakeMarketData()
     first = store.seed_default_theme(tmp_path, data)
@@ -322,6 +375,28 @@ def test_analysis_window_returns_and_activity(tmp_path: Path) -> None:
     assert result["seal"]["sealed_count"] == 1
     assert result["seal"]["broken_count"] == 1
     assert result["seal"]["seal_rate"] == pytest.approx(0.5)
+
+
+def test_analysis_refuses_daily_health_issues(tmp_path: Path) -> None:
+    state = tmp_path / "user_data" / "daily_integrity_state.json"
+    state.parent.mkdir(parents=True, exist_ok=True)
+    state.write_text(json.dumps({
+        "version": 1,
+        "entries": [{
+            "asset_type": "stock",
+            "day": DATES[0].isoformat(),
+            "symbol": None,
+            "needs_raw": True,
+            "needs_enriched": True,
+            "kind": "corrupt",
+            "reason": "fixture",
+        }],
+        "revisions": {},
+    }), encoding="utf-8")
+    service = ThemeAnalyzerService(FakeMarketData(), data_dir=tmp_path)
+
+    with pytest.raises(DailyIntegrityError):
+        service.analyze(_theme(), start=DATES[0], end=DATES[-1])
 
 
 def test_analysis_defaults_to_mainboard_and_returns_explainable_core() -> None:

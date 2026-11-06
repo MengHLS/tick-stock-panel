@@ -41,6 +41,10 @@ _cache_lock = threading.Lock()
 _mutation_lock = threading.RLock()
 
 
+class ThemeStoreError(ValueError):
+    """The existing theme store cannot be safely overwritten."""
+
+
 def _serialized(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
@@ -153,6 +157,40 @@ def load_document(data_dir: Path | str) -> dict[str, Any]:
     return document
 
 
+def _load_document_strict(data_dir: Path | str) -> dict[str, Any]:
+    """Read for a mutation: existing corruption or version drift must fail closed."""
+    path = _path(data_dir)
+    if not path.exists():
+        return empty_document()
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ThemeStoreError("主题文件损坏或不可读，已拒绝覆盖") from exc
+    if not isinstance(raw, dict) or raw.get("version") != STORE_VERSION:
+        raise ThemeStoreError("主题文件版本不兼容，已拒绝覆盖")
+    themes = raw.get("themes")
+    if not isinstance(themes, list):
+        raise ThemeStoreError("主题文件内容损坏，已拒绝覆盖")
+    if len(themes) > MAX_THEMES:
+        raise ThemeStoreError("主题数量超过上限，已拒绝覆盖")
+    seen: set[str] = set()
+    clean: list[dict[str, Any]] = []
+    for index, item in enumerate(themes):
+        theme = _sanitize_theme(item, index)
+        if theme is None or theme["id"] in seen:
+            raise ThemeStoreError("主题文件内容损坏，已拒绝覆盖")
+        seen.add(theme["id"])
+        clean.append(theme)
+    return {"version": STORE_VERSION, "themes": clean}
+
+
+def _get_theme_strict(data_dir: Path | str, theme_id: str) -> dict[str, Any] | None:
+    for theme in _load_document_strict(data_dir)["themes"]:
+        if theme["id"] == theme_id:
+            return deepcopy(theme)
+    return None
+
+
 def save_document(data_dir: Path | str, document: dict[str, Any]) -> None:
     path = _path(data_dir)
     clean = _sanitize_document(document)
@@ -188,7 +226,7 @@ def create_theme(
     symbols: list[str] | None = None,
     industry_source: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    document = load_document(data_dir)
+    document = _load_document_strict(data_dir)
     if len(document["themes"]) >= MAX_THEMES:
         raise ValueError(f"主题数量最多 {MAX_THEMES} 个")
     now = _now_iso()
@@ -220,7 +258,7 @@ def update_theme(
     industry_source: dict[str, Any] | None = None,
     excluded_symbols: list[str] | None = None,
 ) -> dict[str, Any] | None:
-    document = load_document(data_dir)
+    document = _load_document_strict(data_dir)
     for index, current in enumerate(document["themes"]):
         if current["id"] != theme_id:
             continue
@@ -246,7 +284,7 @@ def update_theme(
 
 @_serialized
 def delete_theme(data_dir: Path | str, theme_id: str) -> bool:
-    document = load_document(data_dir)
+    document = _load_document_strict(data_dir)
     remaining = [theme for theme in document["themes"] if theme["id"] != theme_id]
     if len(remaining) == len(document["themes"]):
         return False
@@ -263,7 +301,7 @@ def add_symbols(
     *,
     inherited_symbols: list[str] | None = None,
 ) -> dict[str, Any] | None:
-    theme = get_theme(data_dir, theme_id)
+    theme = _get_theme_strict(data_dir, theme_id)
     if theme is None:
         return None
     inherited = set(inherited_symbols or [])
@@ -282,7 +320,7 @@ def remove_symbol(
     *,
     inherited: bool = False,
 ) -> tuple[dict[str, Any] | None, bool]:
-    theme = get_theme(data_dir, theme_id)
+    theme = _get_theme_strict(data_dir, theme_id)
     if theme is None:
         return None, False
     target = symbol.strip().upper()
