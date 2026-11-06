@@ -728,12 +728,23 @@ def launch_integrity_repair(
     return job_id, True
 
 
-def boot_integrity_check(app_state) -> None:
+def boot_integrity_check(
+    app_state,
+    *,
+    cancelled: threading.Event | None = None,
+    launch_guard: threading.Lock | None = None,
+) -> None:
     """启动自检 (后台线程调用): 发现窗口内的坏数据自动创建修复任务。
 
     分钟K缺口无需单独处理 — 修复管道 Step 2.5 在 minute_sync_enabled 时
     以 start=max(datetime) 增量补洞, 天然覆盖停机缺口。
+
+    cancelled/launch_guard 由 lifespan 的延迟 Timer 传入: 关停时先置位事件,
+    再在锁内做最后一次检查, 避免清理完成后又启动修复任务。
     """
+    if cancelled is not None and cancelled.is_set():
+        logger.info("boot integrity check cancelled")
+        return
     repo = getattr(app_state, "repo", None)
     if repo is None:
         return
@@ -753,11 +764,21 @@ def boot_integrity_check(app_state) -> None:
             earliest, AUTO_REPAIR_MAX_LAG_DAYS,
         )
         return
-    with contextlib.suppress(Exception):
-        launch_integrity_repair(
-            app_state, earliest, "boot_integrity_check",
-            symbols=_stock_snapshot_symbols(issues),
-        )
+    def _launch() -> None:
+        with contextlib.suppress(Exception):
+            launch_integrity_repair(
+                app_state, earliest, "boot_integrity_check",
+                symbols=_stock_snapshot_symbols(issues),
+            )
+
+    if launch_guard is not None:
+        with launch_guard:
+            if cancelled is not None and cancelled.is_set():
+                logger.info("boot integrity check cancelled before repair")
+                return
+            _launch()
+    else:
+        _launch()
 
 
 def _stock_snapshot_symbols(issues: list[IntegrityIssue]) -> list[str] | None:

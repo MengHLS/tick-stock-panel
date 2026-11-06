@@ -582,6 +582,57 @@ def test_boot_check_launches_repair_within_window(tmp_path, monkeypatch):
     assert launched == [probe]
 
 
+def test_boot_check_cancelled_before_scan_does_not_launch(monkeypatch):
+    import threading
+
+    launched = []
+    monkeypatch.setattr(
+        di,
+        "scan_recent_integrity",
+        lambda _: pytest.fail("cancelled boot check must not scan"),
+    )
+    monkeypatch.setattr(
+        di,
+        "launch_integrity_repair",
+        lambda *args, **kwargs: launched.append((args, kwargs)),
+    )
+    cancelled = threading.Event()
+    cancelled.set()
+
+    di.boot_integrity_check(SimpleNamespace(repo=None), cancelled=cancelled)
+    assert launched == []
+
+
+def test_boot_check_cancelled_during_scan_does_not_launch(tmp_path, monkeypatch):
+    import threading
+
+    launched = []
+    cancelled = threading.Event()
+    issue = IntegrityIssue(day=date(2026, 8, 21), table="kline_daily", kind="missing")
+    monkeypatch.setattr(
+        di,
+        "scan_recent_integrity",
+        lambda _: (cancelled.set() or [issue]),
+    )
+    monkeypatch.setattr(di, "active_daily_tables", lambda: ("kline_daily",))
+    monkeypatch.setattr(di, "within_auto_repair_window", lambda _: True)
+    monkeypatch.setattr(
+        di,
+        "launch_integrity_repair",
+        lambda *args, **kwargs: launched.append((args, kwargs)),
+    )
+
+    state = SimpleNamespace(
+        repo=SimpleNamespace(store=SimpleNamespace(data_dir=tmp_path)),
+    )
+    di.boot_integrity_check(
+        state,
+        cancelled=cancelled,
+        launch_guard=threading.Lock(),
+    )
+    assert launched == []
+
+
 # ── 管道自愈端到端 (钩子3, 离线集成) ────────────────────────────────
 
 

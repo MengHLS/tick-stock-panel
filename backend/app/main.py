@@ -90,6 +90,7 @@ logger = logging.getLogger(__name__)
 # remains unchanged. A failed action is logged and never blocks the remaining
 # cleanup steps.
 _SHUTDOWN_ORDER = (
+    "integrity_timer",
     "refresh_hook",
     "watchdog",
     "matrix_prewarm",
@@ -375,8 +376,25 @@ async def _bootstrap_application(app: FastAPI, cleanup: _CleanupScope) -> None:
         from app.services.data_integrity import boot_integrity_check
 
         if data_sync_prefs["data_sync_pipeline_enabled"]:
-            timer = threading.Timer(30.0, boot_integrity_check, args=(app.state,))
+            integrity_cancel = threading.Event()
+            integrity_launch_lock = threading.Lock()
+
+            def _stop_integrity_timer() -> None:
+                # 先封住「检查结束后启动修复」的窗口, 再取消尚未触发的 Timer。
+                with integrity_launch_lock:
+                    integrity_cancel.set()
+                timer.cancel()
+
+            def _run_boot_integrity_check() -> None:
+                boot_integrity_check(
+                    app.state,
+                    cancelled=integrity_cancel,
+                    launch_guard=integrity_launch_lock,
+                )
+
+            timer = threading.Timer(30.0, _run_boot_integrity_check)
             timer.daemon = True  # 不阻塞进程退出
+            cleanup.add("integrity_timer", _stop_integrity_timer)
             timer.start()
         else:
             logger.info("boot integrity check disabled by data sync preference")
