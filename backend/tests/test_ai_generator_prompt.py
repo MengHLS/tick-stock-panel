@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from app.strategy.ai_generator import GUIDE_PATH, AIStrategyGenerator
@@ -65,6 +67,19 @@ def test_build_step2_uses_runtime_meta_constraints():
     assert "filter()`、`filter_history()` 或 `MATRIX_STRATEGY" in prompt
     assert "没有匹配信号时允许为空" in prompt
     assert "模块顶层字面量字典" in prompt
+
+
+def test_prompt_directory_roles_describe_builtin_as_compat_layer():
+    prompts_dir = Path(GUIDE_PATH).parent
+    guide = (prompts_dir / "strategy-guide.md").read_text(encoding="utf-8")
+    step1 = (prompts_dir / "strategy-builder-step1.md").read_text(encoding="utf-8")
+    step2_prompt = build_step2("META = {}", "调整参数")
+
+    for text in (guide, step1, step2_prompt):
+        assert "backend/app/strategy/builtin/" in text
+        assert "兼容层" in text
+    assert "内置策略: `backend/app/strategy/builtin/`" not in guide
+    assert "backend/app/strategy/research/" in guide
 
 
 def test_matrix_backend_prompt_and_imports_are_supported():

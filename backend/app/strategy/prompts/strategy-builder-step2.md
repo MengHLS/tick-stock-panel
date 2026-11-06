@@ -6,7 +6,7 @@
 
 1. **只操作这一个策略文件**：本次修改只是改写传入的 `.py` 文件内容，绝不创建新文件、不拆分多文件、不跨文件 import
 2. **绝不触碰项目源码**：不要写任何会修改 `backend/`、`docs/`、`frontend/` 等现有文件的代码；不要 `import os/sys/pathlib` 等文件系统模块
-3. **不得放入内置策略目录**：AI 生成的策略只属于 `data/strategies/ai/`，文件名/ID 用 `ai_` 前缀；内置目录 `backend/app/strategy/builtin/` 由项目维护，AI 不得染指
+3. **不得写入项目策略源码目录**：AI 生成的策略只属于 `data/strategies/ai/`，文件名/ID 用 `ai_` 前缀；`backend/app/strategy/research/` 是项目维护的研究模板，`backend/app/strategy/builtin/` 仅是旧 import 兼容层（无策略定义、不被引擎扫描），两者都不是用户策略目录，AI 不得写入或修改
 
 ## 输入格式
 

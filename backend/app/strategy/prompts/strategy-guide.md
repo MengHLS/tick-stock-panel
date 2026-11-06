@@ -4,13 +4,16 @@
 
 ## 1. 策略文件格式
 
-每个策略是一个 Python 文件，放在以下目录：
+每个策略是一个 Python 文件，按用途放在以下目录：
 
-- 内置策略: `backend/app/strategy/builtin/`
+- 研究模板: `backend/app/strategy/research/`，随项目维护并被引擎扫描，作为研究/示例参考，不是用户策略目录
 - 自定义策略: `data/strategies/custom/`，建议文件名和 ID 使用 `custom_时间戳`
 - AI 生成策略: `data/strategies/ai/`，文件名和 ID 使用 `ai_时间戳`
+- 复合策略: `data/strategies/composite/`，由复合/组合流程生成或维护
 
-> ⚠️ **铁律**：AI/自定义生成的策略**只能**放入 `data/strategies/ai/` 或 `data/strategies/custom/`。严禁放入 `backend/app/strategy/builtin/`（内置策略目录，仅项目维护者可改），严禁借策略定制功能创建多个文件或修改任何项目源代码。
+`backend/app/strategy/builtin/` 已去内置化，**不是策略目录**：它只保留旧版策略文件的 import 转发兼容层，不含策略定义与加载逻辑，引擎也不会扫描它。路径仍存在是为了不破坏旧用户策略的 `from app.strategy.builtin...` 导入；不要在其中新增策略，也不要删除该兼容包。
+
+> ⚠️ **铁律**：AI/自定义生成的策略**只能**放入 `data/strategies/ai/` 或 `data/strategies/custom/`。严禁写入 `backend/app/strategy/` 下的项目源码目录（包括 `research/` 与 `builtin/`），严禁借策略定制功能创建多个文件或修改任何项目源代码。
 
 ## 2. 文件结构模板
 
