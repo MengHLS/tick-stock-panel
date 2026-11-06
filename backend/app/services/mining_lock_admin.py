@@ -259,7 +259,7 @@ def _classify(
         return False, f"仍有 {active_runs} 个进行中的研究运行, 不能终止持有者"
     if store_idle is not None and store_idle < stale_after:
         return False, (
-            f"挖掘存储 {store_idle:.0f} 秒内仍有写入 (陈旧阈值 {stale_after:.0f}s), "
+            f"研究存储 {store_idle:.0f} 秒内仍有写入 (陈旧阈值 {stale_after:.0f}s), "
             "持有者可能在正常收尾 — 请稍后再试"
         )
     return True, None
