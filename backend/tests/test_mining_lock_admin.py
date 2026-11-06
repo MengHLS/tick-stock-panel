@@ -296,6 +296,8 @@ def test_guardian_runs_are_included_in_shared_lock_state(tmp_path, monkeypatch):
     assert status["active_runs"] == 1
     assert status["force_releasable"] is False
     assert "进行中" in status["reason"]
+    with pytest.raises(MiningLockAdminError, match="进行中"):
+        force_release(tmp_path, Mock(acquired=False))
 
 
 def test_guardian_recent_write_blocks_force_release(tmp_path, monkeypatch):
@@ -319,6 +321,8 @@ def test_guardian_recent_write_blocks_force_release(tmp_path, monkeypatch):
     assert status["active_runs"] == 0
     assert status["force_releasable"] is False
     assert "仍有写入" in status["reason"]
+    with pytest.raises(MiningLockAdminError, match="陈旧阈值"):
+        force_release(tmp_path, Mock(acquired=False))
 
 
 # ── 强制释放 (真实外部持有进程, POSIX) ─────────────────────────
