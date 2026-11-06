@@ -60,6 +60,9 @@ jobs:
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
+      - name: 核心前端行为测试
+        run: pnpm test
+
       - name: 构建 (tsc + vite)
         run: pnpm build
 

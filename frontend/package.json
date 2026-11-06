@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run src/extensions/ExtensionSlot.test.tsx src/extensions/loading.test.tsx src/extensions/runtime.test.ts src/lib/provider-routing.test.ts src/lib/series-identity.test.ts src/lib/enrichedInvalidateThrottle.test.ts src/pages/Indices.test.tsx",
     "test:indices": "vitest run src/pages/Indices.test.tsx"
   },
   "dependencies": {
