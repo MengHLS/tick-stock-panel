@@ -5,6 +5,7 @@ ARG NPM_REGISTRY=https://registry.npmmirror.com
 ARG PYPI_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple
 # 备用 PyPI 源:主源同步延迟/故障时自动兜底(阿里云与清华互为补充)
 ARG PYPI_FALLBACK=https://mirrors.aliyun.com/pypi/simple
+ARG PYPI_LOCK_INDEX=https://pypi.org/simple
 ARG BACKEND_EXTRAS=
 ARG CODEX_CLI_VERSION=0.144.3
 
@@ -46,6 +47,7 @@ FROM python:3.11-slim AS runtime
 ARG USE_CN_MIRROR=1
 ARG PYPI_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple
 ARG PYPI_FALLBACK=https://mirrors.aliyun.com/pypi/simple
+ARG PYPI_LOCK_INDEX=https://pypi.org/simple
 ARG BACKEND_EXTRAS=
 WORKDIR /app
 
@@ -77,12 +79,14 @@ RUN if [ "$USE_CN_MIRROR" = "1" ]; then \
 # Backend deps
 COPY README.md /README.md
 COPY backend/pyproject.toml backend/uv.lock* ./
-# uv 原生支持同时挂多个 index(主源 + 备用源),会自动在两源中查找,
-# 比逐个重试更稳健 —— 任一源缺包时另一源补位。
+# uv.lock 的包来源是 pypi.org; --locked 要求默认 index 与锁文件一致。
+# 国内镜像继续作为 extra index 提供下载兜底, 不能把默认 index 改成镜像,
+# 否则合法锁文件也会被判为需要更新。
 # 发布构建不保留非冻结回退; --locked 还会校验 pyproject 与 uv.lock 一致,
 # 因此声明变更但未更新锁文件时同样显式失败。
 RUN if [ "$USE_CN_MIRROR" = "1" ]; then \
-      export UV_DEFAULT_INDEX="$PYPI_INDEX" UV_EXTRA_INDEX_URL="$PYPI_FALLBACK"; \
+      export UV_DEFAULT_INDEX="$PYPI_LOCK_INDEX" \
+             UV_EXTRA_INDEX_URL="$PYPI_INDEX $PYPI_FALLBACK"; \
     fi; \
     set -- --no-dev; \
     for extra in $BACKEND_EXTRAS; do \
@@ -125,8 +129,8 @@ ENV PYTHONPATH=/app
 # (实测阿里云 ECS)。与构建期 RUN 内的 export 同源, 这里让它跨层存活。
 ARG PYPI_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple
 ARG PYPI_FALLBACK=https://mirrors.aliyun.com/pypi/simple
-ENV UV_DEFAULT_INDEX=${PYPI_INDEX} \
-    UV_EXTRA_INDEX_URL=${PYPI_FALLBACK}
+ENV UV_DEFAULT_INDEX=${PYPI_LOCK_INDEX} \
+    UV_EXTRA_INDEX_URL="${PYPI_INDEX} ${PYPI_FALLBACK}"
 # 兜底时区: 交易时段判断已在代码里显式用北京时间 (app/market_time.py),
 # 此处让日志时间戳等其余 naive 时间也对齐北京时间。
 ENV TZ=Asia/Shanghai
