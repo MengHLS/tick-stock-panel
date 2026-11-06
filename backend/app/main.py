@@ -1,10 +1,13 @@
 """FastAPI 入口。"""
 from __future__ import annotations
 
+import inspect
 import logging
 import sys
+from collections.abc import Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -69,7 +72,7 @@ from app.services.data_sync_gate import DataSyncDisabledError
 from app.services.heavy_job_limiter import HeavyJobLimitTimeoutError
 from app.services.matrix_prewarm_owner import MatrixCachePrewarmOwner
 from app.services.mining_process_lock import MiningProcessLock, MiningProcessLockError
-from app.services.quote_service import QuoteService
+from app.services.quote_service import QuoteService, shutdown_delivery_executors
 from app.services.shared_work import WorkBusyError
 from app.startup_diagnostics import startup_phase
 from app.tickflow import client as tf_client
@@ -81,6 +84,61 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Shutdown order is part of the lifecycle contract. Registration happens as soon
+# as a resource starts, but actions always execute in this order so normal exit
+# remains unchanged. A failed action is logged and never blocks the remaining
+# cleanup steps.
+_SHUTDOWN_ORDER = (
+    "refresh_hook",
+    "watchdog",
+    "matrix_prewarm",
+    "mining_manager",
+    "guardian_manager",
+    "scheduler",
+    "pull_scheduler",
+    "financial_scheduler",
+    "quote_service",
+    "quote_observers",
+    "depth_service",
+    "wecom_bot",
+    "minute_refresh",
+    "delivery_executors",
+)
+
+
+class _CleanupScope:
+    """Collect stop actions from the first acquired resource until exit."""
+
+    def __init__(self) -> None:
+        self._actions: dict[str, Callable[[], Any]] = {}
+        self._closed = False
+
+    def add(self, name: str, action: Callable[[], Any]) -> None:
+        self._actions[name] = action
+
+    async def close(self) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        for name in _SHUTDOWN_ORDER:
+            action = self._actions.pop(name, None)
+            if action is None:
+                continue
+            try:
+                result = action()
+                if inspect.isawaitable(result):
+                    await result
+            except Exception:
+                logger.exception("shutdown step failed: %s", name)
+        for name in self._actions:
+            logger.error("unregistered shutdown action: %s", name)
+        self._actions.clear()
+
+
+def _stop_matrix_prewarm(owner: MatrixCachePrewarmOwner) -> None:
+    if not owner.shutdown(timeout=5.0):
+        logger.warning("matrix cache prewarm did not stop within 5 seconds")
 
 # 追加文件日志: uvicorn (含 --reload 开发模式) 默认只有 StreamHandler, 同步/管道等
 # 运行时日志仅出现在 dev 终端, 关掉或滚屏后即丢失, 排查「同步后日志没落」时无处可查。
@@ -95,6 +153,16 @@ if not getattr(sys, "frozen", False):
 
 @asynccontextmanager
 async def _application_lifespan(app: FastAPI):
+    cleanup = _CleanupScope()
+    try:
+        await _bootstrap_application(app, cleanup)
+        yield
+    finally:
+        await cleanup.close()
+        logger.info("shutdown")
+
+
+async def _bootstrap_application(app: FastAPI, cleanup: _CleanupScope) -> None:
     logger.info(
         "Tick Stock Panel v%s starting (mode=%s)",
         __version__, tf_client.current_mode(),
@@ -159,6 +227,7 @@ async def _application_lifespan(app: FastAPI):
         from app.services.mining_manager import MiningJobManager
 
         mining_manager = MiningJobManager(store.data_dir)
+    cleanup.add("mining_manager", mining_manager.shutdown)
     # A degraded instance must never rewrite another owner's live run manifests.
     with startup_phase(logger, "mining run recovery"):
         recovered_mining_runs = (
@@ -175,6 +244,7 @@ async def _application_lifespan(app: FastAPI):
             kind="guardian",
             store=MiningRunStore(store.data_dir, namespace="guardian"),
         )
+    cleanup.add("guardian_manager", guardian_manager.shutdown)
     with startup_phase(logger, "guardian run recovery"):
         recovered_guardian_runs = (
             guardian_manager.recover_interrupted()
@@ -196,6 +266,7 @@ async def _application_lifespan(app: FastAPI):
     # 指标异步预热标志: enriched 缓存在后台线程构建, 完成后置 True
     app.state.indicators_ready = False
     repo._on_warmup_done = lambda: setattr(app.state, "indicators_ready", True)  # noqa: SLF001
+    cleanup.add("refresh_hook", lambda: setattr(repo, "_on_refresh_done", None))
 
     # Polars 缓存预热 — enriched 的重计算 (107万行 compute_indicators) 推后台,
     # instruments/index/ETF 仍同步 (毫秒级)。应用立即 ready, 指标算完后自动替换。
@@ -243,6 +314,8 @@ async def _application_lifespan(app: FastAPI):
     # 全局行情服务
     qs = QuoteService()
     app.state.quote_service = qs
+    cleanup.add("quote_service", qs.stop)
+    cleanup.add("delivery_executors", shutdown_delivery_executors)
     qs.set_repo(repo)
     qs.boot_check()
 
@@ -259,6 +332,7 @@ async def _application_lifespan(app: FastAPI):
     depth_service.set_repo(repo)
     depth_service.set_app_state(app.state)
     app.state.depth_service = depth_service
+    cleanup.add("depth_service", depth_service.stop_polling)
 
     # 启动调度器(若 enriched 数据为空,首次启动可手动 POST /api/pipeline/run)
     try:
@@ -268,6 +342,7 @@ async def _application_lifespan(app: FastAPI):
             data_jobs_enabled=data_sync_prefs["data_sync_pipeline_enabled"],
         )
         app.state.scheduler = scheduler
+        cleanup.add("scheduler", lambda: scheduler.shutdown(wait=False))
     except Exception as e:  # noqa: BLE001
         logger.warning("scheduler not started: %s", e)
         app.state.scheduler = None
@@ -287,6 +362,7 @@ async def _application_lifespan(app: FastAPI):
         minute_refresh = MinuteRefreshService(repo)
         minute_refresh.set_app_state(app.state)
         app.state.minute_refresh = minute_refresh
+        cleanup.add("minute_refresh", minute_refresh.stop)
         minute_refresh.start()
     except Exception as e:
         logger.warning("minute_refresh init failed: %s", e)
@@ -328,6 +404,7 @@ async def _application_lifespan(app: FastAPI):
         wecom_bot_service = WecomBotService()
         wecom_bot_service.set_app_state(app.state)
         app.state.wecom_bot_service = wecom_bot_service
+        cleanup.add("wecom_bot", wecom_bot_service.stop)
         wecom_bot_service.boot_check()
     except Exception as e:  # noqa: BLE001
         logger.warning("wecom_bot_service init failed: %s", e)
@@ -348,6 +425,7 @@ async def _application_lifespan(app: FastAPI):
         enabled=data_sync_prefs["data_sync_ext_pull_enabled"],
         on_data_written=repo.refresh_extension_columns,
     )
+    cleanup.add("pull_scheduler", pull_scheduler.stop)
     pull_scheduler.refresh(store.data_dir)
     app.state.pull_scheduler = pull_scheduler
 
@@ -355,11 +433,14 @@ async def _application_lifespan(app: FastAPI):
     # 不启动自动调度——用户在「财务分析」页点「同步」手动拉取。
     from app.services.financial_sync import financial_scheduler
     financial_scheduler.start(store.data_dir, capset)
+    cleanup.add("financial_scheduler", financial_scheduler.stop)
     app.state.financial_scheduler = financial_scheduler
 
     # 自愈看门狗: 探测 polars 闸与写锁, 僵死时退出交由 supervisor 拉起 (兜底层)。
     from app.watchdog import start_watchdog
-    app.state.watchdog = start_watchdog(app.state, repo)
+    watchdog = start_watchdog(app.state, repo)
+    app.state.watchdog = watchdog
+    cleanup.add("watchdog", watchdog.stop)
 
     # 策略引擎
     from app.services.screener import ScreenerService
@@ -415,6 +496,7 @@ async def _application_lifespan(app: FastAPI):
     logger.info("strategy engine loaded: %d strategies", len(strategy_engine.list_strategies()))
 
     matrix_prewarm_owner = MatrixCachePrewarmOwner()
+    cleanup.add("matrix_prewarm", lambda: _stop_matrix_prewarm(matrix_prewarm_owner))
 
     def _schedule_matrix_cache_prewarm() -> None:
         if (
@@ -522,53 +604,11 @@ async def _application_lifespan(app: FastAPI):
 
     # 源码内二次开发启动钩子: 仅暴露稳定只读上下文, 单个扩展失败不影响核心启动。
     extension_registry = app.state.extension_registry
+    cleanup.add("quote_observers", extension_registry.shutdown_quote_observers)
     start_backend_extensions(
         current_extension_context(data_dir=store.data_dir, repository=repo),
         extension_registry,
     )
-    try:
-        yield
-    finally:
-        repo._on_refresh_done = None  # noqa: SLF001
-        wd = getattr(app.state, "watchdog", None)
-        if wd:
-            await wd.stop()
-        if not matrix_prewarm_owner.shutdown(timeout=5.0):
-            logger.warning("matrix cache prewarm did not stop within 5 seconds")
-        mmanager = getattr(app.state, "mining_manager", None)
-        if mmanager:
-            mmanager.shutdown()
-        gmanager = getattr(app.state, "guardian_manager", None)
-        if gmanager:
-            gmanager.shutdown()
-        if app.state.scheduler:
-            app.state.scheduler.shutdown(wait=False)
-        ps = getattr(app.state, "pull_scheduler", None)
-        if ps:
-            ps.stop()
-        fsc = getattr(app.state, "financial_scheduler", None)
-        if fsc:
-            fsc.stop()
-        qs = getattr(app.state, "quote_service", None)
-        if qs:
-            qs.stop()
-        extension_registry = getattr(app.state, "extension_registry", None)
-        if extension_registry:
-            extension_registry.shutdown_quote_observers()
-        dsvc = getattr(app.state, "depth_service", None)
-        if dsvc:
-            dsvc.stop_polling()
-        wbot = getattr(app.state, "wecom_bot_service", None)
-        if wbot:
-            wbot.stop()
-        mrs = getattr(app.state, "minute_refresh", None)
-        if mrs:
-            mrs.stop()
-        # webhook/系统通知投递线程池: 放弃排队投递并关闭, 避免通知静默丢失在 daemon 线程里
-        from app.services.quote_service import shutdown_delivery_executors
-
-        shutdown_delivery_executors()
-        logger.info("shutdown")
 
 
 @asynccontextmanager
