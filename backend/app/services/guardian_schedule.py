@@ -61,6 +61,8 @@ def build_guardian_fingerprint(repo: Any) -> dict[str, Any]:
 
 def run_daily_guardian(app_state: Any, *, now: datetime | None = None) -> dict[str, Any]:
     """Check the daily gate and enqueue a guardian pass; never run synchronously."""
+    if not getattr(app_state, "mining_lock_acquired", False):
+        return {"status": "lock_unavailable"}
     config = preferences.get_guardian_schedule()
     if not config["guardian_schedule_enabled"]:
         return {"status": "disabled"}

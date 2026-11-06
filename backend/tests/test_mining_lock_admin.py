@@ -759,6 +759,9 @@ def test_scheduled_mining_recovers_free_lock(tmp_path, monkeypatch):
     manager = Mock()
     manager.recover_interrupted.return_value = 0
     state.mining_manager = manager
+    guardian_manager = Mock()
+    guardian_manager.recover_interrupted.return_value = 0
+    state.guardian_manager = guardian_manager
     scheduled = Mock(return_value={"status": "enqueued"})
     monkeypatch.setattr("app.services.mining_schedule.run_weekly_mining", scheduled)
     monkeypatch.setattr("app.services.guardian_schedule.run_daily_guardian", lambda _: None)
@@ -767,5 +770,6 @@ def test_scheduled_mining_recovers_free_lock(tmp_path, monkeypatch):
         assert state.mining_process_lock.acquired is True
         scheduled.assert_called_once_with(state)
         manager.recover_interrupted.assert_called_once_with()
+        guardian_manager.recover_interrupted.assert_called_once_with()
     finally:
         state.mining_process_lock.release()

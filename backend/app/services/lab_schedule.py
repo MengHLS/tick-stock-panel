@@ -20,10 +20,12 @@ def run_scheduled_lab(app_state: Any) -> dict[str, Any]:
     results: dict[str, Any] = {"mining": None, "guardian": None}
     try:
         if not ensure_mining_lock(app_state):
-            # 降级模式 (挖掘锁被其他进程占用): 跳过周度挖掘而不是报错,
-            # 守护复验不受影响
+            # 降级模式 (挖掘锁被其他进程占用): 周度挖掘与守护复验都跳过,
+            # 避免无锁实例改写另一实例的任务状态。
             logger.warning("scheduled lab mining skipped: mining lock unavailable")
             results["mining"] = {"skipped": "mining lock unavailable"}
+            results["guardian"] = {"skipped": "mining lock unavailable"}
+            return results
         else:
             results["mining"] = run_weekly_mining(app_state)
     except Exception:

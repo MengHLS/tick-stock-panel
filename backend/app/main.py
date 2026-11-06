@@ -176,7 +176,11 @@ async def _application_lifespan(app: FastAPI):
             store=MiningRunStore(store.data_dir, namespace="guardian"),
         )
     with startup_phase(logger, "guardian run recovery"):
-        recovered_guardian_runs = guardian_manager.recover_interrupted()
+        recovered_guardian_runs = (
+            guardian_manager.recover_interrupted()
+            if app.state.mining_lock_acquired
+            else 0
+        )
     app.state.guardian_manager = guardian_manager
     if recovered_guardian_runs:
         logger.warning(

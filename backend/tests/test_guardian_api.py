@@ -75,6 +75,7 @@ def client(tmp_path, monkeypatch):
     app.state.repo = _Repo(tmp_path)
     app.state.strategy_engine = _StrategyEngine()
     app.state.guardian_manager = _Manager(tmp_path)
+    app.state.mining_lock_acquired = True
     return TestClient(app)
 
 
@@ -221,3 +222,45 @@ def test_config_patch_validation(client):
     assert body["guardian_schedule_enabled"] is True
     assert body["guardian_watch_pct"] == 0.3
     assert body["guardian_retire_pct"] == 0.5
+
+
+class _UnavailableLock:
+    acquired = False
+
+    def acquire(self):
+        from app.services.mining_process_lock import MiningProcessLockError
+
+        raise MiningProcessLockError("lock held by another instance")
+
+
+@pytest.mark.parametrize(
+    "method,path,payload",
+    [
+        ("post", "/api/backtest/guardian/tune_overnight/adopt", {"objective": "sharpe"}),
+        ("post", "/api/backtest/guardian/nope/drop", None),
+        ("post", "/api/backtest/guardian/nope/rerun", None),
+        ("post", "/api/backtest/guardian/run", None),
+        ("post", "/api/backtest/guardian/combinations/scan", None),
+        ("post", "/api/backtest/guardian/combinations/create", {"a": "x", "b": "y"}),
+        ("patch", "/api/backtest/guardian/config", {"guardian_schedule_enabled": True}),
+    ],
+)
+def test_write_endpoints_reject_without_lock(client, method, path, payload):
+    client.app.state.mining_lock_acquired = False
+    call = getattr(client, method)
+    response = call(path) if payload is None else call(path, json=payload)
+    assert response.status_code == 409
+    assert client.app.state.guardian_manager.starts == []
+
+
+def test_write_endpoints_reject_when_lock_takeover_fails(client):
+    client.app.state.mining_lock_acquired = False
+    client.app.state.mining_process_lock = _UnavailableLock()
+    assert client.post("/api/backtest/guardian/run").status_code == 409
+    assert client.app.state.guardian_manager.starts == []
+
+
+def test_read_endpoints_remain_available_without_lock(client):
+    client.app.state.mining_lock_acquired = False
+    assert client.get("/api/backtest/guardian/overview").status_code == 200
+    assert client.get("/api/backtest/guardian/config").status_code == 200

@@ -45,6 +45,7 @@ def _app_state(data_dir: Path, manager=None):
     return SimpleNamespace(
         repo=_Repo(data_dir),
         guardian_manager=manager or _RecordingManager(data_dir),
+        mining_lock_acquired=True,
     )
 
 
@@ -115,9 +116,28 @@ def test_missing_manager_raises(tmp_path, monkeypatch):
         lambda: {"guardian_schedule_enabled": True, "guardian_watch_pct": 0.2,
                  "guardian_retire_pct": 0.5, "guardian_k_max": 4},
     )
-    state = SimpleNamespace(repo=_Repo(tmp_path), guardian_manager=None)
+    state = SimpleNamespace(
+        repo=_Repo(tmp_path),
+        guardian_manager=None,
+        mining_lock_acquired=True,
+    )
     with pytest.raises(RuntimeError, match="guardian"):
         run_daily_guardian(state, now=_friday())
+
+
+def test_skips_enqueue_without_lock_ownership(tmp_path, monkeypatch):
+    from app.services import preferences
+
+    monkeypatch.setattr(
+        preferences, "get_guardian_schedule",
+        lambda: {"guardian_schedule_enabled": True, "guardian_watch_pct": 0.2,
+                 "guardian_retire_pct": 0.5, "guardian_k_max": 4},
+    )
+    state = _app_state(tmp_path)
+    state.mining_lock_acquired = False
+
+    assert run_daily_guardian(state, now=_friday()) == {"status": "lock_unavailable"}
+    assert state.guardian_manager.starts == []
 
 
 def test_fingerprint_stable_and_sensitive(tmp_path):
@@ -238,13 +258,31 @@ def test_run_scheduled_lab_triggers_both(monkeypatch, tmp_path):
     monkeypatch.setattr(
         "app.services.guardian_schedule.run_daily_guardian", fake_guardian
     )
-    result = lab_schedule_module.run_scheduled_lab(SimpleNamespace())
+    result = lab_schedule_module.run_scheduled_lab(
+        SimpleNamespace(mining_lock_acquired=True)
+    )
     assert calls == ["mining", "guardian"]
     assert result == {"mining": {"status": "enqueued"},
                       "guardian": {"status": "enqueued"}}
 
     monkeypatch.setattr("app.services.mining_schedule.run_weekly_mining", boom)
-    result = lab_schedule_module.run_scheduled_lab(SimpleNamespace())
+    result = lab_schedule_module.run_scheduled_lab(
+        SimpleNamespace(mining_lock_acquired=True)
+    )
     assert result["mining"] is None
     assert result["guardian"] == {"status": "enqueued"}
     del tmp_path
+
+
+def test_run_scheduled_lab_skips_guardian_without_lock(monkeypatch):
+    import app.services.lab_schedule as lab_schedule_module
+
+    monkeypatch.setattr(
+        "app.services.mining_lock_admin.ensure_mining_lock",
+        lambda _: False,
+    )
+    result = lab_schedule_module.run_scheduled_lab(SimpleNamespace())
+    assert result == {
+        "mining": {"skipped": "mining lock unavailable"},
+        "guardian": {"skipped": "mining lock unavailable"},
+    }

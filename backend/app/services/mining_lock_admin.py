@@ -51,9 +51,10 @@ class MiningLockAdminError(ValueError):
 def _finish_takeover(app_state: Any, lock: MiningProcessLock) -> None:
     """Only a new lock owner may recover orphaned runs; never repeat on live runs."""
     try:
-        manager = getattr(app_state, "mining_manager", None)
-        if manager is not None:
-            manager.recover_interrupted()
+        for attribute in ("mining_manager", "guardian_manager"):
+            manager = getattr(app_state, attribute, None)
+            if manager is not None:
+                manager.recover_interrupted()
     except (MiningRunStoreError, OSError) as exc:
         app_state.mining_lock_acquired = False
         lock.release()

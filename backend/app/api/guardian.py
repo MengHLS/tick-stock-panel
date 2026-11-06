@@ -53,6 +53,21 @@ def _manager(request: Request) -> MiningJobManager:
     return manager
 
 
+def _require_write_owner(request: Request) -> None:
+    """Guardian writes require the instance that owns the process lock."""
+    from app.services.mining_lock_admin import MiningLockAdminError, ensure_mining_lock
+
+    try:
+        available = ensure_mining_lock(request.app.state)
+    except MiningLockAdminError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    if not available:
+        raise HTTPException(
+            status_code=409,
+            detail="当前实例未持有挖掘锁, 守护任务处于只读降级模式",
+        )
+
+
 def _store(request: Request) -> GuardianStore:
     return GuardianStore(request.app.state.repo.store.data_dir)
 
@@ -141,6 +156,7 @@ def adopt_strategy(
     payload: GuardianAdoptRequest,
     request: Request,
 ) -> dict[str, Any]:
+    _require_write_owner(request)
     try:
         validate_primary_objective(payload.objective)
     except ValueError as exc:
@@ -181,6 +197,7 @@ def adopt_strategy(
 
 @router.post("/{strategy_id}/drop")
 def drop_strategy(strategy_id: str, request: Request) -> dict[str, Any]:
+    _require_write_owner(request)
     store = _store(request)
     try:
         removed = store.drop(strategy_id)
@@ -193,6 +210,7 @@ def drop_strategy(strategy_id: str, request: Request) -> dict[str, Any]:
 
 @router.post("/{strategy_id}/rerun")
 def rerun_strategy(strategy_id: str, request: Request) -> dict[str, Any]:
+    _require_write_owner(request)
     store = _store(request)
     if store.get(strategy_id) is None:
         raise HTTPException(status_code=404, detail=f"guardian profile not found: {strategy_id}")
@@ -204,6 +222,7 @@ def rerun_strategy(strategy_id: str, request: Request) -> dict[str, Any]:
 
 @router.post("/run")
 def run_all(request: Request) -> dict[str, Any]:
+    _require_write_owner(request)
     manager = _manager(request)
     _reject_active_run(manager)
     run = _enqueue_run(manager, request, strategy_ids=None)
@@ -237,6 +256,7 @@ def get_run(run_id: str, request: Request) -> dict[str, Any]:
 @router.post("/combinations/scan")
 def scan_combinations(request: Request) -> dict[str, Any]:
     """触发组合相关性扫描 (守护运行时 mode=combinations, 后台执行)。"""
+    _require_write_owner(request)
     manager = _manager(request)
     _reject_active_run(manager)
     config = preferences.get_guardian_schedule()
@@ -273,6 +293,7 @@ class GuardianComboCreateRequest(BaseModel):
 def create_combination(
     payload: GuardianComboCreateRequest, request: Request
 ) -> dict[str, Any]:
+    _require_write_owner(request)
     try:
         result = create_guardian_composite(
             request.app.state.repo.store.data_dir,
@@ -294,7 +315,9 @@ def get_config() -> dict[str, Any]:
 
 
 @router.patch("/config")
-def update_config(payload: GuardianConfigPatch) -> dict[str, Any]:
+def update_config(payload: GuardianConfigPatch, request: Request) -> dict[str, Any]:
+    # 配置也会影响守护调度, 因此与任务写入口共用同一实例所有权。
+    _require_write_owner(request)
     current = preferences.get_guardian_schedule()
     updates = payload.model_dump(exclude_none=True)
     if not updates:
