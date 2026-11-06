@@ -61,6 +61,7 @@
 | [tickflow-pro-phase1-probe.md](tickflow-pro-phase1-probe.md) | 专项探针记录 |
 | [tickflow-pro-shared-rate-limit.md](tickflow-pro-shared-rate-limit.md) | 限频专项说明 |
 | [superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md](superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md) | 设计提案（是否已实施未逐项核实） |
+| [superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md](superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md) | 研究协议（已冻结；续做前核对样本成熟度） |
 | [superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md](superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md) | 历史计划（已实现，现行口径见 [features.md](features.md)） |
 
 ## 本地研究与过程文档
@@ -74,7 +75,7 @@
 
 2026-10-29 的实施阶段计划文件已删除，设计稿仍保留于上表；历史版本由 Git 保留。
 
-`superpowers/` 下未找到 2026-10-30 的计划或规格文件；相关首板确认协议来源待核实，不推断为已完成或已废弃。
+2026-10-30 首板确认性研究协议已从提交 `11dc2c99` 恢复（blob `1115f92e0dffeb2c078613ed6e5f34d3a9897d57`）；协议冻结条件未改，前瞻主检验尚未由本次治理验证。
 
 ## 命名与位置
 
