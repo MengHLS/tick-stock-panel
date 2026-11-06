@@ -76,6 +76,39 @@ def test_invalid_password_fields_fail_closed(
         auth.is_configured()
 
 
+def test_explicit_null_password_fields_fail_closed(
+    isolated_auth_store: tuple[ModuleType, Path],
+) -> None:
+    auth, auth_path = isolated_auth_store
+    auth.set_password("existing-password")
+    data = json.loads(auth_path.read_text(encoding="utf-8"))
+    data["password_hash"] = None
+    data["password_salt"] = None
+    auth_path.write_text(json.dumps(data), encoding="utf-8")
+    auth._configured_cache = None
+
+    with pytest.raises(auth.AuthStoreError):
+        auth.is_configured()
+
+    app_config.settings.auth_password = "env-replacement"
+    assert auth.bootstrap_from_env() is False
+    assert json.loads(auth_path.read_text(encoding="utf-8"))["password_hash"] is None
+
+
+def test_single_password_field_fails_closed(
+    isolated_auth_store: tuple[ModuleType, Path],
+) -> None:
+    auth, auth_path = isolated_auth_store
+    auth.set_password("existing-password")
+    data = json.loads(auth_path.read_text(encoding="utf-8"))
+    del data["password_salt"]
+    auth_path.write_text(json.dumps(data), encoding="utf-8")
+    auth._configured_cache = None
+
+    with pytest.raises(auth.AuthStoreError):
+        auth.is_configured()
+
+
 def test_sessions_only_store_remains_unconfigured(
     isolated_auth_store: tuple[ModuleType, Path],
 ) -> None:
@@ -114,3 +147,31 @@ def test_middleware_and_auth_api_fail_closed_on_corrupt_store(
             json={"password": "replacement-password"},
         ).status_code == 503
         assert auth_path.read_text(encoding="utf-8") == "{broken"
+
+
+def test_middleware_and_auth_api_fail_closed_on_null_password_fields(
+    isolated_auth_store: tuple[ModuleType, Path],
+) -> None:
+    auth, auth_path = isolated_auth_store
+    auth.set_password("existing-password")
+    data = json.loads(auth_path.read_text(encoding="utf-8"))
+    data["password_hash"] = None
+    data["password_salt"] = None
+    auth_path.write_text(json.dumps(data), encoding="utf-8")
+    auth._configured_cache = None
+
+    with TestClient(_app(), client=("127.0.0.1", 50000)) as client:
+        response = client.get("/api/probe")
+        assert response.status_code == 503
+        assert response.json()["code"] == "AUTH_STORE_UNAVAILABLE"
+        assert client.get("/api/auth/status").status_code == 503
+        assert client.post(
+            "/api/auth/login",
+            json={"password": "existing-password"},
+        ).status_code == 503
+        assert client.post(
+            "/api/auth/setup",
+            json={"password": "replacement-password"},
+        ).status_code == 503
+
+    assert json.loads(auth_path.read_text(encoding="utf-8"))["password_hash"] is None

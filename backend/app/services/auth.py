@@ -74,17 +74,22 @@ def _load() -> dict:
 def _configured_state(data: dict) -> bool:
     """Validate auth fields and return whether a password is configured.
 
-    A file with only session data is the legacy empty-store shape and remains
-    unconfigured. Once a password hash is present, malformed hash/salt fields
-    are storage corruption rather than "no password".
+    A file with both password fields absent and only session data is the legacy
+    empty-store shape and remains unconfigured. Field presence is authoritative:
+    explicit null, a missing half, wrong type, or malformed hex in an existing
+    password store is corruption rather than "no password".
     """
-    password_hash = data.get("password_hash")
-    password_salt = data.get("password_salt")
-    if password_hash is None and password_salt is None:
+    has_hash = "password_hash" in data
+    has_salt = "password_salt" in data
+    if not has_hash and not has_salt:
         sessions = data.get("sessions")
         if sessions is not None and not isinstance(sessions, dict):
             raise AuthStoreError("认证会话配置无效")
         return False
+    if not has_hash or not has_salt:
+        raise AuthStoreError("认证密码配置无效")
+    password_hash = data["password_hash"]
+    password_salt = data["password_salt"]
     if not isinstance(password_hash, str) or not password_hash:
         raise AuthStoreError("认证密码配置无效")
     if not isinstance(password_salt, str) or not password_salt:
