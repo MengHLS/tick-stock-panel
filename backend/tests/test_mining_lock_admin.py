@@ -63,12 +63,10 @@ _POSIX = pytest.mark.skipif(os.name == "nt", reason="外部持锁进程仅在 PO
 
 def _spawn_holder(data_dir: Path) -> subprocess.Popen:
     env = {**os.environ, "PYTHONPATH": str(_BACKEND_ROOT)}
-    # Windows venv launchers can spawn another PID; target the actual interpreter.
-    interpreter = (
-        getattr(sys, "_base_executable", sys.executable)
-        if os.name == "nt"
-        else sys.executable
-    )
+    # Use the venv interpreter so the holder can import the app's dependencies.
+    # If a Windows launcher spawns a child, the script prints its own PID and
+    # holder_process is resolved from that output below.
+    interpreter = sys.executable
     proc = subprocess.Popen(
         [interpreter, "-c", _HOLDER_SCRIPT, str(data_dir)],
         stdout=subprocess.PIPE,
@@ -151,7 +149,7 @@ def test_windows_external_holder_metadata_remains_readable(tmp_path):
     try:
         holder = read_lock_holder(tmp_path)
         assert holder is not None
-        assert holder["pid"] == proc.pid
+        assert holder["pid"] == proc.holder_process.pid
         assert holder["role"] == "worker"
         status = lock_status(tmp_path)
         assert status["held"] is True
