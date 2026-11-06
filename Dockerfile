@@ -21,7 +21,8 @@ RUN if [ "$USE_CN_MIRROR" = "1" ]; then npm config set registry "$NPM_REGISTRY";
 # 让 pnpm 走镜像源安装依赖
 RUN if [ "$USE_CN_MIRROR" = "1" ]; then pnpm config set registry "$NPM_REGISTRY"; fi
 COPY frontend/package.json frontend/pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile || pnpm install
+# 发布构建只接受锁文件依赖图; 锁不一致应显式失败, 不自动重新解析。
+RUN pnpm install --frozen-lockfile
 COPY frontend/ ./
 RUN pnpm build
 
@@ -78,6 +79,7 @@ COPY README.md /README.md
 COPY backend/pyproject.toml backend/uv.lock* ./
 # uv 原生支持同时挂多个 index(主源 + 备用源),会自动在两源中查找,
 # 比逐个重试更稳健 —— 任一源缺包时另一源补位。
+# 发布构建不保留非冻结回退: 锁不一致或解析失败必须让构建失败。
 RUN if [ "$USE_CN_MIRROR" = "1" ]; then \
       export UV_DEFAULT_INDEX="$PYPI_INDEX" UV_EXTRA_INDEX_URL="$PYPI_FALLBACK"; \
     fi; \
@@ -85,7 +87,7 @@ RUN if [ "$USE_CN_MIRROR" = "1" ]; then \
     for extra in $BACKEND_EXTRAS; do \
       set -- "$@" --extra "$extra"; \
     done; \
-    uv sync --frozen "$@" || uv sync "$@"
+    uv sync --frozen "$@"
 
 # Backend code
 # 注意:Docker 里 WORKDIR=/app, 而 config.py 的 _PROJECT_ROOT 是按开发布局
