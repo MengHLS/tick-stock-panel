@@ -30,10 +30,13 @@
 | [deploy-password.md](deploy-password.md) | 公网访问密码 |
 | [strategy.md](strategy.md) | 策略编写与参数 |
 | [strategy-iteration.md](strategy-iteration.md) | AI 策略迭代流程 |
+| [backtest-evidence.md](backtest-evidence.md) | 正式回测的未来数据检查、版本指纹与证据接口 |
 | [mining.md](mining.md) | 因子与策略挖掘 |
 | [market-phase.md](market-phase.md) | 市场阶段与主线识别 |
 | [custom-data-source.md](custom-data-source.md) | 自定义数据源契约 |
 | [plugin-development.md](plugin-development.md) | 数据源插件开发 |
+| [external-data-source-packages.md](external-data-source-packages.md) | 外部数据源 Provider 安装、更新与能力切换 |
+| [extension-packages.md](extension-packages.md) | 统一导入与后端/前后端扩展包契约 |
 | [page-sdk.md](page-sdk.md) | 页面插件 SDK |
 | [secondary-development.md](secondary-development.md) | 二次开发边界与扩展点 |
 | [historical-st-filter.md](historical-st-filter.md) | 本地历史 ST 过滤修复说明 |
@@ -57,6 +60,7 @@
 | [backend-data-performance-plan.md](backend-data-performance-plan.md) | 性能专项计划 |
 | [tickflow-pro-phase1-probe.md](tickflow-pro-phase1-probe.md) | 专项探针记录 |
 | [tickflow-pro-shared-rate-limit.md](tickflow-pro-shared-rate-limit.md) | 限频专项说明 |
+| [superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md](superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md) | 设计提案（是否已实施未逐项核实） |
 | [superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md](superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md) | 历史计划（已实现，现行口径见 [features.md](features.md)） |
 
 ## 本地研究与过程文档
@@ -66,9 +70,11 @@
 | [docs/research/](research/README.md) 结论报告 | 历史研究结论 | 保留结论与数据版本说明；不再追加过程记录 |
 | [`../research/archive/2026-10-27-firstboard-classification/`](../research/archive/2026-10-27-firstboard-classification/README.md) | 研究工作区，含脚本、CSV、大 HTML | 已按历史快照迁出 `docs/` 并封存；不是维护型文档 |
 | [research/firstboard-confirmatory-20261030/](research/firstboard-confirmatory-20261030/RESULTS.md)、[research/firstboard-negative-20261030/](research/firstboard-negative-20261030/RESULTS.md) | 进行中研究 | 研究结束后只保留 `RESULTS.md` 与必要数据清单 |
-| `superpowers/` 下 2026-10-30 的计划与规格 | 进行中计划 | 完成前保留；完成后同样合并或删除 |
+| [superpowers/specs/](superpowers/specs/) | 设计提案与历史计划 | 只保留可定位到具体文件的条目；完成或失效后合并或删除 |
 
-已完成的 2026-10-29 实施计划已删除，历史版本由 Git 保留。
+2026-10-29 的实施阶段计划文件已删除，设计稿仍保留于上表；历史版本由 Git 保留。
+
+`superpowers/` 下未找到 2026-10-30 的计划或规格文件；相关首板确认协议来源待核实，不推断为已完成或已废弃。
 
 ## 命名与位置
 
