@@ -1,6 +1,8 @@
 # 稳健参数优化与滚动样本外检验 · 重设计方案
 
-> 状态: 设计已定稿, 待实施 (P1-P4)。取代原"参数优化"的样本内网格排名实现。
+> **状态校准（2026-11-06）**：P1-P3 主体已落地，不再以“P1-P4 待实施”概括。
+> 已实现：`backend/app/backtest/robust_optimizer.py` 的切窗/稳健分/护栏/阶段二细化与 `/api/backtest/optimize-robust/*` 接口；前端稳健优化入口与结果组件（`frontend/src/pages/backtest/StrategyOptimizer.tsx`）。滚动样本外检验继续复用现有 walkforward 实现。
+> 仍属设计或未逐项核对：P4 删除旧 `optimizer.py` 单窗全量排名路径、性能目标与端到端验收；下文阈值、诊断和阶段划分仍是设计合同，现行行为以代码/测试为准。
 
 ## 一、问题定义
 

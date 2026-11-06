@@ -1,6 +1,8 @@
 # 虚拟账户（模拟盘）设计方案
 
-> 状态: 设计稿（未实现）。本文档描述目标形态与实现路径, 供评审与分期开发。
+> **状态校准（2026-11-06）**：V1 核心闭环与 V2 主要能力已实现，本文不再是“未实现”设计稿。
+> 已实现：账户/多账户、订单与撤单、成交台账、持仓重建、净值/统计、自动跟单规则（`backend/app/api/paper.py`、`backend/app/strategy/paper.py`、`paper_auto.py`）；盘中评估挂点与盘后 `paper_settle`（`backend/app/services/quote_service.py`、`backend/app/jobs/daily_pipeline.py`）；「绑定即评估」（`paper_watch.py`，说明见 [secondary-development.md](secondary-development.md)）；前端页面与执行扩展（`frontend/src/custom/paper/`、`backend/app/custom/paper_execution/README.md`）。
+> 仍属设计或未逐项核对：V3 的推送/导出/回测对比增强、本文全部边界条件与测试矩阵未逐项验收；下文仍是设计取舍，不是 API 合同。现行使用口径以 [features.md](features.md) 与代码/测试为准。
 > 遵循 [CONTRIBUTING.md](../CONTRIBUTING.md) 的数据口径、插件化与测试矩阵要求。
 
 ## 1. 目标与非目标

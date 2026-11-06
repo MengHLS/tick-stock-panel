@@ -1,6 +1,6 @@
 # 核心能力开放与插件化改造设计方案
 
-> 状态: V1/V2 已实现（0.3.2）—— Token + scope 网关 + 限流、五个 scope 全量 Tier A、`/api/openapi.json?tier=a` 契约视图、设置页 Token 管理（「设置 → 开放接口」）。V3+（钩子契约、SSE 票据、模拟盘拆分）仍为设计。使用说明见 [features.md → 开放接口](./features.md#-开放接口open-api--tier-a)。
+> **状态校准（2026-11-06）**：V1/V2 已实现（0.3.2）—— Token + scope 网关 + 限流、五个 scope 全量 Tier A、`/api/openapi.json?tier=a` 契约视图、设置页 Token 管理（「设置 → 开放接口」）、示例脚本与 SSE 短期票据（`POST /api/events/ticket` → `GET /api/events?ticket=…`）。受限的运行时页面包加载也已实现（`frontend/src/extensions/runtime.tsx` 配合扩展包），但通用 remote module/微前端与第三方代码沙箱仍不做。V3 钩子契约与模拟盘核心拆分仍属设计；`backend/app/custom/paper_execution/` 是 L2 扩展试点，不等于核心拆分完成。使用说明见 [features.md → 开放接口](./features.md#-开放接口open-api--tier-a)。
 > 遵循 [CONTRIBUTING.md](../CONTRIBUTING.md) 的数据口径、插件化与测试矩阵要求; 扩展机制现状见 [secondary-development.md](./secondary-development.md)。
 
 ## 1. 目标与非目标
@@ -14,7 +14,7 @@
 **非目标**
 
 - 不做多用户/多租户（数据层全局单用户是既定取舍; 以「单用户 + 多 Token + scope」满足外部调用方隔离需求）。
-- 不做前端运行时插件（remote module/微前端）与第三方代码沙箱——等真实第三方插件作者出现再立项。
+- 不做通用前端运行时插件（remote module/微前端）与第三方代码沙箱；受限的扩展包页面产物加载已实现，但不等同于通用沙箱。
 - 不做热更新; 桌面版更新走「下载安装包 + 静默覆盖安装 + 重启」路径。
 
 ## 2. 核心域 / 扩展域边界
@@ -133,7 +133,7 @@
 | 端点 | 说明 |
 |---|---|
 | `GET /api/alerts` | 告警/事件留痕查询 |
-| `GET /api/events/stream`（SSE） | 实时事件流（告警/成交/系统事件）; Token 以 query 参数短期票据接入（SSE 无法带 header） |
+| `POST /api/events/ticket` + `GET /api/events?ticket=…`（SSE） | 实时事件流（告警/成交/系统事件）; Token 先换 60s 一次性票据，再以 query 参数接入（SSE 无法带 header） |
 | Webhook 订阅注册 | **V2 再做**: 按 Token 注册回调 URL + 事件类型 + 签名密钥（复用现有 custom webhook 通道能力） |
 
 ### 5.5 模拟盘（paper:trade）

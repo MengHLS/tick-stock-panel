@@ -1,6 +1,11 @@
 # 因子体系专业化设计（提案）
 
-> **状态声明**：本文是设计提案，**尚未实现**。凡标注【现状】的条目引用当前仓库真实代码（基于 main@2ce8b4b1），可直接核对；凡标注【设计】的条目是目标契约，**不得当作已存在的 API 导入或调用**（遵循 `docs/secondary-development.md` 第 1 节的状态区分要求）。
+> **状态校准（2026-11-06）**：本文原为设计提案，**未整体完成**，但下列子能力已落地，不能再用“尚未实现”概括。
+> 已实现：因子注册表 `backend/app/factors/registry.py`、公式 DSL `backend/app/factors/dsl.py`、自定义/复合因子持久化与生命周期 `backend/app/factors/store.py`、部分统计口径 `backend/app/backtest/stats_v2.py`（NW / BH-FDR / DSR），以及因子页、编辑器、组合与检验（落地记录见 [factor-platform-plan.md](factor-platform-plan.md) 的 P0-P3）。
+> 仍属设计或未逐项核对：独立 `universe.py` / `neutralize.py`、绩效指标统一、optimizer/mining 的 FDR/DSR 晋升接线、`st_history` / `delisted_kline` 等数据契约。本文标注【设计】的 schema、API 与前端条目**仍不得当作已存在的 API 导入或调用**。
+> 现行使用合同以 [factor-platform-plan.md](factor-platform-plan.md)（产品/导航）和 [features.md](features.md)（使用口径）为准；代码与测试优先于两份设计稿。
+>
+> 凡标注【现状】的条目引用当前仓库真实代码（基于 main@2ce8b4b1），可直接核对；凡标注【设计】的条目是目标契约，**不得当作已存在的 API 导入或调用**（遵循 `docs/secondary-development.md` 第 1 节的状态区分要求）。
 >
 > 全部【现状】引用已于 2026-09-04 逐条核对，Polars API 与依赖可行性已实测（polars 1.40.1），验证记录见 §17；一处初稿引用错误（pipeline.py:1738→1795）已修正。
 >
