@@ -22,6 +22,7 @@ from typing import Any, Callable
 import polars as pl
 
 from app.market_time import cn_today
+from app.services.quote_freshness import fresh_rows, stale_rejections
 from app.strategy import config as _strategy_config
 from app.strategy.custom_signals import _OP_BUILDERS  # type: ignore  # 复用运算符构造器
 from app.strategy.custom_signals import signal_names as _custom_signal_names
@@ -409,6 +410,12 @@ class MonitorRuleEngine:
         # 只在 False → True 跳变时告警 (首轮观测不触发, 防止新建规则瞬间刷屏)。
         self._abnormal_condition_state: dict[tuple[str, str], bool] = {}
         self._unavailable_reasons: dict[str, str] = {}
+        # 最近一轮被行情新鲜度拒绝的标的与原因 (asset_type → 报告)。
+        self._last_quote_rejections: dict[str, dict] = {}
+
+    def latest_quote_rejections(self, asset_type: str = "stock") -> dict:
+        """最近一轮逐标的行情拒绝报告, 供页面/告警解释"为什么没触发"。"""
+        return dict(self._last_quote_rejections.get(asset_type) or {})
 
     def set_strategy_engine(self, engine) -> None:
         """注入 StrategyEngine, type=strategy 规则据此跑策略。"""
@@ -675,6 +682,27 @@ class MonitorRuleEngine:
                 return []
 
         now = time.time()
+        rejected = stale_rejections(df)
+        if rejected:
+            reason_counts: dict[str, int] = {}
+            for reason in rejected.values():
+                reason_counts[reason] = reason_counts.get(reason, 0) + 1
+            self._last_quote_rejections[asset_type] = {
+                "asset_type": asset_type,
+                "rejected": len(rejected),
+                "reasons": reason_counts,
+                "samples": [
+                    {"symbol": symbol, "reason": reason}
+                    for symbol, reason in list(rejected.items())[:20]
+                ],
+            }
+            logger.warning(
+                "%s 行情新鲜度拒绝 %d 个标的: %s",
+                asset_type, len(rejected), reason_counts,
+            )
+        else:
+            self._last_quote_rejections.pop(asset_type, None)
+        df = fresh_rows(df)
         events: list[dict] = []
         # 原子化: reset 轮 (股票轮) 时先把本轮结果写到临时容器, 算完后一次性替换
         # _latest_strategy_results。这样 /cached 并发读取永远拿到完整结果,
@@ -684,6 +712,11 @@ class MonitorRuleEngine:
             self._building_strategy_results = {}
             self._latest_strategy_result_ids.clear()
             self._unavailable_reasons = {}
+        if df.is_empty():
+            # 全部标的行情过期: 清空旧结果并停止评估, 不能沿用上一轮命中。
+            self._latest_strategy_results = self._building_strategy_results
+            self._active_matrix_snapshots.pop(asset_type, None)
+            return []
 
         matrix_rules: list[dict] = []
         params_map: dict[str, dict] = {}

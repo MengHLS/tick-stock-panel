@@ -340,6 +340,11 @@ class QuoteService:
         self._volume_delta: dict[str, tuple[float, float]] = {}
         self._volume_delta_span_s: float = 0.0
         self._etf_history_cache: tuple[tuple, pl.DataFrame] | None = None
+        # 复权因子降级状态: asset_type → 最近一次失败原因。非空期间该资产类型
+        # 的盘中信号全部判为不可执行 (价格基不一致会造出假信号)。
+        self._adjustment_degraded: dict[str, str] = {}
+        # 最近一轮逐标的行情新鲜度报告 (asset_type → summary), 供状态页/审计。
+        self._quote_freshness: dict[str, dict] = {}
 
     # ================================================================
     # 生命周期
@@ -1303,6 +1308,7 @@ class QuoteService:
     def _evaluate_monitors(self, daily_df: pl.DataFrame, quote_extra: pl.DataFrame | None) -> None:
         """行情更新后评估统一监控规则引擎,并刷新策略结果缓存。"""
         try:
+            from app.services.quote_freshness import fresh_rows
             # 仅在「交易日 + 连续竞价时段」评估监控 —— 避开集合竞价指示价、盘前/收盘后
             # 缓冲。轮询窗口(_is_trading_hours)更宽是为盘前预热/收盘捕捉, 但告警不应
             # 基于这些非连续竞价价格。
@@ -1316,6 +1322,11 @@ class QuoteService:
             if not stock_ready:
                 logger.debug("股票快照未就绪(空=%s, 日期=%s), 跳过股票轮",
                              enriched_today.is_empty(), enriched_date)
+            now_ms = time.time() * 1000.0
+            if stock_ready:
+                # 逐标的新鲜度: 全市场日期正确不代表每一行都是当前价。
+                enriched_today = self._annotate_freshness(enriched_today, "stock", now_ms)
+                stock_ready = not enriched_today.is_empty()
 
             all_alerts: list[dict] = []
             rule_events: list[dict] = []
@@ -1350,7 +1361,7 @@ class QuoteService:
                             self.notify_strategy_results_updated()
                     if engine.has_rule_type("sector"):
                         rule_events += engine.evaluate_sectors(
-                            enriched_today if stock_ready else pl.DataFrame(),
+                            fresh_rows(enriched_today) if stock_ready else pl.DataFrame(),
                             self.get_index_quotes(),
                         )
                     # 异动边缘规则轮: 快照 (enriched 偏离列 + 实时叠加) 由
@@ -1386,6 +1397,7 @@ class QuoteService:
                         try:
                             etf_enriched, etf_date = self._repo.get_enriched_latest_asset("etf", refresh=False)
                             if not etf_enriched.is_empty() and etf_date == cn_today():
+                                etf_enriched = self._annotate_freshness(etf_enriched, "etf", now_ms)
                                 etf_enriched = self._inject_intraday_signals(etf_enriched, engine, "etf")
                                 rule_events = rule_events + engine.evaluate(
                                     etf_enriched, asset_type="etf", reset_strategy_results=False,
@@ -1399,6 +1411,7 @@ class QuoteService:
                         try:
                             index_enriched, index_date = self._repo.get_enriched_latest_asset("index", refresh=False)
                             if not index_enriched.is_empty() and index_date == cn_today():
+                                index_enriched = self._annotate_freshness(index_enriched, "index", now_ms)
                                 index_enriched = self._inject_intraday_signals(index_enriched, engine, "index")
                                 rule_events = rule_events + engine.evaluate(
                                     index_enriched, asset_type="index", reset_strategy_results=False,
@@ -1410,7 +1423,7 @@ class QuoteService:
                     # same alert-event shape used by the standard delivery pipeline.
                     rule_events.extend(
                         self._evaluate_extension_observers(
-                            enriched_today if stock_ready else pl.DataFrame(),
+                            fresh_rows(enriched_today) if stock_ready else pl.DataFrame(),
                         )
                     )
                     # 模拟盘「绑定即评估」的合成规则事件是沙盒信号: 只喂下面的
@@ -1488,9 +1501,10 @@ class QuoteService:
                     from app.strategy import paper as paper_trading
                     from app.strategy import paper_auto
                     data_dir = self._app_state.repo.store.data_dir
+                    fresh_snapshot = fresh_rows(enriched_today)
                     snapshot = dict(zip(
-                        enriched_today["symbol"].to_list(),
-                        enriched_today["raw_close"].to_list(),
+                        fresh_snapshot["symbol"].to_list(),
+                        fresh_snapshot["raw_close"].to_list(),
                         strict=False,
                     ))
                     paper_events: list[dict] = []
@@ -1518,6 +1532,35 @@ class QuoteService:
 
         except Exception as e:  # noqa: BLE001
             logger.warning("监控评估失败: %s", e)
+
+    def _annotate_freshness(self, frame: pl.DataFrame, asset_type: str, now_ms: float) -> pl.DataFrame:
+        """给监控帧加逐标的行情年龄; 降级/陈旧标的交给规则引擎拒绝。"""
+        from app.services.quote_freshness import annotate_quote_freshness
+
+        adjustment_error = getattr(self, "_adjustment_degraded", {}).get(asset_type)
+        annotated, summary = annotate_quote_freshness(
+            frame, now_ms=now_ms, adjustment_error=adjustment_error,
+        )
+        if not hasattr(self, "_quote_freshness"):
+            self._quote_freshness = {}
+        self._quote_freshness[asset_type] = summary
+        if summary["stale"]:
+            logger.warning(
+                "%s 行情新鲜度: %d/%d 标的不可执行 %s%s",
+                asset_type,
+                summary["stale"],
+                summary["symbols"],
+                summary["reasons"],
+                f" (复权降级: {adjustment_error})" if adjustment_error else "",
+            )
+        return annotated
+
+    def quote_freshness_status(self) -> dict:
+        """逐标的行情新鲜度报告 (最近一轮), 供状态/审计读取。"""
+        return {
+            asset: dict(report)
+            for asset, report in getattr(self, "_quote_freshness", {}).items()
+        }
 
     def _format_extension_notifications(self, events: list[dict]) -> list[dict]:
         """Apply optional copy formatters after evaluation and before every output channel."""
@@ -1662,6 +1705,10 @@ class QuoteService:
         symbols = get_symbols(asset_type)
         if not symbols:
             return enriched
+        if getattr(self, "_adjustment_degraded", {}).get(asset_type):
+            # 复权因子缺失时 enriched 是另一套价格基, 与历史指标不可比;
+            # 生成盘中信号会造出"穿越"假象, 一律不注入并留痕在 freshness 状态里。
+            return self._intraday_signal_evaluator.inject(enriched, [])
 
         now = cn_now()
         bucket = now.strftime("%Y%m%d%H%M")
@@ -1714,6 +1761,15 @@ class QuoteService:
             now=now,
             signals=self._load_intraday_signal_defs(),
         )
+        if "quote_fresh" in enriched.columns:
+            # 日线快照已判陈旧的标的同样不能触发盘中信号。
+            fresh_symbols = set(
+                enriched.filter(pl.col("quote_fresh"))["symbol"].to_list()
+            )
+            signals = [
+                signal for signal in signals
+                if str(signal.get("symbol")) in fresh_symbols
+            ]
         return self._intraday_signal_evaluator.inject(enriched, signals)
 
     def _load_intraday_signal_defs(self) -> list[dict]:
@@ -2139,13 +2195,18 @@ class QuoteService:
                 if factor_path and factor_path.exists():
                     try:
                         factors = pl.read_parquet(factor_path)
+                        self._adjustment_degraded.pop(asset_type, None)
                     except Exception as e:  # noqa: BLE001
                         # fail-visible: 复权因子读失败继续算会让本轮 enriched 以
                         # 不复权口径落盘并进缓存, 后续增量轮以此为基准 — 必须留痕
+                        self._adjustment_degraded[asset_type] = str(e)[:200]
                         logger.warning(
                             "%s 复权因子读取失败, 本轮 enriched 退化为不复权口径: %s",
                             asset_type, e,
                         )
+                elif factor_dir:
+                    # 复权因子文件缺失同样是不完整口径, 不能当作"无需复权"。
+                    self._adjustment_degraded[asset_type] = "adj_factor/all.parquet 不存在"
                 instruments = self._repo.get_instruments() if asset_type == "stock" else None
 
                 enriched_full = compute_enriched(

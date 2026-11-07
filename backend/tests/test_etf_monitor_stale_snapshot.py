@@ -12,6 +12,7 @@ from __future__ import annotations
 from datetime import date
 from types import SimpleNamespace
 from unittest.mock import patch
+import time
 
 import polars as pl
 
@@ -35,12 +36,13 @@ class _Repo:
             return pl.DataFrame(), None
         return (
             pl.DataFrame({"symbol": ["510300.SH"], "date": [self.etf_date],
-                          "close": [4.2], "change_pct": [0.012]}),
+                          "close": [4.2], "change_pct": [0.012],
+                          "quote_ts": [int(time.time() * 1000)]}),
             self.etf_date,
         )
 
 
-def _run(etf_date: date) -> list[dict]:
+def _run(etf_date: date, quote_age_ms: int | None = None) -> list[dict]:
     engine = MonitorRuleEngine()
     engine.set_rules([{
         "id": "etf_px", "name": "ETF 价格提醒", "type": "price", "asset_type": "etf",
@@ -49,7 +51,9 @@ def _run(etf_date: date) -> list[dict]:
         "cooldown_seconds": 0, "enabled": True,
     }])
     svc = QuoteService.__new__(QuoteService)
-    svc._repo = _Repo(etf_date)
+    svc._repo = (
+        _RepoOld(etf_date, quote_age_ms) if quote_age_ms is not None else _Repo(etf_date)
+    )
     svc._app_state = SimpleNamespace(monitor_engine=engine, repo=svc._repo)
     broadcast: list[dict] = []
     with (
@@ -77,3 +81,31 @@ def test_today_etf_snapshot_still_triggers():
     alerts = _run(TODAY)
     assert [a["rule_id"] for a in alerts] == ["etf_px"]
     assert alerts[0]["symbol"] == "510300.SH"
+
+
+def test_today_snapshot_with_old_quote_ts_is_not_executable():
+    """快照日期是当日, 但该标的行情时间已过期: 不能按旧价触发买入告警。"""
+    alerts = _run(TODAY, quote_age_ms=600_000)
+    assert alerts == []
+
+
+class _RepoOld:
+    """日期为当日, 但 quote_ts 停在 10 分钟前。"""
+
+    def __init__(self, day: date, age_ms: int) -> None:
+        self.day = day
+        self.age_ms = age_ms
+        self.store = SimpleNamespace(data_dir=None)
+
+    def get_name_map(self, symbols=None):
+        return {"510300.SH": "沪深300ETF"}
+
+    def get_enriched_latest_asset(self, asset_type, refresh=True):
+        if asset_type != "etf":
+            return pl.DataFrame(), None
+        return (
+            pl.DataFrame({"symbol": ["510300.SH"], "date": [self.day],
+                          "close": [4.2], "change_pct": [0.012],
+                          "quote_ts": [int(time.time() * 1000) - self.age_ms]}),
+            self.day,
+        )
