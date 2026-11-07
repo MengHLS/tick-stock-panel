@@ -1,0 +1,566 @@
+{
+ "audit": "strategy12-gates-20261107",
+ "generated_at": "2026-11-07T12:01:00+08:00",
+ "sources": {
+  "e1_result": "research/strategy-search-20261107/results/e1_v3/e1_survivorship.json",
+  "e1_runs": [
+   "results/e1_v3/run_C00_A.json",
+   "results/e1_v3/run_C00_B.json"
+  ],
+  "e2_result": "research/strategy-search-20261107/results/e2_judgement.json",
+  "registry": "research/strategy-search-20261107/results/registry.json",
+  "runs": "research/strategy-search-20261107/results/run_*_10.json (12)",
+  "panel": "research/strategy-search-20261107/results/e1_v3/panel_input.arrow",
+  "code": [
+   "research/strategy-search-20261107/scripts/e1_survivorship.py",
+   "research/strategy-search-20261107/scripts/judge_e2.py",
+   "research/strategy-search-20261107/scripts/common.py",
+   "backend/app/backtest/engine.py",
+   "backend/app/backtest/matrix.py"
+  ],
+  "sha256": {
+   "research/strategy-search-20261107/scripts/e1_survivorship.py": "1c6f85ef3ae9d966575e915d45dc5ca629c0655a0f439dc79914cb2f7f752719",
+   "research/strategy-search-20261107/scripts/judge_e2.py": "2846abf5aac2bf3c774c27cf0404f3c1974eb7ac0a193c52572feae95fdeb416",
+   "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+   "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+   "research/strategy-search-20261107/results/e2_judgement.json": "fc803f3ffeccfe0b3d5b050c3835b61bee7b427eb839013bece5e2f5850b748d",
+   "research/strategy-search-20261107/results/e1_v3/e1_survivorship.json": "4ee7d666e16c796abff1470fc15a9c6bc4eeb4e7f2ff35d063dc3258f2b81e28"
+  }
+ },
+ "e1": {
+  "verdict": "FAIL",
+  "exit_code": 3,
+  "open_at_end_share_A": 0.47317662909567637,
+  "open_at_end_share_B": 0.4762881673296272,
+  "stale_terminal_market_value": 0,
+  "diff_cagr_pp": 0.08066190262007167,
+  "diff_sharpe": 0.004865214044805,
+  "yearly_absdiff_max_pp": 0.5099957780137165,
+  "yearly_absdiff_min_pp": 0.0,
+  "counts": {
+   "n_symbols_A": 3384,
+   "n_symbols_B": 3208,
+   "n_stale": 176
+  },
+  "stale_cutoff": "2026-09-24",
+  "haircut_all_equal": true,
+  "final_positions_A": [
+   {
+    "symbol": "603986.SH",
+    "shares": 100.0,
+    "mark": 257.8,
+    "market_value": 25780.0,
+    "fallback_entry_price": false
+   },
+   {
+    "symbol": "002384.SZ",
+    "shares": 300.0,
+    "mark": 86.06,
+    "market_value": 25818.0,
+    "fallback_entry_price": false
+   },
+   {
+    "symbol": "600522.SH",
+    "shares": 1600.0,
+    "mark": 23.17,
+    "market_value": 37072.0,
+    "fallback_entry_price": false
+   },
+   {
+    "symbol": "000725.SZ",
+    "shares": 8900.0,
+    "mark": 4.46,
+    "market_value": 39694.0,
+    "fallback_entry_price": false
+   },
+   {
+    "symbol": "601899.SH",
+    "shares": 1700.0,
+    "mark": 27.6,
+    "market_value": 46920.0,
+    "fallback_entry_price": false
+   }
+  ]
+ },
+ "annualization": {
+  "equity_points": 1779,
+  "points_per_calendar_year": 242.63620238984316,
+  "per_year": {
+   "2019": 126,
+   "2020": 243,
+   "2021": 243,
+   "2022": 242,
+   "2023": 242,
+   "2024": 242,
+   "2025": 243,
+   "2026": 198
+  },
+  "s07_sharpe_252": 0.030963629224871673,
+  "s07_sharpe_242_64": 0.030382911454184307,
+  "e1_A_cagr_reported": -0.1312925269659384,
+  "e1_A_cagr_242_64": -0.126737342116378
+ },
+ "e2": {
+  "criteria": {
+   "min_sharpe": 0.5,
+   "warn_sharpe": 0.3,
+   "max_turnover": 30.0,
+   "scenario_bps": 10,
+   "rf": 0.0,
+   "annualization": 252
+  },
+  "summary": {
+   "n_strategies": 12,
+   "n_pass": 0,
+   "n_warn": 0,
+   "n_fail": 12,
+   "any_data_mismatch": false
+  },
+  "rows": [
+   {
+    "strategy": "S01_ma_cross_20_60",
+    "all_sharpe": -0.20885530025896987,
+    "t2_sharpe": -0.46854242381362377,
+    "all_mdd": -0.500203354115061,
+    "turnover": 3.9763303153529375,
+    "cross_check": 0.9999999999999986,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S02_donchian_20_10",
+    "all_sharpe": -1.3109989785143534,
+    "t2_sharpe": -1.302589454447589,
+    "all_mdd": -0.891781765627153,
+    "turnover": 6.812518525554825,
+    "cross_check": 0.9999999999999992,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S03_tsmom_60_m",
+    "all_sharpe": -0.5627063956960623,
+    "t2_sharpe": -0.5816526071566259,
+    "all_mdd": -0.5851378415343875,
+    "turnover": 2.9589326251098864,
+    "cross_check": 1.0000000000000007,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S04_rsi14_reversion",
+    "all_sharpe": -0.17740897145923104,
+    "t2_sharpe": -0.12650411940078077,
+    "all_mdd": -0.4076491369071785,
+    "turnover": 13.079276380189068,
+    "cross_check": 0.9999999999999999,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S05_bollinger_20_2",
+    "all_sharpe": -0.4950555345221621,
+    "t2_sharpe": -0.007875903207186983,
+    "all_mdd": -0.5542226837194674,
+    "turnover": 15.11981840782223,
+    "cross_check": 0.9999999999999997,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S06_xs_reversal_5d",
+    "all_sharpe": -0.8222881940565936,
+    "t2_sharpe": -1.7045737859088315,
+    "all_mdd": -0.6921596325502729,
+    "turnover": 15.406479458919277,
+    "cross_check": 1.000000000000001,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S07_xs_lowvol_60d",
+    "all_sharpe": 0.030963629224875475,
+    "t2_sharpe": 0.9667264090154267,
+    "all_mdd": -0.2992540487598083,
+    "turnover": 5.299956187628933,
+    "cross_check": 1.0000000000000004,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S08_high_52w",
+    "all_sharpe": -0.8347355884677327,
+    "t2_sharpe": -0.9858816037995825,
+    "all_mdd": -0.7543652048010131,
+    "turnover": 5.229589396294038,
+    "cross_check": 1.0000000000000002,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S09_volume_breakout_55",
+    "all_sharpe": -1.5343468687040496,
+    "t2_sharpe": -2.052553259013433,
+    "all_mdd": -0.9536504646611731,
+    "turnover": 11.139532036802494,
+    "cross_check": 1.0000000000000016,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S10_xs_reversal_20d",
+    "all_sharpe": -0.45555971064093737,
+    "t2_sharpe": -0.19251531320446663,
+    "all_mdd": -0.5581598754241379,
+    "turnover": 5.259151637243791,
+    "cross_check": 1.000000000000001,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S11_lowvol_reversal",
+    "all_sharpe": -0.5028887013389384,
+    "t2_sharpe": -0.8138013223135042,
+    "all_mdd": -0.27183350325267086,
+    "turnover": 2.8118967779806887,
+    "cross_check": 1.0,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   },
+   {
+    "strategy": "S12_lowvol_breadth",
+    "all_sharpe": -0.48413590070518064,
+    "t2_sharpe": -0.1618765047124216,
+    "all_mdd": -0.24238284996255088,
+    "turnover": 3.1981559314032024,
+    "cross_check": 0.9999999999999998,
+    "n_days": 1778,
+    "verdict": "FAIL"
+   }
+  ]
+ },
+ "dsr": {
+  "var_annual_SR": 0.20607003524398784,
+  "sd_annual_SR": 0.45394937519946854,
+  "best_all_SR": 0.030963629224875475,
+  "SR0_by_N": {
+   "12": 0.755740088963773,
+   "15": 0.8038007066293953,
+   "17": 0.8298620182661399,
+   "30": 0.9412151424770486,
+   "60": 1.0646645836643656
+  }
+ },
+ "matching": {
+  "trades_total": 5517,
+  "per_strategy": {
+   "S01_ma_cross_20_60": {
+    "n_trades": 252,
+    "buy_limit_up": 189,
+    "sell_limit_down": 1,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 1,
+    "blocked_trades": 1,
+    "lagged_entries": 1,
+    "lagged_pnl_share": 0.12531370498553268
+   },
+   "S02_donchian_20_10": {
+    "n_trades": 442,
+    "buy_limit_up": 4004,
+    "sell_limit_down": 15,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 6,
+    "blocked_trades": 6,
+    "lagged_entries": 0,
+    "lagged_pnl_share": -0.0
+   },
+   "S03_tsmom_60_m": {
+    "n_trades": 187,
+    "buy_limit_up": 572,
+    "sell_limit_down": 16,
+    "sell_suspended": 1,
+    "buy_suspended": 0,
+    "pending_exit": 7,
+    "blocked_trades": 7,
+    "lagged_entries": 4,
+    "lagged_pnl_share": 0.22019811082487245
+   },
+   "S04_rsi14_reversion": {
+    "n_trades": 779,
+    "buy_limit_up": 38,
+    "sell_limit_down": 6,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 1,
+    "blocked_trades": 1,
+    "lagged_entries": 2,
+    "lagged_pnl_share": -0.027890345223274885
+   },
+   "S05_bollinger_20_2": {
+    "n_trades": 903,
+    "buy_limit_up": 36,
+    "sell_limit_down": 1,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 1,
+    "blocked_trades": 1,
+    "lagged_entries": 3,
+    "lagged_pnl_share": -0.030494101216491404
+   },
+   "S06_xs_reversal_5d": {
+    "n_trades": 919,
+    "buy_limit_up": 19,
+    "sell_limit_down": 32,
+    "sell_suspended": 4,
+    "buy_suspended": 0,
+    "pending_exit": 9,
+    "blocked_trades": 9,
+    "lagged_entries": 4,
+    "lagged_pnl_share": 0.14453430123457905
+   },
+   "S07_xs_lowvol_60d": {
+    "n_trades": 314,
+    "buy_limit_up": 3,
+    "sell_limit_down": 0,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 0,
+    "blocked_trades": 0,
+    "lagged_entries": 0,
+    "lagged_pnl_share": -0.0
+   },
+   "S08_high_52w": {
+    "n_trades": 313,
+    "buy_limit_up": 253,
+    "sell_limit_down": 1,
+    "sell_suspended": 14,
+    "buy_suspended": 0,
+    "pending_exit": 3,
+    "blocked_trades": 3,
+    "lagged_entries": 0,
+    "lagged_pnl_share": -0.0
+   },
+   "S09_volume_breakout_55": {
+    "n_trades": 732,
+    "buy_limit_up": 1387,
+    "sell_limit_down": 20,
+    "sell_suspended": 24,
+    "buy_suspended": 0,
+    "pending_exit": 12,
+    "blocked_trades": 12,
+    "lagged_entries": 0,
+    "lagged_pnl_share": -0.0
+   },
+   "S10_xs_reversal_20d": {
+    "n_trades": 314,
+    "buy_limit_up": 26,
+    "sell_limit_down": 0,
+    "sell_suspended": 13,
+    "buy_suspended": 0,
+    "pending_exit": 2,
+    "blocked_trades": 2,
+    "lagged_entries": 1,
+    "lagged_pnl_share": 0.1565022707323667
+   },
+   "S11_lowvol_reversal": {
+    "n_trades": 173,
+    "buy_limit_up": 0,
+    "sell_limit_down": 0,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 0,
+    "blocked_trades": 0,
+    "lagged_entries": 0,
+    "lagged_pnl_share": -0.0
+   },
+   "S12_lowvol_breadth": {
+    "n_trades": 189,
+    "buy_limit_up": 4,
+    "sell_limit_down": 0,
+    "sell_suspended": 0,
+    "buy_suspended": 0,
+    "pending_exit": 0,
+    "blocked_trades": 0,
+    "lagged_entries": 0,
+    "lagged_pnl_share": -0.0
+   }
+  },
+  "lagged_entry_count": 15,
+  "lagged_entries": [
+   {
+    "strategy": "S01_ma_cross_20_60",
+    "symbol": "000839.SZ",
+    "signal": "2022-04-29",
+    "fill": "2022-05-06",
+    "expected": "2022-05-05",
+    "entry_price": 2.9529,
+    "pnl_pct": -0.358249
+   },
+   {
+    "strategy": "S03_tsmom_60_m",
+    "symbol": "600131.SH",
+    "signal": "2019-10-31",
+    "fill": "2019-11-04",
+    "expected": "2019-11-01",
+    "entry_price": 22.022,
+    "pnl_pct": -0.331966
+   },
+   {
+    "strategy": "S03_tsmom_60_m",
+    "symbol": "600576.SH",
+    "signal": "2021-04-30",
+    "fill": "2021-05-20",
+    "expected": "2021-05-06",
+    "entry_price": 7.007,
+    "pnl_pct": -0.340958
+   },
+   {
+    "strategy": "S03_tsmom_60_m",
+    "symbol": "000839.SZ",
+    "signal": "2022-04-29",
+    "fill": "2022-05-06",
+    "expected": "2022-05-05",
+    "entry_price": 2.9529,
+    "pnl_pct": -0.358249
+   },
+   {
+    "strategy": "S03_tsmom_60_m",
+    "symbol": "603897.SH",
+    "signal": "2025-10-31",
+    "fill": "2025-11-10",
+    "expected": "2025-11-03",
+    "entry_price": 26.3263,
+    "pnl_pct": 0.006614
+   },
+   {
+    "strategy": "S04_rsi14_reversion",
+    "symbol": "002500.SZ",
+    "signal": "2020-06-16",
+    "fill": "2020-06-29",
+    "expected": "2020-06-17",
+    "entry_price": 6.7167,
+    "pnl_pct": 0.124087
+   },
+   {
+    "strategy": "S04_rsi14_reversion",
+    "symbol": "000010.SZ",
+    "signal": "2026-04-28",
+    "fill": "2026-04-30",
+    "expected": "2026-04-29",
+    "entry_price": 2.8929,
+    "pnl_pct": -0.10015
+   },
+   {
+    "strategy": "S05_bollinger_20_2",
+    "symbol": "000933.SZ",
+    "signal": "2022-04-25",
+    "fill": "2022-05-13",
+    "expected": "2022-04-26",
+    "entry_price": 12.6626,
+    "pnl_pct": 0.153215
+   },
+   {
+    "strategy": "S05_bollinger_20_2",
+    "symbol": "000632.SZ",
+    "signal": "2026-04-28",
+    "fill": "2026-04-30",
+    "expected": "2026-04-29",
+    "entry_price": 3.9039,
+    "pnl_pct": 0.126685
+   },
+   {
+    "strategy": "S05_bollinger_20_2",
+    "symbol": "000010.SZ",
+    "signal": "2026-04-28",
+    "fill": "2026-04-30",
+    "expected": "2026-04-29",
+    "entry_price": 2.8929,
+    "pnl_pct": -0.10015
+   },
+   {
+    "strategy": "S06_xs_reversal_5d",
+    "symbol": "000687.SZ",
+    "signal": "2020-06-12",
+    "fill": "2020-06-16",
+    "expected": "2020-06-15",
+    "entry_price": 3.1932,
+    "pnl_pct": -0.228516
+   },
+   {
+    "strategy": "S06_xs_reversal_5d",
+    "symbol": "002316.SZ",
+    "signal": "2022-04-29",
+    "fill": "2022-05-06",
+    "expected": "2022-05-05",
+    "entry_price": 2.8829,
+    "pnl_pct": -0.145477
+   },
+   {
+    "strategy": "S06_xs_reversal_5d",
+    "symbol": "002309.SZ",
+    "signal": "2022-05-27",
+    "fill": "2022-05-31",
+    "expected": "2022-05-30",
+    "entry_price": 4.6146,
+    "pnl_pct": -0.057655
+   },
+   {
+    "strategy": "S06_xs_reversal_5d",
+    "symbol": "002564.SZ",
+    "signal": "2023-04-28",
+    "fill": "2023-06-30",
+    "expected": "2023-05-04",
+    "entry_price": 3.5636,
+    "pnl_pct": -0.266708
+   },
+   {
+    "strategy": "S10_xs_reversal_20d",
+    "symbol": "002716.SZ",
+    "signal": "2019-09-30",
+    "fill": "2019-10-09",
+    "expected": "2019-10-08",
+    "entry_price": 5.2152,
+    "pnl_pct": -0.502762
+   }
+  ],
+  "resumption_limit_gate_case": {
+   "symbol": "600576.SH",
+   "date": "2021-05-20",
+   "raw_pre_close": null,
+   "price_limit_pct": 0.1,
+   "open": 7.0,
+   "limit_up": 7.0,
+   "tradable": true,
+   "up_locked": false,
+   "note": "raw_pre_close is NaN because matrix row t-1 has no bar -> block_limit_open skipped; S03 filled at 7.007"
+  }
+ },
+ "prereg_kill": {
+  "S02": {
+   "rule": "buy_limit_up > entries",
+   "lhs": 4004,
+   "rhs": 442,
+   "triggered": true
+  },
+  "S09": {
+   "rule": "buy_limit_up > 1000",
+   "lhs": 1387,
+   "rhs": 1000,
+   "triggered": true
+  },
+  "S01": {
+   "rule": "cagr<0 and T2 sharpe<0.2",
+   "cagr": -0.053377160135876456,
+   "t2": -0.469,
+   "triggered": true
+  },
+  "S08": {
+   "rule": "mean_entry_gap>0.5% and cagr30<0",
+   "mean_gap": 0.00227,
+   "cagr30": -0.16820278705095681,
+   "triggered": false
+  }
+ }
+}

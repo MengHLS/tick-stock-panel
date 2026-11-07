@@ -1,0 +1,10 @@
+{
+  "command": [
+    "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+    "C:\\work\\sourcecode\\tick-stock-panel\\research\\strategy-search-20261107\\scripts\\e1_survivorship.py"
+  ],
+  "cwd": "C:\\work\\sourcecode\\tick-stock-panel",
+  "started_at": "2026-11-07T00:43:26.223085+08:00",
+  "status": "started",
+  "git_status_exit_code": 0
+}

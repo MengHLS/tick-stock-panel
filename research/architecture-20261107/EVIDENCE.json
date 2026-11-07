@@ -1,0 +1,49 @@
+{
+  "deliverable": "architecture-20261107: 12 条策略的系统与数据可行性评估",
+  "created_at": "2026-11-07T12:12+08:00",
+  "author_role": "系统架构师（独立架构评估，不代表研究结论、不代表实现完成）",
+  "project": "C:\\work\\sourcecode\\tick-stock-panel",
+  "git_head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+  "git_dirty_entries": 75,
+  "note_on_dirty_tree": "核对时工作区有 75 项未提交改动（含 backend/app/api/backtest.py、backend/app/backtest/engine.py 等）。本交付未修改任何被跟踪文件；下文哈希是**核对当时的快照**，不代表工作区已冻结。",
+  "documents": {
+    "A-DATA-FEASIBILITY.md": "eb12711940cc712b9a5136c813a75805b5ba06a701850ca4114cd1099fdfb29d",
+    "B-MATCHING-REALISM.md": "ff1db6bdf9465b36236e81fb1fc972f18c9515ea4f15e34727a827d6fa82c74d",
+    "C-PRODUCTION-READINESS.md": "11eea89f59a65ec2849686534b9f39767872a69a4e0f3fe93ecfc96de8986c1a",
+    "D-FORWARD-RECORDER.md": "4bec82e3ad95a420ad9bbd5416ca3c2c1dec5201ab7ef07f8e26edecb5a6ce63",
+    "scripts/probe_A_data.py": "ee01bad456ccf0ac62cd5faa630322fc2aa763b3ca6845f1517f9db8be2518c4"
+  },
+  "evidence_sources_read_at_check_time": {
+    "research\\strategy-search-20261107\\STRATEGIES.md": "b5af613bcdf656966e959a98233bcb26185e209b16c68c155d546111b1b18a64",
+    "research\\strategy-search-20261107\\PROTOCOL.md": "77dd813c9ed7a98fa2c4406cdc7dbdce48c8eeea48e096501e1edbf798ce3c38",
+    "research\\strategy-search-20261107\\scripts\\common.py": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09",
+    "backend\\app\\backtest\\engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+    "backend\\app\\backtest\\matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+    "backend\\app\\price_limits.py": "dc84d0d4bfed13910ce6b8a97acc6aa2de1033aca90fa3fc10cba94dae453025",
+    "backend\\app\\tickflow\\security_status.py": "9122e63490e8883fd0f91ad0eeed2c0cf2e03ad5fbe3765bdebb3647cf9ad6ba",
+    "backend\\app\\api\\backtest.py": "ae094e8c13ef5eea1a00be9af1e33d35e622294d4bde82c0c805566539a634be",
+    "backend\\app\\api\\strategy.py": "f4cab58c8c32a5e39d607ede713513676d0e9d6b505de008c62ecaeb88db8162",
+    "backend\\app\\jobs\\daily_pipeline.py": "66dce3a8dcd588697cb7c3f35ffd44d9c113328051378e6022e52c032331512b"
+  },
+  "data_sources_actually_read": [
+    "D:/TSP/data/kline_daily_enriched/date=*/*.parquet (2141 partitions, 9,780,842 rows, 5,813 symbols, 2018-01-08..2026-11-06)",
+    "D:/TSP/data/instruments/instruments.parquet (5,536 rows; only listing_date, no delisting fields)",
+    "D:/TSP/data/adj_factor/all.parquet (32,888 rows, 5,197 symbols, column trade_date)",
+    "D:/TSP/data/st_history/part.parquet (7,758 rows, 5,817 symbols, columns symbol/flag_date/st_flag)",
+    "D:/TSP/data/kline_index_daily/date=*/*.parquet (599 symbols, 1,179,720 rows)"
+  ],
+  "what_this_is_not": [
+    "不是 12 条策略的实现，也不是实现验收",
+    "不是回测结果，未运行任何策略回测",
+    "不是对研究结论有效性的判断（那属策略评审研究员/量化研究员）",
+    "未提交、未部署、未重启服务、未涉及任何真实交易"
+  ],
+  "unverified": [
+    "退市/长期停牌/数据断供三者的区分（无退市台账）",
+    "ST 历史首条记录的语义（首次戴帽 vs 状态快照）",
+    "面板日期集合与交易所日历的逐日一致性",
+    "未建模项（开盘可得性、冲击成本、退市整理期）对收益的具体幅度",
+    "分钟数据覆盖（12 条未使用，未评估）",
+    "price_limits.py 的 2026-07-06 主板 ST 涨跌幅切换是否与真实规则一致"
+  ]
+}

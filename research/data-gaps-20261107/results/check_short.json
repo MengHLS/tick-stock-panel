@@ -1,0 +1,159 @@
+{
+ "schema_version": "1.0.0",
+ "check": "short",
+ "generated_at": "2026-11-07T00:43:37",
+ "data_root": "D:/TSP/data",
+ "python": "3.11.15",
+ "duckdb": "1.5.3",
+ "id": "short",
+ "family": "做空 / 对冲 / 市场中性 / 配对交易",
+ "status": "blocked",
+ "verdict": "确证",
+ "conclusion": "不可做。代码层没有任何做空或对冲的执行路径：撮合器只有 buy/sell，仓位权重全为非负，受现金与敞口上限约束；因子层的 long_short 只是分组净值价差统计，不含券源、费率与保证金。数据层没有两融余额、融券余额、券源、保证金或借券费表，唯一相关的是概念快照里的'融资融券'标签（3,891 只，当前快照、无历史）。对冲类策略（市场中性、配对、多空）只能测多头腿，其 Sharpe 含市场 beta，不能当作中性策略的结论。",
+ "facts": [
+  {
+   "name": "backend/app 全量静态命中（逐模式）",
+   "value": {
+    "short_literal": {
+     "count": 3,
+     "hits": [
+      "backend/app/services/notify_adapter.py:102: # winotify 要求 duration 为 \"short\" 或 \"long\"",
+      "backend/app/services/notify_adapter.py:103: duration=\"short\",",
+      "backend/app/strategy/prompt_builder.py:22: DIRECTION_CN = {\"long\": \"做多\", \"short\": \"做空\", \"monitor\": \"监控\"}"
+     ]
+    },
+    "short_word": {
+     "count": 7,
+     "hits": [
+      "backend/app/backtest/mining.py:789: \"outer training window is too short for one inner fold: \"",
+      "backend/app/custom/industry_chain/descriptions.py:1: \"\"\"Short business descriptions for every seeded industry-chain node.\"\"\"",
+      "backend/app/plugins/fuyao/client.py:266: return self._get(\"/api/a-share/auction/short-term-benchmark\", params)",
+      "backend/app/services/heavy_job_limiter.py:185: # Short alias for entry points that prefer the existing module-singleton naming style.",
+      "backend/app/services/notify_adapter.py:102: # winotify 要求 duration 为 \"short\" 或 \"long\"",
+      "backend/app/services/notify_adapter.py:103: duration=\"short\",",
+      "backend/app/strategy/prompt_builder.py:22: DIRECTION_CN = {\"long\": \"做多\", \"short\": \"做空\", \"monitor\": \"监控\"}"
+     ]
+    },
+    "hedge": {
+     "count": 0,
+     "hits": []
+    },
+    "basis": {
+     "count": 26,
+     "hits": [
+      "backend/app/api/ext_data.py:898: basis = \"prev_close\" if n_prev == refs.height else (\"first_close\" if n_prev == 0 else \"mixed\")",
+      "backend/app/api/ext_data.py:944: \"basis\": basis,",
+      "backend/app/custom/industry_chain/defaults.py:1001: basis: str | None = None,",
+      "backend/app/custom/industry_chain/defaults.py:1011: \"basis\": basis or (\"theme_clue\" if status == \"pending\" else \"main_business\"),",
+      "backend/app/custom/industry_chain/migration.py:80: link.basis = \"theme_clue\"",
+      "backend/app/custom/industry_chain/migration.py:115: link.basis = \"main_business\" if link.evidence_status == \"verified\" else \"theme_clue\"",
+      "backend/app/custom/industry_chain/models.py:69: basis: Literal[\"main_business\", \"supply\", \"theme_clue\"] = \"main_business\"",
+      "backend/app/custom/industry_chain/pool_import.py:676: basis=\"theme_clue\","
+     ]
+    },
+    "margin": {
+     "count": 3,
+     "hits": [
+      "backend/app/desktop.py:51: html,body{{margin:0;height:100%;background:#0d1117;color:#c9d1d9;",
+      "backend/app/desktop.py:55: h1{{font-size:18px;font-weight:500;margin:0 0 12px;color:#f85149}}",
+      "backend/app/desktop.py:56: p{{font-size:13px;color:#8b949e;margin:0 0 6px;line-height:1.7}}"
+     ]
+    },
+    "borrow_lend": {
+     "count": 1,
+     "hits": [
+      "backend/app/custom/first_board_event_chain/first_limit_pullback_3f_runner_t74.py:423: must neither reset nor borrow rows from the selected event's history."
+     ]
+    },
+    "cn_short": {
+     "count": 7,
+     "hits": [
+      "backend/app/backtest/factor.py:1447: \"\"\"多空组合: 做多最高组 + 做空最低组。\"\"\"",
+      "backend/app/backtest/factor.py:1474: # 分组收益; prev <= 0 时按原逻辑置 0 (做多 top, 做空 bottom = 取反)",
+      "backend/app/services/market_mainline.py:132: 宽基/风格标签(融资融券/沪深股通等数千成分)按成员数上限过滤,",
+      "backend/app/services/market_recap.py:101: (设置页 UI 有提示); 脏值由 setter 层拦截, 这里只做空值回退双保险。",
+      "backend/app/services/preferences.py:479: # 宽基/风格标签(融资融券 ~7700 成分、深股通/沪股通 ~3300-3700、国企改革 ~2900)",
+      "backend/app/services/sector_rotation.py:63: '融资融券', '转融券', '转债标的', '含可转债', '沪股通', '深股通',",
+      "backend/app/strategy/prompt_builder.py:22: DIRECTION_CN = {\"long\": \"做多\", \"short\": \"做空\", \"monitor\": \"监控\"}"
+     ]
+    },
+    "cn_hedge": {
+     "count": 0,
+     "hits": []
+    }
+   },
+   "source": "backend/app/**/*.py",
+   "note": "只统计命中行数与样例；hedge 的计数口径差异见下一条（子串 grep 会把 EnrichedGeneration 计进去）"
+  },
+  {
+   "name": "hedge 命中口径核对（带词边界 vs 子串）",
+   "value": {
+    "with_word_boundary": 0,
+    "naive_substring": 70,
+    "false_positive_source": "EnrichedGenerationUnavailableError（...hed + Ge... 跨词边界拼出 hedGe）",
+    "cn_hedge_hits": 0,
+    "cn_hedge_samples": []
+   },
+   "source": "backend/app/**/*.py",
+   "note": "子串口径的 70 条全部是 EnrichedGeneration 假阳性；真实 hedge/对冲/套保 命中为 0"
+  },
+  {
+   "name": "撮合器支持的委托方向",
+   "value": {
+    "buy_literal": 14,
+    "sell_literal": 9,
+    "has_allow_short_flag": false
+   },
+   "source": "backend/app/backtest/engine.py",
+   "note": "只有 buy/sell 两个字面方向，没有任何 allow_short 开关"
+  },
+  {
+   "name": "数据根下 两融/融券/借券 类数据集目录",
+   "value": "未找到",
+   "source": "D:/TSP/data",
+   "note": "目录名普查：root.rglob('*') 逐目录正则 margin|rzrq|lending|borrow|short；空集 = 未找到"
+  },
+  {
+   "name": "概念快照中的 融资融券 / 转融券 标签证券数",
+   "value": {
+    "margin_tag_symbols": 3891,
+    "lending_tag_symbols": 0
+   },
+   "sql": "select count(*) filter (where \"所属概念\" like '%融资融券%') as margin_tag_symbols, count(*) filter (where \"所属概念\" like '%转融券%') as lending_tag_symbols from read_parquet('D:/TSP/data/ext_data/ext_gn_ths/part.parquet')",
+   "note": "融资融券标签只是'标的身分'的当前快照，没有余额、费率、券源，也没有历史"
+  }
+ ],
+ "code_evidence": [
+  {
+   "path": "backend/app/backtest/engine.py:218",
+   "statement": "滑点/成本按 buy/sell 两向计算，买卖是唯一的委托语义",
+   "search": "grep -n \"sign = 1 if side == \"buy\" else -1\" backend/app/backtest/engine.py"
+  },
+  {
+   "path": "backend/app/backtest/engine.py:3509",
+   "statement": "仓位受现金与敞口上限约束，weights 全部 >= 0（1/n 或 max(score,0) 归一），不存在负仓位",
+   "search": "grep -n \"capacity = max(0.0, equity * max_exposure_pct - market_value)\" backend/app/backtest/engine.py"
+  },
+  {
+   "path": "backend/app/backtest/factor.py:1481",
+   "statement": "因子层的 long_short 是净值价差记账（多空组合统计），不产生可执行空头，也没有券源/费率",
+   "search": "grep -n \"50/50 理论多空两腿\" backend/app/backtest/factor.py"
+  },
+  {
+   "path": "backend/app/strategy/prompt_builder.py:22",
+   "statement": "short 只作为策略描述里的中文标签出现，不进入撮合",
+   "search": "grep -n \"DIRECTION_CN\" backend/app/strategy/prompt_builder.py"
+  }
+ ],
+ "unknown": [
+  "A 股实际券源可得性无法从行情数据推断；即使采购两融明细，也无法对 2019–2022 的个股券源做逐日判定"
+ ],
+ "needs_without_purchase": "现有本地数据不可补，且不只是数据问题：需要两融明细（融资余额/融券余额/费率/标的调整历史）＋引擎的空头账户（保证金、借券费、强平及适用结算限制）。仅补行情无法证明历史券源可得性，免费来源及采购必要性未验证；任何多空结论都要额外打折。",
+ "evidence_paths": [
+  "C:/work/sourcecode/tick-stock-panel/backend/app",
+  "D:/TSP/data/ext_data/ext_gn_ths/part.parquet"
+ ],
+ "sql_log": [
+  "select count(*) filter (where \"所属概念\" like '%融资融券%') as margin_tag_symbols, count(*) filter (where \"所属概念\" like '%转融券%') as lending_tag_symbols from read_parquet('D:/TSP/data/ext_data/ext_gn_ths/part.parquet')"
+ ]
+}

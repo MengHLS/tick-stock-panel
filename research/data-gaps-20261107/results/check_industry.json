@@ -1,0 +1,351 @@
+{
+ "schema_version": "1.0.0",
+ "check": "industry",
+ "generated_at": "2026-11-07T00:41:23",
+ "data_root": "D:/TSP/data",
+ "python": "3.11.15",
+ "duckdb": "1.5.3",
+ "id": "industry",
+ "family": "行业中性 / 行业轮动 / 行业分层归因",
+ "status": "blocked",
+ "verdict": "确证",
+ "conclusion": "历史上不可做：本地行业归属只有 2026-11-01~06 的 6 个时点快照（面板内 5 个交易日，0.23%），另有一份无日期列的当前快照与一份无日期维度的产业链图谱；财务表无主营构成字段，因此没有任何无前视的历史行业归属来源。预计算行业联动因子在 9,752,990 行历史中非空数为 0。唯一合规的可用切片是 2026-11-02~06 五天的当日截面行业相对强弱，不具有跨期检验价值。另已排查唯一候选捷径 mainline_history 的 industry 维度（2018-01-10 起 6,476 行）：它是用当前行业快照回看历史聚合涨停梯队得到的，代码自带前视声明，且只覆盖涨停事件、不含全样本个股归属，否决。",
+ "partial_capability": "2026-11-02~06 共 5 个交易日可做当日截面行业相对强弱（无前视）；无法做行业中性化回测或行业轮动",
+ "facts": [
+  {
+   "name": "行业时点快照分区（ext_hy_ths_pit）",
+   "value": {
+    "partitions": 6,
+    "partitions_detail": [
+     {
+      "date": "2026-11-01",
+      "files": 1,
+      "bytes": 103253
+     },
+     {
+      "date": "2026-11-02",
+      "files": 1,
+      "bytes": 103358
+     },
+     {
+      "date": "2026-11-03",
+      "files": 1,
+      "bytes": 103259
+     },
+     {
+      "date": "2026-11-04",
+      "files": 1,
+      "bytes": 103583
+     },
+     {
+      "date": "2026-11-05",
+      "files": 1,
+      "bytes": 103676
+     },
+     {
+      "date": "2026-11-06",
+      "files": 1,
+      "bytes": 103396
+     }
+    ],
+    "total_bytes": 620525
+   },
+   "source": "D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries",
+   "note": "目录列举：date=* 分区即一次快照；文件为零字节即为空分区"
+  },
+  {
+   "name": "每个快照日的证券数与行业标签数",
+   "value": [
+    {
+     "snapshot_date": "2026-11-01",
+     "n_rows": 5578,
+     "n_symbols": 5578,
+     "n_industries": 257,
+     "n_null_industry": 0
+    },
+    {
+     "snapshot_date": "2026-11-02",
+     "n_rows": 5578,
+     "n_symbols": 5578,
+     "n_industries": 257,
+     "n_null_industry": 0
+    },
+    {
+     "snapshot_date": "2026-11-03",
+     "n_rows": 5578,
+     "n_symbols": 5578,
+     "n_industries": 257,
+     "n_null_industry": 0
+    },
+    {
+     "snapshot_date": "2026-11-04",
+     "n_rows": 5578,
+     "n_symbols": 5578,
+     "n_industries": 257,
+     "n_null_industry": 0
+    },
+    {
+     "snapshot_date": "2026-11-05",
+     "n_rows": 5579,
+     "n_symbols": 5579,
+     "n_industries": 257,
+     "n_null_industry": 0
+    },
+    {
+     "snapshot_date": "2026-11-06",
+     "n_rows": 5579,
+     "n_symbols": 5579,
+     "n_industries": 257,
+     "n_null_industry": 0
+    }
+   ],
+   "sql": "select date::varchar as snapshot_date, count(*) as n_rows, count(distinct symbol) as n_symbols, count(distinct \"所属同花顺行业\") as n_industries, count(*) filter (where \"所属同花顺行业\" is null or trim(\"所属同花顺行业\") = '') as n_null_industry from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true) group by 1 order by 1"
+  },
+  {
+   "name": "行业快照与面板交易日对齐",
+   "value": {
+    "panel_trading_days": 2141,
+    "panel_days_with_same_day_industry": 5
+   },
+   "sql": "select (select count(*) from panel_dates) as panel_trading_days, (select count(*) from panel_dates pd where exists (select 1 from (select distinct date from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true)) p where p.date = pd.date)) as panel_days_with_same_day_industry"
+  },
+  {
+   "name": "窗口内每个交易日有行业标签的证券数（5 个交易日）",
+   "value": [
+    {
+     "date": "2026-11-02",
+     "labeled_symbols": 5578,
+     "matched_kline_symbols": 5570,
+     "kline_symbols": 5570
+    },
+    {
+     "date": "2026-11-03",
+     "labeled_symbols": 5578,
+     "matched_kline_symbols": 5569,
+     "kline_symbols": 5569
+    },
+    {
+     "date": "2026-11-04",
+     "labeled_symbols": 5578,
+     "matched_kline_symbols": 5571,
+     "kline_symbols": 5571
+    },
+    {
+     "date": "2026-11-05",
+     "labeled_symbols": 5579,
+     "matched_kline_symbols": 5570,
+     "kline_symbols": 5570
+    },
+    {
+     "date": "2026-11-06",
+     "labeled_symbols": 5579,
+     "matched_kline_symbols": 5572,
+     "kline_symbols": 5572
+    }
+   ],
+   "note": "每个交易日一条 SQL，全部逐条记入 sql_log：select count(distinct symbol) from read_parquet(pit_file) 与 kline 分区按 symbol join 计数"
+  },
+  {
+   "name": "全期（含窗口）行业标签对面板的覆盖",
+   "value": {
+    "panel_symbols": 5813,
+    "snapshot_union_symbols": 5579,
+    "panel_symbols_labeled_ever": 5579,
+    "panel_symbols_never_labeled": 234
+   },
+   "sql": "select (select count(*) from panel_agg) as panel_symbols, (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true)) as snapshot_union_symbols, (select count(*) from panel_agg where symbol in (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true))) as panel_symbols_labeled_ever, (select count(*) from panel_agg where symbol not in (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true))) as panel_symbols_never_labeled"
+  },
+  {
+   "name": "非时点行业快照（ext_hy_ths）",
+   "value": {
+    "n_rows": 5580,
+    "n_symbols": 5580,
+    "columns": [
+     "股票代码",
+     "股票简称",
+     "所属同花顺行业",
+     "symbol",
+     "code"
+    ],
+    "has_date_column": false
+   },
+   "sql": "select count(*) as n_rows, count(distinct symbol) as n_symbols from read_parquet('D:/TSP/data/ext_data/ext_hy_ths/part.parquet')",
+   "source": "D:/TSP/data/ext_data/ext_hy_ths/part.parquet",
+   "note": "snapshot 模式：无日期列，只能代表 '当前'，不能当作历史"
+  },
+  {
+   "name": "预计算的行业联动因子（kline_daily_linkage）非空率",
+   "value": {
+    "total_rows": 9752990,
+    "nonnull_industry_relative_momentum_20d": 0,
+    "nonnull_industry_rank_momentum_20d": 0,
+    "nonnull_industry_corr_60d": 0,
+    "nonnull_industry_beta_60d": 0,
+    "dates": 2136,
+    "first_date": "2018-01-08",
+    "last_date": "2026-10-30"
+   },
+   "sql": "select count(*) as total_rows, count(industry_relative_momentum_20d) as nonnull_industry_relative_momentum_20d, count(industry_rank_momentum_20d) as nonnull_industry_rank_momentum_20d, count(industry_corr_60d) as nonnull_industry_corr_60d, count(industry_beta_60d) as nonnull_industry_beta_60d, count(distinct date) as dates, min(date) as first_date, max(date) as last_date from read_parquet('D:/TSP/data/kline_daily_linkage/**/*.parquet')"
+  },
+  {
+   "name": "含任一非空行业因子的分区数",
+   "value": {
+    "partitions": 2136,
+    "partitions_with_any_industry_factor": 0
+   },
+   "sql": "select count(*) as partitions, sum(case when n > 0 then 1 else 0 end) as partitions_with_any_industry_factor from (select date, count(industry_relative_momentum_20d) as n from read_parquet('D:/TSP/data/kline_daily_linkage/**/*.parquet') group by 1)"
+  },
+  {
+   "name": "产业链图谱（industry_chain/graph.json）",
+   "value": {
+    "nodes": 431,
+    "stock_links": 3539,
+    "chains": 9,
+    "node_keys": [
+     "chain_id",
+     "description",
+     "id",
+     "kind",
+     "name",
+     "order",
+     "parent_id"
+    ],
+    "stock_link_keys": [
+     "basis",
+     "evidence_status",
+     "id",
+     "node_id",
+     "note",
+     "reason_short",
+     "sort_order",
+     "source_url",
+     "symbol"
+    ],
+    "has_any_date_field": false,
+    "updated_at": "2026-11-06T03:16:35.999979+00:00",
+    "backups_in_dir": [
+     "graph.json.bak-20261104-205445",
+     "graph.json.bak-20261104-211101",
+     "graph.json.bak-20261104-212215",
+     "graph.json.bak-ai-server-refine-20261105-001231",
+     "graph.json.bak-history-20251016-20261105-003331",
+     "graph.json.bak-history-refresh-20261105-004018",
+     "graph.json.bak-independent-20261104-222314",
+     "graph.json.bak-limit-up-20261104-225522",
+     "graph.json.bak-new-energy-20261104-234802",
+     "graph.json.bak-pcb-split-20261105-011532"
+    ]
+   },
+   "source": "D:/TSP/data/user_data/industry_chain/graph.json",
+   "note": "只有 updated_at（2026-11-06）与 2026-11-04/05 的备份，备份是同一周内的快照，不是历史版本"
+  },
+  {
+   "name": "财务表是否含主营构成 / 行业字段（可用于重构行业归属）",
+   "value": {
+    "balance_sheet": [],
+    "income": [],
+    "cash_flow": [],
+    "metrics": []
+   },
+   "source": "D:/TSP/data/financials/balance_sheet/*.parquet、D:/TSP/data/financials/income/*.parquet、D:/TSP/data/financials/cash_flow/*.parquet、D:/TSP/data/financials/metrics/*.parquet",
+   "note": "空列表 = 该表无此类字段；四表均为空则无法用财务字段重构行业"
+  },
+  {
+   "name": "行业时点来源的拉取配方",
+   "value": {
+    "mode": "timeseries",
+    "created_at": "2026-11-01T03:24:53.910286",
+    "schedule_period": "daily",
+    "schedule_trading_only": false,
+    "date_param": null,
+    "time_window_start": null,
+    "time_window_end": null,
+    "url": "https://fuyao.aicubes.cn/api/a-share-index/catalog/ths-index-list?tag=industry"
+   },
+   "source": "D:/TSP/data/ext_data/ext_hy_ths_pit/config.json",
+   "note": "配方没有任何日期/时间窗口参数 → 每次只能拉'当天'，历史只能向前累积"
+  },
+  {
+   "name": "候选捷径：mainline_history 的行业维度覆盖",
+   "value": [
+    {
+     "kind": "concept",
+     "n_rows": 49990,
+     "first_date": "2018-01-09",
+     "last_date": "2026-11-05",
+     "members": 328,
+     "dates": 2104
+    },
+    {
+     "kind": "industry",
+     "n_rows": 6476,
+     "first_date": "2018-01-10",
+     "last_date": "2026-11-05",
+     "members": 237,
+     "dates": 1698
+    }
+   ],
+   "sql": "select kind, count(*) as n_rows, min(date) as first_date, max(date) as last_date, count(distinct member) as members, count(distinct date) as dates from read_parquet('D:/TSP/data/mainline_history/*.parquet') group by 1 order by 1",
+   "source": "D:/TSP/data/mainline_history/part.parquet",
+   "note": "member 是行业名而非 symbol→行业映射；行是涨停梯队聚合，不是个股行业归属"
+  },
+  {
+   "name": "候选捷径的前视声明（代码原文）",
+   "value": {
+    "MEMBERSHIP_NOTE": "概念成分为当前快照回看历史(本地自 2026-07 起留存, 无历史版本), ",
+    "line": 31,
+    "industry_map_source": "app.services.rps_rotation._load_concept_map_df -> ExtConfigStore 当前快照",
+    "industry_map_has_date_dimension": false
+   },
+   "source": "backend/app/services/market_mainline.py",
+   "note": "该时序把今天的行业成分回看历史计算，属前视，不能作为无前视的行业归属来源"
+  }
+ ],
+ "code_evidence": [
+  {
+   "path": "backend/app/services/market_mainline.py:31",
+   "statement": "主业/概念主线时序按当前成分回看历史生成，代码自认'早年存在归属漂移'，只能当展示口径",
+   "search": "grep -n \"当前快照回看历史\" backend/app/services/market_mainline.py"
+  },
+  {
+   "path": "backend/app/services/rps_rotation.py:108",
+   "statement": "行业归属映射的唯一来源是 ExtConfigStore 的当前快照，无日期维度，不可 PIT 化",
+   "search": "grep -n \"维度成分股是 snapshot\" backend/app/services/rps_rotation.py"
+  },
+  {
+   "path": "backend/app/custom/cross_sectional_linkage/store.py:363",
+   "statement": "系统自己就拒绝用 snapshot 行业回填历史，只有 timeseries 且 require_complete=True 才可作为 PIT 来源",
+   "search": "grep -n \"snapshot 行业归属不能回填历史\" backend/app/custom/cross_sectional_linkage/store.py"
+  },
+  {
+   "path": "backend/app/custom/cross_sectional_linkage/compute.py:49",
+   "statement": "行业归属用 join_asof backward + 最大 30 天时效：快照只能向前覆盖 30 天，不能回填",
+   "search": "grep -n \"_MAX_INDUSTRY_AGE_DAYS\" backend/app/custom/cross_sectional_linkage/compute.py"
+  }
+ ],
+ "unknown": [
+  "供应商是否提供历史行业成员关系接口：仓库内只有 catalog + constituents(当前) 两个端点，是否存在历史端点未知（需向数据方确认，属采购/外部能力问题）",
+  "产业链图谱（431 节点 / 3,539 条股票映射）的来源与更新规则未审计：它只有当前版本，无法作为历史归属"
+ ],
+ "needs_without_purchase": "仅凭现存本地文件不可补历史：未找到历史行业分类落盘文件，财务表缺少主营构成字段，当前快照倒推即前视。本地已知可行做法是向前累积每日快照（已有落盘配置，2026-11-01 起已有六天落盘）；公开历史档案是否足够、是否需采购均未验证。",
+ "evidence_paths": [
+  "D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries",
+  "D:/TSP/data/ext_data/ext_hy_ths/part.parquet",
+  "D:/TSP/data/user_data/industry_chain/graph.json",
+  "D:/TSP/data/ext_data/ext_hy_ths_pit/config.json"
+ ],
+ "sql_log": [
+  "select date::varchar as snapshot_date, count(*) as n_rows, count(distinct symbol) as n_symbols, count(distinct \"所属同花顺行业\") as n_industries, count(*) filter (where \"所属同花顺行业\" is null or trim(\"所属同花顺行业\") = '') as n_null_industry from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true) group by 1 order by 1",
+  "select (select count(*) from panel_dates) as panel_trading_days, (select count(*) from panel_dates pd where exists (select 1 from (select distinct date from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true)) p where p.date = pd.date)) as panel_days_with_same_day_industry",
+  "select (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-02/*.parquet')) as labeled_symbols, (select count(*) from (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-02/*.parquet')) a join (select distinct symbol from read_parquet('D:/TSP/data/kline_daily/date=2026-11-02/*.parquet')) b using(symbol)) as matched_kline_symbols, (select count(*) from read_parquet('D:/TSP/data/kline_daily/date=2026-11-02/*.parquet')) as kline_symbols",
+  "select (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-03/*.parquet')) as labeled_symbols, (select count(*) from (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-03/*.parquet')) a join (select distinct symbol from read_parquet('D:/TSP/data/kline_daily/date=2026-11-03/*.parquet')) b using(symbol)) as matched_kline_symbols, (select count(*) from read_parquet('D:/TSP/data/kline_daily/date=2026-11-03/*.parquet')) as kline_symbols",
+  "select (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-04/*.parquet')) as labeled_symbols, (select count(*) from (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-04/*.parquet')) a join (select distinct symbol from read_parquet('D:/TSP/data/kline_daily/date=2026-11-04/*.parquet')) b using(symbol)) as matched_kline_symbols, (select count(*) from read_parquet('D:/TSP/data/kline_daily/date=2026-11-04/*.parquet')) as kline_symbols",
+  "select (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-05/*.parquet')) as labeled_symbols, (select count(*) from (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-05/*.parquet')) a join (select distinct symbol from read_parquet('D:/TSP/data/kline_daily/date=2026-11-05/*.parquet')) b using(symbol)) as matched_kline_symbols, (select count(*) from read_parquet('D:/TSP/data/kline_daily/date=2026-11-05/*.parquet')) as kline_symbols",
+  "select (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-06/*.parquet')) as labeled_symbols, (select count(*) from (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/date=2026-11-06/*.parquet')) a join (select distinct symbol from read_parquet('D:/TSP/data/kline_daily/date=2026-11-06/*.parquet')) b using(symbol)) as matched_kline_symbols, (select count(*) from read_parquet('D:/TSP/data/kline_daily/date=2026-11-06/*.parquet')) as kline_symbols",
+  "select (select count(*) from panel_agg) as panel_symbols, (select count(distinct symbol) from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true)) as snapshot_union_symbols, (select count(*) from panel_agg where symbol in (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true))) as panel_symbols_labeled_ever, (select count(*) from panel_agg where symbol not in (select distinct symbol from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true))) as panel_symbols_never_labeled",
+  "select count(*) as n_rows, count(distinct symbol) as n_symbols from read_parquet('D:/TSP/data/ext_data/ext_hy_ths/part.parquet')",
+  "select count(*) as total_rows, count(industry_relative_momentum_20d) as nonnull_industry_relative_momentum_20d, count(industry_rank_momentum_20d) as nonnull_industry_rank_momentum_20d, count(industry_corr_60d) as nonnull_industry_corr_60d, count(industry_beta_60d) as nonnull_industry_beta_60d, count(distinct date) as dates, min(date) as first_date, max(date) as last_date from read_parquet('D:/TSP/data/kline_daily_linkage/**/*.parquet')",
+  "select count(*) as partitions, sum(case when n > 0 then 1 else 0 end) as partitions_with_any_industry_factor from (select date, count(industry_relative_momentum_20d) as n from read_parquet('D:/TSP/data/kline_daily_linkage/**/*.parquet') group by 1)",
+  "select kind, count(*) as n_rows, min(date) as first_date, max(date) as last_date, count(distinct member) as members, count(distinct date) as dates from read_parquet('D:/TSP/data/mainline_history/*.parquet') group by 1 order by 1"
+ ]
+}

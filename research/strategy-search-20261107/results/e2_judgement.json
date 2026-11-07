@@ -1,0 +1,454 @@
+{
+  "generated_at": "2026-11-06T23:42:28+08:00",
+  "registry": "C:\\work\\sourcecode\\tick-stock-panel\\research\\strategy-search-20261107\\results\\registry.json",
+  "criteria": {
+    "min_sharpe": 0.5,
+    "warn_sharpe": 0.3,
+    "max_turnover": 30.0,
+    "scenario_bps": 10,
+    "rf": 0.0,
+    "annualization": 252
+  },
+  "spec": "E1_E2_SPEC.md A.2",
+  "results": [
+    {
+      "strategy": "S01_ma_cross_20_60",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.20885530025896987,
+        "sharpe_registry": -0.20885530025897028,
+        "cagr": -0.053377160135876456,
+        "max_drawdown": -0.500203354115061,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.46854242381362377,
+        "sharpe_registry": -0.4685424238136233,
+        "cagr": -0.09419413990912373,
+        "max_drawdown": -0.41256630825474483,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 3.9763303153529375,
+        "years": 7.055555555555555,
+        "mean_equity": 1023602.8151208557,
+        "gross_traded_over_initial": 57.43480321000005,
+        "cross_check_ratio": 0.9999999999999986
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.469 <= 0.5",
+        "ALL sharpe -0.209 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S02_donchian_20_10",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -1.3109989785143534,
+        "sharpe_registry": -1.3109989785143517,
+        "cagr": -0.26704705613889523,
+        "max_drawdown": -0.891781765627153,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -1.302589454447589,
+        "sharpe_registry": -1.302589454447592,
+        "cagr": -0.2576517902194704,
+        "max_drawdown": -0.6925793302235734,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 6.812518525554825,
+        "years": 7.055555555555555,
+        "mean_equity": 480872.3286453057,
+        "gross_traded_over_initial": 46.22731769000002,
+        "cross_check_ratio": 0.9999999999999992
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -1.303 <= 0.5",
+        "ALL sharpe -1.311 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S03_tsmom_60_m",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.5627063956960623,
+        "sharpe_registry": -0.5627063956960607,
+        "cagr": -0.11002652685910752,
+        "max_drawdown": -0.5851378415343875,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.5816526071566259,
+        "sharpe_registry": -0.5816526071566229,
+        "cagr": -0.11481080505529706,
+        "max_drawdown": -0.4503973426330735,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 2.9589326251098864,
+        "years": 7.055555555555555,
+        "mean_equity": 753358.4961551403,
+        "gross_traded_over_initial": 31.455600349999983,
+        "cross_check_ratio": 1.0000000000000007
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.582 <= 0.5",
+        "ALL sharpe -0.563 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S04_rsi14_reversion",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.17740897145923104,
+        "sharpe_registry": -0.17740897145922802,
+        "cagr": -0.03423096299700168,
+        "max_drawdown": -0.4076491369071785,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.12650411940078077,
+        "sharpe_registry": -0.12650411940077588,
+        "cagr": -0.025782919627726275,
+        "max_drawdown": -0.2317444893559153,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 13.079276380189068,
+        "years": 7.055555555555555,
+        "mean_equity": 937131.8542833033,
+        "gross_traded_over_initial": 172.95998099,
+        "cross_check_ratio": 0.9999999999999999
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.127 <= 0.5",
+        "ALL sharpe -0.177 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S05_bollinger_20_2",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.4950555345221621,
+        "sharpe_registry": -0.49505553452215917,
+        "cagr": -0.0782330996747268,
+        "max_drawdown": -0.5542226837194674,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.007875903207186983,
+        "sharpe_registry": -0.007875903207185043,
+        "cagr": -0.010675330066140631,
+        "max_drawdown": -0.2662159071030993,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 15.11981840782223,
+        "years": 7.055555555555555,
+        "mean_equity": 690097.3796964588,
+        "gross_traded_over_initial": 147.23740858,
+        "cross_check_ratio": 0.9999999999999997
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.008 <= 0.5",
+        "ALL sharpe -0.495 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S06_xs_reversal_5d",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.8222881940565936,
+        "sharpe_registry": -0.8222881940565935,
+        "cagr": -0.1219123509994322,
+        "max_drawdown": -0.6921596325502729,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -1.7045737859088315,
+        "sharpe_registry": -1.7045737859088341,
+        "cagr": -0.22780913978502926,
+        "max_drawdown": -0.6620801667657953,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 15.406479458919277,
+        "years": 7.055555555555555,
+        "mean_equity": 826506.3231422182,
+        "gross_traded_over_initial": 179.68457684999981,
+        "cross_check_ratio": 1.000000000000001
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -1.705 <= 0.5",
+        "ALL sharpe -0.822 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S07_xs_lowvol_60d",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": 0.030963629224875475,
+        "sharpe_registry": 0.030963629224871673,
+        "cagr": -0.0010235811227111702,
+        "max_drawdown": -0.2992540487598083,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": 0.9667264090154267,
+        "sharpe_registry": 0.9667264090154176,
+        "cagr": 0.07814831294671154,
+        "max_drawdown": -0.09356405134014645,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 5.299956187628933,
+        "years": 7.055555555555555,
+        "mean_equity": 886259.4320741966,
+        "gross_traded_over_initial": 66.28181026999998,
+        "cross_check_ratio": 1.0000000000000004
+      },
+      "checks": {
+        "t2_sharpe_gt_min": true,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "ALL sharpe 0.031 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S08_high_52w",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.8347355884677327,
+        "sharpe_registry": -0.8347355884677371,
+        "cagr": -0.15218907864394238,
+        "max_drawdown": -0.7543652048010131,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.9858816037995825,
+        "sharpe_registry": -0.985881603799584,
+        "cagr": -0.1595165633189135,
+        "max_drawdown": -0.47616659820586293,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 5.229589396294038,
+        "years": 7.055555555555555,
+        "mean_equity": 738539.2481337832,
+        "gross_traded_over_initial": 54.500737960000016,
+        "cross_check_ratio": 1.0000000000000002
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.986 <= 0.5",
+        "ALL sharpe -0.835 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S09_volume_breakout_55",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -1.5343468687040496,
+        "sharpe_registry": -1.534346868704053,
+        "cagr": -0.3304208682941805,
+        "max_drawdown": -0.9536504646611731,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -2.052553259013433,
+        "sharpe_registry": -2.052553259013436,
+        "cagr": -0.39042428563916876,
+        "max_drawdown": -0.8371573830593082,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 11.139532036802494,
+        "years": 7.055555555555555,
+        "mean_equity": 545751.1226925272,
+        "gross_traded_over_initial": 85.78725984999996,
+        "cross_check_ratio": 1.0000000000000016
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -2.053 <= 0.5",
+        "ALL sharpe -1.534 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S10_xs_reversal_20d",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.45555971064093737,
+        "sharpe_registry": -0.4555597106409372,
+        "cagr": -0.08588738813484453,
+        "max_drawdown": -0.5581598754241379,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.19251531320446663,
+        "sharpe_registry": -0.1925153132044669,
+        "cagr": -0.045179127114853834,
+        "max_drawdown": -0.2873793667079986,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 5.259151637243791,
+        "years": 7.055555555555555,
+        "mean_equity": 713731.2989994396,
+        "gross_traded_over_initial": 52.96776482999996,
+        "cross_check_ratio": 1.000000000000001
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.193 <= 0.5",
+        "ALL sharpe -0.456 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S11_lowvol_reversal",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.5028887013389384,
+        "sharpe_registry": -0.5028887013389395,
+        "cagr": -0.03484651936893679,
+        "max_drawdown": -0.27183350325267086,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.8138013223135042,
+        "sharpe_registry": -0.8138013223135058,
+        "cagr": -0.05679597827155258,
+        "max_drawdown": -0.1942756185171669,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 2.8118967779806887,
+        "years": 7.055555555555555,
+        "mean_equity": 927869.7285160152,
+        "gross_traded_over_initial": 36.81693169999999,
+        "cross_check_ratio": 1.0
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.814 <= 0.5",
+        "ALL sharpe -0.503 <= 0.5"
+      ]
+    },
+    {
+      "strategy": "S12_lowvol_breadth",
+      "scenario_bps": 10,
+      "all": {
+        "sharpe": -0.48413590070518064,
+        "sharpe_registry": -0.484135900705184,
+        "cagr": -0.03105030425070454,
+        "max_drawdown": -0.24238284996255088,
+        "n_days": 1778
+      },
+      "t2": {
+        "sharpe": -0.1618765047124216,
+        "sharpe_registry": -0.16187650471241727,
+        "cagr": -0.011213637729067583,
+        "max_drawdown": -0.10999182116866313,
+        "n_days": 924
+      },
+      "turnover": {
+        "annual_one_way": 3.1981559314032024,
+        "years": 7.055555555555555,
+        "mean_equity": 856924.865171449,
+        "gross_traded_over_initial": 38.67261957999999,
+        "cross_check_ratio": 0.9999999999999998
+      },
+      "checks": {
+        "t2_sharpe_gt_min": false,
+        "all_sharpe_gt_min": false,
+        "turnover_lt_max": true
+      },
+      "data_mismatch": false,
+      "verdict": "FAIL",
+      "reasons": [
+        "T2 sharpe -0.162 <= 0.5",
+        "ALL sharpe -0.484 <= 0.5"
+      ]
+    }
+  ],
+  "summary": {
+    "n_strategies": 12,
+    "n_pass": 0,
+    "n_warn": 0,
+    "n_fail": 12,
+    "any_data_mismatch": false
+  },
+  "exit_code": 2
+}

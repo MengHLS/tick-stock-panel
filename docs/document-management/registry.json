@@ -1,0 +1,5525 @@
+{
+ "schema_version": "1.0",
+ "checked_at": "2026-11-06T15:57:42.678903+00:00",
+ "baseline_head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+ "scope": "根目录README/AGENTS/CONTRIBUTING/操作说明书；docs与research全部md/rst/txt，排除治理目录自身",
+ "verification_boundary": "本轮未复跑业务测试，文件存在与原文测试声明均不等于验收；无Git版本使用SHA256",
+ "category_counts": {
+  "项目规范": 2,
+  "规划草案": 8,
+  "实现与使用说明": 20,
+  "索引入口": 8,
+  "研究结论": 26,
+  "研究规格": 5,
+  "数据质量报告": 2,
+  "复盘实现与验证报告": 1,
+  "架构契约提案": 1,
+  "历史档案": 24,
+  "研究过程": 9,
+  "系统总体规划": 4,
+  "接入设计": 1,
+  "独立审核报告": 2,
+  "研究产物（策略搜索）": 9,
+  "修复交付说明": 1
+ },
+ "documents": [
+  {
+   "path": "AGENTS.md",
+   "topic": "AI 开发入口",
+   "category": "项目规范",
+   "owner": "未知",
+   "status": "规范/入口（现行原文）",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "3ac5ea9d04104ee3fb3f372a6fc2dce08ae9bc19ca7e52745663569b13920d68",
+    "bytes": 1786,
+    "last_git_change": "7804531a5306e4bc64772bdc13e911280971119a 2026-11-05T21:11:46+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/README.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/secondary-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "scripts/github_issue_guard.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "CONTRIBUTING.md",
+   "topic": "Tick Stock Panel — Contributing, AI Development & Review Guide",
+   "category": "项目规范",
+   "owner": "未知",
+   "status": "规范/入口（现行原文）",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "5fe963ed565f4e48ce9c51364a3b9b633d57241f296add49a39ee59ba6080a0c",
+    "bytes": 68925,
+    "last_git_change": "4355a535cda4fd083fe36e04ed4cadf777be9303 2026-10-27T12:36:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/api/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/backtest/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/data_providers/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/data_providers/capabilities.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/indicators/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/plugins/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/index_const.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/tickflow/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/custom-data-source.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/plugin-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/secondary-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/components/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/lib/api.ts",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/lib/queryKeys.ts",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/lib/useSharedQueries.ts",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/pages/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/auto-strategy-lab-plan.md",
+   "topic": "自动策略实验室设计（挖掘 → 组合 → 持续验证闭环）",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "状态：**P1（策略守护）、P2a（稳健选冠）、P2b（权重精调）、P2d（策略级组合）、P3（闭环编排）均已实施并通过测试与真实数据 E2E 验证**；P2c（overlay 候选）按 §4.3 约定\"按需启动，默认不做\"暂不实施（需扩展可信发布契约，本轮收益/风险比不划算）。本文回答一个需求：**自动挖掘并验证各种因子，组合成好用的策略，并持续组合、持续验证**。"
+    }
+   ],
+   "version": {
+    "sha256": "32e87cad45d0ed3a449b2eaa186e0a0b186e6c744f50cacbe041e52db0daf38f",
+    "bytes": 15337,
+    "last_git_change": "21279ecfa276316ddd4e8ee42a70d0545f6d19a4 2026-10-25T23:43:34+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/api/guardian.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/backtest/mining.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/backtest/mining_runtime.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/auto_mining.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/mining_candidates.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/mining_schedule.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/mining.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/pages/backtest/StrategyGuardian.tsx",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/backend-data-performance-plan.md",
+   "topic": "后端数据获取与处理性能计划",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "83cb98c6481652ed52c345934dd24b477311bb8ee2b3efb746387a79f5d5d6bf",
+    "bytes": 2484,
+    "last_git_change": "eea2ca4cd4eac631d533928a59ef36b44760b7b3 2026-10-19T14:37:21+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/backtest-evidence.md",
+   "topic": "回测未来数据检查与版本记录",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "bce8b0e98c5f8d74d4a344616dfada3af3af5c673e63f2dd7892e2dbe05af260",
+    "bytes": 6554,
+    "last_git_change": "316ae2954aa3f8c5e80070dd0986b4a87bf3e4f1 2026-11-01T17:20:55+08:00",
+    "note": "摘要基线更新：他方于 2026-11-06 22:59:24 修改该文档（6174 → 6554 B），按当前工作区重取摘要；只取摘要，未审阅内容差异，未回退他人改动，也未据此改动其状态或结论"
+   },
+   "last_checked_at": "2026-11-06T15:00:25.340633+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "22:59:24 他方改动，摘要为采样值；内容差异未审核"
+   ]
+  },
+  {
+   "path": "docs/configuration.md",
+   "topic": "配置详解",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "dea9e46a9ea33949bc5352ea5943a8c988cb27b16b530239acf53795738489cf",
+    "bytes": 12231,
+    "last_git_change": "a75af0ee2dae7829c7e1b1aa54e9ae0e70c016ba 2026-11-04T20:07:32+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/custom-data-source.md",
+   "topic": "自定义数据源接入",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "0106ae4ac1a6ed2afd785f01c29284c2f89033bdfe1d8e055a1c683ec9755f3c",
+    "bytes": 16955,
+    "last_git_change": "9e86cfa7731d536199de3a45fbc9ac778f8d3aa3 2026-11-02T17:22:18+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/deploy-password.md",
+   "topic": "公网部署:如何设置访问密码",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "732da438207670ce3a7d7fb75ac24c89f9546943d94cc2ed93f0af1e0cd66e9d",
+    "bytes": 4395,
+    "last_git_change": "bcfa596b8c2dd6591bbd8459782fe72023ce294b 2026-11-06T15:01:46+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/deployment.md",
+   "topic": "部署指南",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "b2b9c91e2c6e68372da9a68ffcdd48c1fb8e728695e61368d27930f6b91f0085",
+    "bytes": 14096,
+    "last_git_change": "ff30ceac4e77970ac6d723ef4493c8bd893c1d89 2026-11-04T20:06:29+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/examples/custom-data-source/README.md",
+   "topic": "自定义数据源 mock 联调示例",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "待确认",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "93c02f76368a6accf346e35ac87b0138b584fb8e927d313176485ced25ba176d",
+    "bytes": 916,
+    "last_git_change": "7b5d345910290af414da622bbadbbd9b5e0487aa 2026-07-05T22:57:46+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/ext-architecture-plan.md",
+   "topic": "一切皆扩展 — 架构优化路线(P0–P4)",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "ad43ae58162b6193d8c38c1aaca0214f54e86b834c32d9f5167b675bee2e9ee2",
+    "bytes": 9861,
+    "last_git_change": "c932098ae7333460f0a1a31b0f3faa0d1497c110 2026-10-26T15:56:02+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/scripts/bench_feature_resolution.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/extension-packages.md",
+   "topic": "统一导入与外部后端扩展包",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "a9c9d8b0a7ec37fc4cf86d2baeb439f343b2f8d3b57e8237f0b2ed30db366db2",
+    "bytes": 7722,
+    "last_git_change": "dc01eb7b055b416ca98ad688448bb390b7971d91 2026-11-04T20:07:05+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/external-data-source-packages.md",
+   "topic": "外部数据源插件安装",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "30cb36728ea93ec0559dd3cf4f9b5e13e1e8e5e6bd044fd2e3ab42a37836cba3",
+    "bytes": 9255,
+    "last_git_change": "d192a1f71b621e1239de8422a8f7fa01ebc216a9 2026-11-03T17:47:25+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/factor-platform-plan.md",
+   "topic": "因子平台总体方案（研究线产品与架构设计 v1）",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "> 状态标记约定与 `factor-system-design.md` 一致："
+    }
+   ],
+   "version": {
+    "sha256": "d7f3e23cf7006d950324a0fc30c584f4e204c3cbd67afe652649ea8887a53c1f",
+    "bytes": 33315,
+    "last_git_change": "da9dbca4220acbc5feda7bb2455d479386df3ea3 2026-10-25T20:14:10+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/factors/dsl.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/factors/registry.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/scoring.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/factor-system-design.md",
+   "topic": "因子体系专业化设计（提案）",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "> **状态校准（2026-11-06）**：本文原为设计提案，**未整体完成**，但下列子能力已落地，不能再用“尚未实现”概括。"
+    },
+    {
+     "line": 8,
+     "text": "> 凡标注【现状】的条目引用当前仓库真实代码（基于 main@2ce8b4b1），可直接核对；凡标注【设计】的条目是目标契约，**不得当作已存在的 API 导入或调用**（遵循 `docs/secondary-development.md` 第 1 节的状态区分要求）。"
+    }
+   ],
+   "version": {
+    "sha256": "9e9027b983e5e0bb453900a6555bceb9985928af7b42b9feb690bd47985a60a4",
+    "bytes": 64156,
+    "last_git_change": "d2a06081dfe732f0dd44ad59a8f081b2fd9e5fc1 2026-11-06T15:24:41+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/stats_v2.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/factors/dsl.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/factors/registry.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/factors/store.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/backtest/test_factor_library_v2.py",
+     "exists": false,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/custom-data-source.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/deploy-password.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/features.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/mining.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/plugin-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/secondary-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/strategy.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/features.md",
+   "topic": "功能手册",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "1db3e2f325b44e9cc784a7839632bcc88976393c065fb0b4b6d176ae256ed0d5",
+    "bytes": 56459,
+    "last_git_change": "3d7a20a051ea944cd758d25600d84a9e0529b420 2026-11-05T21:18:24+08:00",
+    "note": "摘要基线更新：他方于 2026-11-06 22:59:24 修改该文档（56017 → 56459 B），按当前工作区重取摘要；只取摘要，未审阅内容差异，未回退他人改动，也未据此改动其状态或结论"
+   },
+   "last_checked_at": "2026-11-06T15:00:25.340633+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/strategy/research/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/page-pack-template",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/custom/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "22:59:24 他方改动，摘要为采样值；内容差异未审核"
+   ]
+  },
+  {
+   "path": "docs/historical-st-filter.md",
+   "topic": "Historical ST filtering",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "29cb3b970baa358438d50f3d711703fa050cb725a70c69bf2dbce87d740a6653",
+    "bytes": 3808,
+    "last_git_change": "9e86cfa7731d536199de3a45fbc9ac778f8d3aa3 2026-11-02T17:22:18+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/market-phase.md",
+   "topic": "市场阶段（情绪周期）与主线识别",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "556a7bc6729fd860621c746359b3261979e159f931c20900e7332990d9f8bde9",
+    "bytes": 7900,
+    "last_git_change": "4737dfdaf19037fb4e2795f2d7c6960cbb4e578c 2026-08-16T23:39:07+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/services/market_mainline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/market_phase.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_market_mainline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_market_phase.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/mining.md",
+   "topic": "因子与策略挖掘",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "d1c268d019152dd0c8439edbcdf0cf1486e90e165a83148a90a5e4da05639f69",
+    "bytes": 15270,
+    "last_git_change": "7e0278b395db1cf7492683ff85f45ebff85e8a9c 2026-11-02T09:50:55+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/open-platform-plan.md",
+   "topic": "核心能力开放与插件化改造设计方案",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "> **状态校准（2026-11-06）**：V1/V2 已实现（0.3.2）—— Token + scope 网关 + 限流、五个 scope 全量 Tier A、`/api/openapi.json?tier=a` 契约视图、设置页 Token 管理（「设置 → 开放接口」）、示例脚本与 SSE 短期票据（`POST /api/events/ticket` → `GET /api/events?ticket=…`）。受限的运行时页面包加载也已实现（`frontend/src/extensions/runtime.tsx` 配合扩展包），但通用 remote module/微前端与第三方代码沙箱仍不做。V3 钩子契约与模拟盘核心拆分仍属设计；`backend/app/custom/paper_execution/` 是 L2 扩展试点，不等于核心拆分完成。使用说明见 [features.md → 开放接口](./features.md#-开放接口open-api--tier-a)。"
+    }
+   ],
+   "version": {
+    "sha256": "c4e4d96ec51ba3a1269f7335321a4b41a07cf959a7dcb561ff0fff7d1e304c5d",
+    "bytes": 14164,
+    "last_git_change": "d2a06081dfe732f0dd44ad59a8f081b2fd9e5fc1 2026-11-06T15:24:41+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/custom/paper_execution/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_api_gateway.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/extensions/runtime.tsx",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/page-sdk.md",
+   "topic": "页面插件开发指南 (Page Pack SDK v1)",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "f6030435605e7b9985b465c0c908ad471f46bfff2b4e545c54a409f24619d1af",
+    "bytes": 4301,
+    "last_git_change": "ffe1ff0d3e7aab622785c1529e6c52b212ac57f5 2026-11-01T20:01:59+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/secondary-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/custom/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/extensions/runtime.tsx",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/paper-trading-plan.md",
+   "topic": "虚拟账户（模拟盘）设计方案",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "> **状态校准（2026-11-06）**：V1 核心闭环与 V2 主要能力已实现，本文不再是“未实现”设计稿。"
+    }
+   ],
+   "version": {
+    "sha256": "4801d434c58daa9b7c6e2cd56af851ce7ecaa4ee69c7c9419184ca73fff30afe",
+    "bytes": 10499,
+    "last_git_change": "d2a06081dfe732f0dd44ad59a8f081b2fd9e5fc1 2026-11-06T15:24:41+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/api/paper.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/custom/paper_execution/README.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/jobs/daily_pipeline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/quote_service.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/paper.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/custom/paper/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/plugin-development.md",
+   "topic": "数据源插件开发指南",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 257,
+     "text": ">   本地存储混基准,产生静默的错误价格。服务状态面板的 `minute_basis_raw`"
+    },
+    {
+     "line": 258,
+     "text": ">   字段会暴露本地库的基准迁移状态。"
+    },
+    {
+     "line": 270,
+     "text": "> 表示状态从该交易日开始生效,直到同股票下一条记录;缺失状态保持未知,"
+    }
+   ],
+   "version": {
+    "sha256": "122d446eb5282c74a7970b0239037368d829e4997f964d4f73471523baf39d9b",
+    "bytes": 25622,
+    "last_git_change": "98f8177449db524715ea1c9497d95a1bb31fe7de 2026-11-03T19:45:17+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/plugins/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/plugins/fuyao/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/plugins/tdxquant/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/plugins/tencent/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_fuyao_provider.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/README.md",
+   "topic": "文档入口与维护规则",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "规范/入口（现行原文）",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 76,
+     "text": "| [research/program-planning-20261106/](../research/program-planning-20261106/PROGRAM-PLAN.md) | 系统总体规划 v0.7（执行规划、阶段交付清单、风险依赖、取证记录；含策略搜索主线 S1–S6、用户确认的候选准入口径与 v0.7 四处更正；v0.1–v0.6 已被替代，摘要保留于登记册） | 过程/规划材料，不并入现行文档；路径、版本、维护人与证据边界统一登记于 [文档管理统一索引](document-management/README.md) |"
+    }
+   ],
+   "version": {
+    "sha256": "9b3cca0f4215cfc7b7a69146b7fc2d550b97763cc21a391953ba34e80fa6e138",
+    "bytes": 7165,
+    "last_git_change": "bcfee50ab803435ab28e267ad38b1a683e3af7ba 2026-11-06T15:26:45+08:00",
+    "note": "2026-11-06 23:40 文档管理员把第 76 行总体规划指针改为 v0.8（正文引用 v0.8 五处更正 C12–C16，v0.1–v0.7 已被替代），由 4c9075d4/7155 B 变为 9b3cca0f/7165 B；行数 95 不变，其余行未改"
+   },
+   "last_checked_at": "2026-11-06T15:39:08.054803+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "摘要已七次更新，来源均为本管理员对第 76 行指针的版本同步；其他并行改动保留未动"
+   ]
+  },
+  {
+   "path": "docs/research/auction-d-day-veto-20261101/RESULTS.md",
+   "topic": "竞价 D 日负面否决与最终名单压缩",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "1f17acce5cc4e660e58fe37182832a1a5f26e87aaa2fa52c0a7ac98030091ca6",
+    "bytes": 5365,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-d5-loss-attribution-20261101/RESULTS.md",
+   "topic": "竞价 D+5 主模型：损失归因",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "9479f0f92cec1b8bd3039b601e07bf7ca1fa80f800ba5e0a395db272568740f8",
+    "bytes": 6984,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-downside-model-20261101/RESULTS.md",
+   "topic": "竞价 D 日独立下行收益模型",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "09ac36dc10b58e17bd54280d3329eccfc398c2f9244384b0b8508532b36beade",
+    "bytes": 9406,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-expected-return-model-20261101/RESULTS.md",
+   "topic": "竞价 D+5 条件收益幅度模型",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "73f54d3905a498c0680b05d14522efacd8e3ea19d381af018f39b698c84eb961",
+    "bytes": 9136,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-holding-risk-20261101/RESULTS.md",
+   "topic": "竞价信号 D+5 持有期与单笔风险预算",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "276b5394e55cb2a8a10b7a4db5057d418bb94658ca27a2651f0222feb1cd4ac2",
+    "bytes": 6724,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-lockbox-20261101/PROTOCOL.md",
+   "topic": "竞价 D+5 前瞻锁箱协议",
+   "category": "研究规格",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "19fd0358fb27cb56f75f82cf80fe02d0f4662a4f626252520174faf2ac722f47",
+    "bytes": 3886,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-market-gate-20261101/RESULTS.md",
+   "topic": "竞价 D 日信号：D-1 市场风险闸门",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "75a3c4cff01dd1257355760677f7f6263d2dea9d0d3d49dbd9819a5008d8aab5",
+    "bytes": 5164,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-market-return-model-20261101/RESULTS.md",
+   "topic": "竞价 D+5 市场绝对收益模型",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "1d166fab5d4c6a567b43c4a9b13d2deb3fce20e13fc055453af10cfc9dbb2b7f",
+    "bytes": 8611,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-multifactor-20261101/RESULTS.md",
+   "topic": "竞价多因子排序与组合门槛：回顾性结果",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "8ebad349a140f4445cfdf6c64860daa753f6d2f1772b41eb83b2274a78bc4c1e",
+    "bytes": 8636,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-path-stop-20261101/RESULTS.md",
+   "topic": "竞价信号：收盘确认、次日开盘止损",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "463265ad5702486a44cc00dab9decbc995605554a7248f7c01dd306a657aac73",
+    "bytes": 4733,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-portfolio-construction-20261101/RESULTS.md",
+   "topic": "竞价信号组合构建：逐日盯市结果",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "dbb7bb566576a9f37b7e7b40e92e02b846b3be32c80d541c2013c6d74d1399a5",
+    "bytes": 7695,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-return-market-combo-20261101/RESULTS.md",
+   "topic": "竞价 D+5 收益名单 × D-1 市场闸门",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "1dc8f15d8370e1f82d12f372ddb6d1e5e147d8364b62b68911151b239fa6ba4b",
+    "bytes": 7202,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-risk-budget-exposure-20261101/RESULTS.md",
+   "topic": "竞价 D+5 风险预算与市场暴露缩放",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "193ee940043545fd2981ffe01b3338db697cf3314017bcb523c1474b8a8eab10",
+    "bytes": 7522,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-tail-loss-attribution-20261101/RESULTS.md",
+   "topic": "竞价 70%～90% 分数带：损失归因",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "286a0356bd4bff7726830904809b3ac347ea847bda181acbffbbde0f76d00542",
+    "bytes": 7935,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-tail-stability-20261101/RESULTS.md",
+   "topic": "竞价分数尾部稳定性：回顾性结果",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "f040f33703492ae9596dedd105584d24dea84442237eb6557e8c7318801b5119",
+    "bytes": 7844,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-tail-strength-20261031/RESULTS.md",
+   "topic": "竞价尾端强势与多因子准入：回顾性结果",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-10-31"
+    }
+   ],
+   "version": {
+    "sha256": "214d91c85c2f7dab44ac4012010ba12af54c32b5d6ae49410efef859f5aabaec",
+    "bytes": 10778,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/auction-walkforward-20261101/RESULTS.md",
+   "topic": "竞价多因子：严格扩展窗口验证",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    }
+   ],
+   "version": {
+    "sha256": "c838923c98d8d483ea811fb4b85f91ff7784d41f0e982582266db547500b91b8",
+    "bytes": 9026,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/first-board-entry-exit-study-20261026/REPORT.md",
+   "topic": "首板入场 × 退出二维研究（2026-10-26）",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "331903e8f3fb112276fc9402766cbde706e9583a90e3045acdc5bf487777cd0c",
+    "bytes": 12469,
+    "last_git_change": "36491071fcc1e69176511722ffd0775a8718a980 2026-10-28T23:41:30+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/engine.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/research/first-board-entry-study-20261026/REPORT.md",
+   "topic": "首板事件链入场研究（2026-10-26）",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "5ab0e316e5c8e729c59c7256462a0f42e2d79949a7cd8f225e5f9d21ae511495",
+    "bytes": 11434,
+    "last_git_change": "36491071fcc1e69176511722ffd0775a8718a980 2026-10-28T23:41:30+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/first-board-rationing-study-20261026/REPORT.md",
+   "topic": "首板候选配给研究（2026-10-26）",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "9488d920b61d5d05fecdf6e7b8482f0537c25c8ca72a8b3b47f73df04e8101c2",
+    "bytes": 8763,
+    "last_git_change": "36491071fcc1e69176511722ffd0775a8718a980 2026-10-28T23:41:30+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/first-board-right-tail-20261102/RESULTS.md",
+   "topic": "首板右尾 v2/V3 动态入场 pilot：No-Go",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "38f12940df3e1dd241b8ef77363d2920800146aa7777dbf9d4781d3592b0f4e7",
+    "bytes": 24991,
+    "last_git_change": "6c38681b96adc0cfbbc678ccb00fd982f911aa6f 2026-11-02T22:19:28+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/first-board-t74-right-tail-20261106/RESULTS.md",
+   "topic": "T74 331% 基线右尾路径诊断",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-06"
+    }
+   ],
+   "version": {
+    "sha256": "4e878fd436127e098307d507a01b3dcb2d5dbe777e4fd241583b634897b76835",
+    "bytes": 2578,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/firstboard-confirmatory-20261030/RESULTS.md",
+   "topic": "首板布林带宽规则：回顾性确认结果",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-10-30"
+    }
+   ],
+   "version": {
+    "sha256": "2d5bb3028bf1c3b23f6cd47ffeebf74c365fda49482b9fc2cc2816c9697358f4",
+    "bytes": 5400,
+    "last_git_change": "bcfee50ab803435ab28e267ad38b1a683e3af7ba 2026-11-06T15:26:45+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/firstboard-negative-20261030/RESULTS.md",
+   "topic": "首板早损否决：回顾性研究结果",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-10-30"
+    }
+   ],
+   "version": {
+    "sha256": "66ebc68a53e7163556c0005c74af2454820f31c1d066a8d606ca7ba1b397e676",
+    "bytes": 6946,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+   "topic": "KHunter 策略借鉴可行性",
+   "category": "研究结论",
+   "owner": "未知",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "研究日期：2026-11-05。范围：KHunter 源码静态核对、一个指标方向隔离实验、本仓库接入契约核对。没有执行历史收益回测，没有导入或启用用户策略。"
+    }
+   ],
+   "version": {
+    "sha256": "e62133ff17bb38592f5449c4b7881c4f574aaf05badc2d614b0b095176582ce4",
+    "bytes": 11104,
+    "last_git_change": "7804531a5306e4bc64772bdc13e911280971119a 2026-11-05T21:11:46+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/research/parallel-data-20261106/DATA_QUALITY.md",
+   "topic": "历史行情与证券数据质量审计（独立交付）",
+   "category": "数据质量报告",
+   "owner": "行情数据工程师（职责分配）",
+   "status": "仅限探索研究；异常与未知未解除",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "4dab1a3b1577489c3da46eb50b0fbb8b14a05512ea106ce2664683329ea635d8",
+    "bytes": 15647,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/indicators/pipeline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/indicators/price_quality.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/research/parallel-data-20261106/DATA_QUALITY.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/parallel-data-20261106/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/parallel-data-20261106/audit_data_quality.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/parallel-data-20261106/coverage_report.json",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/parallel-data-20261106/test_audit_data_quality.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/research/parallel-review-20261106/REVIEW.md",
+   "topic": "独立复盘快照与模拟成交对账",
+   "category": "复盘实现与验证报告",
+   "owner": "复盘工程师（原文）",
+   "status": "独立研究工具，原文报告定向验证，未正式接入",
+   "implementation_status": "独立CLI，未正式接入",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-06。性质：研究交付，非线上接口契约。维护者：复盘工程师；模拟盘订单/台账字段变化时重跑定向测试。"
+    }
+   ],
+   "version": {
+    "sha256": "9aa694db79eb0f2bc3169d68cfed49d8041de0d91aef6cae8296e61f7b9a8d5c",
+    "bytes": 8928,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/.venv/Scripts/python.exe",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/api/market_recap.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/custom/paper_execution/service.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/custom/paper_execution/snapshot.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/paper.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_industry_chain_extension.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_paper_execution_extension.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/README.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/research/strategy-reliability-20261106/RESULTS.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/secondary-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/parallel-review-20261106/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/research/README.md",
+   "topic": "研究材料索引",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "规范/入口（现行原文）",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "82072c98c7a4a86f60b8e878ac232ae412336f751d794df0ef1d1551831c329b",
+    "bytes": 4333,
+    "last_git_change": "7804531a5306e4bc64772bdc13e911280971119a 2026-11-05T21:11:46+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/research/...",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/archive/2026-10-27-firstboard-classification/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/research/strategy-reliability-20261106/RESULTS.md",
+   "topic": "策略可靠性审计：动量、突破、量能与择时候选",
+   "category": "研究结论",
+   "owner": "策略研究模块维护者（原文）",
+   "status": "历史研究结论；数据版本与适用性待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "研究日期：2026-11-06。维护者：策略研究模块维护者；规则、数据或撮合口径改变时重新运行并更新。状态：第二轮 WFO 口径修复、连续账户回放与逐标的行情守卫完成；仍没有通过验收的可靠高收益策略。"
+    }
+   ],
+   "version": {
+    "sha256": "1439a2465a8c5b5d5e88fd8dee5d2d45bc039ff91b53a8f5ac02030e7a929207",
+    "bytes": 37733,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/api/backtest.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/backtest/engine.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/backtest/walkforward.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/config.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/indicators/pipeline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/quote_freshness.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/quote_service.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/pyproject.toml",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/backtest/test_walkforward.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/test_industry_chain_extension.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/README.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/market-phase.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/secondary-development.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/custom/review/Page.tsx",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/.../verify_continuous_account.py",
+     "exists": false,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/strategy-reliability-20261106/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/robust-optimizer-plan.md",
+   "topic": "稳健参数优化与滚动样本外检验 · 重设计方案",
+   "category": "规划草案",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "> **状态校准（2026-11-06）**：P1-P3 主体已落地，不再以“P1-P4 待实施”概括。"
+    }
+   ],
+   "version": {
+    "sha256": "160a906433c12f0f75abf94f3eacb339e8411c5b02a215009de3f9053eeac1bb",
+    "bytes": 6934,
+    "last_git_change": "d2a06081dfe732f0dd44ad59a8f081b2fd9e5fc1 2026-11-06T15:24:41+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/robust_optimizer.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/pages/backtest/StrategyOptimizer.tsx",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/secondary-development.md",
+   "topic": "代码二次开发与 AI 扩展指南",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "7fbee6924865c539a10a7633260d8e208fb0b3dc0cdbd25aedccca2dc1fdc21e",
+    "bytes": 33984,
+    "last_git_change": "6f2c991e9855ee5410bf7ff5629ed579ea3fe9a8 2026-11-05T21:14:34+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/custom/_template.py.example",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/custom/strategy_research",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/custom/_template/extension.tsx.example",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/extensions/types.ts",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/lib/api.ts",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "scripts/upgrade_check.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/strategy-iteration.md",
+   "topic": "AI 策略迭代指南",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "4ea06b32ba72bdb05f590fa6f9de3c66fd556a7a6ab3b3b7293b636307dd9953",
+    "bytes": 10845,
+    "last_git_change": "a0cbbd0c14b415e38f2339c2ee579abe9707b952 2026-11-02T16:59:37+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/strategy-research.md",
+   "topic": "策略研究：右尾路径与受控实验",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "b675aa8389aa17936e841426281681b1eb3956e90ce8e33b205ba8563feb70eb",
+    "bytes": 4448,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "存在断链"
+   ]
+  },
+  {
+   "path": "docs/strategy.md",
+   "topic": "策略指南",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "现行文档（索引声明）；实现未逐条复核",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "e327915cc77ea492187f788cbcb4a95c52c5755965a25e83dda74128e24a122a",
+    "bytes": 12476,
+    "last_git_change": "c5760ac9ba994891fa8f92ac8dc7bbe18f44744d 2026-11-05T02:05:09+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/execution_policy.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/custom_signals.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/prompts/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/prompts/strategy-guide.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/strategy/research/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/fixtures/strategies/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md",
+   "topic": "首板事件自动因子区分设计",
+   "category": "研究规格",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-10-29"
+    }
+   ],
+   "version": {
+    "sha256": "70ee3038c6e2540130b3d4102b5079bc66d6ae2b472082ab4a51bbebb9d34c79",
+    "bytes": 16811,
+    "last_git_change": "ba0af39b3b990be6249a7a82ecac0fc22267e672 2026-10-30T00:28:16+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/mining_runtime.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/custom/firstboard_discovery/",
+     "exists": false,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/main.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/services/auto_mining.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "frontend/src/custom/firstboard-discovery/extension.tsx",
+     "exists": false,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md",
+   "topic": "首板因子确认性研究协议",
+   "category": "研究规格",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-10-30"
+    }
+   ],
+   "version": {
+    "sha256": "8264a7ca844a3d3b6795e66cf66fc75a0221505b2a4b23b70b3d361e22acc479",
+    "bytes": 7680,
+    "last_git_change": "bcfee50ab803435ab28e267ad38b1a683e3af7ba 2026-11-06T15:26:45+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "docs/superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md",
+   "topic": "截面联动因子物化设计",
+   "category": "研究规格",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "日期：2026-11-01"
+    },
+    {
+     "line": 5,
+     "text": "状态：已实现（2026-11-01）。本文件保留设计取舍；现行使用口径以"
+    }
+   ],
+   "version": {
+    "sha256": "ed6a6d929c8fe85d3ef56d9b45b2f76901567a1d7710f7218eba969bba1383b5",
+    "bytes": 28087,
+    "last_git_change": "b48adb97a7d296854c3759527eea2cb0ecd7a224 2026-11-01T03:21:02+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/factors/dsl.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/indicators/pipeline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/features.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "docs/tickflow-pro-phase1-probe.md",
+   "topic": "TickFlow Pro Phase 1 probe",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "95801fb1d58073d4407e35c01d551b0c2c0ca22abbd542a1561d72889b5b23d0",
+    "bytes": 1071,
+    "last_git_change": "f4d52c8b4cfbc673538beb7335d730f053e07bb6 2026-07-19T10:06:26+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "疑似无业务意义的探针文本"
+   ]
+  },
+  {
+   "path": "docs/tickflow-pro-shared-rate-limit.md",
+   "topic": "TickFlow Pro 限频安全预算（进程内 + 跨产品错峰）",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "设计/计划（索引声明）；实施状态待核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "6289d82bf310435144739b51a18b68f9d2264ff97b67aec275b2f74af677b184",
+    "bytes": 1462,
+    "last_git_change": "f4d52c8b4cfbc673538beb7335d730f053e07bb6 2026-07-19T10:06:26+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/tickflow/rate_limits.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "README.md",
+   "topic": " TSP · A股智能量化工作台",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "使用说明；未逐项核对当前实现",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 397,
+     "text": "> ⚠️ 助手是数据分析工具, 不提供买卖指令; 涉及交易决策的问题会转换为客观的技术/财务状态、关键价位、风险因素与条件情景。"
+    }
+   ],
+   "version": {
+    "sha256": "1fb1096a7a871f95bcd4013df6875be1d95ac96e6292f6567dfd1944d4919d8c",
+    "bytes": 56176,
+    "last_git_change": "98f8177449db524715ea1c9497d95a1bb31fe7de 2026-11-03T19:45:17+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "research/architecture-20261106/ARCHITECTURE-REVIEW.md",
+   "topic": "威科夫日线研究模式独立架构评审与拟议接口契约",
+   "category": "架构契约提案",
+   "owner": "系统架构师（正文）",
+   "status": "已交独立架构评审；尚未实施",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "状态：架构设计提案，尚未实施。作者责任：系统架构师。检查日期：2026-11-06（北京时间）。"
+    }
+   ],
+   "version": {
+    "sha256": "037019226e6285d2b918a60a0694f703261fe40f2d365255c65fac0b784b4542",
+    "bytes": 23041,
+    "last_git_change": null,
+    "note": "原文于本盘点期间原地修订；v0.1 记录的 039ba0a571360fd325af932ed7eab1ecd2d2d7d559a5d726df86af8a2425eaab / 17863 B 已失效，现按 23041 B 复核（§6 同一 F821，§7 G3 门槛未变）",
+    "previous_sha256": "039ba0a571360fd325af932ed7eab1ecd2d2d7d559a5d726df86af8a2425eaab",
+    "previous_bytes": 17863
+   },
+   "last_checked_at": "2026-11-06T14:32:14.046310+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "research/wyckoff-system-design-20261106/INTEGRATION-DESIGN.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/ADJ-REBUILD-PLAN-20261028.md",
+   "topic": "复权重建：来源缺口盘点与独立暂存方案",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "ec6585de5cd38484c5c5ebeb7f5ecf76671172aad929a52dfc35ebec3a2f6d11",
+    "bytes": 5171,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/ADJUSTMENT-BREAK-20261028.md",
+   "topic": "复权断裂：enriched 自 2020-05-08 起未再前复权",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "b30921289c3ca083e9ffec6e48a5b13bb6d74bbeb19d215e4223071fe55a2210",
+    "bytes": 5317,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/research/.../quarantine-20261028/",
+     "exists": false,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/BASELINE-CHANGE-NOTICE-20261028-1840.md",
+   "topic": "基线变更通知：API联调启动修复与有效配置差异",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "b59add9a6ad216ab1d21ff55335bf1b4ba3a6e7a8fa36949466500788eb12f06",
+    "bytes": 3088,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/BASELINE-RECORD.md",
+   "topic": "基线记录：代码指纹 + 数据指纹",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "3c3fb6ad3fa0c4463de891c534195d83f3e52727510d884f9428e6ba5c14b7f0",
+    "bytes": 8009,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/engine.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/backtest/strategy.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/factors/event_chain.py",
+     "exists": false,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/indicators/pipeline.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/app/price_limits.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "backend/tests/backtest/test_331_execution_rules.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/DATA-EVIDENCE.md",
+   "topic": "首板分类·数据口径与可核查证据 v1",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "59cf3575aa0558ee52975fcff85c3d58dd5cec03473bc73275389e37e97f7198",
+    "bytes": 12482,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/factor-system-design.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/ENGINE-BASELINE-HANDOFF-20261028.md",
+   "topic": "规则实现交接记录：331迁移 / position默认 / full显式拒绝",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 15,
+     "text": "状态：规则实现终审通过，尚未协调冻结完整代码快照，尚未复现研究基线。后续执行前必须核对文件指纹、完整工作区及配置、数据版本；任何不一致另建版本，不能凭HEAD延用本记录。"
+    }
+   ],
+   "version": {
+    "sha256": "63df434715e838968c56a678736243b740ab71596a2740426a80f812d01d638f",
+    "bytes": 2427,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/event-replay-v01/README.md",
+   "topic": "四股逐事件回放 v0.1：交付与复核入口",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "状态：方法验证材料；新候选分类与因子仍待量化验证员独立验收。没有策略成交回测，没有正式效果结论。四股已被挑选并观察，均为开发样本。"
+    }
+   ],
+   "version": {
+    "sha256": "2639d5485c1a3aded3247c57b29fa1b0d27bc8413c40bfe144ec54981f590f21",
+    "bytes": 4679,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/event-replay-v011-schema/README.md",
+   "topic": "v0.1.1：候选导出模式修正",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "4066461b28d51d24c910e0aea76c7ea59a401d1cc4098d2f29837c1a043608a1",
+    "bytes": 1744,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/EXPERIMENT-DOWNGRADE-ADJUSTMENT-20261028.md",
+   "topic": "实验降级注记：疑似历史复权基准断裂",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "d02558096895d83594e19a11c68a2a4995394f9b2e7b2fabd99eb6ca55d5582a",
+    "bytes": 3386,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/FACTOR-INVENTORY.md",
+   "topic": "因子清单：定义、历史覆盖、可知时点、数据版本",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "3bc73b68bab0302600128503c62d6b30cbf508271d897ad3d1f36de43717b5f5",
+    "bytes": 7356,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/factors/registry.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/README.md",
+   "topic": "首板分类研究档案（2026-10-27 起）",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "522cd58fc6e7a6657055c4c71e8d9b25891fb190a1b2efdc36efe99463ed9869",
+    "bytes": 2152,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/research/...",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/archive/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/RULE-DECISIONS.md",
+   "topic": "三项独立待决规则及真实证据",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "a1a47d4a382f48a1e94a779ddf7e49693aeac7e357c609b5244a397585042cf4",
+    "bytes": 2726,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/RULES-DRAFT.md",
+   "topic": "首板分类规则初稿 v0.3",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "f0b938eb2d1496fe0dc304b155cd82f1d637f30d7d42adea2eda2c204526e610",
+    "bytes": 9180,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/THREE-CASE-EVIDENCE.md",
+   "topic": "三例真实路径证据（候选规则复算，待独立签收）",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "bd1bc4e3b4e5006a1566a3c34a6e3cea71f0a30d199785862fdf482d2f95fde6",
+    "bytes": 4048,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/ADJUSTMENT-BREAK-SCAN.md",
+   "topic": "复权比跳变扫描（原始价无缺口）",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "7f4a25784fd9a6ba5642a6e3ecb2fc586f212fbff20a5e17a85be30ccf2fa934",
+    "bytes": 851,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/ASOF-CONSISTENCY.md",
+   "topic": "首板历史标签·截断一致性与未来扰动检查",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "7590c9e8557c7db0c861fffc1187a735fba60f567b917ebb95bf3abff0c5a233",
+    "bytes": 1642,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/CANDIDATE-CAUSALITY.md",
+   "topic": "新分类·因果性检查（截断与未来注入）",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "8d9fefc39085dba0a1c948d6295e222e11579d24b171a6eac5586c86ff7dc517",
+    "bytes": 609,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/CANDIDATE-REPLAY-CHECK.md",
+   "topic": "27事件/432条候选分类·独立复核",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "5fe9760dd537cf42946de7b7edc07070b5eab83dbd65ba6aa3863ae15705f118",
+    "bytes": 1026,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/DELIVERED-SCRIPT-CHECK.md",
+   "topic": "交付脚本·直接执行检查（截断与未来首板注入）",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "7d67fb5f7fa507f38878e9f3ff57508b345b6b5b677074703be1e3325dc73572",
+    "bytes": 455,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/FACTOR-ASOF-CHECK.md",
+   "topic": "因子快照时点·整表复算",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "6cba5cc2a7bef1d5cddd57ff5ee12f4c34e82529f9dfebe78b6f96ca08aafb2a",
+    "bytes": 442,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/GENERATION-IMPACT.md",
+   "topic": "分区重写对冻结回放副本的影响",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "c613f5e749978a4ab7f0583fd5cecdbb11ee738109659d584953d9b44c1aeb0a",
+    "bytes": 750,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/SCHEMA-V011-CHECK.md",
+   "topic": "v0.1.1 模式修正·独立核对",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "8bb879c988851f176cdb52389879f0848b0f4450fa2c71d27fc15250a91bfc8e",
+    "bytes": 606,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/SCHEMA-V012-CHECK.md",
+   "topic": "v0.1.2 补键·独立核对（仅本项）",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "407f4172fed155d74a322604a57827b8310888a032837ee3d93cdb68aaf6084e",
+    "bytes": 322,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/archive/2026-10-27-firstboard-classification/verification/TRACKING-CHECK.md",
+   "topic": "每日跟踪表·独立复核",
+   "category": "历史档案",
+   "owner": "未知",
+   "status": "历史冻结档案；按原快照使用",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "95101470d0c184a01b41f93b9a26915dc5dafb7bcb2d1552c636259d8027f4da",
+    "bytes": 415,
+    "last_git_change": "0caf24b8647c0429eda1addb6fa7afaf00e0900e 2026-10-30T12:54:20+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "历史适用性待核实，不自动修订冻结路径"
+   ]
+  },
+  {
+   "path": "research/eastmoney-auction-tencent-minute-20261031.md",
+   "topic": "Eastmoney auction probe and Tencent minute observations (2026-10-31)",
+   "category": "研究过程",
+   "owner": "未知",
+   "status": "研究过程材料；非产品文档",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "a7274e765e88f9a3c1482a91702864178e12c90678713b5ca33e9e0c891a727e",
+    "bytes": 7985,
+    "last_git_change": "96ba73d0a3611f1a03406efc966f4d7048f1351f 2026-11-01T04:41:23+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "research/industry-chains-20261105/README.md",
+   "topic": "商业航天、机器人、新能源汽车与电池产业链梳理",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "研究过程材料；非产品文档",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "研究日期：2026-11-05。用途：为产业链脑图补充分类层级、节点边界和股票映射口径。本文不是投资排序；当前已按该结构落到默认图谱，运行数据仍以图谱 API 为准。"
+    }
+   ],
+   "version": {
+    "sha256": "46ac97d036f351e199bd78277e55aaf81be3ff4c502924fb79011d748b094981",
+    "bytes": 25027,
+    "last_git_change": "8ab64f95bcaa62b2dce52209347d722ca6c13095 2026-11-05T01:48:45+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "research/new-energy-20261104/README.md",
+   "topic": "新能源产业链图谱研究",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "研究过程材料；非产品文档",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "研究日期：2026-11-04。用途：为本地产业链脑图整理分类和股票关联口径。下文先给出研究建议，当前已按该结构落地到本地图谱；运行数据仍以图谱 API 为准。本文件不涉及投资排序和收益预测。"
+    }
+   ],
+   "version": {
+    "sha256": "2ac66cd6bcf2356e39448797490c5ff9659e5c4dd89a6aaae7dcf5b9fce5d465",
+    "bytes": 11057,
+    "last_git_change": "8ab64f95bcaa62b2dce52209347d722ca6c13095 2026-11-05T01:48:45+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "research/parallel-data-20261106/probe.md",
+   "topic": "probe",
+   "category": "数据质量报告",
+   "owner": "行情数据工程师（职责分配）",
+   "status": "异常占位文本，待作者核实",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "f416e9f09e79de246ff38782994f343ff28a783fb61eedccae1a28207f78e528",
+    "bytes": 35,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": [
+    "疑似探针残留，待作者核实",
+    "疑似无业务意义的探针文本"
+   ]
+  },
+  {
+   "path": "research/program-planning-20261106/PROGRAM-PLAN.md",
+   "topic": "tick-stock-panel 系统总体规划（v0.8）：目标、范围、证据等级、G0–G5 门槛、S 线策略搜索 S1–S6、用户已确认的「稳定盈利」候选准入口径（准入条件、非盈利承诺）、v0.8 五处更正（C12 单位口径分歧结案、C13 S07 全期回撤 -29.93%、C14 协议事后补写并新增 R23、C15 n_trials 口径说明、C16 独立复算 0/36）",
+   "category": "系统总体规划",
+   "owner": "总体规划负责人（正文）",
+   "status": "规划草案 v0.8；未代表功能完成或上线批准",
+   "implementation_status": "未涉及实现（规划/取证文件）",
+   "validation_status": "文档管理员本轮（2026-11-06 23:36–23:44）重算 v0.8 摘要，与规划方清单逐位一致（4/4；EVIDENCE.json 自身摘要按 self_sha256_note 重算）；另直接读取 results/run_S07_xs_lowvol_60d_10.json 与 results/registry.json 复核 C12/C13/C16（OOS.total_return 0.3177141、OOS.cagr 0.0781483、ALL.max_drawdown -0.299254、ALL.cagr -0.0010236、IS 与 OOS cagr 同为正 0 次、OOS 为正 5 次）；未复跑审核探针、未复跑策略试验、未跑 Ruff/pytest/前端构建/部署",
+   "review_status": "规划与风险表未独立审核；独立审核结论见 research/independent-review-20261106/REVIEW.md（阻断验收、3 项 P1）；R01/R04/R13/R14 为「修复候选待复验」——开发自述只做 py_compile、未跑 Ruff/pytest、无等价性对照；S2/S3 为规划方只读取证，未经独立复验；R20/R21/R22/R23 未由第三方核定",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "版本：v0.8；证据日期：2026-11-06（北京时间，取证至 23:20）。维护：总体规划负责人。变更：v0.7 据三份回执与同刻磁盘复核做四处更正、两处状态推进——(1) **更正 R3 口径**（开发本人指正）：修复候选的规则是「**连续账户下**禁止稀疏窗（`step_days != test_days` 即 400）」，关闭连续账户时仍允许稀疏窗并标注为逐折复利诊断，不是全局禁止；(2) **更正试验计数**：S2 不是 27 次 / 9 策略，23:09:33 的 `results/registry.json`（`2597d6fa…`/175,133 B）为 **36 次 / 12 策略**（新增 S10 横截面 20 日反转、S11 低波反转、S12 低波广度），结论 **0/36**；(3) **多重检验已接入但 `n_trials` 低估**：研究侧 `summary.json` 已算 DSR，`n_trials` 却取 12（实际执行 36），最高 DSR 为 S07 的 0.027，远低于口径要求的 0.95；(4) **研究员回执与磁盘矛盾升级**：其 23:11 回执称该目录 `Test-Path` 为 False、未启动实验，磁盘同期为 8 个脚本 + 81 个结果文件，规划方只记观察、不推断作者；(5) 登记状态回填：v0.6 已于 23:09:45 登记，登记册 109 条、`check.py` 退出码 0、漂移 0；(6) 新增 R22（数据边界四项使「稳定盈利」宣称档不可达）并登记研究员两档目标。v0.6 据 22:48–23:01 复核更正「v0.4 从未登记」「`docs/README.md` 归属」两处误判并记 `engine.py` 三段摘要链；v0.5 记录用户确认的判定口径与降级规则；v0.4 新增 S 线；v0.3 回填登记；v0.2 记独立审核阻断；v0.1 首版。各版差异见 EVIDENCE.json 的 `revision`、`corrections_v06`、`corrections_v07`。"
+    },
+    {
+     "line": 4,
+     "text": "**v0.8 变更（相对 v0.7；全部来自 23:26–23:35 只读复核，未改任何他人文件）**：(1) **C12 口径分歧关闭**——同一 run `S07_xs_lowvol_60d@10` 的 `OOS.total_return=0.31771`（累计 +31.77%）与 `OOS.cagr=0.07815`（年化 +7.81%）是同一结果的两种单位，`README.md`/`REPORT.md` 的「+31.8%」与规划 v0.7 的「+7.81%」不构成冲突，文档管理员记录在 ISSUES 的该条据此结案。(2) **C13 S07 全期不达标**——`ALL.max_drawdown=-0.29925`（-29.93%）、`ALL.cagr=-0.00102`（-0.10%）、`ALL.total_return=-0.72`；v0.7「S07 是唯一回撤 ≤20% 且 OOS 为正」只对 OOS 段（-9.36%）成立，**按全期已越过 20% 门槛**，36 次中全期回撤最小者亦为 -19.91%（`S12_lowvol_breadth@gross`）。(3) **C14 协议为事后补写**——`PROTOCOL.md` 23:25:33、`STRATEGIES.md` 23:22:30、`README.md`/`CAPABILITIES.md` 23:25:33，全部晚于首个 run 22:51:55（`run_S01_ma_cross_20_60_10.json`）；`PROTOCOL.md` 自述「本协议在任何回测运行之前写入」，与时间戳矛盾，登记为「自称预注册、无时间戳支持」（R23）。(4) **C15 负结果的性质需写准**——`PROTOCOL.md` §5 说明 IS/OOS 是「时间外推」而非「参数外推」，12 条策略用公开定义的默认参数、未做参数搜索；§8 明示 10/30/gross 成本档不计入 N。故 `n_trials=12` 有文档依据（12 与 36 之差属口径而非漏计），0/36 属**未被参数搜索污染**的负结果，解释力强于搜索型试验；但**策略集合自身的选择偏差仍在**，不得表述为「已穷尽」。(5) **C16 独立复算 0/36**——按 `results/registry.json`（175,133 B / `2597d6fa…`）逐 run 复算，IS 与 OOS 的 `cagr` 同时 >0 的 run 数为 **0**；OOS 为正 5 次（S07 三档、`S04@0bps`、`S05@0bps`），与 v0.7 一致。"
+    }
+   ],
+   "version": {
+    "label": "v0.8",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "e8d6a9ba77031974e5ec514e895294f330a21fee423bce6423ee33619a1c83a4",
+    "bytes": 43802,
+    "last_git_change": null,
+    "note": "v0.8 为规划方 2026-11-06 23:26–23:35 只读复核后落盘的整组版本（C12 结案、C13 S07 全期口径、C14 协议事后补写与 R23、C15 n_trials 口径、C16 独立复算），文档管理员于 23:36–23:44 重算摘要并与规划方清单逐位比对一致；v0.7–v0.1 摘要保留于 superseded_versions",
+    "supersedes": "v0.7"
+   },
+   "last_checked_at": "2026-11-06T15:36:55.205174+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/program-planning-20261106/EVIDENCE.json",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "v0.8 为规划方本轮冻结基线（2026-11-06 23:26–23:35 只读复核）；正文事实错误仍由规划方升新版改，登记方不代改",
+    "C12 已结案：S07_xs_lowvol_60d@10 的 OOS.total_return=0.31771（累计 +31.77%）与 OOS.cagr=0.07815（年化 +7.81%）是同一 run 的两种单位；登记方另直接读取 results/run_S07_xs_lowvol_60d_10.json 与 results/registry.json 复核，确认同源，不构成两个结论",
+    "C13：S07 ALL.max_drawdown=-0.29925（-29.93%）、ALL.cagr=-0.00102（-0.10%）、ALL.total_return=-0.0072；-9.36% 仅为 OOS 段；按全期已越过 MDD≤20% 门槛（36 次中全期回撤最小为 S12_lowvol_breadth@gross 的 -19.91%），登记方读 registry.json 复核一致",
+    "C14：PROTOCOL.md 23:25:33、STRATEGIES.md 23:22:30、README.md 与 CAPABILITIES.md 23:25:33 均晚于首个 run 22:51:55；S2「协议开跑前冻结」维持未达，新增 R23（协议事后补写）",
+    "C15：12 与 36 之差属 PROTOCOL.md §8（成本档不计入 N）与 §5（时间外推而非参数搜索）的口径，非漏计；0/36 仍是未被参数搜索污染的负结果，但策略集合选择偏差仍在",
+    "R17 记「已受损」（924 个 OOS 交易日已被 36 次试验消耗）；R20/R21/R22/R23 均开放；三项 P1 仍为「修复候选待复验」，不得写已修复或已验收",
+    "登记方观察：v0.8 正文引用的 results/registry.json 摘要 2597d6fa…（175,133 B，23:09:33）与登记时磁盘 3961999…（同为 175,133 B，mtime 23:19:26）不同；登记方按当前文件同法复算结论一致（0/36、OOS 为正 5 次），已在 ISSUES 登记，交规划方核实"
+   ],
+   "evidence_boundary": "规划文件 v0.8（2026-11-06，取证至 23:20；规划方 23:26–23:35 只读复核后定稿，自称未改任何他人文件）。供审查的执行规划，不是功能完成证明或上线批准；不承诺盈利、不承诺达成日期。v0.8 更正（EVIDENCE.json corrections_v08）：(1) C12 结案——S07 的 OOS.total_return 0.31771（累计 +31.77%）与 OOS.cagr 0.07815（年化 +7.81%）是同一 run 两种单位，研究侧「+31.8%」与规划侧「+7.81%」不构成冲突（登记方直接读 run 文件复核）；(2) C13——S07 ALL.max_drawdown=-0.29925、ALL.cagr=-0.00102、ALL.total_return=-0.0072，仅 OOS 段回撤 -9.36%，按全期已越 20% 门槛；(3) C14——PROTOCOL.md 23:25:33 / STRATEGIES.md 23:22:30 / README.md、CAPABILITIES.md 23:25:33 晚于首个 run 22:51:55，PROTOCOL.md 自称运行前写入但无时间戳支持，S2「协议冻结」维持未达，新增 R23；STRATEGIES.md 全文 http 出现 0 次、scripts/common.py 无来源引用与许可；(4) C15——n_trials 记 12 属 §8 成本档不计入 N 的口径，非漏计，0/36 未被参数搜索污染但策略集合选择偏差仍在；(5) C16——按 results/registry.json 独立复算：IS 与 OOS cagr 同为正的 run 数 0、OOS 为正 5 次，登记方同法复算结果相同。S 线状态：S1 仍阻塞于 G1-04；S2「产出已超门槛但门槛未达」；S3「部分具备、账本雏形出现」；S4/S6 未开始。三项 P1（R01/R04/R13/R14）仍「修复候选待复验」；G1-02/G1-03 阻断、G1-04 唯一放行口。用户确认的「稳定盈利」为候选准入条件、非盈利承诺，阈值待研究员定稿、独立审核复核。登记方另记：正文引用的 registry.json 摘要与登记时磁盘不同（同字节数、异摘要），结论未变。规划方只读源码与摘要，未复跑试验、未审核 scripts/ 实现，未跑 Ruff/pytest/前端构建/部署。",
+   "superseded_versions": [
+    {
+     "label": "v0.7",
+     "declared_date": "2026-11-06",
+     "sha256": "8f78a80f84ecee0992af47a3bf025fc4524ba370287c700e2c359b339bc8d029",
+     "bytes": 39698,
+     "status": "v0.7 规划草案；未代表功能完成或上线批准",
+     "superseded_by": "v0.8",
+     "superseded_at": "2026-11-06T15:36:55.205174+00:00",
+     "note": "v0.7 为规划方 2026-11-06 23:12–23:20 落盘版本，文档管理员于 23:23–23:26 登记（摘要与规划方清单逐位一致）；规划方 23:29–23:31 改写为 v0.8，v0.7 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.6",
+     "declared_date": "2026-11-06",
+     "sha256": "770fac46b3d82f020c9661da887ac371cf7a85f140e6f94796fffce04697a225",
+     "bytes": 35143,
+     "status": "规划草案 v0.6；未代表功能完成或上线批准",
+     "superseded_by": "v0.7",
+     "superseded_at": "2026-11-06T15:25:18.730930+00:00",
+     "note": "v0.6 为规划方 2026-11-06 落盘版本，文档管理员登记时曾重算摘要并与清单逐位一致；规划方随后改写为 v0.7，其摘要与声明行号对现行正文失效"
+    },
+    {
+     "label": "v0.5",
+     "declared_date": "2026-11-06",
+     "sha256": "bdeb2b4a7d2892a62a69f3fe05b350c7fdf4c82ae32703d8ea90e43824076662",
+     "bytes": 29379,
+     "status": "规划草案 v0.5；未代表功能完成或上线批准",
+     "superseded_by": "v0.6",
+     "superseded_at": "2026-11-06T15:09:45.584765+00:00",
+     "note": "v0.5 为规划方 2026-11-06 22:49–22:52 落盘的整组版本，文档管理员于 22:56 登记（当时摘要逐位一致）；规划方于 23:03–23:04 改写为 v0.6，v0.5 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.4",
+     "declared_date": "2026-11-06",
+     "sha256": "47abfc77d4358cca601078192e4130a41a4b75d842929f23fa332c761ee40770",
+     "bytes": 22951,
+     "status": "规划草案 v0.4；未代表功能完成或上线批准",
+     "superseded_by": "v0.5",
+     "superseded_at": "2026-11-06T14:50:29.434743+00:00",
+     "note": "v0.4 由文档管理员于 22:48 登记（摘要 47abfc77… /22,951 B，与规划方清单逐位一致）；规划方于 22:49:55 改写为 v0.5，v0.4 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.3",
+     "declared_date": "2026-11-06",
+     "sha256": "e55311b59465e4ab863a102525b24817956e64a54c1ab51082a754d49b18bb59",
+     "bytes": 11323,
+     "status": "规划草案 v0.3；未代表功能完成或上线批准",
+     "superseded_by": "v0.4",
+     "superseded_at": "2026-11-06T14:48:46.459816+00:00",
+     "note": "v0.3 摘要为文档管理员上一轮登记值，本轮重算确认当时与正文逐位一致；正文已被 v0.4 改写，v0.3 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.2",
+     "declared_date": "2026-11-06",
+     "sha256": "cfdbb86590315bd43c636ac7f0e8d59a00d7be9a6de495bb3c224eafd8a0db26",
+     "bytes": 10203,
+     "status": "规划草案 v0.2；未代表功能完成或上线批准",
+     "superseded_by": "v0.3",
+     "superseded_at": "2026-11-06T14:39:55.740672+00:00",
+     "note": "v0.2 摘要由文档管理员上一轮登记，与 v0.2 正文逐位一致；版本链 v0.1→v0.2→v0.3 可追溯（v0.1 摘要见本条下一项及 EVIDENCE.json v0.3 的 registry_recomputation.superseded_v01_digests）"
+    },
+    {
+     "label": "v0.1",
+     "declared_date": "2026-11-06",
+     "sha256": "868055f7cf7f694f119432348c72c345902e322c1ada8a2b7c697fd3119ad77e",
+     "bytes": 8413,
+     "status": "规划草案 v0.1；未代表功能完成或上线批准",
+     "superseded_by": "v0.2",
+     "superseded_at": "2026-11-06T14:32:14.046310+00:00",
+     "note": "v0.1 摘要与声明行号对 v0.2 正文失效；v0.1 同时保留于 EVIDENCE.json revision.previous_deliverable_sha256"
+    }
+   ]
+  },
+  {
+   "path": "research/README.md",
+   "topic": "研究材料存放区",
+   "category": "索引入口",
+   "owner": "未知",
+   "status": "规范/入口（现行原文）",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "0ed07bbe730d8e4f37bbc3cacc4362c8295cc7386e565f78972d73b16e78b71a",
+    "bytes": 1427,
+    "last_git_change": "8ab64f95bcaa62b2dce52209347d722ca6c13095 2026-11-05T01:48:45+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "docs/research/",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "research/strategy-reliability-20261106/README.md",
+   "topic": "策略可靠性审计与候选验证",
+   "category": "索引入口",
+   "owner": "策略研究模块维护者（原文）",
+   "status": "研究过程材料；非产品文档",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "创建时间：2026-11-06T20:12:43+08:00。状态：连续账户 WFO 与逐标的行情守卫已实现并重算 T74；可靠高收益策略仍未建立。使用 bgx 5.1.0，默认标准深度，顺序执行，未创建分支、提交或部署。"
+    }
+   ],
+   "version": {
+    "sha256": "7a06075f1f0938652e8924ff215dc219f0dc30ba3bd72a37bf95ee1ef4616e82",
+    "bytes": 6687,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/backtest/walkforward.py",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "research/wyckoff-system-design-20261106/INTEGRATION-DESIGN.md",
+   "topic": "威科夫日线研究模式：系统接入设计",
+   "category": "接入设计",
+   "owner": "系统开发工程师",
+   "status": "设计提案，未实现",
+   "implementation_status": "未实现",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "状态：设计提案，未实现。维护责任：系统开发工程师。检查日期：2026-11-06，北京时间。"
+    }
+   ],
+   "version": {
+    "sha256": "91da540f96d543fd959b7008a4e0ff56063d16a3a1375daa4cc648dad210239f",
+    "bytes": 16580,
+    "last_git_change": null
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "操作说明书.md",
+   "topic": "TickFlow A 股智能量化工作台操作说明书",
+   "category": "实现与使用说明",
+   "owner": "未知",
+   "status": "使用说明；未逐项核对当前实现",
+   "implementation_status": "未独立核实",
+   "validation_status": "本次仅核实文档与路径，未复跑业务测试",
+   "review_status": "未独立验收",
+   "declared_status": [],
+   "version": {
+    "sha256": "035b13e8657c8a7ec61cfd0bcb61a35ad6093b948ce534d7ff50e107c693c05d",
+    "bytes": 57229,
+    "last_git_change": "b48adb97a7d296854c3759527eea2cb0ecd7a224 2026-11-01T03:21:02+08:00"
+   },
+   "last_checked_at": "2026-11-06T14:14:01.224018+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [],
+   "flags": []
+  },
+  {
+   "path": "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+   "topic": "分阶段交付与验收清单（v0.8）：G0–G5 与 S1–S6 门槛；S1 阻塞于 G1-04、S2「产出已超门槛但门槛未达」（36 次、0/36、协议事后补写）、S3「部分具备、账本雏形出现」、S4/S6 未开始；v0.8 追加 C12–C16 与 R23",
+   "category": "系统总体规划",
+   "owner": "总体规划负责人（正文）",
+   "status": "规划草案 v0.8；未代表功能完成或上线批准",
+   "implementation_status": "未涉及实现（规划/取证文件）",
+   "validation_status": "文档管理员本轮（2026-11-06 23:36–23:44）重算 v0.8 摘要，与规划方清单逐位一致（4/4；EVIDENCE.json 自身摘要按 self_sha256_note 重算）；另直接读取 results/run_S07_xs_lowvol_60d_10.json 与 results/registry.json 复核 C12/C13/C16（OOS.total_return 0.3177141、OOS.cagr 0.0781483、ALL.max_drawdown -0.299254、ALL.cagr -0.0010236、IS 与 OOS cagr 同为正 0 次、OOS 为正 5 次）；未复跑审核探针、未复跑策略试验、未跑 Ruff/pytest/前端构建/部署",
+   "review_status": "规划与风险表未独立审核；独立审核结论见 research/independent-review-20261106/REVIEW.md（阻断验收、3 项 P1）；R01/R04/R13/R14 为「修复候选待复验」——开发自述只做 py_compile、未跑 Ruff/pytest、无等价性对照；S2/S3 为规划方只读取证，未经独立复验；R20/R21/R22/R23 未由第三方核定",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "版本 v0.8；2026-11-06；维护：总体规划负责人。变更：v0.7 更正 R3 口径为「**连续账户下**禁止稀疏窗、关闭连续账户时仍允许并标注为逐折复利诊断」（开发本人指正），把 S2 首轮计数由 27 次 / 9 策略更正为 **36 次 / 12 策略**（`results/registry.json` 175,133 B / `2597d6fa…`，23:09:33，结论 **0/36**），记录 `n_trials` 低估（记 12、实际 36）与研究员回执同磁盘的矛盾（R21），新增 R22（数据边界使宣称档不可达），并回填 v0.6 登记事实（109 条、`check.py` 退出码 0、漂移 0）；v0.6 更正 v0.4 登记事实与 `docs/README.md` 归属、更新 `engine.py` 摘要链；v0.5 把 S5 判定口径改为「用户已确认的准入条件」并新增降级规则；更早各版见 EVIDENCE.json 的 `revision`。"
+    }
+   ],
+   "version": {
+    "label": "v0.8",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "4dad233bf75f15cf114378bc553290f780be10b26b8ece25b5ab6c4837a5046e",
+    "bytes": 16303,
+    "last_git_change": null,
+    "note": "v0.8 为规划方 2026-11-06 23:26–23:35 只读复核后落盘的整组版本（C12 结案、C13 S07 全期口径、C14 协议事后补写与 R23、C15 n_trials 口径、C16 独立复算），文档管理员于 23:36–23:44 重算摘要并与规划方清单逐位比对一致；v0.7–v0.1 摘要保留于 superseded_versions",
+    "supersedes": "v0.7"
+   },
+   "last_checked_at": "2026-11-06T15:36:55.205174+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/program-planning-20261106/PROGRAM-PLAN.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/program-planning-20261106/EVIDENCE.json",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/architecture-20261106/ARCHITECTURE-REVIEW.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "S2 维持「产出已超门槛但门槛未达」：36 次（12 策略 × 3 成本档）试验、0/36 样本内外同时为正；PROTOCOL.md 23:25:33 晚于首个 run 22:51:55，协议未在开跑前冻结（C14/R23）",
+    "S3「部分具备、账本雏形出现」；S1 阻塞于 G1-04；S4/S6 未开始；门槛与状态为规划方取证，非验收结论",
+    "v0.8 为冻结基线；正文事实错误由规划方升新版改，登记方不代改"
+   ],
+   "evidence_boundary": "交付与验收清单 v0.8（2026-11-06，取证至 23:20）。G0–G5 与 S1–S6 的门槛、负责人、交付物与现有证据；状态均为规划方只读取证，不是验收结论。S1 阻塞于 G1-04；S2 产出已超门槛（36 次试验）但门槛未达（无冻结协议、无候选卡、无来源许可，0/36 样本内外同时为正）；S3 部分具备、账本雏形出现；S4/S6 未开始。三项 P1 仍「修复候选待复验」，G1-02/G1-03 阻断。登记方未复跑任何门槛判定。",
+   "superseded_versions": [
+    {
+     "label": "v0.7",
+     "declared_date": "2026-11-06",
+     "sha256": "fa61d347f18bd63a149bae5c670cbc3f0fc18c2facfe23c981694ccd49256479",
+     "bytes": 15776,
+     "status": "v0.7 规划草案；未代表功能完成或上线批准",
+     "superseded_by": "v0.8",
+     "superseded_at": "2026-11-06T15:36:55.205174+00:00",
+     "note": "v0.7 为规划方 2026-11-06 23:12–23:20 落盘版本，文档管理员于 23:23–23:26 登记（摘要与规划方清单逐位一致）；规划方 23:29–23:31 改写为 v0.8，v0.7 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.6",
+     "declared_date": "2026-11-06",
+     "sha256": "6294aa0e9aa65227798f73cb466f08d8eca17138988de7f0282bd757ad9c8c6f",
+     "bytes": 16087,
+     "status": "规划草案 v0.6；未代表功能完成或上线批准",
+     "superseded_by": "v0.7",
+     "superseded_at": "2026-11-06T15:25:18.730930+00:00",
+     "note": "v0.6 为规划方 2026-11-06 落盘版本，文档管理员登记时曾重算摘要并与清单逐位一致；规划方随后改写为 v0.7，其摘要与声明行号对现行正文失效"
+    },
+    {
+     "label": "v0.5",
+     "declared_date": "2026-11-06",
+     "sha256": "28f57b6861222e59793ade72a43e5c2ee958bc5b5c0303cc445a2f30667d34b7",
+     "bytes": 14891,
+     "status": "规划草案 v0.5；未代表功能完成或上线批准",
+     "superseded_by": "v0.6",
+     "superseded_at": "2026-11-06T15:09:45.584765+00:00",
+     "note": "v0.5 为规划方 2026-11-06 22:49–22:52 落盘的整组版本，文档管理员于 22:56 登记（当时摘要逐位一致）；规划方于 23:03–23:04 改写为 v0.6，v0.5 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.4",
+     "declared_date": "2026-11-06",
+     "sha256": "d5bf6a4eec72c16c9f8fcab0c7c0202c831c05fa97984b1e1249b539f7373d59",
+     "bytes": 13748,
+     "status": "规划草案 v0.4；未代表功能完成或上线批准",
+     "superseded_by": "v0.5",
+     "superseded_at": "2026-11-06T14:56:34.191750+00:00",
+     "note": "v0.4 由文档管理员于 2026-11-06 22:48 短暂登记（当时正文即该版，摘要逐位一致）；规划方于 22:50–22:52 改写为 v0.5，v0.4 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.3",
+     "declared_date": "2026-11-06",
+     "sha256": "e3ebd8024bb2c7297e97e8310473d71035730aa5ae3de6287ce487f2a5c5db9a",
+     "bytes": 9265,
+     "status": "规划草案 v0.3；未代表功能完成或上线批准",
+     "superseded_by": "v0.4",
+     "superseded_at": "2026-11-06T14:48:46.459816+00:00",
+     "note": "v0.3 摘要为文档管理员上一轮登记值，本轮重算确认当时与正文逐位一致；正文已被 v0.4 改写，v0.3 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.2",
+     "declared_date": "2026-11-06",
+     "sha256": "69a675eb0f599465e0302ebfd2e427352f2ca99e997b90af14b4bfdc40c244cf",
+     "bytes": 8625,
+     "status": "规划草案 v0.2；未代表功能完成或上线批准",
+     "superseded_by": "v0.3",
+     "superseded_at": "2026-11-06T14:39:55.740672+00:00",
+     "note": "v0.2 摘要由文档管理员上一轮登记，与 v0.2 正文逐位一致；版本链 v0.1→v0.2→v0.3 可追溯（v0.1 摘要见本条下一项及 EVIDENCE.json v0.3 的 registry_recomputation.superseded_v01_digests）"
+    },
+    {
+     "label": "v0.1",
+     "declared_date": "2026-11-06",
+     "sha256": "73130029a560c38a5e883493e51d511674663811342d30acb830a4191c318272",
+     "bytes": 7279,
+     "status": "规划草案 v0.1；未代表功能完成或上线批准",
+     "superseded_by": "v0.2",
+     "superseded_at": "2026-11-06T14:32:14.046310+00:00",
+     "note": "v0.1 摘要与声明行号对 v0.2 正文失效；v0.1 同时保留于 EVIDENCE.json revision.previous_deliverable_sha256"
+    }
+   ]
+  },
+  {
+   "path": "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+   "topic": "R01–R23 风险、mermaid 依赖图与待核实项（v0.8 新增 R23 协议事后补写；R17 记「已受损」——924 个 OOS 交易日已被 36 次试验消耗；R20/R21/R22 仍开放）",
+   "category": "系统总体规划",
+   "owner": "总体规划负责人（正文）",
+   "status": "规划草案 v0.8；未代表功能完成或上线批准",
+   "implementation_status": "未涉及实现（规划/取证文件）",
+   "validation_status": "文档管理员本轮（2026-11-06 23:36–23:44）重算 v0.8 摘要，与规划方清单逐位一致（4/4；EVIDENCE.json 自身摘要按 self_sha256_note 重算）；另直接读取 results/run_S07_xs_lowvol_60d_10.json 与 results/registry.json 复核 C12/C13/C16（OOS.total_return 0.3177141、OOS.cagr 0.0781483、ALL.max_drawdown -0.299254、ALL.cagr -0.0010236、IS 与 OOS cagr 同为正 0 次、OOS 为正 5 次）；未复跑审核探针、未复跑策略试验、未跑 Ruff/pytest/前端构建/部署",
+   "review_status": "规划与风险表未独立审核；独立审核结论见 research/independent-review-20261106/REVIEW.md（阻断验收、3 项 P1）；R01/R04/R13/R14 为「修复候选待复验」——开发自述只做 py_compile、未跑 Ruff/pytest、无等价性对照；S2/S3 为规划方只读取证，未经独立复验；R20/R21/R22/R23 未由第三方核定",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "版本 v0.8；2026-11-06；维护：总体规划负责人。变更：v0.7 据三份回执与 23:16 磁盘复核更新 R16（36 次试验、`n_trials` 记 12 而非 36）、R17（924 日已被 36 次试验消耗）、R18（研究侧账本与生产库脱节）、R21（研究员回执与磁盘矛盾升级），并新增 R22（四项数据边界使「稳定盈利」宣称档不可达）；v0.6 更正 R15 一处归属、按 27 次试验更新 R16/R17/R20 并新增 R21；v0.5 新增 R20 并据用户确认更新 R16/R17 控制条件；v0.4 依 22:36–22:38 核心文件改动更新 R13/R14。逐条证据见 EVIDENCE.json。 v0.8 新增 R23（协议事后补写）、关闭 C12 口径分歧、更正 C13（S07 全期回撤 -29.93%）。"
+    }
+   ],
+   "version": {
+    "label": "v0.8",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "a9914063b461bc1e4d69d1fd5eb312ebceb5df45ec4c7528a678f16e25793a60",
+    "bytes": 18723,
+    "last_git_change": null,
+    "note": "v0.8 为规划方 2026-11-06 23:26–23:35 只读复核后落盘的整组版本（C12 结案、C13 S07 全期口径、C14 协议事后补写与 R23、C15 n_trials 口径、C16 独立复算），文档管理员于 23:36–23:44 重算摘要并与规划方清单逐位比对一致；v0.7–v0.1 摘要保留于 superseded_versions",
+    "supersedes": "v0.7"
+   },
+   "last_checked_at": "2026-11-06T15:36:55.205174+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/program-planning-20261106/PROGRAM-PLAN.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/program-planning-20261106/EVIDENCE.json",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "docs/research/parallel-data-20261106/DATA_QUALITY.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "R01–R23 连续无断号（登记方按磁盘正文枚举，缺号 0）",
+    "R23 为 v0.8 新增：PROTOCOL.md / STRATEGIES.md / README.md / CAPABILITIES.md mtime 均晚于首个 run，协议事后补写、STRATEGIES.md 无外部文献引用",
+    "R17「已受损」：924 个 OOS 交易日被 36 次试验消耗，需另划锁箱或改前瞻锁箱",
+    "R21 开放：研究员回执称目录不存在，磁盘同期 8 脚本 + 82 结果文件，规划方只记观察、不推断作者；R20 口径分歧、R22 数据边界使宣称档不可达同样开放",
+    "R01/R04/R13/R14 仍「修复候选待复验」，不得写已修复或已验收"
+   ],
+   "evidence_boundary": "风险与依赖表 v0.8（2026-11-06）。R01–R23 共 23 条，含负责人、影响、现行控制、状态与证据来源；依赖图仅为文本示意图。R20（口径与可达性分歧）、R21（研究产物归属与作者矛盾）、R22（四项数据边界使「稳定盈利」宣称档不可达）、R23（协议事后补写）均开放且未由第三方核定；R17 记「已受损」。风险状态为规划方取证，不是验收或审计结论；登记方未逐条复验。",
+   "superseded_versions": [
+    {
+     "label": "v0.7",
+     "declared_date": "2026-11-06",
+     "sha256": "b7d1ddc9cd0e288e577bd58cdb2de549285b4e22dce0265ee0d6c34b6eecb8b0",
+     "bytes": 17908,
+     "status": "v0.7 规划草案；未代表功能完成或上线批准",
+     "superseded_by": "v0.8",
+     "superseded_at": "2026-11-06T15:36:55.205174+00:00",
+     "note": "v0.7 为规划方 2026-11-06 23:12–23:20 落盘版本，文档管理员于 23:23–23:26 登记（摘要与规划方清单逐位一致）；规划方 23:29–23:31 改写为 v0.8，v0.7 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.6",
+     "declared_date": "2026-11-06",
+     "sha256": "8613061686dfbbfc507e9077d13c1f1d75d3849a0bde11da24db3c4d65669692",
+     "bytes": 16977,
+     "status": "规划草案 v0.6；未代表功能完成或上线批准",
+     "superseded_by": "v0.7",
+     "superseded_at": "2026-11-06T15:25:18.730930+00:00",
+     "note": "v0.6 为规划方 2026-11-06 落盘版本，文档管理员登记时曾重算摘要并与清单逐位一致；规划方随后改写为 v0.7，其摘要与声明行号对现行正文失效"
+    },
+    {
+     "label": "v0.5",
+     "declared_date": "2026-11-06",
+     "sha256": "9d274154ac38d9aa94e88b79d5683161c99d96a460cb7117197e94e2393378ab",
+     "bytes": 15227,
+     "status": "规划草案 v0.5；未代表功能完成或上线批准",
+     "superseded_by": "v0.6",
+     "superseded_at": "2026-11-06T15:09:45.584765+00:00",
+     "note": "v0.5 为规划方 2026-11-06 22:49–22:52 落盘的整组版本，文档管理员于 22:56 登记（当时摘要逐位一致）；规划方于 23:03–23:04 改写为 v0.6，v0.5 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.4",
+     "declared_date": "2026-11-06",
+     "sha256": "833711ca0633be3fce45a33e3703d9af8142d2dcc1fc0aeb1e45703f0b588a3a",
+     "bytes": 13297,
+     "status": "规划草案 v0.4；未代表功能完成或上线批准",
+     "superseded_by": "v0.5",
+     "superseded_at": "2026-11-06T14:56:34.191750+00:00",
+     "note": "v0.4 由文档管理员于 2026-11-06 22:48 短暂登记（当时正文即该版，摘要逐位一致）；规划方于 22:50–22:52 改写为 v0.5，v0.4 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.3",
+     "declared_date": "2026-11-06",
+     "sha256": "f1599c07f39a0a8c9abe12b6f4d95a16ad169bbd608d69747d4c19e22af8dbf7",
+     "bytes": 9980,
+     "status": "规划草案 v0.3；未代表功能完成或上线批准",
+     "superseded_by": "v0.4",
+     "superseded_at": "2026-11-06T14:48:46.459816+00:00",
+     "note": "v0.3 摘要为文档管理员上一轮登记值，本轮重算确认当时与正文逐位一致；正文已被 v0.4 改写，v0.3 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.2",
+     "declared_date": "2026-11-06",
+     "sha256": "5e17956eb1936739da3947b1f1b358ea8f5b0ed80662ee13733094500d060936",
+     "bytes": 9721,
+     "status": "规划草案 v0.2；未代表功能完成或上线批准",
+     "superseded_by": "v0.3",
+     "superseded_at": "2026-11-06T14:39:55.740672+00:00",
+     "note": "v0.2 摘要由文档管理员上一轮登记，与 v0.2 正文逐位一致；版本链 v0.1→v0.2→v0.3 可追溯（v0.1 摘要见本条下一项及 EVIDENCE.json v0.3 的 registry_recomputation.superseded_v01_digests）"
+    },
+    {
+     "label": "v0.1",
+     "declared_date": "2026-11-06",
+     "sha256": "77c4186dc80a0b849e90ea952f1019c4fea4b60ce6f8393c800ad3cfa597d966",
+     "bytes": 6804,
+     "status": "规划草案 v0.1；未代表功能完成或上线批准",
+     "superseded_by": "v0.2",
+     "superseded_at": "2026-11-06T14:32:14.046310+00:00",
+     "note": "v0.1 摘要与声明行号对 v0.2 正文失效；v0.1 同时保留于 EVIDENCE.json revision.previous_deliverable_sha256"
+    }
+   ]
+  },
+  {
+   "path": "research/independent-review-20261106/REVIEW.md",
+   "topic": "独立工程审核：连续 WFO 账户与接口",
+   "category": "独立审核报告",
+   "owner": "独立审核工程师（正文）",
+   "status": "阻断验收：原报告确认3项P1，不建议合并",
+   "implementation_status": "被审核的连续WFO改动存在，验收未通过",
+   "validation_status": "审核原文记录检查；文档治理未复跑",
+   "review_status": "已有独立审核：阻断验收；本轮未复验",
+   "declared_status": [
+    {
+     "line": 3,
+     "text": "审核日期：2026-11-06，北京时间；独立审核工程师。结论：**阻断验收，不建议合并当前回测相关改动**。确认 3 项 P1；需由系统开发工程师修复并由独立审核复验。本次不修改被审核源码。"
+    },
+    {
+     "line": 5,
+     "text": "## 1. 基线、范围与边界"
+    },
+    {
+     "line": 22,
+     "text": "## 2. 确认的阻断缺陷"
+    },
+    {
+     "line": 73,
+     "text": "## 3. 已验证通过与证据限制"
+    },
+    {
+     "line": 96,
+     "text": "## 4. 未验证范围与验收门槛"
+    },
+    {
+     "line": 105,
+     "text": "## 5. 可复现实验代码"
+    },
+    {
+     "line": 219,
+     "text": "## 6. 报告落盘后的复核"
+    }
+   ],
+   "version": {
+    "sha256": "73ab7d812340d80953fd0f08906dbc80b949a56f6fc5fbab5c4a3a1813e17588",
+    "bytes": 15957,
+    "last_git_change": null,
+    "note": "并行作者仍在更新；摘要为登记时点"
+   },
+   "last_checked_at": "2026-11-06T14:19:11.910139+00:00",
+   "source": {
+    "kind": "本地工作区文件正文及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；分类不证明实现"
+   },
+   "evidence": [
+    {
+     "path": "backend/app/api/backtest.py",
+     "exists": true,
+     "verification": "路径存在性"
+    },
+    {
+     "path": "backend/app/backtest/engine.py",
+     "exists": true,
+     "verification": "路径存在性"
+    },
+    {
+     "path": "backend/app/backtest/walkforward.py",
+     "exists": true,
+     "verification": "路径存在性"
+    }
+   ],
+   "flags": []
+  },
+  {
+   "path": "research/program-planning-20261106/EVIDENCE.json",
+   "topic": "规划取证记录（v0.8：corrections_v08 五条 C12–C16、s07_reconciliation、s2_gate_v08、research_docs_v08 五份研究文档摘要、disk_verification_20261106_2316、teammate_reports_20261106_2311、revision.previous=v0.7、limitations）",
+   "category": "系统总体规划",
+   "owner": "总体规划负责人（正文）",
+   "status": "取证记录 v0.8；未代表功能完成或上线批准",
+   "implementation_status": "未涉及实现（规划/取证文件）",
+   "validation_status": "文档管理员本轮（2026-11-06 23:36–23:44）重算 v0.8 摘要，与规划方清单逐位一致（4/4；EVIDENCE.json 自身摘要按 self_sha256_note 重算）；另直接读取 results/run_S07_xs_lowvol_60d_10.json 与 results/registry.json 复核 C12/C13/C16（OOS.total_return 0.3177141、OOS.cagr 0.0781483、ALL.max_drawdown -0.299254、ALL.cagr -0.0010236、IS 与 OOS cagr 同为正 0 次、OOS 为正 5 次）；未复跑审核探针、未复跑策略试验、未跑 Ruff/pytest/前端构建/部署",
+   "review_status": "规划与风险表未独立审核；独立审核结论见 research/independent-review-20261106/REVIEW.md（阻断验收、3 项 P1）；R01/R04/R13/R14 为「修复候选待复验」——开发自述只做 py_compile、未跑 Ruff/pytest、无等价性对照；S2/S3 为规划方只读取证，未经独立复验；R20/R21/R22/R23 未由第三方核定",
+   "declared_status": [],
+   "version": {
+    "label": "v0.8",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "2403aae7d891ee6ddbcbfb2de9141d8e0acaa1747ebacb9a2af7137ea5923bc6",
+    "bytes": 50054,
+    "last_git_change": null,
+    "note": "v0.8 为规划方 2026-11-06 23:26–23:35 只读复核后落盘的整组版本（C12 结案、C13 S07 全期口径、C14 协议事后补写与 R23、C15 n_trials 口径、C16 独立复算），文档管理员于 23:36–23:44 重算摘要并与规划方清单逐位比对一致；v0.7–v0.1 摘要保留于 superseded_versions",
+    "supersedes": "v0.7"
+   },
+   "evidence_boundary": "规划取证记录 v0.8（schema_version 1，2026-11-06）。记录规划方的只读复核、更正、计数与限制，不是功能完成或验收证明。内部含 corrections_v06（C1–C4）、corrections_v07、corrections_v08（C12–C16）、engine_hash_chain、s07_reconciliation、s2_gate_v08、research_docs_v08 与 limitations。登记方仅重算自身摘要并按 self_sha256_note 处理，未复跑其中任何测试或试验；对 C16 依赖的 registry.json 已独立复算并附加摘要差异说明。",
+   "last_checked_at": "2026-11-06T15:36:55.205174+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）及既有索引",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/program-planning-20261106/PROGRAM-PLAN.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    },
+    {
+     "path": "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+     "exists": true,
+     "verification": "只核实文件存在"
+    }
+   ],
+   "flags": [
+    "self_sha256_note 要求登记方自行重算自身摘要；登记方重算 2403aae7…／50,054 B，与规划方清单一致",
+    "内部 deliverable_sha256 / deliverable_bytes 与磁盘三份逐位相同（登记方交叉核对通过）",
+    "corrections_v08 五条（C12–C16）为规划方自认更正与结案；research_docs_v08 五份研究文档摘要与登记时磁盘逐位一致（README b0d2b9ab…、CAPABILITIES e3e33d73…、PROTOCOL 411a9e3c…、STRATEGIES 25f7e612…、REPORT 53e19a51…）",
+    "C16 的复算输入 results/registry.json 在登记时为 3961999…（175,133 B，23:19:26），与正文引用的 2597d6fa… 不同；登记方按当前文件同法复算，结论一致（36 run、0/36、OOS 为正 5 次）",
+    "限制与未验证项由原文列出，登记方未复跑；revision.previous=v0.7，前代摘要保留于 superseded_versions"
+   ],
+   "superseded_versions": [
+    {
+     "label": "v0.7",
+     "declared_date": "2026-11-06",
+     "sha256": "7356e518728ddf6a8111a20c8e9111a82ae01301a8a70a0f2c4aab5c886d7963",
+     "bytes": 46402,
+     "status": "v0.7 规划草案；未代表功能完成或上线批准",
+     "superseded_by": "v0.8",
+     "superseded_at": "2026-11-06T15:36:55.205174+00:00",
+     "note": "v0.7 为规划方 2026-11-06 23:12–23:20 落盘版本，文档管理员于 23:23–23:26 登记（摘要与规划方清单逐位一致）；规划方 23:29–23:31 改写为 v0.8，v0.7 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.6（schema_version 1）",
+     "declared_date": "2026-11-06",
+     "sha256": "d0183522d48ec69848033f27a753fd7d61f53071eb5c51a8224f5d756822f4c8",
+     "bytes": 37132,
+     "status": "取证记录 v0.6；未代表功能完成或上线批准",
+     "superseded_by": "v0.7",
+     "superseded_at": "2026-11-06T15:25:18.730930+00:00",
+     "note": "v0.6（schema_version 1） 为规划方 2026-11-06 落盘版本，文档管理员登记时曾重算摘要并与清单逐位一致；规划方随后改写为 v0.7，其摘要与声明行号对现行正文失效"
+    },
+    {
+     "label": "v0.5（schema_version 1）",
+     "declared_date": "2026-11-06",
+     "sha256": "78627d2350ca6ab96901b53e4c6e268054665046434c819abbff0cae09d17cc8",
+     "bytes": 27786,
+     "status": "取证记录 v0.5；未代表功能完成或上线批准",
+     "superseded_by": "v0.6",
+     "superseded_at": "2026-11-06T15:09:45.584765+00:00",
+     "note": "v0.5 为规划方 2026-11-06 22:49–22:52 落盘的整组版本，文档管理员于 22:56 登记（当时摘要逐位一致）；规划方于 23:03–23:04 改写为 v0.6，v0.5 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.4（schema_version 1）",
+     "declared_date": "2026-11-06",
+     "sha256": "9949bc14286784d5c34d556fdd86e6ddbec42e30a85e36cabb909d1f36f6e8dc",
+     "bytes": 22034,
+     "status": "取证记录 v0.4（schema_version 1）；未代表功能完成或上线批准",
+     "superseded_by": "v0.5",
+     "superseded_at": "2026-11-06T14:56:06.301559+00:00",
+     "note": "v0.4（schema_version 1） 由文档管理员于 2026-11-06 22:48–22:50 短暂登记（当时正文即该版）；规划方随后于 22:49–22:52 改写为 v0.5，行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.3",
+     "declared_date": "2026-11-06",
+     "sha256": "abc687a2f1e2fd712d8b0628b721b9675b5c55b891bd49566b545a1069d36359",
+     "bytes": 14376,
+     "status": "取证记录 v0.3；未代表功能完成或上线批准",
+     "superseded_by": "v0.4",
+     "superseded_at": "2026-11-06T14:48:46.459816+00:00",
+     "note": "v0.3 摘要为文档管理员上一轮登记值，本轮重算确认当时与正文逐位一致；正文已被 v0.4 改写，v0.3 的行号与摘要对现行正文失效"
+    },
+    {
+     "label": "v0.2（schema_version 1）",
+     "declared_date": "2026-11-06",
+     "sha256": "ab6d2e2b955eac63d34fdbab28a7ee2bb79006e90d8038b7439d9bb0f03876f6",
+     "bytes": 11527,
+     "status": "取证记录 v0.2；未代表功能完成或上线批准",
+     "superseded_by": "v0.3",
+     "superseded_at": "2026-11-06T14:39:55.740672+00:00",
+     "note": "v0.2 摘要由文档管理员上一轮登记，与 v0.2 正文逐位一致；版本链 v0.1→v0.2→v0.3 可追溯（v0.1 摘要见本条下一项及 EVIDENCE.json v0.3 的 registry_recomputation.superseded_v01_digests）"
+    },
+    {
+     "label": "v0.1（schema_version 1）",
+     "declared_date": "2026-11-06",
+     "sha256": "5457f1b89e41791550dcd4bb2aed79bf7a70424cd5a6b4641b2c9601896a7551",
+     "bytes": 4133,
+     "status": "取证记录 v0.1；未代表功能完成或上线批准",
+     "superseded_by": "v0.2",
+     "superseded_at": "2026-11-06T14:32:14.046310+00:00",
+     "note": "v0.1 摘要与声明行号对 v0.2 正文失效；v0.1 同时保留于 EVIDENCE.json revision.previous_deliverable_sha256"
+    }
+   ]
+  },
+  {
+   "path": "research/strategy-harness-20261106/PROGRESS.md",
+   "topic": "策略批量评估工程底座进度记录（步骤 1 只读盘查、步骤 2 回测基建盘点；过程记录，非结论）",
+   "category": "研究过程",
+   "owner": "未署名（目录内无作者声明，身份未知）",
+   "status": "研究过程记录（进行中，未审核）；不代表交付、验收或收益结论",
+   "implementation_status": "工程底座盘点/试验编排进行中，未见实现完成声明",
+   "validation_status": "仅核实文件存在与摘要；未复跑任何脚本（目录内 _dump_api.py/_dump2.py 未执行）",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "未声明版本（无版本行）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "5ab8fabc9a07e529ad376dc85ed4d00af7a6a4d7c2e4efc12d035b952259ed8b",
+    "bytes": 1924,
+    "last_git_change": null,
+    "note": "快照：2026-11-06 22:46 工作区状态（1,924 B / 5ab8fabc…）；23:56 实测已改写为 4,142 B / fa4f8a23…，登记方不再逐次追平，按 content_drift_warnings 报告",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T14:49:28.114287+00:00",
+   "source": {
+    "kind": "本地工作区文件正文+ SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；作者未回执"
+   },
+   "evidence": [],
+   "flags": [
+    "目录于 22:44–22:46 由他人在写，摘要为采样值；作者与用途未知，未登记为任何已验收交付",
+    "作者于 23:56 重写本文件（1,924→4,142 B），登记基线时效已过；目录为活跃施工中，登记为时间点快照"
+   ],
+   "evidence_boundary": "策略搜索/评估工程（S 线）进行中的工作材料，非结论、非验收：PROGRESS.md 自述为「步骤 1 只读盘查、步骤 2 回测基建盘点」，未给出完成度或收益数据；_api.txt/_api2.txt 为 UTF-16 命令行转储，属原始输出。文档管理员只核实存在与摘要，未执行目录内脚本，未复跑回测，未验证任何策略有效性或盈利性。"
+  },
+  {
+   "path": "research/strategy-harness-20261106/_api.txt",
+   "topic": "命令行/接口转储（UTF-16）：研究过程原始输出，非整理文档",
+   "category": "研究过程",
+   "owner": "未署名（目录内无作者声明，身份未知）",
+   "status": "已删除（登记时存在，作者整编目录时移除）；保留登记历史，不代表该次登记有误",
+   "implementation_status": "工程底座盘点/试验编排进行中，未见实现完成声明",
+   "validation_status": "仅核实文件存在与摘要；未复跑任何脚本（目录内 _dump_api.py/_dump2.py 未执行）",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "未声明版本（无版本行）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "7336e3a7cac8330ce7c13f4bb43579a8a1fd52851ea12e29f21ffdf48859ea11",
+    "bytes": 38496,
+    "last_git_change": null,
+    "note": "首次登记，摘要取 2026-11-06 22:46 后的工作区状态；该目录于 22:44–22:46 被他人写入，未回执",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T14:49:28.114287+00:00",
+   "source": {
+    "kind": "本地工作区文件正文+ SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；作者未回执"
+   },
+   "evidence": [],
+   "flags": [
+    "目录于 22:44–22:46 由他人在写，摘要为采样值；作者与用途未知，未登记为任何已验收交付"
+   ],
+   "evidence_boundary": "策略搜索/评估工程（S 线）进行中的工作材料，非结论、非验收：PROGRESS.md 自述为「步骤 1 只读盘查、步骤 2 回测基建盘点」，未给出完成度或收益数据；_api.txt/_api2.txt 为 UTF-16 命令行转储，属原始输出。文档管理员只核实存在与摘要，未执行目录内脚本，未复跑回测，未验证任何策略有效性或盈利性。",
+   "removed": true,
+   "removed_at": "2026-11-06T15:54:28.165271+00:00",
+   "removed_note": "作者于 2026-11-06 23:44–23:53 整编目录时删除（同批 _dump_api.py/_dump2.py/_smoke.py/_prewarm_probe.py 等以 _ 前缀的临时探针一并移除），内容为 UTF-16 命令行转储，非交付"
+  },
+  {
+   "path": "research/strategy-harness-20261106/_api2.txt",
+   "topic": "命令行/接口转储（UTF-16）：研究过程原始输出，非整理文档",
+   "category": "研究过程",
+   "owner": "未署名（目录内无作者声明，身份未知）",
+   "status": "已删除（登记时存在，作者整编目录时移除）；保留登记历史，不代表该次登记有误",
+   "implementation_status": "工程底座盘点/试验编排进行中，未见实现完成声明",
+   "validation_status": "仅核实文件存在与摘要；未复跑任何脚本（目录内 _dump_api.py/_dump2.py 未执行）",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "未声明版本（无版本行）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "9b2ffc1322b33152732d310951651fc880a9ea3be473570b844f34dab98baf28",
+    "bytes": 8234,
+    "last_git_change": null,
+    "note": "首次登记，摘要取 2026-11-06 22:46 后的工作区状态；该目录于 22:44–22:46 被他人写入，未回执",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T14:49:28.114287+00:00",
+   "source": {
+    "kind": "本地工作区文件正文+ SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；作者未回执"
+   },
+   "evidence": [],
+   "flags": [
+    "目录于 22:44–22:46 由他人在写，摘要为采样值；作者与用途未知，未登记为任何已验收交付"
+   ],
+   "evidence_boundary": "策略搜索/评估工程（S 线）进行中的工作材料，非结论、非验收：PROGRESS.md 自述为「步骤 1 只读盘查、步骤 2 回测基建盘点」，未给出完成度或收益数据；_api.txt/_api2.txt 为 UTF-16 命令行转储，属原始输出。文档管理员只核实存在与摘要，未执行目录内脚本，未复跑回测，未验证任何策略有效性或盈利性。",
+   "removed": true,
+   "removed_at": "2026-11-06T15:54:28.165271+00:00",
+   "removed_note": "作者于 2026-11-06 23:44–23:53 整编目录时删除（同上批临时探针清理），非交付"
+  },
+  {
+   "path": "docs/INDEX_BACKTEST_INVENTORY.md",
+   "topic": "回测引擎/撮合模拟/结果存储 只读盘点（系统开发工程师，2026-11-06 22:48）",
+   "category": "研究过程",
+   "owner": "系统开发工程师（文内署名）",
+   "status": "只读盘点记录（未审核；22:54 扩写）；不构成实现或验收证据",
+   "implementation_status": "仅盘点，未修改任何源码（文内声明）",
+   "validation_status": "仅核实文件存在与摘要；未复核其 git status 行数与源码断言",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "未声明版本（文内记生成时间 2026-11-06 22:48）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "7c4b8952e83033f63977c4c7ac0c74d8f9b4d5c81e8040d61098db1741337459",
+    "bytes": 21657,
+    "last_git_change": null,
+    "note": "首次登记 7c4b8952…/21657 B；作者于 23:0x 前后继续补写，本轮按最新正文重取为 7c4b8952…/21657 B",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T14:59:15.333984+00:00",
+   "source": {
+    "kind": "本地工作区文件正文+ SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；作者未回执"
+   },
+   "evidence": [],
+   "flags": [
+    "22:49:22 新建，未经作者回执确认终稿"
+   ],
+   "evidence_boundary": "系统开发工程师的只读盘点记录：自述未改动源码、未提交、未部署；记录的 git status 行数（68 行）、已改文件清单与截图为该工程师实测，文档管理员未复核、未重跑。不能据此认定回测引擎已修复或已验证。"
+  },
+  {
+   "path": "research/batch-backtest-framework-20261107/INTERFACE-MAP.md",
+   "topic": "批量策略评估可复用接口地图（只读源码调查，行号对当前工作区；未运行回测）",
+   "category": "研究过程",
+   "owner": "未署名（文内无作者声明，身份未知）",
+   "status": "只读调查记录（未审核）；不构成实现、验收或收益证据",
+   "implementation_status": "调查结论：未改任何源码，未新增框架代码",
+   "validation_status": "仅核实文件存在与摘要；未复核其行号与「可直接复用」判断，未运行其提及的任何回测/测试",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "未声明版本（文内记生成时间 2026-11-06 22:5x）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "8cdc542c36bae7293083e5a9f9802c2cf90bd07140de71e5c48d8d12ffbf85dc",
+    "bytes": 20418,
+    "last_git_change": null,
+    "note": "首次登记，摘要取 2026-11-06 22:56 后的工作区状态；该文件于 22:51–22:52 仍在被写入",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T14:56:06.301559+00:00",
+   "source": {
+    "kind": "本地工作区文件正文+ SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；行号随他人改动失效"
+   },
+   "evidence": [],
+   "flags": [
+    "文内自述 engine.py 于 22:47:36 被他方修改（268,504→268,802 B），行号需在开工前重新 grep",
+    "状态更新（2026-11-06 23:5x）：同批作者已在 research/strategy-harness-20261106/ 落盘 README.md + batch_harness.py + selftest.py + WORKLOG.md，原「施工代码尚未落地」应读作「施工已开始，未审核、未接入生产」"
+   ],
+   "evidence_boundary": "批量策略评估的只读接口调查：盘点单策略回测入口、交易日历、面板装载、证据落盘与统计口径的可复用性，并列出未找到项（独立交易日历表、复权因子仓库方法、批量多策略编排器、跨策略统一评分层）。文内自述未改源码、未运行回测或测试；「可直接复用」仅指调用签名可用，未验证大批量/多进程/长区间下的稳定性与内存。文档管理员未复核行号与结论，仅核实存在与摘要。"
+  },
+  {
+   "path": "research/strategy-search-20261107/results/registry_table.md",
+   "topic": "S 线策略搜索的 12 策略 × 3 成本档（10bp/30bp/gross）共 36 行指标表（样本内/样本外收益与 Sharpe、全期年化、最大回撤、DSR、平仓笔数、换手）",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同一时刻回执与磁盘写入冲突，归属未明）",
+   "status": "自动生成的结果表格；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究脚本生成的结果表格；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与摘要（2026-11-06 23:11 采样）；未核对表格数值与 results/*.json 的一致性，未复跑任何试验",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明（自动生成表格）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "1def97692b384db7148fb83fc1ffdc06ecfb17b919fb50f50420ec91b940bbbc",
+    "bytes": 4706,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06 23:11 的磁盘状态。该目录 22:48–23:09 持续写入（22:51 27 次试验 → 23:09:33 registry.json 175,133 B / 36 次试验），摘要可能随时再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:10:44.806011+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    },
+    {
+     "path": "research/strategy-search-20261107/results/controls.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "未审核的探索性结果；无 protocol.md、无候选卡、无来源与许可登记；作者未明；摘要为采样值，目录仍在写入",
+    "36 行数据 = 12 策略 × 3 成本档；含 S10_xs_reversal_20d、S11_lowvol_reversal、S12_lowvol_breadth 三项在总体规划 v0.6 正文（9 策略、27 次试验）之外的新增策略"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）的自动生成表格，不是结论、不构成候选通过或「稳定盈利」。登记方只核实文件存在与摘要，未核对表格数值与 results/*.json 的一致性，未复跑试验，未审核 scripts/ 实现与数据口径。该目录 22:48–23:09 持续由未知方写入：v0.6 正文取证时记为 9 策略 × 3 档 = 27 次试验、results/registry.json 131,776 B；本表已为 12 策略 × 3 档 = 36 行，同一路径 registry.json 于 23:09:33 为 175,133 B、run_*.json 与 rets_*.npy 各 36 份，故 v0.6 的「27 次」为 23:02 前后快照，已被事实超越。归属：系统开发工程师/量化研究员/系统架构师均在并行工作，目录无署名，研究员同一时刻回执称「目录不存在、未启动实验」，与磁盘冲突，登记方只记录观察、不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/strategy-search-20261107/results/yearly_table.md",
+   "topic": "S 线策略搜索的 12 策略逐年收益表（2019–2026）",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同一时刻回执与磁盘写入冲突，归属未明）",
+   "status": "自动生成的结果表格；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究脚本生成的结果表格；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与摘要（2026-11-06 23:11 采样）；未核对表格数值与 results/*.json 的一致性，未复跑任何试验",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明（自动生成表格）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "d43cc6633112e273b523d96bb13282af88aa7caf402c55ff78faa17850cb8e75",
+    "bytes": 1200,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06 23:11 的磁盘状态。该目录 22:48–23:09 持续写入（22:51 27 次试验 → 23:09:33 registry.json 175,133 B / 36 次试验），摘要可能随时再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:10:44.806011+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    },
+    {
+     "path": "research/strategy-search-20261107/results/controls.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "未审核的探索性结果；无 protocol.md、无候选卡、无来源与许可登记；作者未明；摘要为采样值，目录仍在写入",
+    "12 行策略 × 8 个年度；同样含 v0.6 正文未列的 S10–S12"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）的自动生成表格，不是结论、不构成候选通过或「稳定盈利」。登记方只核实文件存在与摘要，未核对表格数值与 results/*.json 的一致性，未复跑试验，未审核 scripts/ 实现与数据口径。该目录 22:48–23:09 持续由未知方写入：v0.6 正文取证时记为 9 策略 × 3 档 = 27 次试验、results/registry.json 131,776 B；本表已为 12 策略 × 3 档 = 36 行，同一路径 registry.json 于 23:09:33 为 175,133 B、run_*.json 与 rets_*.npy 各 36 份，故 v0.6 的「27 次」为 23:02 前后快照，已被事实超越。归属：系统开发工程师/量化研究员/系统架构师均在并行工作，目录无署名，研究员同一时刻回执称「目录不存在、未启动实验」，与磁盘冲突，登记方只记录观察、不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/strategy-search-20261107/CAPABILITIES.md",
+   "topic": "research/strategy-search-20261107/CAPABILITIES.md",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与摘要（2026-11-06 15:25 UTC 采样）；未审阅内容、未核对与 results/*.json 的一致性、未复跑试验",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "e3e33d738ea11b9ca79b2c3ce9ebe53601268ff5afc0d8257bdefc3629ff19dc",
+    "bytes": 5657,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06T15:25:50.645104+00:00 的磁盘状态；该目录 22:45–23:2x 持续写入，摘要可能随时再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:25:50.645104+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "摘要为采样值；该目录仍在写入；未核对文中数字与 results/*.json 的一致性",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验、未审核 scripts/ 实现。目录无署名；研究员同一时刻回执称该目录 Test-Path=False、未写文件，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/strategy-search-20261107/PROTOCOL.md",
+   "topic": "research/strategy-search-20261107/PROTOCOL.md——预注册评估协议 v2（自称 2026-11-06 冻结，取代 v1）",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与磁盘摘要（2026-11-06 23:44 北京时间重算）；未审阅内容、未核对文中数字与 results/*.json 的一致性、未复跑试验；登记后该文件被研究侧重写（PROTOCOL 8,307→14,367 B、STRATEGIES 6,687→13,679 B），本轮按当前磁盘重取基线",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明（研究侧持续改写，登记方按磁盘采样）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "3fcaaa9dfc4b05a8e4361a83487d293c2474c394740128022867760fc9ed1206",
+    "bytes": 14660,
+    "last_git_change": null,
+    "note": "第 3 次取基线：2026-11-06 23:44:44 磁盘 3fcaaa9d…/14,660 B（mtime 23:44:17）；该目录由研究侧持续改写，历次摘要保留于 previous，登记方只读、未审阅内容",
+    "supersedes": null,
+    "previous": [
+     {
+      "label": "无版本声明",
+      "sha256": "411a9e3c3683f1fa8fbcfe8b94b590158da213f08ec6777986d66e5920f375df",
+      "bytes": 8307,
+      "observed_at": "2026-11-06T15:25:50.645104+00:00",
+      "note": "首次登记时的摘要（该时刻磁盘状态）"
+     },
+     {
+      "sha256": "92fc04a9e6185323aa2d6965b7d85bb5361f3d1f556af56f75ee6270d24d7e2b",
+      "bytes": 14367,
+      "observed_at": "2026-11-06T15:43:28.550181+00:00",
+      "note": "上一轮登记或重取基线时的摘要"
+     }
+    ]
+   },
+   "last_checked_at": "2026-11-06T15:44:44.506903+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    },
+    {
+     "path": "research/strategy-search-20261107/FREEZE.json",
+     "exists": false,
+     "verification": "只核实存在性：不存在（2026-11-06 23:44 实测）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "研究侧在首次登记后重写了本文件（23:40:11），本轮按当前磁盘重取基线并保留首次登记摘要于 version.previous；摘要仍为采样值，目录仍在写入",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES",
+    "更正：登记方 23:44 曾实测本文件声明的 FREEZE.json 不存在；该文件已于 23:44:23 落盘，其内 5 份文档 + 4 脚本 + 2 结果共 11 项 sha256 与磁盘一致。但 FREEZE mtime 晚于首个 run 22:51:55，本文件「在任何回测运行之前写入」的自述仍不成立（C14/R23），S2 仍为未达"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验、未审核 scripts/ 实现。目录无署名；研究员同一时刻回执称该目录 Test-Path=False、未写文件，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/strategy-search-20261107/README.md",
+   "topic": "research/strategy-search-20261107/README.md——研究目录总说明：状态自称 v2 冻结、36 次回测全部降级 exploratory、四项正确性核查当时全部 PASS",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与摘要（2026-11-06 15:25 UTC 采样）；未审阅内容、未核对与 results/*.json 的一致性、未复跑试验",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明（研究侧持续改写，登记方按磁盘采样）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "60fe62a0115b008bc33931ab0701611ded082ba3c4de11e21bfe53c697964c01",
+    "bytes": 8260,
+    "last_git_change": null,
+    "note": "第 3 次取基线：2026-11-06 23:44:44 磁盘 60fe62a0…/8,260 B（mtime 23:44:08）；该目录由研究侧持续改写，历次摘要保留于 previous，登记方只读、未审阅内容",
+    "supersedes": null,
+    "previous": [
+     {
+      "label": "无版本声明",
+      "sha256": "b0d2b9abfc4272770f94cc926368336e872869a2741e6a1c323dc7897cd0a1cb",
+      "bytes": 6301,
+      "observed_at": "2026-11-06T15:25:50.645104+00:00",
+      "note": "首次登记摘要（23:25:33 磁盘状态）"
+     },
+     {
+      "sha256": "7cf819adac033fa22acab76397b1c299d04082aed89b92827ae068862bc151b2",
+      "bytes": 7437,
+      "observed_at": "2026-11-06T15:43:53.689994+00:00",
+      "note": "上一轮登记或重取基线时的摘要"
+     }
+    ]
+   },
+   "last_checked_at": "2026-11-06T15:44:44.506903+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "摘要为采样值；该目录仍在写入；未核对文中数字与 results/*.json 的一致性",
+    "研究侧在首次登记后两次改写本文件（6,301 B / 6,301→7,437 B，末次 23:42:56），本轮按当前磁盘再取基线，历史摘要保留于 version.previous；文中「四项正确性核查全部 PASS」为作者自述，登记方未复验",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验、未审核 scripts/ 实现。目录无署名；研究员同一时刻回执称该目录 Test-Path=False、未写文件，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。 本文件自称 v2 冻结与四项核查 PASS，均为作者自述；登记方只核存在与摘要，未复验核查结果。"
+  },
+  {
+   "path": "research/strategy-search-20261107/REPORT.md",
+   "topic": "research/strategy-search-20261107/REPORT.md",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与摘要（2026-11-06 15:25 UTC 采样）；未审阅内容、未核对与 results/*.json 的一致性、未复跑试验",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "53e19a517fea17c56bd9f57822c5e596be634f0d226521e24886f40fd8f8bd55",
+    "bytes": 14723,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06T15:25:50.645104+00:00 的磁盘状态；该目录 22:45–23:2x 持续写入，摘要可能随时再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:25:50.645104+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "摘要为采样值；该目录仍在写入；未核对文中数字与 results/*.json 的一致性",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验、未审核 scripts/ 实现。目录无署名；研究员同一时刻回执称该目录 Test-Path=False、未写文件，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/strategy-search-20261107/STRATEGIES.md",
+   "topic": "research/strategy-search-20261107/STRATEGIES.md——策略族清单（12 策略定义与来源说明）",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；生成脚本未审核）",
+   "validation_status": "仅核实文件存在与磁盘摘要（2026-11-06 23:44 北京时间重算）；未审阅内容、未核对文中数字与 results/*.json 的一致性、未复跑试验；登记后该文件被研究侧重写（PROTOCOL 8,307→14,367 B、STRATEGIES 6,687→13,679 B），本轮按当前磁盘重取基线",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": "无版本声明",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "b5af613bcdf656966e959a98233bcb26185e209b16c68c155d546111b1b18a64",
+    "bytes": 13679,
+    "last_git_change": null,
+    "note": "重新取基线：2026-11-06 23:40:39（北京时间）磁盘为 b5af613b…/13,679 B；首次登记时为 25f7e612…/6,687 B，研究侧在登记后重写了本文件，摘要与行号对旧值失效。摘要仍为采样值：该目录持续写入，登记方只读重算，未审阅内容",
+    "supersedes": null,
+    "previous": [
+     {
+      "label": "无版本声明",
+      "sha256": "25f7e612f2725252cbaf7fd258e630dbd556310d677a2cb207616a730b153dc7",
+      "bytes": 6687,
+      "observed_at": "2026-11-06T15:25:50.645104+00:00",
+      "note": "首次登记时的摘要（该时刻磁盘状态）"
+     }
+    ]
+   },
+   "last_checked_at": "2026-11-06T15:43:28.550181+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "研究侧在首次登记后重写了本文件（23:40:39），本轮按当前磁盘重取基线并保留首次登记摘要于 version.previous；摘要仍为采样值，目录仍在写入",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验、未审核 scripts/ 实现。目录无署名；研究员同一时刻回执称该目录 Test-Path=False、未写文件，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/independent-review-20261106/FIXES.md",
+   "topic": "审核阻断项 R1/R2/R3 的修复交付说明（开发自述：R1 API 路由 continuous_account 参数注入与 400 校验、R2 结转持仓持有期跨折累计、R3 `step != test` 拒绝并 stopped_early；含改动位置与测试用例名）",
+   "category": "修复交付说明",
+   "owner": "系统开发工程师（正文署名；原文列复核方为独立审核工程师）",
+   "status": "修复交付说明；作者自述 R1/R2/R3「已修复」；本登记未见审核方签署的复核结论，不构成验收",
+   "implementation_status": "作者自述已改 backend/app/api/backtest.py 与 backend/app/backtest/engine.py（含 job key 纳入新参数、删除误加参数、400 前置校验）；登记方只读核实文件存在，未逐行核对代码",
+   "validation_status": "未复验：登记方未跑 pytest、ruff 或 TestClient；文内测试结果为作者自述记录，不作为本轮复验结果",
+   "review_status": "原文列「复核方：独立审核工程师」，但登记时未见到审核方对该交付的签署结论文件；独立审核 REVIEW.md 的阻断判定未被本文件替代",
+   "declared_status": [],
+   "version": {
+    "label": "未声明版本",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "14d936d660458f1829d80307336b9feee8dc4aebd21027dda086452e064fc180",
+    "bytes": 12076,
+    "last_git_change": null,
+    "note": "第 2 次取基线：2026-11-06 23:5x 磁盘 14d936d6…/12,076 B（mtime 23:52:08，首次登记 8,170 B）；作者在登记后追加内容，历史摘要保留于 previous",
+    "previous": [
+     {
+      "sha256": "8972671873f3316ac17acbf1f95dd70d461937468004b1d74d81025d36876d72",
+      "bytes": 8170,
+      "observed_at": "2026-11-06T15:40:07.888255+00:00",
+      "note": "首次登记基线"
+     }
+    ]
+   },
+   "last_checked_at": "2026-11-06T15:54:28.165271+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/independent-review-20261106/REVIEW.md",
+     "exists": true,
+     "verification": "只核实文件存在（阻断验收、3 项 P1 的原判定，未被本文件替代）"
+    },
+    {
+     "path": "backend/app/api/backtest.py",
+     "exists": true,
+     "verification": "只核实文件存在，未核对所述行号与参数"
+    },
+    {
+     "path": "backend/app/backtest/engine.py",
+     "exists": true,
+     "verification": "只核实文件存在，未核对所述行号与逻辑"
+    }
+   ],
+   "flags": [
+    "开发自述「已修复」，非独立复验；本登记不把开发自述写成已修复或已验收，独立审核结论仍以 REVIEW.md 阻断判定为准",
+    "与总体规划 v0.8 的表述冲突：v0.8 记三项 P1「开发自述只做 py_compile、未跑 Ruff/pytest」，本文件称 ruff 无 F821 且有 TestClient 用例；两侧均未由第三方核定，登记方只并列记录",
+    "文内测试结果、行号与参数注入均为作者自述，登记方未跑 pytest/ruff/TestClient、未逐行核对",
+    "摘要变化：8,170 B → 12076 B（23:52:08 由作者扩写），登记方只重取基线、未审阅新增内容，未复核其自述的修复与测试结论"
+   ],
+   "evidence_boundary": "修复交付说明（2026-11-06 23:27:51 落盘，未声明版本）。内容是开发者对 R1/R2/R3 的修复自述与测试用例名，属作者记录，不是独立审核结论、不是验收证据；文件内「已修复」指作者认为已改，不等于系统已修复或已验收。登记方只核实文件存在与摘要，未运行任何测试、未核对行号与实现，未裁定与规划 v0.8 的表述冲突。",
+   "superseded_versions": []
+  },
+  {
+   "path": "research/strategy-search-20261107/DATA-BOUNDARY.md",
+   "topic": "数据边界说明：当前数据下哪些公开策略族无法测试（日线/财务/公告日覆盖、停更与退市偏差、涨跌停与停牌、交易日边界四项），引用 research/parallel-data-20261106/coverage_report.json",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；配套脚本位于 scripts/，未审核）",
+   "validation_status": "仅核实文件存在与磁盘摘要（2026-11-06 23:41:29 北京时间采样）；未审阅全部内容、未核对文中数字与 results/*.json 或 coverage_report.json 的一致性、未复跑试验",
+   "review_status": "未审核",
+   "declared_status": [
+    {
+     "line": 1,
+     "text": "# 数据边界：哪些公开策略族根本测不了"
+    }
+   ],
+   "version": {
+    "label": "无版本声明",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "6ccf5ddc81a5daaef3ceef9e9568d5cf188ef1354aa987b71190ead98d7b73be",
+    "bytes": 8683,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06 23:41:29（北京时间）的磁盘状态；该目录持续写入，摘要可能随时再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:43:28.550181+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/parallel-data-20261106/coverage_report.json",
+     "exists": true,
+     "verification": "只核实文件存在（未解析内容）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "摘要为采样值；该目录仍在写入；未核对其数值与既有证据文件的一致性",
+    "自称 2026-11-06 生成、取证为只读（parquet 直读 + coverage_report.json）；其四项边界与规划方 R22 同源，登记方未复核其中数值",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验。目录无署名，研究员同时刻回执称该目录不存在，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/strategy-search-20261107/E1_E2_SPEC.md",
+   "topic": "E1/E2 可执行判定规格（规范性附件）：E1 停更偏差基准（全批跑一次）、E2 逐策略候选门槛（10bp 净 Sharpe 与换手），自称被 PROTOCOL.md v2 §10 引用",
+   "category": "研究产物（策略搜索）",
+   "owner": "未署名（目录内无作者声明；研究员同时刻回执称该目录不存在，归属未明）",
+   "status": "研究产物；无版本声明；未审核；探索性，不是结论",
+   "implementation_status": "未涉及实现（研究侧文档；配套脚本位于 scripts/，未审核）",
+   "validation_status": "仅核实文件存在与磁盘摘要（2026-11-06 23:41:08 北京时间采样）；未审阅全部内容、未核对文中数字与 results/*.json 或 coverage_report.json 的一致性、未复跑试验",
+   "review_status": "未审核",
+   "declared_status": [
+    {
+     "line": 1,
+     "text": "# E1 / E2 可执行判定规格（规范性附件）"
+    }
+   ],
+   "version": {
+    "label": "无版本声明",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "5597e58dd736dd2b96c52e7115dc29c4e88b612a8d4d134379e459bd9841ad8a",
+    "bytes": 9033,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06 23:41:08（北京时间）的磁盘状态；该目录持续写入，摘要可能随时再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:43:28.550181+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/PROTOCOL.md",
+     "exists": true,
+     "verification": "只核实文件存在（引用关系未验证）"
+    }
+   ],
+   "flags": [
+    "无版本声明、未署名、未审核；作者未明（R21 矛盾），登记方只记录观察",
+    "摘要为采样值；该目录仍在写入；未核对其数值与既有证据文件的一致性",
+    "自称「规范性附件」并引用 PROTOCOL.md v2 §10；因 PROTOCOL 为事后补写（C14/R23），该规格不构成预先冻结的判定标准；文中 http 出现 0 次，无来源与许可",
+    "R21 已按磁盘结案（2026-11-06 23:5x）：该目录存在，含 8 份顶层文档、scripts 10 个 .py、results 83 个文件，最后写入 23:44:23；「研究员称目录不存在/未交付」的说法作废，作者身份仍未知，详见 ISSUES"
+   ],
+   "evidence_boundary": "研究产物（策略搜索 S 线）文档，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅内容、未核数值、未复跑试验。目录无署名，研究员同时刻回执称该目录不存在，与磁盘写入冲突，登记方不推断作者（对应规划方 R21）。"
+  },
+  {
+   "path": "research/independent-review-20261106/REVERIFY-S1-20261106.md",
+   "topic": "S1 放行关卡·三项 P1 独立复验记录（R1 continuous_account 结转、R2 折边界、R3 hold_session_age 跨折不清零三项判「通过」，结论「S1 可放行」并附 3 项 P3 与 1 项未覆盖范围）",
+   "category": "独立审核报告",
+   "owner": "独立审核工程师（正文自述不参与实现）",
+   "status": "独立复验记录（2026-11-06 23:4x）；未代表整体验收通过，未代表上线批准",
+   "implementation_status": "未涉及实现（审核记录）；被审对象为 engine.py / walkforward.py / api/backtest.py",
+   "validation_status": "仅核实文件存在与磁盘摘要（23:43:04 采样）；未复跑文中复现命令、未复核三项 P1 判定、未核对 engine.py 摘要与 268,802 B 的说法",
+   "review_status": "本文件即为独立审核输出；其结论未由第三方复核；与规划方 v0.8「S1 仍阻塞于 G1-04」并存，登记方只记录冲突、不代判",
+   "declared_status": [
+    {
+     "line": 1,
+     "text": "# S1 放行关卡 · 三项 P1 独立复验记录（2026-11-06 23:4x）"
+    }
+   ],
+   "version": {
+    "label": "无版本声明（首行标注 2026-11-06 23:4x）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "09c4c9f0252d253a44316a7478e69cae1d6a7807fb4b9687567bd658578415fd",
+    "bytes": 5780,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06 23:43:04（北京时间）的磁盘状态；该目录同日仍有并行写入，摘要可能再变",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:43:53.689994+00:00",
+   "source": {
+    "kind": "本地工作区文件正文 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/independent-review-20261106/REVIEW.md",
+     "exists": true,
+     "verification": "只核实文件存在（本轮报告的前序审核）"
+    }
+   ],
+   "flags": [
+    "状态冲突待核实：本文件判「三项 P1 通过、S1 可放行」，而总体规划 v0.8 仍记「S1 阻塞于 G1-04、三项 P1 为修复候选待复验」；两方口径不同（复验对象/时点/门槛），登记方只记录，不代判，交规划方与独立审核对账",
+    "文中「核对时 engine.py 268,802 B、与 22:47:36 改动后一致」为作者自述，登记方未复核该摘要链（规划方 EVIDENCE.json engine_hash_chain 记 22:47:36 为 77079303…/268,802 B）",
+    "未复跑复现命令、未独立验证三项判定；P3 与未覆盖范围未登记为已解决"
+   ],
+   "evidence_boundary": "独立审核的过程记录，不是验收通过证明。三项 P1 判「通过」为审核方自述，登记方未复跑、未复核；该结论与规划方 v0.8 的「S1 阻塞、三项 P1 修复候选待复验」并存，属待对账冲突，不得据本文件写「已修复/已验收」。"
+  },
+  {
+   "path": "research/strategy-harness-20261106/runs/demo-2x2-20261106T234454/summary.md",
+   "topic": "research/strategy-harness-20261106/runs/demo-2x2-20261106T234454/summary.md——自动生成的研究/运行产物（首行：# 批量评估 demo-2x2-20261106T234454）",
+   "category": "研究过程",
+   "owner": "未署名（目录内无作者声明；身份未明）",
+   "status": "运行产物样本（不逐次登记、不校验存在性）；仅保留登记时摘要",
+   "implementation_status": "未涉及实现（运行输出）",
+   "validation_status": "仅核实文件存在与磁盘摘要（23:45:11 采样）；未审阅内容、未核对数值、未复跑",
+   "review_status": "未审核",
+   "declared_status": [
+    {
+     "line": 1,
+     "text": "# 批量评估 demo-2x2-20261106T234454"
+    }
+   ],
+   "version": {
+    "label": "无版本声明（自动生成）",
+    "declared_date": "2026-11-06",
+    "timezone": "Asia/Shanghai",
+    "sha256": "290e1e7a287086ee0514305eaab78df35ed9a07ac861a8da268d63f3e8735710",
+    "bytes": 2039,
+    "last_git_change": null,
+    "note": "首次登记；摘要取 2026-11-06 23:45:11 的磁盘状态；产物目录可能继续生成新文件",
+    "supersedes": null
+   },
+   "last_checked_at": "2026-11-06T15:46:44.215861+00:00",
+   "source": {
+    "kind": "本地工作区文件 + SHA-256",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD 不代表并行未提交工作区；登记不证明实现、结论或验收"
+   },
+   "evidence": [],
+   "flags": [
+    "自动生成的运行产物；无版本声明、未署名、未审核；摘要为采样值",
+    "未核对文中数值与其上游配置/结果文件的一致性"
+   ],
+   "evidence_boundary": "研究侧运行产物/过程材料，不是结论、不构成候选通过或「稳定盈利」。登记方只核实存在与摘要，未审阅、未复跑。",
+   "removed": true,
+   "removed_at": "2026-11-06T15:54:28.165271+00:00",
+   "removed_note": "自动生成运行产物的登记样本；口径已改为不逐次登记、不校验存在性（文件可能已被作者重跑替换或仍存在）"
+  },
+  {
+   "path": "research/strategy-search-20261107/FREEZE.json",
+   "topic": "策略搜索 v2 预注册冻结清单：freeze_rule（确认性 run 需 run mtime > PROTOCOL mtime、代码 sha256 一致、策略已登记）、n_trials（baseline_v0 12 + prior_search_same_project 3 = 15，只增不减策略）、DSR 阈值 0.95（sr0_annual 0.804）、lockbox（2019-07-01–2026-10-30 已烧毁；prospective_start 2026-11-09；min_quarters 4；最早确认日 2027-09-30）、panel 指纹（6,422,875 行 / 3,384 标的 / 2,136 交易日 / panel_hash fda82b47…）、docs/code/results 逐项 sha256 清单",
+   "category": "研究规格",
+   "owner": "未署名（目录无作者声明，身份未知；R21 归属矛盾已按磁盘结案，作者仍未知）",
+   "status": "v2 预注册冻结清单（2026-11-06 23:44:23 落盘）；作者单方声明，未独立审核；不构成策略有效性或盈利证据",
+   "implementation_status": "未涉及实现（清单/取证文件）；其引用的 scripts/ 4 个脚本为试验代码，登记方未执行",
+   "validation_status": "登记方重算 FREEZE.json 内 docs 5 份 + code 4 份 + results 2 份共 11 项 sha256，全部与磁盘逐位一致（2026-11-06 23:5x）；未复跑试验、未复核 DSR/lockbox 口径是否成立",
+   "review_status": "未独立审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "be106e064eb0ac425f6366d36efba87d2543c6d7f87b779cb9e17ae8f2f6fadb",
+    "bytes": 4217,
+    "last_git_change": null,
+    "note": "2026-11-06 23:44:23 落盘（本批最新写入）；登记方 23:5x 取基线并逐项核对 11 项 sha256 全部一致"
+   },
+   "last_checked_at": "2026-11-06T15:53:04.195091+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8/字节读取）；登记方只核实存在、摘要与所列内部一致性，未复跑试验",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现、验收或策略有效性"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/PROTOCOL.md",
+     "exists": true,
+     "verification": "冻结规则所指向协议，摘要由登记方重算一致"
+    },
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "36 次 run 汇总；摘要由登记方重算与 FREEZE 一致（175,133 B）"
+    },
+    {
+     "path": "research/strategy-search-20261107/scripts/make_freeze.py",
+     "exists": true,
+     "verification": "生成脚本，未执行"
+    }
+   ],
+   "flags": [
+    "n_trials.total=15（12 基线 + 3 同项目先前搜索）与规划方 v0.8 C15 所述 n_trials=12 口径不同；FREEZE 用更高计数，登记方不代判，两者并存待对账",
+    "lockbox 自认 2019-07-01–2026-10-30 全部已被观测（含逐年表），不得再称样本外；prospective_start 2026-11-09、最早确认日 2027-09-30 → 任何「稳定盈利」结论在 2027-09-30 前无法由前瞻样本支持",
+    "FREEZE.json mtime 23:44:23 晚于首个 run 22:51:55，冻结只对 23:44 之后新开的确认性 run 有效；S2「协议开跑前冻结」仍为未达（与规划方 C14/R23 一致）",
+    "文件内 verification.reason 自述 36 次 run 全部降级 exploratory，理由为 PROTOCOL v1 mtime 晚于首个 run 且 common.py 于 23:07:02 中途修改"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256，以及文件内所列摘要与磁盘的一致性；未审阅全文、未复跑回测、未评估策略有效性或盈利性。",
+   "superseded_versions": []
+  },
+  {
+   "path": "research/strategy-search-20261107/results/e2_judgement.json",
+   "topic": "E2 判定结果（口径 E1_E2_SPEC.md A.2、min_sharpe 0.5 / warn 0.3 / max_turnover 30 / 10bps / rf 0 / 252 年化）：12 策略 × 10bps，0 PASS、0 WARN、12 FAIL，any_data_mismatch=false，进程 exit_code 2",
+   "category": "研究结论",
+   "owner": "未署名（目录无作者声明，身份未知）",
+   "status": "自动生成判定结果（2026-11-06 23:42:28），未独立审核；0/12 通过，不构成策略有效性或盈利证据",
+   "implementation_status": "由 scripts/judge_e2.py 生成（登记方未执行该脚本、未复跑判定）",
+   "validation_status": "登记方只核实存在、字节与摘要，并读取 summary 计数（12/0/0/12、mismatch=false、exit 2）与两条策略的 sharpe 字段；未复算 sharpe/换手/回撤，未核对 12 条逐一判定",
+   "review_status": "未独立审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "fc803f3ffeccfe0b3d5b050c3835b61bee7b427eb839013bece5e2f5850b748d",
+    "bytes": 13515,
+    "last_git_change": null,
+    "note": "2026-11-06 23:42:28 生成；登记方 23:5x 取基线并读 summary"
+   },
+   "last_checked_at": "2026-11-06T15:53:04.195091+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8/字节读取）；登记方只核实存在、摘要与所列内部一致性，未复跑试验",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现、验收或策略有效性"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-search-20261107/E1_E2_SPEC.md",
+     "exists": true,
+     "verification": "判定口径来源（A.2 节）"
+    },
+    {
+     "path": "research/strategy-search-20261107/results/registry.json",
+     "exists": true,
+     "verification": "被判定数据源"
+    },
+    {
+     "path": "research/strategy-search-20261107/scripts/judge_e2.py",
+     "exists": true,
+     "verification": "生成脚本，未执行"
+    }
+   ],
+   "flags": [
+    "0 PASS / 12 FAIL：按该规格当前无策略达到 E2 门槛（min_sharpe 0.5），与规划方「0/36、样本内外同时为正 0 次」的负结果方向一致",
+    "判定规格 E1_E2_SPEC.md 属事后补写（规划方 C14/R23），判定本身不能证明预注册，只能作探索性负结果",
+    "进程 exit_code=2（非 0），引用时须连同退出码与判定规格一起说明"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256，以及文件内所列摘要与磁盘的一致性；未审阅全文、未复跑回测、未评估策略有效性或盈利性。",
+   "superseded_versions": []
+  },
+  {
+   "path": "research/strategy-harness-20261106/README.md",
+   "topic": "策略批量评估底座（S3 工程支撑）实现说明：按 batch-backtest-framework-20261107/INTERFACE-MAP.md 的 5 个最小改动点落成独立脚本，输出「N 策略 × M 成本档」逐次试验台账；自述不改 backend/ 生产源码，环境 backend/.venv、数据 D:\\TSP\\data（自述 enriched 交易日 2141 个，2018-01-08..2026-11-06）",
+   "category": "研究过程",
+   "owner": "未署名（目录无作者声明；据正文「施工」口吻推断为系统开发工程师，登记方未获回执，标未署名）",
+   "status": "工程实现说明（2026-11-06 23:50，未声明版本）：作者自述已落地并可运行，未独立审核，不构成验收",
+   "implementation_status": "自述已实现独立脚本（batch_harness.py 45,673 B / selftest.py / specs/demo-2x2.json），不改生产源码；登记方未运行、未审阅代码",
+   "validation_status": "登记方只核实存在与摘要；作者自述的运行结果与台账数值未复核",
+   "review_status": "未独立审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "e719c067142b37842809630143f5c2d782d968627187dc9f17e43cd2ae1ba82c",
+    "bytes": 13145,
+    "last_git_change": null,
+    "note": "快照：第 2 次取基线 13,145 B / e719c067…（23:55:59）；23:56:55 实测已再改为 14,498 B / 9f627000…，登记方不再逐次追平，按 content_drift_warnings 报告",
+    "previous": [
+     {
+      "sha256": "fe7019450ca4cc5e879ce1c8c035bfe309b37811c47990074778ebd24c2176f2",
+      "bytes": 11786,
+      "observed_at": "2026-11-06T15:54:28.165271+00:00",
+      "note": "首次取基线（23:50 落盘 11,786 B）"
+     }
+    ]
+   },
+   "last_checked_at": "2026-11-06T15:56:41.441536+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）；登记方只核实存在与摘要，未审阅全文、未执行脚本",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/batch-backtest-framework-20261107/INTERFACE-MAP.md",
+     "exists": true,
+     "verification": "自述的 5 个改动点来源"
+    },
+    {
+     "path": "research/strategy-harness-20261106/batch_harness.py",
+     "exists": true,
+     "verification": "主体脚本，未执行"
+    }
+   ],
+   "flags": [
+    "与 INTERFACE-MAP.md 同一目录作者：该接口地图原记「施工代码尚未落地」，本文件与 batch_harness.py 落盘后状态应更新为「施工已开始、未审核」",
+    "自述数据范围 2018-01-08..2026-11-06（2141 个 enriched 交易日）与策略搜索结果目录的 eval 窗口 2019-07-01..2026-10-30 不同，两者不可混用",
+    "目录在 23:44–23:53 被整编（临时探针删除、改为 probe_*.py/selftest.py），登记基线随之变化",
+    "摘要变化：11,786 B → 13145 B（23:55:59 作者扩写），登记方重取基线、未审阅新增内容",
+    "作者于 23:56:55 再次扩写（11,786→13,145→14,498 B）；该目录 23:50–23:57 持续改写，登记为时间点快照"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256；未审阅全文、未执行脚本、未复跑回测，未评估策略有效性或盈利性。",
+   "superseded_versions": []
+  },
+  {
+   "path": "research/batch-backtest-framework-20261107/WORKLOG.md",
+   "topic": "批量回测最小底座施工日志：设计决策（切片级共享 MarketDataMatrix、不用 prewarm_matrix_cache、市场矩阵一次装载）、施工顺序与自测记录",
+   "category": "研究过程",
+   "owner": "未署名（正文为施工口吻，身份未知）",
+   "status": "施工日志（2026-11-06 23:50，未声明版本）；未审核，不构成验收",
+   "implementation_status": "自述只新增本目录文件、不改生产源码；同目录新增 probe_shared_matrix.py（5,493 B，23:51），登记方未运行",
+   "validation_status": "登记方只核实存在与摘要；未复核自述性能与自测结论",
+   "review_status": "未独立审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "d2ed9f82f8d5ac609527af7dd8648ea9fc2542e38f346742a162f01a34c6e98e",
+    "bytes": 1538,
+    "last_git_change": null,
+    "note": "2026-11-06 23:50 落盘；登记方 23:5x 取基线"
+   },
+   "last_checked_at": "2026-11-06T15:54:28.165271+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）；登记方只核实存在与摘要，未审阅全文、未执行脚本",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/batch-backtest-framework-20261107/INTERFACE-MAP.md",
+     "exists": true,
+     "verification": "设计依据"
+    },
+    {
+     "path": "research/strategy-harness-20261106/README.md",
+     "exists": true,
+     "verification": "实现说明"
+    }
+   ],
+   "flags": [
+    "与同目录 INTERFACE-MAP.md、research/strategy-harness-20261106/README.md 构成「接口地图 → 施工日志 → 实现说明」三件套，均未审核"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256；未审阅全文、未执行脚本、未复跑回测，未评估策略有效性或盈利性。",
+   "superseded_versions": []
+  },
+  {
+   "path": "research/strategy-harness-20261106/runs/demo-2x2-20261106T234706/summary.md",
+   "topic": "批量评估底座 demo-2x2 运行摘要（demo-2x2-20261106T234706，2 策略 × 2 成本档演示运行）",
+   "category": "研究过程",
+   "owner": "未署名（目录无作者声明）",
+   "status": "运行产物样本（不逐次登记、不校验存在性）；仅保留登记时摘要",
+   "implementation_status": "由 batch_harness.py 生成；登记方未复跑",
+   "validation_status": "登记方只核实存在与摘要；未核对台账数值与行情数据一致性",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "e3127c71b7433852859515233f3603fb6b67f72a1ee45e4d74d710d63c3da034",
+    "bytes": 2441,
+    "last_git_change": null,
+    "note": "2026-11-06 23:47 生成；登记方 23:5x 取基线"
+   },
+   "last_checked_at": "2026-11-06T15:54:28.165271+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）；登记方只核实存在与摘要，未审阅全文、未执行脚本",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-harness-20261106/batch_harness.py",
+     "exists": true,
+     "verification": "生成脚本"
+    }
+   ],
+   "flags": [
+    "演示运行（23:47 落盘），非正式试验；不得计入 n_trials 或「稳定盈利」证据"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256；未审阅全文、未执行脚本、未复跑回测，未评估策略有效性或盈利性。",
+   "superseded_versions": [],
+   "removed": true,
+   "removed_at": "2026-11-06T15:55:37.686344+00:00",
+   "removed_note": "自动生成运行产物的登记样本；口径已改为不逐次登记、不校验存在性（文件可能已被作者重跑替换或仍存在）"
+  },
+  {
+   "path": "research/strategy-harness-20261106/runs/demo-2x2-20261106T234915/summary.md",
+   "topic": "批量评估底座 demo-2x2 运行摘要（demo-2x2-20261106T234915，2 策略 × 2 成本档演示运行）",
+   "category": "研究过程",
+   "owner": "未署名（目录无作者声明）",
+   "status": "运行产物样本（不逐次登记、不校验存在性）；仅保留登记时摘要",
+   "implementation_status": "由 batch_harness.py 生成；登记方未复跑",
+   "validation_status": "登记方只核实存在与摘要；未核对台账数值与行情数据一致性",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "f2834b11c535b6623b4a1060a9ade2987bec2fd3902379cf3f8fea1e5235c956",
+    "bytes": 2441,
+    "last_git_change": null,
+    "note": "2026-11-06 23:49 生成；登记方 23:5x 取基线"
+   },
+   "last_checked_at": "2026-11-06T15:54:28.165271+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）；登记方只核实存在与摘要，未审阅全文、未执行脚本",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-harness-20261106/batch_harness.py",
+     "exists": true,
+     "verification": "生成脚本"
+    }
+   ],
+   "flags": [
+    "演示运行（23:49 落盘），非正式试验；不得计入 n_trials 或「稳定盈利」证据"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256；未审阅全文、未执行脚本、未复跑回测，未评估策略有效性或盈利性。",
+   "superseded_versions": [],
+   "removed": true,
+   "removed_at": "2026-11-06T15:55:37.686344+00:00",
+   "removed_note": "自动生成运行产物的登记样本；口径已改为不逐次登记、不校验存在性（文件可能已被作者重跑替换或仍存在）"
+  },
+  {
+   "path": "research/strategy-harness-20261106/runs/demo-2x2-20261106T235336/summary.md",
+   "topic": "批量评估底座 demo-2x2 运行摘要（demo-2x2-20261106T235336，2 策略 × 2 成本档演示运行）",
+   "category": "研究过程",
+   "owner": "未署名（目录无作者声明）",
+   "status": "运行产物样本（不逐次登记、不校验存在性）；仅保留登记时摘要",
+   "implementation_status": "由 batch_harness.py 生成；登记方未复跑",
+   "validation_status": "登记方只核实存在与摘要；未核对台账数值与行情数据一致性",
+   "review_status": "未审核",
+   "declared_status": [],
+   "version": {
+    "label": null,
+    "declared_date": null,
+    "timezone": "Asia/Shanghai",
+    "sha256": "928016e462a19f110abe931f008a7d5d02bb4169daa1c908209a06989aca63f9",
+    "bytes": 2442,
+    "last_git_change": null,
+    "note": "2026-11-06 23:53 生成；登记方 23:5x 取基线"
+   },
+   "last_checked_at": "2026-11-06T15:54:28.165271+00:00",
+   "source": {
+    "kind": "本地工作区文件正文（UTF-8 读取）；登记方只核实存在与摘要，未审阅全文、未执行脚本",
+    "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+    "limitation": "HEAD不代表并行未提交工作区；登记不证明实现或验收"
+   },
+   "evidence": [
+    {
+     "path": "research/strategy-harness-20261106/batch_harness.py",
+     "exists": true,
+     "verification": "生成脚本"
+    }
+   ],
+   "flags": [
+    "演示运行（23:53 落盘），非正式试验；不得计入 n_trials 或「稳定盈利」证据"
+   ],
+   "evidence_boundary": "登记方只核实存在、字节与 SHA-256；未审阅全文、未执行脚本、未复跑回测，未评估策略有效性或盈利性。",
+   "superseded_versions": [],
+   "removed": true,
+   "removed_at": "2026-11-06T15:55:37.686344+00:00",
+   "removed_note": "自动生成运行产物的登记样本；口径已改为不逐次登记、不校验存在性（文件可能已被作者重跑替换或仍存在）"
+  }
+ ],
+ "pending_deliveries": [
+  {
+   "path": "research/program-planning-20261106",
+   "owner": "总体规划负责人",
+   "category": "系统总体规划",
+   "status": "已有文档（v0.8 本轮冻结基线，2026-11-06 已登记），未代表实施验收",
+   "exists": true,
+   "observed_files": [
+    "research/program-planning-20261106/PROGRAM-PLAN.md",
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json"
+   ],
+   "source": "本轮交接与实际目录检查"
+  },
+  {
+   "path": "research/architecture-20261106",
+   "owner": "系统架构师",
+   "category": "架构契约",
+   "status": "已有文档，未代表实施验收",
+   "exists": true,
+   "observed_files": [
+    "research/architecture-20261106/ARCHITECTURE-REVIEW.md"
+   ],
+   "source": "本轮交接与实际目录检查"
+  },
+  {
+   "path": "research/independent-review-20261106",
+   "owner": "独立审核工程师",
+   "category": "独立审核",
+   "status": "已有报告，阻断验收",
+   "exists": true,
+   "observed_files": [
+    "research/independent-review-20261106/REVIEW.md"
+   ],
+   "source": "本轮交接与实际目录检查"
+  },
+  {
+   "path": "research/strategy-harness-20261106",
+   "owner": "未署名（身份未知）",
+   "category": "研究过程",
+   "status": "进行中工作材料（2026-11-06 22:44 起），未审核、无作者回执；不构成交付或验收证据",
+   "exists": true,
+   "observed_files": [
+    "research/strategy-harness-20261106/PROGRESS.md",
+    "research/strategy-harness-20261106/_api.txt",
+    "research/strategy-harness-20261106/_api2.txt"
+   ],
+   "source": "本轮 check.py 未登记清单与实际目录检查"
+  }
+ ],
+ "delivery_artifacts": [
+  {
+   "path": "research/parallel-data-20261106/audit_data_quality.py",
+   "sha256": "8692ba8af27486f1924225a3ee09403d638b31782a507ed75746d80cfc16f6f8",
+   "bytes": 53930,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-data-20261106/coverage_report.json",
+   "sha256": "f1f399140caf3678658dfda1bcd709ed5832a04086bde80c2958a712f14732d2",
+   "bytes": 16646,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-data-20261106/probe.csv",
+   "sha256": "7c480fc56948270843e78345f0d6e2e05e709e980cc6be51c4d0f9c832ad7657",
+   "bytes": 11,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-data-20261106/probe.md",
+   "sha256": "f416e9f09e79de246ff38782994f343ff28a783fb61eedccae1a28207f78e528",
+   "bytes": 35,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-data-20261106/test_audit_data_quality.py",
+   "sha256": "98f4b9d24d5ef4107dc0eb56e55c7dd365ef8e2a1d30407868288110ed0f2a39",
+   "bytes": 23488,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-review-20261106/review_reconciliation.py",
+   "sha256": "015df82a0373a6c40bc260aade8039f7a2b91e1f532b4a83167551a4ff037bb8",
+   "bytes": 6327,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-review-20261106/synthetic_input.json",
+   "sha256": "58afaac8b57fff13658522addb9fcf4b991e5ec91e8ee5ff80cf3165678acdc5",
+   "bytes": 662,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-review-20261106/synthetic_snapshot.json",
+   "sha256": "e54cc05b1feec0c641ef51b397fe020d9beb5bfedcbefc6bff24b81e27a71628",
+   "bytes": 660,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-review-20261106/test_review_reconciliation.py",
+   "sha256": "10bfb77af3ce80e1fead8c5321dfa0c101a0ab4ce76a2855e49e6031554c37ac",
+   "bytes": 7097,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/parallel-review-20261106/verification.json",
+   "sha256": "7d7400e10222ce2de9e7d0987928e5a4548f80dec0f61cc8d11edf56e2815244",
+   "bytes": 2174,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+   "sha256": "69a675eb0f599465e0302ebfd2e427352f2ca99e997b90af14b4bfdc40c244cf",
+   "bytes": 8625,
+   "verification": "仅存在及摘要核实，未运行；v0.2 重取摘要"
+  },
+  {
+   "path": "research/program-planning-20261106/PROGRAM-PLAN.md",
+   "sha256": "cfdbb86590315bd43c636ac7f0e8d59a00d7be9a6de495bb3c224eafd8a0db26",
+   "bytes": 10203,
+   "verification": "仅存在及摘要核实，未运行；v0.2 重取摘要"
+  },
+  {
+   "path": "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+   "sha256": "5e17956eb1936739da3947b1f1b358ea8f5b0ed80662ee13733094500d060936",
+   "bytes": 9721,
+   "verification": "仅存在及摘要核实，未运行；v0.2 重取摘要"
+  },
+  {
+   "path": "research/architecture-20261106/ARCHITECTURE-REVIEW.md",
+   "sha256": "037019226e6285d2b918a60a0694f703261fe40f2d365255c65fac0b784b4542",
+   "bytes": 23041,
+   "verification": "仅存在及摘要核实，未运行；v0.2 重取摘要"
+  },
+  {
+   "path": "research/architecture-20261106/EVIDENCE.json",
+   "sha256": "0c5403b38b24162121477a0a7567ff7625b9999c13f7706367dd373b58a5a9d1",
+   "bytes": 8205,
+   "verification": "仅存在及摘要核实，未运行"
+  },
+  {
+   "path": "research/program-planning-20261106/PROGRAM-PLAN.md",
+   "label": "v0.4",
+   "sha256": "47abfc77d4358cca601078192e4130a41a4b75d842929f23fa332c761ee40770",
+   "bytes": 22951,
+   "source": "总体规划负责人交付，research/program-planning-20261106/（git 未跟踪）",
+   "verification": "v0.4 快照：2026-11-06 22:48 由文档管理员逐位重算，与规划方清单及 EVIDENCE.json deliverable_sha256 一致；不运行、不证明实现或验收",
+   "evidence": [
+    "research/program-planning-20261106/EVIDENCE.json 的 deliverable_sha256/deliverable_bytes"
+   ],
+   "note": "正文已升 v0.5，本快照仅留档 v0.4 摘要"
+  },
+  {
+   "path": "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+   "label": "v0.4",
+   "sha256": "d5bf6a4eec72c16c9f8fcab0c7c0202c831c05fa97984b1e1249b539f7373d59",
+   "bytes": 13748,
+   "source": "总体规划负责人交付，research/program-planning-20261106/（git 未跟踪）",
+   "verification": "v0.4 快照：2026-11-06 22:48 由文档管理员逐位重算，与规划方清单及 EVIDENCE.json deliverable_sha256 一致；不运行、不证明实现或验收",
+   "evidence": [
+    "research/program-planning-20261106/EVIDENCE.json 的 deliverable_sha256/deliverable_bytes"
+   ],
+   "note": "正文已升 v0.5，本快照仅留档 v0.4 摘要"
+  },
+  {
+   "path": "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+   "label": "v0.4",
+   "sha256": "833711ca0633be3fce45a33e3703d9af8142d2dcc1fc0aeb1e45703f0b588a3a",
+   "bytes": 13297,
+   "source": "总体规划负责人交付，research/program-planning-20261106/（git 未跟踪）",
+   "verification": "v0.4 快照：2026-11-06 22:48 由文档管理员逐位重算，与规划方清单及 EVIDENCE.json deliverable_sha256 一致；不运行、不证明实现或验收",
+   "evidence": [
+    "research/program-planning-20261106/EVIDENCE.json 的 deliverable_sha256/deliverable_bytes"
+   ],
+   "note": "正文已升 v0.5，本快照仅留档 v0.4 摘要"
+  },
+  {
+   "path": "research/program-planning-20261106/EVIDENCE.json",
+   "label": "v0.4",
+   "sha256": "9949bc14286784d5c34d556fdd86e6ddbec42e30a85e36cabb909d1f36f6e8dc",
+   "bytes": 22034,
+   "source": "总体规划负责人交付，research/program-planning-20261106/（git 未跟踪）",
+   "verification": "v0.4 快照：2026-11-06 22:48 由文档管理员逐位重算，与规划方清单及 EVIDENCE.json deliverable_sha256 一致；不运行、不证明实现或验收",
+   "evidence": [
+    "research/program-planning-20261106/EVIDENCE.json 的 deliverable_sha256/deliverable_bytes"
+   ],
+   "note": "现行正文已升 v0.5（2026-11-06 22:52:44，78627d23…/27,786 B），本快照仅留档 v0.4 摘要"
+  }
+ ],
+ "governance_notes": [
+  {
+   "type": "状态冲突待核实",
+   "paths": [
+    "docs/README.md",
+    "docs/auto-strategy-lab-plan.md",
+    "docs/factor-system-design.md",
+    "docs/paper-trading-plan.md"
+   ],
+   "finding": "总索引将其列设计/计划，部分正文已有实施/验证或状态校准声明；需原作者按子能力和版本核实，不能整体标完成。"
+  },
+  {
+   "type": "主题重叠待核实",
+   "paths": [
+    "research/new-energy-20261104/README.md",
+    "research/industry-chains-20261105/README.md"
+   ],
+   "finding": "新能源与产业链研究主题重叠，未证明内容重复；保留原文，待作者确认继承/替代关系。"
+  },
+  {
+   "type": "过期待核实",
+   "finding": "未核对全部现行说明与当前代码，不因日期较早判定过期；历史档案明确按冻结快照使用。"
+  },
+  {
+   "type": "断链",
+   "source": "docs/strategy-research.md",
+   "target": "research/first-board-t74-right-tail-20261106/RESULTS.md",
+   "candidate_existing": "docs/research/first-board-t74-right-tail-20261106/RESULTS.md",
+   "finding": "目标不存在，候选位置存在；仅登记，交原作者确认修正。"
+  },
+  {
+   "type": "登记补全",
+   "paths": [
+    "research/program-planning-20261106/PROGRAM-PLAN.md",
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json"
+   ],
+   "finding": "总体规划四文件按声明 v0.1（2026-11-06、维护：总体规划负责人）登记，含证据边界；EVIDENCE.json 取证记录为本次补登。DELIVERY-CHECKLIST.md 与 RISKS-DEPENDENCIES.md 的 declared_status 原为占位文本（“总体规划关联交付；具体内容见原文”），已按原文第3行更正，原文未改。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "docs/README.md"
+   ],
+   "finding": "docs/README.md 在登记后发生并行改动（strategy-research.md 索引行等），本轮又追加一条总体规划指针行；按当前工作区更新 SHA-256 并标注变更来源，未回退他人改动。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "research/program-planning-20261106/PROGRAM-PLAN.md",
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json",
+    "docs/README.md"
+   ],
+   "finding": "2026-11-06 22:4x 规划方发布 v0.3（只回填登记回执与摘要复核，未改数据/回测/威科夫判定，并声明本轮冻结基线）。四份按当前正文重登记为 v0.3，v0.2 与 v0.1 摘要均保留于 superseded_versions；docs/README.md 第 76 行同步改 v0.3 并重取摘要。原文未改。"
+  },
+  {
+   "type": "版本替代",
+   "paths": [
+    "research/strategy-harness-20261106/PROGRAM-PLAN.md",
+    "research/strategy-harness-20261106/DELIVERY-CHECKLIST.md",
+    "research/strategy-harness-20261106/RISKS-DEPENDENCIES.md",
+    "research/strategy-harness-20261106/EVIDENCE.json"
+   ],
+   "finding": "2026-11-06 22:44 规划方发布 v0.4（新增 S 线策略搜索主线 S1–S6、稳定盈利判定草案；据 22:36:55–22:37:58 核心文件改动把三项 P1 改记「修复候选待复验」；新增 R16–R19）。四份按当前正文重登记为 v0.4，v0.3/v0.2/v0.1 摘要均保留于 superseded_versions；docs/README.md 第 76 行同步改 v0.4 并重取摘要。原文未改。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "docs/README.md"
+   ],
+   "finding": "docs/README.md 由 6af6aa5f…/7,059 B（v0.2 轮）变为 cd66113d…/6,972 B，该次改动是本管理员 v0.3 轮按 22:39:35 改第 76 行指针所致，不是第三方写入；本轮再改为 v0.4 后为 1053f545…/7098 B。规划方 EVIDENCE.json 的 registry_state.observed_drift_after_check 把该差异记为第三方并发写入，登记方据此更正归属。"
+  },
+  {
+   "type": "新目录登记",
+   "paths": [
+    "research/strategy-harness-20261106/PROGRESS.md",
+    "research/strategy-harness-20261106/_api.txt",
+    "research/strategy-harness-20261106/_api2.txt"
+   ],
+   "finding": "research/strategy-harness-20261106/ 于 22:44–22:46 出现，未在任何既有索引中；按「研究过程」登记并标未审核、作者未知，目录内 *.py 不登记。"
+  },
+  {
+   "type": "版本不一致",
+   "paths": [
+    "research/program-planning-20261106/PROGRAM-PLAN.md",
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json"
+   ],
+   "finding": "规划方于 22:49:55 把 PROGRAM-PLAN.md 单独改写为 v0.5（29,379 B），同组另外三份仍为 v0.4（22:41–22:44），EVIDENCE.json 的 revision 只记到 v0.3。登记册按实际正文分别登记：PROGRAM-PLAN v0.5、其余 v0.4，并标同组版本不一致，待规划方整组升版。"
+  },
+  {
+   "type": "登记补全",
+   "paths": [
+    "docs/INDEX_BACKTEST_INVENTORY.md"
+   ],
+   "finding": "docs/INDEX_BACKTEST_INVENTORY.md（系统开发工程师 22:49:22 新建）原不在登记册，check.py 报未登记；按「研究过程」登记，标只读盘点、未审核。"
+  },
+  {
+   "type": "版本补登",
+   "paths": [
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md"
+   ],
+   "finding": "规划方于 22:49:55–22:51:43 把 PROGRAM-PLAN、DELIVERY-CHECKLIST、RISKS-DEPENDENCIES 三份升为 v0.5（EVIDENCE.json 仍 v0.4）。登记册按磁盘实际逐份登记：三份 v0.5、EVIDENCE v0.4，v0.4 摘要保留于各条 superseded_versions 与 delivery_artifacts；同组版本不齐已标 flags，待规划方整组升版，登记方不代改正文。"
+  },
+  {
+   "type": "并发写入观察到本人目录",
+   "paths": [
+    "docs/document-management/registry.json",
+    "docs/document-management/CATALOG.md",
+    "docs/document-management/ISSUES.md",
+    "docs/document-management/README.md",
+    "docs/document-management/verification.json"
+   ],
+   "finding": "2026-11-06 22:48:46–22:50:41 期间本目录被另一执行体写入（registry 登记条数 102→106、CATALOG/ISSUES/README 与 verification.json 同步更新，含 v0.4 四份登记与 INDEX_BACKTEST_INVENTORY 补登），与本轮为同一分配的并行执行，身份未能区分；本轮在其结果之上叠加 v0.5 补登，未回滚、未整文件还原，差异未逐行比对。R15 仍开放。"
+  },
+  {
+   "type": "版本替代",
+   "paths": [
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json",
+    "research/program-planning-20261106/PROGRAM-PLAN.md"
+   ],
+   "finding": "规划方于 22:49:55–22:52:44 把整组四份改写为 v0.5（用户确认准入口径、新增降级规则、新增 threshold_confirmation_20261106/researcher_response_20261106、R20）。登记册四份均为 v0.5；v0.4（文档管理员 22:48–22:50 短暂登记）、v0.3/v0.2/v0.1 摘要全部保留于 superseded_versions，可逐代追溯。"
+  },
+  {
+   "type": "登记补全",
+   "paths": [
+    "research/batch-backtest-framework-20261107/INTERFACE-MAP.md"
+   ],
+   "finding": "research/batch-backtest-framework-20261107/INTERFACE-MAP.md（22:51–22:52 新建、无署名）原未登记，check.py 报未登记；按「研究过程」登记，标只读调查、未审核。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "docs/README.md"
+   ],
+   "finding": "第 76 行随规划版本同步至 v0.5，摘要 ee3d4604…/7135 B。规划方在 EVIDENCE.json 的 registry_state.observed_drift_after_check 中把 6af6aa5f→cd66113d 记为第三方并发写入，实为本管理员 v0.3 轮的同类改动，已更正归属。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "docs/INDEX_BACKTEST_INVENTORY.md",
+    "research/program-planning-20261106/EVIDENCE.json",
+    "docs/document-management/CATALOG.md"
+   ],
+   "finding": "docs/INDEX_BACKTEST_INVENTORY.md 于 22:54:52 由作者扩写（3,668 B→21,657 B），按当前正文重取摘要；规划方 22:52:44 已把 EVIDENCE.json 升 v0.5（78627d23…/27,786 B），四份版本已齐，v0.4 仅留档；CATALOG「系统总体规划」节按正文 22:48 只读核对修正 S 线状态表述（S1 阻塞/S2 已开工门槛未达/S3 部分具备/S4·S6 未开始/S5 口径已确认阈值待定），原文未改。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "docs/backtest-evidence.md",
+    "docs/features.md"
+   ],
+   "finding": "两份文档于 22:59:24 被他人修改（3,380→… 与 56,017→56,459 B），登记册仅按当前正文重取摘要并注明采样，未审阅内容、未改其状态结论。"
+  },
+  {
+   "topic": "2026-11-06 23:07–23:09 v0.6 重登记（文档管理员本轮唯一写入方）",
+   "detail": "写入时段 23:07:00–23:09:30（Asia/Shanghai），由文档管理员单人完成：CATALOG.md、document-management/README.md、docs/README.md 第 76 行、registry.json。本轮未观察到其他写入方；期间 research/program-planning-20261106/ 四份文件 mtime 为 23:03:46–23:04:41，均在登记前，登记前后重算摘要一致。v0.6 四份摘要：PROGRAM-PLAN 770fac46…/35,143、DELIVERY-CHECKLIST 6294aa0e…/16,087、RISKS-DEPENDENCIES 86130616…/16,977、EVIDENCE.json d0183522…/37,132（自身摘要按 self_sha256_note 由本管理员重算）。superseded 链现为 v0.1→v0.2→v0.3→v0.4→v0.5→v0.6，未删除任何历史。research/strategy-search-20261107/ 共 65 个文件（JSON/NPY/PY，0 个 md/rst/txt），不属文档登记范围，未登记；其 results/registry.json 131,776 B、controls.json 4,365 B 为规划方 v0.6 引用值，本管理员未解析其内容、未复跑试验。"
+  },
+  {
+   "topic": "2026-11-06 23:22–23:27 v0.7 重登记（文档管理员本轮唯一写入方）",
+   "detail": "写入时段 23:22:00–23:27:00（Asia/Shanghai），由文档管理员单人完成：CATALOG.md 第 160–169 行、document-management/README.md 第 15/21 行、docs/README.md 第 76 行、registry.json（含 4 条 v0.7 更新与新增研究产物条目）、ISSUES.md。本轮未观察到其他写入方改这四个治理文件；research/program-planning-20261106/ 四份文件 mtime 均为 23:19:28，在登记前，登记前后两次重算摘要一致（8f78a80f…/39,698、fa61d347…/15,776、b7d1ddc9…/17,908、7356e518…/46,402）。superseded 链现为 v0.1→v0.2→v0.3→v0.4→v0.5→v0.6→v0.7，未删除任何历史。research/strategy-search-20261107/ 于 23:21–23:22 新增 README.md、CAPABILITIES.md、PROTOCOL.md、STRATEGIES.md（均为规划方 v0.7 未列的新产物），本管理员按「研究产物、未署名、未审核」登记，未审阅内容；该目录仍在写入，登记后可能出现新的未登记项。另观察：同一目录出现 _src_tmp.json（2,834 B，23:2x，非文档类型，不登记）与根目录两个疑似 shell 误建残留文件，均未删除。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "research/program-planning-20261106/PROGRAM-PLAN.md",
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json"
+   ],
+   "finding": "2026-11-06 23:29:37–23:31:01 规划方发布 v0.8（正文 mtime：PROGRAM-PLAN.md / DELIVERY-CHECKLIST.md 23:29:37、RISKS-DEPENDENCIES.md 23:30:48、EVIDENCE.json 23:31:01）；文档管理员于 23:36–23:44 重算四份摘要并与规划方清单逐位一致（e8d6a9ba…/43,802、4dad233b…/16,303、a9914063…/18,723、2403aae7…/50,054），登记前后两次重算一致。v0.7 整组摘要移入 superseded_versions 并标 superseded_by=v0.8，v0.1→v0.8 链路完整未删。原文未改。"
+  },
+  {
+   "type": "引用摘要与磁盘不符待核实",
+   "paths": [
+    "research/strategy-search-20261107/results/registry.json"
+   ],
+   "finding": "v0.8 四份正文均引用 results/registry.json 为 175,133 B / 2597d6fa…（23:09:33）；登记时磁盘同文件为 175,133 B / 3961999…，mtime 23:19:26、meta.created_at 2026-11-06T23:19:13+08:00，即字节数相同而内容不同（S07 10bps 的 run_*.json 与 rets_*.npy 亦于 23:19:26 重写）。登记方按当前文件独立复算：36 个 run、IS 与 OOS cagr 同为正 0 次、OOS cagr>0 5 次，与规划方 C16 结论一致，数字结论不受影响但引用摘要已过期。只登记，不改规划方正文，建议其以 v0.9 或勘误处理。"
+  },
+  {
+   "type": "冲突结案留痕",
+   "paths": [
+    "research/strategy-search-20261107/README.md",
+    "research/strategy-search-20261107/REPORT.md",
+    "research/program-planning-20261106/PROGRAM-PLAN.md"
+   ],
+   "finding": "ISSUES「研究侧文档与规划方 v0.7 口径不一致（+31.8% vs +7.81%）」经规划方 C12 结案，登记方已独立核实同一 run S07_xs_lowvol_60d@10：OOS.total_return=0.3177141（累计 +31.77%）、OOS.cagr=0.0781483（年化 +7.81%），属单位不同、非两个结论。该条按「已核实结案」留痕，但不提升任何一方结论等级：0/36、全期回撤越界、协议事后补写均不变。"
+  },
+  {
+   "type": "新增未登记文档（登记期间出现）",
+   "paths": [
+    "research/independent-review-20261106/FIXES.md"
+   ],
+   "finding": "2026-11-06 23:27:51 出现 FIXES.md（8,170 B，系统开发工程师署名，复核方列为独立审核工程师），check.py 首次扫描报未登记 1；已按「修复交付说明」登记并标未复验。作者自述 R1/R2/R3「已修复」并称 ruff 无 F821、有 TestClient 用例，与总体规划 v0.8「开发自述只做 py_compile、未跑 Ruff/pytest」冲突，登记方只并列记录、不改任一方，交独立审核复验。"
+  },
+  {
+   "type": "版本替代",
+   "paths": [
+    "research/program-planning-20261106/PROGRAM-PLAN.md",
+    "research/program-planning-20261106/DELIVERY-CHECKLIST.md",
+    "research/program-planning-20261106/RISKS-DEPENDENCIES.md",
+    "research/program-planning-20261106/EVIDENCE.json"
+   ],
+   "finding": "2026-11-06 23:29–23:31 规划方发布 v0.8（C12 单位口径分歧结案、C13 S07 全期回撤 -29.93%、C14 协议事后补写并新增 R23、C15 n_trials 口径说明、C16 独立复算 0/36），登记方 23:36 重算摘要逐位一致（e8d6a9ba…/43,802、4dad233b…/16,303、a9914063…/18,723、2403aae7…/50,054）；v0.7 入 superseded_versions 并标 superseded_by=v0.8，链路 v0.1→…→v0.8 完整保留。原文未改。"
+  },
+  {
+   "type": "摘要基线更新",
+   "paths": [
+    "research/strategy-search-20261107/README.md",
+    "research/strategy-search-20261107/PROTOCOL.md",
+    "research/strategy-search-20261107/STRATEGIES.md"
+   ],
+   "finding": "研究侧在首次登记后多次重写这三份（PROTOCOL 8,307→14,367→14,660 B、STRATEGIES 6,687→13,679 B、README 6,301→7,437→8,260 B，23:40–23:44）。登记方按磁盘逐次重取基线，历次摘要与观测时间保留于各条 version.previous，未回滚任何他人写入；摘要仍为采样值。"
+  },
+  {
+   "type": "登记补全",
+   "paths": [
+    "research/strategy-search-20261107/DATA-BOUNDARY.md",
+    "research/strategy-search-20261107/E1_E2_SPEC.md",
+    "research/independent-review-20261106/REVERIFY-S1-20261106.md",
+    "research/strategy-harness-20261106/runs/demo-2x2-20261106T234454/summary.md"
+   ],
+   "finding": "v0.8 登记期间新出现四份文档，已按实际类型登记：数据边界说明与 E1/E2 判定规格（研究产物，未署名未审核；E1_E2_SPEC 自称规范性附件但所属协议为事后补写）、独立审核 S1 三项 P1 复验记录（判「通过/S1 可放行」，与总体规划 v0.8「S1 阻塞于 G1-04」并存，只记录不代判）、批量评估 demo 运行产物（负收益，仅证明流水线跑通）。"
+  },
+  {
+   "type": "残留临时文件未登记",
+   "paths": [
+    "research/program-planning-20261106/_src_tmp.json"
+   ],
+   "finding": "2,834 B / mtime 23:04:15，为规划方生成 EVIDENCE.json 的中间文件，不是交付物：既不进 documents 也不进 delivery_artifacts，只在本条留痕；原文未删，建议作者自行清理。同目录 v0.8 四份已登记（43,802 / 16,303 / 18,723 / 50,054 B，mtime 23:29:37–23:31:01）。"
+  },
+  {
+   "type": "冲突作废结案（R21）",
+   "paths": [
+    "research/strategy-search-20261107/README.md",
+    "research/program-planning-20261106/PROGRAM-PLAN.md"
+   ],
+   "finding": "规划 v0.7/v0.8 记「研究员称 strategy-search-20261107 不存在、未写文件」。登记方 23:5x 实测：目录存在，8 份顶层文档（README、PROTOCOL、STRATEGIES、CAPABILITIES、REPORT、DATA-BOUNDARY、E1_E2_SPEC、FREEZE.json）+ scripts 10 个 .py（另 __pycache__）+ results 83 个文件，最后写入 23:44:23、目录 mtime 23:43:20。结论：该回执说法作废，以磁盘为准；后续报告不得再引用「研究员未交付」。作者身份仍未知。"
+  },
+  {
+   "type": "字段口径警示（已独立复算）",
+   "paths": [
+    "research/strategy-search-20261107/results/registry.json",
+    "research/strategy-search-20261107/results/yearly_table.md"
+   ],
+   "finding": "段级收益字段不可用于年度归因：逐 run 文件为 segments[].stats.total_return，results/registry.json 扁平为 runs[*].segments[*].total_return（同值）。登记方用 run_*.json 的 equity[] 连续权益曲线逐段重算 36×8=288 个 segment-year：219 个（76%）与字段差 >2pp；S07_xs_lowvol_60d@10 的 2024 年字段 -0.0404（-4.04%）、曲线 +0.3362（+33.62%），差 37.66pp。年度收益/单年集中度/分段回撤必须从 equity[] 重算。"
+  },
+  {
+   "type": "登记补全（冻结清单与判定结果）",
+   "paths": [
+    "research/strategy-search-20261107/FREEZE.json",
+    "research/strategy-search-20261107/results/e2_judgement.json"
+   ],
+   "finding": "本轮补登两份：FREEZE.json（4,217 B / be106e06…，23:44:23，v2 冻结清单，n_trials 15、DSR 0.95、lockbox 已烧毁、最早确认日 2027-09-30）与 results/e2_judgement.json（13,515 B / fc803f3f…，23:42:28，12 策略 0 PASS/12 FAIL、exit 2）。FREEZE 内 docs 5 + code 4 + results 2 共 11 项 sha256 与磁盘逐位一致。"
+  },
+  {
+   "type": "分类清单同步",
+   "paths": [
+    "docs/document-management/CATALOG.md",
+    "docs/document-management/ISSUES.md"
+   ],
+   "finding": "CATALOG 的 S 线节曾残留旧摘要（README 7,437 B、PROTOCOL 14,367 B）并记「无 FREEZE.json」；本轮按登记册与磁盘同步该节、补两行、加年度归因字段警示，并把 ISSUES 末行断裂的表格行补回两列（内容未改）。"
+  },
+  {
+   "type": "目录整编与登记基线更新",
+   "paths": [
+    "research/strategy-harness-20261106",
+    "research/batch-backtest-framework-20261107",
+    "research/independent-review-20261106/FIXES.md"
+   ],
+   "finding": "2026-11-06 23:44–23:53 并行作者整编两个研究目录：strategy-harness 删除 _api.txt/_api2.txt/_dump*.py/_smoke.py 等临时探针，改出 README.md（11,786 B）、probe_cache_profile.py、probe_prewarm.py、selftest.py，runs/ 由 1 次变为 3 次（234706/234915/235336）；batch-backtest 新增 WORKLOG.md（1,538 B）与 probe_shared_matrix.py。已删除的 3 份登记项标 removed 并保留历史；新增 5 份按研究过程登记。FIXES.md 由 8,170→12,076 B（23:52:08），重取基线并保留 previous。该两目录仍在写入，之后可能再出现未登记项或漂移。"
+  },
+  {
+   "type": "登记口径调整（运行产物）",
+   "paths": [
+    "research/strategy-harness-20261106/runs"
+   ],
+   "finding": "该目录的 runs/<时间戳>/summary.md 随作者每次重跑被重建（234454→234706/234915/235336→235432，观察期内 4 次替换），逐次登记既无意义也无法稳定校验。口径改为：单次运行摘要视为自动生成运行产物，不逐次登记；已登记的样本保留 removed 历史。check.py 的覆盖检查相应排除 research/*/runs/*/summary.md。"
+  },
+  {
+   "type": "活跃施工目录：登记为时间点快照",
+   "paths": [
+    "research/strategy-harness-20261106"
+   ],
+   "finding": "该目录 2026-11-06 23:44–23:57 持续被作者改写：PROGRESS.md 1,924→4,142 B、README.md 11,786→13,145→14,498 B、batch_harness.py 45,673→46,506 B、runs/ 多次重建（观察到的运行目录名：234454、234706、234915、235336、235432）。登记方在 23:5x 取过快照后不再逐次追平，以免登记册跟随施工抖动；现行差异由 check.py 的 content_drift_warnings 报告。该目录所有内容仍为未署名、未审核的施工材料，不代表实现验收或策略有效。"
+  }
+ ]
+}

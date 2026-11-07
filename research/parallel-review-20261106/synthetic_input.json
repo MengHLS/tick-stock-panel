@@ -1,0 +1,16 @@
+{
+  "binding": {
+    "revision": "synthetic-only",
+    "snapshot": {"strategy_id": "synthetic", "params": {"threshold": 1}},
+    "events": [
+      {"order_id": "order_demo", "symbol": "000001.SZ", "side": "buy", "message": "已提交委托"},
+      {"order_id": null, "symbol": "000002.SZ", "side": "buy", "message": "合成未下单事件"}
+    ]
+  },
+  "orders": [
+    {"id": "order_demo", "symbol": "000001.SZ", "asset_type": "stock", "side": "buy", "qty": 100, "status": "filled"}
+  ],
+  "fills": [
+    {"seq": 1, "kind": "fill", "order_id": "order_demo", "symbol": "000001.SZ", "asset_type": "stock", "side": "buy", "qty": 100, "price": 10, "fee": 5}
+  ]
+}

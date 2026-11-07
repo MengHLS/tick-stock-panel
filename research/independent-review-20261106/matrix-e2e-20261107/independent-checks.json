@@ -1,0 +1,174 @@
+{
+  "groups": [
+    {
+      "group": "g1_first_board_chain_rebreak",
+      "checks": {
+        "exact_curves": true,
+        "exact_trades": true,
+        "exact_account_stats": true,
+        "exact_boundaries": true,
+        "exact_final_cash": true,
+        "exact_final_positions": true,
+        "unique_dates": true,
+        "timeline_complete": true,
+        "duplicate_dates_zero": true,
+        "curve_length_189": true,
+        "all_invariants": true,
+        "closed_plus_unrealized_pnl_matches_equity": true,
+        "all_folds_matrix_native": true,
+        "equity_curve_sha256": true,
+        "trades_sha256": true,
+        "skipped_return_fields_equal": true
+      },
+      "curve_points": 189,
+      "trades": 325,
+      "final_equity": 434227.12,
+      "equity_minus_pnl_sum": 0.01000000024214387,
+      "blindspot_mutation": {
+        "changed": "trade pnl+999; equity first point+999; account total_return=999; fold total_return=999",
+        "before_result_diffs": 0,
+        "after_result_diffs": 0
+      }
+    },
+    {
+      "group": "g2_first_limit_pullback_3f_runner_t74",
+      "checks": {
+        "exact_curves": true,
+        "exact_trades": true,
+        "exact_account_stats": true,
+        "exact_boundaries": true,
+        "exact_final_cash": true,
+        "exact_final_positions": true,
+        "unique_dates": true,
+        "timeline_complete": true,
+        "duplicate_dates_zero": true,
+        "curve_length_189": true,
+        "all_invariants": true,
+        "closed_plus_unrealized_pnl_matches_equity": true,
+        "all_folds_matrix_native": true,
+        "equity_curve_sha256": true,
+        "trades_sha256": true,
+        "skipped_return_fields_equal": true
+      },
+      "curve_points": 189,
+      "trades": 246,
+      "final_equity": 992786.95,
+      "equity_minus_pnl_sum": -0.010000000009313226,
+      "blindspot_mutation": {
+        "changed": "trade pnl+999; equity first point+999; account total_return=999; fold total_return=999",
+        "before_result_diffs": 0,
+        "after_result_diffs": 0
+      }
+    }
+  ],
+  "hashes": {
+    "backend/app/backtest/engine.py": {
+      "expected": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+      "actual": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+      "match": true
+    },
+    "backend/app/backtest/strategy.py": {
+      "expected": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+      "actual": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+      "match": true
+    },
+    "backend/app/backtest/walkforward.py": {
+      "expected": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+      "actual": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+      "match": true
+    },
+    "backend/app/backtest/matrix.py": {
+      "expected": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+      "actual": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+      "match": true
+    },
+    "backend/app/backtest/optimizer.py": {
+      "expected": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+      "actual": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+      "match": true
+    },
+    "backend/app/backtest/evidence.py": {
+      "expected": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+      "actual": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+      "match": true
+    },
+    "backend/app/tickflow/repository.py": {
+      "expected": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+      "actual": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+      "match": true
+    },
+    "run_batch.py": {
+      "expected": "cc04a0c0453e0dfda486048b014b79b4478180901761188f2f56242c9c855319",
+      "actual": "cc04a0c0453e0dfda486048b014b79b4478180901761188f2f56242c9c855319",
+      "match": true
+    }
+  },
+  "batch_code_matches_original": true,
+  "code_before_after_equal": true,
+  "generation_before": "2b948c890e75472ab8317ca0ce40af77",
+  "generation_after": "2b948c890e75472ab8317ca0ce40af77",
+  "registry_generation": {
+    "before": "2b948c890e75472ab8317ca0ce40af77",
+    "after": "2b948c890e75472ab8317ca0ce40af77",
+    "bound": "2b948c890e75472ab8317ca0ce40af77"
+  },
+  "evidence": [
+    {
+      "file": "out\\evidence\\71254717e32e.json",
+      "data_generation": {
+        "before": "2b948c890e75472ab8317ca0ce40af77",
+        "after": "2b948c890e75472ab8317ca0ce40af77",
+        "bound": "2b948c890e75472ab8317ca0ce40af77"
+      },
+      "code": {
+        "sha256": "67afbcb7f5f0af187ed7a05cbe7597817e053b254b844ca4e3bc42429b2cf4d8",
+        "files": {
+          "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+          "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+          "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+          "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+          "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+          "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+          "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+          "run_batch.py": "cc04a0c0453e0dfda486048b014b79b4478180901761188f2f56242c9c855319"
+        }
+      },
+      "run_id": "71254717e32e"
+    },
+    {
+      "file": "out\\evidence\\ec4c292a5178.json",
+      "data_generation": {
+        "before": "2b948c890e75472ab8317ca0ce40af77",
+        "after": "2b948c890e75472ab8317ca0ce40af77",
+        "bound": "2b948c890e75472ab8317ca0ce40af77"
+      },
+      "code": {
+        "sha256": "67afbcb7f5f0af187ed7a05cbe7597817e053b254b844ca4e3bc42429b2cf4d8",
+        "files": {
+          "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+          "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+          "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+          "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+          "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+          "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+          "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+          "run_batch.py": "cc04a0c0453e0dfda486048b014b79b4478180901761188f2f56242c9c855319"
+        }
+      },
+      "run_id": "ec4c292a5178"
+    }
+  ],
+  "telemetry_original": {
+    "g1_first_board_chain_rebreak": {
+      "matrix_compute_cache": 15,
+      "shared_market_data_bytes": 3
+    },
+    "g2_first_limit_pullback_3f_runner_t74": {
+      "market_matrix_bytes": 3,
+      "market_matrix_shape[1]": 3,
+      "matrix_compute_cache": 12,
+      "shared_market_data_bytes": 3
+    }
+  },
+  "exit_code": 0
+}

@@ -1,0 +1,16 @@
+{
+  "objective": "sortino",
+  "note": "每组只取 1 个参数组合 (单值网格), 便于与生产单跑逐字段比对; 参数值取 META 默认值, 保证两边口径一致",
+  "groups": [
+    {
+      "name": "g2_first_limit_pullback_3f_runner_t74",
+      "strategy_id": "first_limit_pullback_3f_runner_t74",
+      "base_params": {},
+      "param_grid": {
+        "min_score_pct": [
+          55.0
+        ]
+      }
+    }
+  ]
+}

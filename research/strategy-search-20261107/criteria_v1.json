@@ -1,0 +1,631 @@
+{
+ "schema": "strategy-search-criteria/1",
+ "version": "v1",
+ "created_at": "2026-11-07T11:54:26.941909+08:00",
+ "frozen_before_run": true,
+ "n_trials_delta_this_batch": 0,
+ "strategies": [
+  {
+   "id": "S01",
+   "key": "S01_ma_cross_20_60",
+   "family": "趋势",
+   "v0": {
+    "registry_key": "S01_ma_cross_20_60@10",
+    "signals": 24902,
+    "n_trades": 252,
+    "all": {
+     "sharpe": -0.208855,
+     "cagr_pct": -5.3377,
+     "max_drawdown_pct": -50.0203,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.468542,
+     "cagr_pct": -9.4194,
+     "max_drawdown_pct": -41.2566,
+     "n_days": 924,
+     "n_closed_trades": 127
+    },
+    "t1": {
+     "sharpe": 0.039499,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -0.550824,
+     "t2_cagr_pct": -10.7429,
+     "all_cagr_pct": -6.8449
+    },
+    "gross": {
+     "all_cagr_pct": -3.9776,
+     "t2_sharpe": -0.391823
+    },
+    "turnover_one_way": 3.976,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S01_ma_cross_20_60_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 252,
+    "n_entry_fills": 252,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 189,
+    "buy_no_slot": 22138,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "batch": "A-gate1"
+  },
+  {
+   "id": "S02",
+   "key": "S02_donchian_20_10",
+   "family": "趋势",
+   "v0": {
+    "registry_key": "S02_donchian_20_10@10",
+    "signals": 127877,
+    "n_trades": 442,
+    "all": {
+     "sharpe": -1.310999,
+     "cagr_pct": -26.7047,
+     "max_drawdown_pct": -89.1782,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -1.302589,
+     "cagr_pct": -25.7652,
+     "max_drawdown_pct": -69.2579,
+     "n_days": 924,
+     "n_closed_trades": 228
+    },
+    "t1": {
+     "sharpe": -1.306375,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -1.444347,
+     "t2_cagr_pct": -27.8298,
+     "all_cagr_pct": -28.7693
+    },
+    "gross": {
+     "all_cagr_pct": -24.8761,
+     "t2_sharpe": -1.178857
+    },
+    "turnover_one_way": 6.813,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S02_donchian_20_10_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 442,
+    "n_entry_fills": 442,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 4004,
+    "buy_no_slot": 104788,
+    "sell_suspended": 0,
+    "sell_limit_down": 15,
+    "pending_exit": 6
+   },
+   "batch": "B-7"
+  },
+  {
+   "id": "S03",
+   "key": "S03_tsmom_60_m",
+   "family": "时序动量",
+   "v0": {
+    "registry_key": "S03_tsmom_60_m@10",
+    "signals": 54988,
+    "n_trades": 187,
+    "all": {
+     "sharpe": -0.562706,
+     "cagr_pct": -11.0027,
+     "max_drawdown_pct": -58.5138,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.581653,
+     "cagr_pct": -11.4811,
+     "max_drawdown_pct": -45.0397,
+     "n_days": 924,
+     "n_closed_trades": 102
+    },
+    "t1": {
+     "sharpe": -0.557655,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -0.654335,
+     "t2_cagr_pct": -12.6577,
+     "all_cagr_pct": -12.1507
+    },
+    "gross": {
+     "all_cagr_pct": -10.0944,
+     "t2_sharpe": -0.523918
+    },
+    "turnover_one_way": 2.959,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S03_tsmom_60_m_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 187,
+    "n_entry_fills": 187,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 572,
+    "buy_no_slot": 7443,
+    "sell_suspended": 1,
+    "sell_limit_down": 16,
+    "pending_exit": 7,
+    "buy_planned": 6
+   },
+   "batch": "B-2"
+  },
+  {
+   "id": "S04",
+   "key": "S04_rsi14_reversion",
+   "family": "均值回归",
+   "v0": {
+    "registry_key": "S04_rsi14_reversion@10",
+    "signals": 75482,
+    "n_trades": 779,
+    "all": {
+     "sharpe": -0.177409,
+     "cagr_pct": -3.4231,
+     "max_drawdown_pct": -40.7649,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.126504,
+     "cagr_pct": -2.5783,
+     "max_drawdown_pct": -23.1744,
+     "n_days": 924,
+     "n_closed_trades": 402
+    },
+    "t1": {
+     "sharpe": -0.265433,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -0.514048,
+     "t2_cagr_pct": -7.5233,
+     "all_cagr_pct": -8.3202
+    },
+    "gross": {
+     "all_cagr_pct": 1.2387,
+     "t2_sharpe": 0.218111
+    },
+    "turnover_one_way": 13.079,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S04_rsi14_reversion_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 779,
+    "n_entry_fills": 779,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 38,
+    "buy_no_slot": 48056,
+    "sell_suspended": 0,
+    "sell_limit_down": 6,
+    "pending_exit": 1,
+    "buy_planned": 3
+   },
+   "batch": "B-3"
+  },
+  {
+   "id": "S05",
+   "key": "S05_bollinger_20_2",
+   "family": "均值回归",
+   "v0": {
+    "registry_key": "S05_bollinger_20_2@10",
+    "signals": 100085,
+    "n_trades": 903,
+    "all": {
+     "sharpe": -0.495056,
+     "cagr_pct": -7.8233,
+     "max_drawdown_pct": -55.4223,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.007876,
+     "cagr_pct": -1.0675,
+     "max_drawdown_pct": -26.6216,
+     "n_days": 924,
+     "n_closed_trades": 473
+    },
+    "t1": {
+     "sharpe": -1.019293,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -0.456259,
+     "t2_cagr_pct": -7.0045,
+     "all_cagr_pct": -13.3183
+    },
+    "gross": {
+     "all_cagr_pct": -2.5754,
+     "t2_sharpe": 0.390777
+    },
+    "turnover_one_way": 15.12,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S05_bollinger_20_2_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 903,
+    "n_entry_fills": 903,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 36,
+    "buy_no_slot": 60995,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1,
+    "buy_planned": 1
+   },
+   "batch": "B-4"
+  },
+  {
+   "id": "S06",
+   "key": "S06_xs_reversal_5d",
+   "family": "截面反转",
+   "v0": {
+    "registry_key": "S06_xs_reversal_5d@10",
+    "signals": 18694,
+    "n_trades": 919,
+    "all": {
+     "sharpe": -0.822288,
+     "cagr_pct": -12.1912,
+     "max_drawdown_pct": -69.216,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -1.704574,
+     "cagr_pct": -22.7809,
+     "max_drawdown_pct": -66.208,
+     "n_days": 924,
+     "n_closed_trades": 481
+    },
+    "t1": {
+     "sharpe": 0.107472,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -2.10372,
+     "t2_cagr_pct": -27.0265,
+     "all_cagr_pct": -17.303
+    },
+    "gross": {
+     "all_cagr_pct": -7.2093,
+     "t2_sharpe": -1.320994
+    },
+    "turnover_one_way": 15.406,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S06_xs_reversal_5d_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 919,
+    "n_entry_fills": 919,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 19,
+    "buy_no_slot": 6647,
+    "sell_suspended": 4,
+    "sell_limit_down": 32,
+    "pending_exit": 9,
+    "buy_planned": 10
+   },
+   "batch": "A-gate2"
+  },
+  {
+   "id": "S07",
+   "key": "S07_xs_lowvol_60d",
+   "family": "截面因子",
+   "v0": {
+    "registry_key": "S07_xs_lowvol_60d@10",
+    "signals": 4883,
+    "n_trades": 314,
+    "all": {
+     "sharpe": 0.030964,
+     "cagr_pct": -0.1024,
+     "max_drawdown_pct": -29.9254,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": 0.966726,
+     "cagr_pct": 7.8148,
+     "max_drawdown_pct": -9.3564,
+     "n_days": 924,
+     "n_closed_trades": 159
+    },
+    "t1": {
+     "sharpe": -0.872475,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": 0.709084,
+     "t2_cagr_pct": 5.5922,
+     "all_cagr_pct": -2.2136
+    },
+    "gross": {
+     "all_cagr_pct": 1.8332,
+     "t2_sharpe": 1.196705
+    },
+    "turnover_one_way": 5.3,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S07_xs_lowvol_60d_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 314,
+    "n_entry_fills": 314,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 3,
+    "buy_no_slot": 1256,
+    "sell_suspended": 0,
+    "sell_limit_down": 0,
+    "pending_exit": 0,
+    "buy_planned": 35
+   },
+   "batch": "A-gate3"
+  },
+  {
+   "id": "S08",
+   "key": "S08_high_52w",
+   "family": "动量",
+   "v0": {
+    "registry_key": "S08_high_52w@10",
+    "signals": 5306,
+    "n_trades": 313,
+    "all": {
+     "sharpe": -0.834736,
+     "cagr_pct": -15.2189,
+     "max_drawdown_pct": -75.4365,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.985882,
+     "cagr_pct": -15.9517,
+     "max_drawdown_pct": -47.6167,
+     "n_days": 924,
+     "n_closed_trades": 160
+    },
+    "t1": {
+     "sharpe": -0.663979,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -1.101147,
+     "t2_cagr_pct": -17.5218,
+     "all_cagr_pct": -16.8203
+    },
+    "gross": {
+     "all_cagr_pct": -13.6286,
+     "t2_sharpe": -0.874236
+    },
+    "turnover_one_way": 5.23,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S08_high_52w_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 313,
+    "n_entry_fills": 313,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 253,
+    "buy_no_slot": 1295,
+    "sell_suspended": 14,
+    "sell_limit_down": 1,
+    "pending_exit": 3,
+    "buy_planned": 35
+   },
+   "batch": "B-1"
+  },
+  {
+   "id": "S09",
+   "key": "S09_volume_breakout_55",
+   "family": "趋势",
+   "v0": {
+    "registry_key": "S09_volume_breakout_55@10",
+    "signals": 52965,
+    "n_trades": 732,
+    "all": {
+     "sharpe": -1.534347,
+     "cagr_pct": -33.0421,
+     "max_drawdown_pct": -95.365,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -2.052553,
+     "cagr_pct": -39.0424,
+     "max_drawdown_pct": -83.7157,
+     "n_days": 924,
+     "n_closed_trades": 394
+    },
+    "t1": {
+     "sharpe": -1.053659,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -2.091172,
+     "t2_cagr_pct": -39.3368,
+     "all_cagr_pct": -34.7152
+    },
+    "gross": {
+     "all_cagr_pct": -31.0334,
+     "t2_sharpe": -1.925321
+    },
+    "turnover_one_way": 11.14,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S09_volume_breakout_55_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 732,
+    "n_entry_fills": 732,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 1387,
+    "buy_no_slot": 36216,
+    "sell_suspended": 24,
+    "sell_limit_down": 20,
+    "pending_exit": 12,
+    "buy_planned": 1
+   },
+   "batch": "A-gate4"
+  },
+  {
+   "id": "S10",
+   "key": "S10_xs_reversal_20d",
+   "family": "截面反转",
+   "v0": {
+    "registry_key": "S10_xs_reversal_20d@10",
+    "signals": 8162,
+    "n_trades": 314,
+    "all": {
+     "sharpe": -0.45556,
+     "cagr_pct": -8.5887,
+     "max_drawdown_pct": -55.816,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.192515,
+     "cagr_pct": -4.5179,
+     "max_drawdown_pct": -28.7379,
+     "n_days": 924,
+     "n_closed_trades": 159
+    },
+    "t1": {
+     "sharpe": -0.783839,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -0.31795,
+     "t2_cagr_pct": -6.498,
+     "all_cagr_pct": -10.5252
+    },
+    "gross": {
+     "all_cagr_pct": -6.8158,
+     "t2_sharpe": -0.083245
+    },
+    "turnover_one_way": 5.259,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S10_xs_reversal_20d_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 314,
+    "n_entry_fills": 314,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 26,
+    "buy_no_slot": 1872,
+    "sell_suspended": 13,
+    "sell_limit_down": 0,
+    "pending_exit": 2,
+    "buy_planned": 34
+   },
+   "batch": "B-5"
+  },
+  {
+   "id": "S11",
+   "key": "S11_lowvol_reversal",
+   "family": "截面因子",
+   "v0": {
+    "registry_key": "S11_lowvol_reversal@10",
+    "signals": 1293,
+    "n_trades": 173,
+    "all": {
+     "sharpe": -0.502889,
+     "cagr_pct": -3.4847,
+     "max_drawdown_pct": -27.1834,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.813801,
+     "cagr_pct": -5.6796,
+     "max_drawdown_pct": -19.4276,
+     "n_days": 924,
+     "n_closed_trades": 110
+    },
+    "t1": {
+     "sharpe": -0.136415,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -1.018178,
+     "t2_cagr_pct": -7.0086,
+     "all_cagr_pct": -4.5833
+    },
+    "gross": {
+     "all_cagr_pct": -2.4193,
+     "t2_sharpe": -0.617808
+    },
+    "turnover_one_way": 2.812,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S11_lowvol_reversal_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 173,
+    "n_entry_fills": 173,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 0,
+    "buy_no_slot": 98,
+    "sell_suspended": 0,
+    "sell_limit_down": 0,
+    "pending_exit": 0,
+    "buy_planned": 7
+   },
+   "batch": "B-6"
+  },
+  {
+   "id": "S12",
+   "key": "S12_lowvol_breadth",
+   "family": "截面因子+择时",
+   "v0": {
+    "registry_key": "S12_lowvol_breadth@10",
+    "signals": 2595,
+    "n_trades": 189,
+    "all": {
+     "sharpe": -0.484136,
+     "cagr_pct": -3.105,
+     "max_drawdown_pct": -24.2383,
+     "n_days": 1778
+    },
+    "t2": {
+     "sharpe": -0.161877,
+     "cagr_pct": -1.1214,
+     "max_drawdown_pct": -10.9992,
+     "n_days": 924,
+     "n_closed_trades": 89
+    },
+    "t1": {
+     "sharpe": -0.807225,
+     "n_days": 853
+    },
+    "c30": {
+     "t2_sharpe": -0.357569,
+     "t2_cagr_pct": -2.2686,
+     "all_cagr_pct": -4.3293
+    },
+    "gross": {
+     "all_cagr_pct": -1.9833,
+     "t2_sharpe": 0.015194
+    },
+    "turnover_one_way": 3.198,
+    "status": "exploratory（PROTOCOL §0.2：混合代码，不得用于验收或排名）"
+   },
+   "execution_counters_v0": {
+    "source": "run_S12_lowvol_breadth_10.json segments[].stats.execution 逐段相加",
+    "n_trades_file": 189,
+    "n_entry_fills": 189,
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 4,
+    "buy_no_slot": 617,
+    "sell_suspended": 0,
+    "sell_limit_down": 0,
+    "pending_exit": 0,
+    "buy_planned": 20
+   },
+   "batch": "B-8"
+  }
+ ]
+}

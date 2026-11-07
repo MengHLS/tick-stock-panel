@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-11-07T01:05:21.992393+08:00",
+  "verdict": "PASS",
+  "checks": {
+    "panel_hash_matches_summary": true,
+    "panel_hash_matches_e1_inputs": true,
+    "detail_hash_matches_summary": true,
+    "detail_row_count": true,
+    "per_path_recompute_matches": true,
+    "cross_total_stale": true,
+    "cross_total_pd": true,
+    "cross_total_exits_without_bar": true,
+    "c00_b_holds_no_e1_stale_symbol": true,
+    "c00_a_holds_e1_stale_symbols": true,
+    "v3_outputs_unchanged": true,
+    "protocol_present": true
+  },
+  "n_checks": 12,
+  "n_paths_checked": 38,
+  "notes": [],
+  "summary_sha256": "e085e16dfe4381595b2b6e2970c66599c06222f271e163971062e019c98a775e",
+  "detail_sha256": "bad1d9f2ef6376b65ba31aa3e101279ac706b4844b743dc818e027b38b10c2f2",
+  "no_new_alpha_hypotheses": true
+}

@@ -1,0 +1,32 @@
+{
+  "before": {
+    "sha256": "67afbcb7f5f0af187ed7a05cbe7597817e053b254b844ca4e3bc42429b2cf4d8",
+    "files": {
+      "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+      "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+      "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+      "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+      "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+      "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+      "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+      "run_batch.py": "cc04a0c0453e0dfda486048b014b79b4478180901761188f2f56242c9c855319"
+    }
+  },
+  "generation_before": "2b948c890e75472ab8317ca0ce40af77",
+  "after": {
+    "sha256": "67afbcb7f5f0af187ed7a05cbe7597817e053b254b844ca4e3bc42429b2cf4d8",
+    "files": {
+      "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+      "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+      "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+      "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+      "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+      "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+      "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+      "run_batch.py": "cc04a0c0453e0dfda486048b014b79b4478180901761188f2f56242c9c855319"
+    }
+  },
+  "generation_after": "2b948c890e75472ab8317ca0ce40af77",
+  "exit_code": 0,
+  "elapsed_s": 64.91231083869934
+}

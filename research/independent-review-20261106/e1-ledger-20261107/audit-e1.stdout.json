@@ -1,0 +1,161 @@
+{
+  "metrics": {
+    "A": {
+      "cagr": -0.1312925269659384,
+      "final_equity": 370440.95,
+      "normal_and_stale_terminal_mv": 175284.0,
+      "all_terminal_share": 0.47317662909567637,
+      "stale_terminal_mv": 0,
+      "closed_trades": 379,
+      "terminal_positions": 5,
+      "cash_plus_terminal_mv_error": -0.0024412604398094118,
+      "path_observation_proxy": {
+        "closed_intervals": 379,
+        "terminal_intervals": 5,
+        "eod_position_sessions": 7408,
+        "missing_row_sessions": 1,
+        "invalid_close_sessions": 0,
+        "zero_or_invalid_volume_sessions": 0,
+        "no_positive_open_sessions": 0,
+        "quote_age_gt0_sessions": 1,
+        "max_quote_age_sessions": 1,
+        "ever_stale_member_intervals": 2,
+        "ever_stale_member_eod_sessions": 30,
+        "closed_trade_blocked_exit_days": 3,
+        "terminal_blocked_exit_days": 0
+      },
+      "terminal_quote_dates": {
+        "603986.SH": "2026-10-30",
+        "002384.SZ": "2026-10-30",
+        "600522.SH": "2026-10-30",
+        "000725.SZ": "2026-10-30",
+        "601899.SH": "2026-10-30"
+      },
+      "blocked_exit_trades": [
+        {
+          "symbol": "000725.SZ",
+          "entry_date": "2020-01-02",
+          "exit_date": "2020-02-04",
+          "blocked_exit_days": 1
+        },
+        {
+          "symbol": "600030.SH",
+          "entry_date": "2020-01-02",
+          "exit_date": "2020-02-04",
+          "blocked_exit_days": 1
+        },
+        {
+          "symbol": "002456.SZ",
+          "entry_date": "2020-01-02",
+          "exit_date": "2020-02-04",
+          "blocked_exit_days": 1
+        }
+      ],
+      "stale_member_closed_trades": [
+        {
+          "symbol": "002433.SZ",
+          "entry_date": "2022-06-16",
+          "exit_date": "2022-07-01",
+          "pnl_amount": 5041.53
+        },
+        {
+          "symbol": "002808.SZ",
+          "entry_date": "2023-05-05",
+          "exit_date": "2023-06-01",
+          "pnl_amount": -36732.9
+        }
+      ]
+    },
+    "B": {
+      "cagr": -0.13209914599213912,
+      "final_equity": 368020.9,
+      "normal_and_stale_terminal_mv": 175284.0,
+      "all_terminal_share": 0.4762881673296272,
+      "stale_terminal_mv": 0,
+      "closed_trades": 378,
+      "terminal_positions": 5,
+      "cash_plus_terminal_mv_error": 0.004627639893442392,
+      "path_observation_proxy": {
+        "closed_intervals": 378,
+        "terminal_intervals": 5,
+        "eod_position_sessions": 7397,
+        "missing_row_sessions": 1,
+        "invalid_close_sessions": 0,
+        "zero_or_invalid_volume_sessions": 0,
+        "no_positive_open_sessions": 0,
+        "quote_age_gt0_sessions": 1,
+        "max_quote_age_sessions": 1,
+        "ever_stale_member_intervals": 0,
+        "ever_stale_member_eod_sessions": 0,
+        "closed_trade_blocked_exit_days": 3,
+        "terminal_blocked_exit_days": 0
+      },
+      "terminal_quote_dates": {
+        "603986.SH": "2026-10-30",
+        "002384.SZ": "2026-10-30",
+        "600522.SH": "2026-10-30",
+        "000725.SZ": "2026-10-30",
+        "601899.SH": "2026-10-30"
+      },
+      "blocked_exit_trades": [
+        {
+          "symbol": "000725.SZ",
+          "entry_date": "2020-01-02",
+          "exit_date": "2020-02-04",
+          "blocked_exit_days": 1
+        },
+        {
+          "symbol": "600030.SH",
+          "entry_date": "2020-01-02",
+          "exit_date": "2020-02-04",
+          "blocked_exit_days": 1
+        },
+        {
+          "symbol": "002456.SZ",
+          "entry_date": "2020-01-02",
+          "exit_date": "2020-02-04",
+          "blocked_exit_days": 1
+        }
+      ],
+      "stale_member_closed_trades": []
+    },
+    "delta_cagr_pp": 0.08066190262007167,
+    "annual_differences_pp": {
+      "2019": 0.0,
+      "2020": 0.0,
+      "2021": 0.0,
+      "2022": 0.5099957780137165,
+      "2023": 0.10334329191969971,
+      "2024": -0.1799499000855187,
+      "2025": -0.0252121153051732,
+      "2026": 0.020280550213502835
+    },
+    "old_fail_trigger_all_positions_gt2pct": true,
+    "old_fail_trigger_abs_cagr_diff_ge3pp": false
+  },
+  "hash_failed": [],
+  "frozen_file_mismatches": [],
+  "scalar_checks": {
+    "freeze_hash_matches_execution": true,
+    "old_freeze_preserved": true,
+    "old_protocol_archive_matches_old_freeze": true,
+    "internal_freeze_time_precedes_execution": true,
+    "panel_ipc_hash": true,
+    "panel_semantic_hash": true,
+    "unique_symbol_date": true,
+    "stale_definition": true,
+    "panel_rows": true,
+    "panel_symbol_counts": true,
+    "aligned_equity_dates": true,
+    "A_summary_cagr": true,
+    "A_terminal_reconciliation": true,
+    "A_share": true,
+    "B_summary_cagr": true,
+    "B_terminal_reconciliation": true,
+    "B_share": true,
+    "yearly_differences_recomputed": true,
+    "haircuts_recomputed": true,
+    "old_verdict_reproduced": true
+  },
+  "path_observation_rows": 32
+}

@@ -1,0 +1,51 @@
+{
+  "before": {
+    "research\\batch-backtest-framework-20261107\\verify_batch_v2.py": "7c18a0f51e4a99415395c395785f323bc36efddb052233b08384ddb4f94e3eb6",
+    "research\\batch-backtest-framework-20261107\\run_batch.py": "2908fbc1c1bbd2153c89b2eace04a7c5a1e291d561469031cea0831a3b10a08b",
+    "research\\batch-backtest-framework-20261107\\mutation_checks.py": "333fa1f107ece8eb92b8238def843b3a2e56699d5a1f4ac6083510f7d1d06dc0",
+    "research\\batch-backtest-framework-20261107\\REPORT-F1F3.md": "97135fa230e9b7be958ab79cedeab025b33ff3e8987ba63e44382a263f644228",
+    "research\\strategy-search-20261107\\results\\PATH_RISK.md": "63ab1aaf81949d42f8a336ec3c08917bbf70e23c1d64b4fd9a401e8af2c24690",
+    "backend\\app\\backtest\\engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+    "backend\\app\\backtest\\walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef"
+  },
+  "commands": [
+    {
+      "argv": [
+        "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\verify_batch_v2.py",
+        "--registry",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\out_v3\\registry.json",
+        "--out",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\independent-review-20261106\\f1f3-path-risk-20261107\\fresh-verify"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 68.75,
+      "log": "command-1.log"
+    },
+    {
+      "argv": [
+        "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\mutation_checks.py",
+        "--registry",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\out_v3\\registry.json",
+        "--verify-dir",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\independent-review-20261106\\f1f3-path-risk-20261107\\fresh-verify",
+        "--out",
+        "C:\\work\\sourcecode\\tick-stock-panel\\research\\independent-review-20261106\\f1f3-path-risk-20261107\\mutation-report.json"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 4.12,
+      "log": "command-2.log"
+    }
+  ],
+  "after": {
+    "research\\batch-backtest-framework-20261107\\verify_batch_v2.py": "7c18a0f51e4a99415395c395785f323bc36efddb052233b08384ddb4f94e3eb6",
+    "research\\batch-backtest-framework-20261107\\run_batch.py": "2908fbc1c1bbd2153c89b2eace04a7c5a1e291d561469031cea0831a3b10a08b",
+    "research\\batch-backtest-framework-20261107\\mutation_checks.py": "333fa1f107ece8eb92b8238def843b3a2e56699d5a1f4ac6083510f7d1d06dc0",
+    "research\\batch-backtest-framework-20261107\\REPORT-F1F3.md": "97135fa230e9b7be958ab79cedeab025b33ff3e8987ba63e44382a263f644228",
+    "research\\strategy-search-20261107\\results\\PATH_RISK.md": "63ab1aaf81949d42f8a336ec3c08917bbf70e23c1d64b4fd9a401e8af2c24690",
+    "backend\\app\\backtest\\engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+    "backend\\app\\backtest\\walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef"
+  },
+  "unchanged": true
+}

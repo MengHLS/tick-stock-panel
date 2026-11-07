@@ -1,0 +1,186 @@
+{
+  "price_mapping": [
+    {
+      "run": "S07_xs_lowvol_60d_10",
+      "sampled": 150,
+      "matched_raw_open_with_slippage": 150,
+      "median_rel": 0.0009995521835282073,
+      "max_abs_rel_dev": 1.315789473676967e-05
+    },
+    {
+      "run": "S09_volume_breakout_55_10",
+      "sampled": 150,
+      "matched_raw_open_with_slippage": 150,
+      "median_rel": 0.0009999999999998899,
+      "max_abs_rel_dev": 1.4084507042099424e-05
+    },
+    {
+      "run": "S04_rsi14_reversion_10",
+      "sampled": 150,
+      "matched_raw_open_with_slippage": 150,
+      "median_rel": 0.0009999999999998899,
+      "max_abs_rel_dev": 1.3698630137003696e-05
+    }
+  ],
+  "timing": [
+    {
+      "run": "S07_xs_lowvol_60d_10",
+      "trades": 314,
+      "entry_not_after_signal": true,
+      "bad_entry": 0,
+      "bad_exit": 0,
+      "missing_entry_signal_date": 0
+    },
+    {
+      "run": "S04_rsi14_reversion_10",
+      "trades": 779,
+      "entry_not_after_signal": true,
+      "bad_entry": 0,
+      "bad_exit": 0,
+      "missing_entry_signal_date": 0
+    },
+    {
+      "run": "S01_ma_cross_20_60_10",
+      "trades": 252,
+      "entry_not_after_signal": true,
+      "bad_entry": 0,
+      "bad_exit": 0,
+      "missing_entry_signal_date": 0
+    }
+  ],
+  "prefix": [
+    {
+      "cutoff": "2020-12-31",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "cutoff": "2022-12-30",
+      "identical": true,
+      "differences": []
+    },
+    {
+      "cutoff": "2024-12-31",
+      "identical": true,
+      "differences": []
+    }
+  ],
+  "equity": [
+    {
+      "run": "S07_xs_lowvol_60d_10",
+      "duplicate_dates": 0,
+      "chronological": true,
+      "segments": [
+        {
+          "segment": "2019-07-01",
+          "points": 126,
+          "first": 1000000.0,
+          "last": 990654.87
+        },
+        {
+          "segment": "2020-01-01",
+          "points": 243,
+          "first": 989840.85,
+          "last": 880172.42
+        },
+        {
+          "segment": "2021-01-01",
+          "points": 243,
+          "first": 880843.82,
+          "last": 912560.47
+        },
+        {
+          "segment": "2022-01-01",
+          "points": 242,
+          "first": 914898.27,
+          "last": 754047.06
+        },
+        {
+          "segment": "2023-01-01",
+          "points": 242,
+          "first": 753426.26,
+          "last": 718131.49
+        },
+        {
+          "segment": "2024-01-01",
+          "points": 242,
+          "first": 720161.66,
+          "last": 959584.75
+        },
+        {
+          "segment": "2025-01-01",
+          "points": 243,
+          "first": 943973.71,
+          "last": 987176.77
+        },
+        {
+          "segment": "2026-01-01",
+          "points": 198,
+          "first": 986913.51,
+          "last": 992800.41
+        }
+      ],
+      "boundary_jumps": [],
+      "entries_on_limit_up_open": 0,
+      "limit_up_at_close_of_entry_day": 0
+    },
+    {
+      "run": "S02_donchian_20_10_10",
+      "duplicate_dates": 0,
+      "chronological": true,
+      "segments": [
+        {
+          "segment": "2019-07-01",
+          "points": 126,
+          "first": 1000000.0,
+          "last": 965722.76
+        },
+        {
+          "segment": "2020-01-01",
+          "points": 243,
+          "first": 979860.76,
+          "last": 868871.52
+        },
+        {
+          "segment": "2021-01-01",
+          "points": 243,
+          "first": 897595.52,
+          "last": 779270.59
+        },
+        {
+          "segment": "2022-01-01",
+          "points": 242,
+          "first": 783595.59,
+          "last": 336913.93
+        },
+        {
+          "segment": "2023-01-01",
+          "points": 242,
+          "first": 333023.93,
+          "last": 320654.6
+        },
+        {
+          "segment": "2024-01-01",
+          "points": 242,
+          "first": 322723.6,
+          "last": 283620.41
+        },
+        {
+          "segment": "2025-01-01",
+          "points": 243,
+          "first": 277361.41,
+          "last": 202097.89
+        },
+        {
+          "segment": "2026-01-01",
+          "points": 198,
+          "first": 199626.89,
+          "last": 111695.81
+        }
+      ],
+      "boundary_jumps": [],
+      "entries_on_limit_up_open": 0,
+      "limit_up_at_close_of_entry_day": 30
+    }
+  ]
+}

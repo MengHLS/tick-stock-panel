@@ -1,0 +1,577 @@
+[
+  {
+    "requested_start": "2023-10-28",
+    "requested_end": "2026-09-22",
+    "union_shape": [
+      728,
+      5727
+    ],
+    "production_shape": [
+      706,
+      5727
+    ],
+    "union_window": [
+      "2023-10-30",
+      "2026-10-30"
+    ],
+    "production_window": [
+      "2023-10-30",
+      "2026-09-22"
+    ],
+    "common_symbols": 5727,
+    "production_only": [],
+    "array_diffs": {
+      "open": 0,
+      "high": 0,
+      "low": 0,
+      "close": 0,
+      "volume": 0,
+      "tradable": 0,
+      "limit_up_locked": 0,
+      "limit_down_locked": 0
+    },
+    "field_diffs": {
+      "amount": 0,
+      "consecutive_limit_ups": 0,
+      "price_limit_pct": 0,
+      "raw_close": 0,
+      "raw_high": 0,
+      "raw_low": 0,
+      "st_flag": 0,
+      "total_shares": 0
+    },
+    "union_only": [],
+    "generation": "2b948c890e75472ab8317ca0ce40af77"
+  },
+  {
+    "requested_start": "2024-08-04",
+    "requested_end": "2026-09-22",
+    "union_shape": [
+      728,
+      5727
+    ],
+    "production_shape": [
+      519,
+      5666
+    ],
+    "union_window": [
+      "2023-10-30",
+      "2026-10-30"
+    ],
+    "production_window": [
+      "2024-08-05",
+      "2026-09-22"
+    ],
+    "common_symbols": 5666,
+    "production_only": [],
+    "array_diffs": {
+      "open": 0,
+      "high": 0,
+      "low": 0,
+      "close": 0,
+      "volume": 0,
+      "tradable": 0,
+      "limit_up_locked": 55,
+      "limit_down_locked": 42
+    },
+    "field_diffs": {
+      "amount": 0,
+      "price_limit_pct": 0,
+      "raw_close": 0,
+      "raw_high": 0,
+      "raw_low": 0,
+      "st_flag": 0
+    },
+    "union_only": [
+      {
+        "symbol": "000005.SZ",
+        "tradable_days": 85,
+        "first": "2023-10-30",
+        "last": "2024-03-05",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000038.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000046.SZ",
+        "tradable_days": 43,
+        "first": "2023-10-30",
+        "last": "2023-12-27",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000150.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000416.SZ",
+        "tradable_days": 119,
+        "first": "2023-10-30",
+        "last": "2024-04-24",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000540.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000587.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000606.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000616.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000666.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000667.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000671.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000732.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000806.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000918.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "000961.SZ",
+        "tradable_days": 125,
+        "first": "2023-10-30",
+        "last": "2024-05-08",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002002.SZ",
+        "tradable_days": 58,
+        "first": "2023-10-30",
+        "last": "2024-01-18",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002013.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002089.SZ",
+        "tradable_days": 85,
+        "first": "2023-10-30",
+        "last": "2024-04-17",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002113.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002118.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002411.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002417.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002499.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002503.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002504.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002699.SZ",
+        "tradable_days": 120,
+        "first": "2023-10-30",
+        "last": "2024-04-25",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002740.SZ",
+        "tradable_days": 59,
+        "first": "2023-10-30",
+        "last": "2024-01-19",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002751.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002776.SZ",
+        "tradable_days": 42,
+        "first": "2023-10-30",
+        "last": "2023-12-26",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "002781.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300089.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300116.SZ",
+        "tradable_days": 131,
+        "first": "2023-10-30",
+        "last": "2024-05-16",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300273.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300297.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300309.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300330.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300336.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300356.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300392.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300495.SZ",
+        "tradable_days": 126,
+        "first": "2023-10-30",
+        "last": "2024-05-08",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "300526.SZ",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600077.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600122.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600139.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600242.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600260.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600290.SH",
+        "tradable_days": 38,
+        "first": "2023-10-30",
+        "last": "2023-12-25",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600311.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600321.SH",
+        "tradable_days": 142,
+        "first": "2023-10-30",
+        "last": "2024-05-30",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600393.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600466.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600532.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600767.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600781.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "600823.SH",
+        "tradable_days": 130,
+        "first": "2023-10-30",
+        "last": "2024-05-15",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "601258.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "603555.SH",
+        "tradable_days": 87,
+        "first": "2023-10-30",
+        "last": "2024-03-07",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "603603.SH",
+        "tradable_days": 84,
+        "first": "2023-10-30",
+        "last": "2024-04-18",
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "688086.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      },
+      {
+        "symbol": "688555.SH",
+        "tradable_days": 0,
+        "first": null,
+        "last": null,
+        "tradable_in_production_dates": 0,
+        "tradable_in_IS_OOS": 0
+      }
+    ],
+    "generation": "2b948c890e75472ab8317ca0ce40af77"
+  }
+]

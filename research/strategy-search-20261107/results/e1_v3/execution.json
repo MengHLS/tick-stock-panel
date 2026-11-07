@@ -1,0 +1,21 @@
+{
+  "command": [
+    "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+    "C:\\work\\sourcecode\\tick-stock-panel\\research\\strategy-search-20261107\\scripts\\e1_survivorship.py"
+  ],
+  "cwd": "C:\\work\\sourcecode\\tick-stock-panel",
+  "started_at": "2026-11-07T00:43:26.223085+08:00",
+  "ended_at": "2026-11-07T00:44:21.692298+08:00",
+  "actual_exit_code": 3,
+  "log_sha256": "8dcf4a144350025605f9ed289c68c2cb5fd6b7b34e183d922387ddb04c11a63d",
+  "freeze_sha256": "f2b9c1370634ee4391a1f0a3c7d0a54d1fb84522742703e61cca003bf814b2ff",
+  "outputs": {
+    "e1_survivorship.json": "4ee7d666e16c796abff1470fc15a9c6bc4eeb4e7f2ff35d063dc3258f2b81e28",
+    "execution.log": "8dcf4a144350025605f9ed289c68c2cb5fd6b7b34e183d922387ddb04c11a63d",
+    "execution_started.json": "f89ec55a8879d943427a5b8849e88c62cc291137d8f83fe83dc73bed2983e0b9",
+    "git_before.txt": "ae1769cf844c7db545accb26018f69f5eddd70829d0eddbac66c058676688eb9",
+    "inputs.json": "82689a648334db820aec5b647d79c6a53c66e7be66af2a121cc06f59b427ad76",
+    "run_C00_A.json": "86df330adda107bdb15a52adb97dc4ae261ecf77242711b44a187347ad81001f",
+    "run_C00_B.json": "91e7953c5539c450307e8b89be714171f9f922ffece331ee1c791a79e6058c3a"
+  }
+}

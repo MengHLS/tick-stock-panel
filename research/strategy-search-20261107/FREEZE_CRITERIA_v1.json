@@ -1,0 +1,34 @@
+{
+ "schema": "strategy-search-criteria-freeze/1",
+ "frozen_at": "2026-11-07T11:58:31.286144+08:00",
+ "revision": 1,
+ "revision_note": "rev1：修正 §7-1 的行号引用（run_suite.py 第22行/27-30行）并补明 §7-5 的双冻结清单冲突；修订发生在任何回测执行之前（run_status 仍为 none），判据数值未变",
+ "purpose": "跑前冻结判据（H2）：本清单落盘后不得修改判据数值；改动须升 v2 并保留旧判据下的结论",
+ "n_trials_delta": 0,
+ "n_trials_statement": "本文件只登记判据，不含任何策略运行；12 条复算按 H1 视为复现，n_trials 不增加",
+ "artifacts": [
+  {
+   "path": "CRITERIA_v1.md",
+   "bytes": 37967,
+   "sha256": "4b410b58a48156291be546d33bbe66ea12f07b4ac75059039f187ebe8f0c394b"
+  },
+  {
+   "path": "criteria_v1.json",
+   "bytes": 15628,
+   "sha256": "c8fabd3bd4482f44933530675721af3317fc1f964dfbfcae5069058c6e9d03b4"
+  }
+ ],
+ "git": {
+  "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+  "branch": "dev"
+ },
+ "unchanged_evidence": {
+  "registry_sha256": "396199982168cc0fb240554827c400fcad2bd3fc947724c87f30cd2cbbe5a5f7",
+  "e2_judgement_sha256": "fc803f3ffeccfe0b3d5b050c3835b61bee7b427eb839013bece5e2f5850b748d",
+  "strategies_md_sha256": "b5af613bcdf656966e959a98233bcb26185e209b16c68c155d546111b1b18a64",
+  "protocol_md_sha256": "77dd813c9ed7a98fa2c4406cdc7dbdce48c8eeea48e096501e1edbf798ce3c38",
+  "e1_e2_spec_sha256": "b428a694e1431d7d3db6462a41c4d757378df4a07d7fa6c05c2daacf90a8cf1e"
+ },
+ "freeze_manifest_to_use": "FREEZE_v3_E1.json（v3；FREEZE.json 为 v2 旧产物，锁箱日期已作废，不得混用）",
+ "run_status": "none_executed_by_this_file"
+}

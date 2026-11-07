@@ -1,0 +1,482 @@
+{
+  "panel_sha256": "3bc7d8c9b55bc0bb6a53b5295e0d97f0df305aa9d3d0ea571df7ea4603ef14a7",
+  "panel_sha_matches": true,
+  "all_run_hashes_match": true,
+  "paths": [
+    {
+      "path": "run_S01_ma_cross_20_60_10",
+      "unidentified": 20,
+      "proportional_exposure_weight_days": 2.27704,
+      "total_exposure_on_unidentified_days": 6.1903,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S01_ma_cross_20_60_30",
+      "unidentified": 20,
+      "proportional_exposure_weight_days": 2.2616199999999997,
+      "total_exposure_on_unidentified_days": 6.1466,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S01_ma_cross_20_60_gross",
+      "unidentified": 20,
+      "proportional_exposure_weight_days": 2.26486,
+      "total_exposure_on_unidentified_days": 6.150599999999999,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S02_donchian_20_10_10",
+      "unidentified": 43,
+      "proportional_exposure_weight_days": 4.32766,
+      "total_exposure_on_unidentified_days": 6.0872,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S02_donchian_20_10_30",
+      "unidentified": 43,
+      "proportional_exposure_weight_days": 4.68888,
+      "total_exposure_on_unidentified_days": 6.5667,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S02_donchian_20_10_gross",
+      "unidentified": 43,
+      "proportional_exposure_weight_days": 4.78672,
+      "total_exposure_on_unidentified_days": 6.6982,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S03_tsmom_60_m_10",
+      "unidentified": 148,
+      "proportional_exposure_weight_days": 16.366769999999995,
+      "total_exposure_on_unidentified_days": 32.71990000000001,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S03_tsmom_60_m_30",
+      "unidentified": 148,
+      "proportional_exposure_weight_days": 16.53684,
+      "total_exposure_on_unidentified_days": 33.23979999999999,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S03_tsmom_60_m_gross",
+      "unidentified": 148,
+      "proportional_exposure_weight_days": 16.546379999999996,
+      "total_exposure_on_unidentified_days": 33.23030000000001,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S04_rsi14_reversion_10",
+      "unidentified": 20,
+      "proportional_exposure_weight_days": 2.35378,
+      "total_exposure_on_unidentified_days": 4.8207,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S04_rsi14_reversion_30",
+      "unidentified": 20,
+      "proportional_exposure_weight_days": 2.34282,
+      "total_exposure_on_unidentified_days": 4.807,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S04_rsi14_reversion_gross",
+      "unidentified": 20,
+      "proportional_exposure_weight_days": 2.36507,
+      "total_exposure_on_unidentified_days": 4.8534,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S05_bollinger_20_2_10",
+      "unidentified": 24,
+      "proportional_exposure_weight_days": 2.77588,
+      "total_exposure_on_unidentified_days": 5.585500000000001,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S05_bollinger_20_2_30",
+      "unidentified": 24,
+      "proportional_exposure_weight_days": 2.73509,
+      "total_exposure_on_unidentified_days": 5.4968,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S05_bollinger_20_2_gross",
+      "unidentified": 24,
+      "proportional_exposure_weight_days": 2.7843,
+      "total_exposure_on_unidentified_days": 5.6081,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S06_xs_reversal_5d_10",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S06_xs_reversal_5d_30",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S06_xs_reversal_5d_gross",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S07_xs_lowvol_60d_10",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 10.116000000000001,
+      "total_exposure_on_unidentified_days": 10.116000000000001,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S07_xs_lowvol_60d_30",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 10.1121,
+      "total_exposure_on_unidentified_days": 10.1121,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S07_xs_lowvol_60d_gross",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 10.1667,
+      "total_exposure_on_unidentified_days": 10.1667,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S08_high_52w_10",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 9.7416,
+      "total_exposure_on_unidentified_days": 9.7416,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S08_high_52w_30",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 9.7198,
+      "total_exposure_on_unidentified_days": 9.7198,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S08_high_52w_gross",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 9.809500000000002,
+      "total_exposure_on_unidentified_days": 9.809500000000002,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S09_volume_breakout_55_10",
+      "unidentified": 35,
+      "proportional_exposure_weight_days": 3.9695,
+      "total_exposure_on_unidentified_days": 7.971800000000001,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S09_volume_breakout_55_30",
+      "unidentified": 35,
+      "proportional_exposure_weight_days": 3.9610599999999994,
+      "total_exposure_on_unidentified_days": 7.9618,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S09_volume_breakout_55_gross",
+      "unidentified": 35,
+      "proportional_exposure_weight_days": 3.8833599999999997,
+      "total_exposure_on_unidentified_days": 7.8237,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S10_xs_reversal_20d_10",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 9.655,
+      "total_exposure_on_unidentified_days": 9.655,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S10_xs_reversal_20d_30",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 9.651299999999999,
+      "total_exposure_on_unidentified_days": 9.651299999999999,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S10_xs_reversal_20d_gross",
+      "unidentified": 85,
+      "proportional_exposure_weight_days": 9.649099999999997,
+      "total_exposure_on_unidentified_days": 9.649099999999997,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S11_lowvol_reversal_10",
+      "unidentified": 68,
+      "proportional_exposure_weight_days": 7.9639,
+      "total_exposure_on_unidentified_days": 7.9639,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S11_lowvol_reversal_30",
+      "unidentified": 68,
+      "proportional_exposure_weight_days": 8.017100000000001,
+      "total_exposure_on_unidentified_days": 8.017100000000001,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S11_lowvol_reversal_gross",
+      "unidentified": 68,
+      "proportional_exposure_weight_days": 7.9855,
+      "total_exposure_on_unidentified_days": 7.9855,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S12_lowvol_breadth_10",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S12_lowvol_breadth_30",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "run_S12_lowvol_breadth_gross",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "C00_A",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    },
+    {
+      "path": "C00_B",
+      "unidentified": 0,
+      "proportional_exposure_weight_days": 0,
+      "total_exposure_on_unidentified_days": 0,
+      "input_hash_ok": true
+    }
+  ],
+  "identified_position_days": 255659,
+  "stale_position_days": 467,
+  "stale_weight_days": 57.54726457819045,
+  "max_quote_age": 11,
+  "unidentified_position_days": 1839,
+  "unidentified_proportional_weight_days": 209.81523000000004,
+  "total_exposure_on_unidentified_days": 304.54600000000005,
+  "valuation": {
+    "days_checked": 55570,
+    "days_over_1_cny": 839,
+    "max_abs_err": 68544.0,
+    "max_abs_err_fraction_of_same_day_equity": 0.19230657946899574,
+    "largest_errors": [
+      {
+        "path": "C00_B",
+        "date": "2025-07-24",
+        "mv": 235192.0,
+        "cash": 193858.25,
+        "equity": 360506.25,
+        "err": 68544.0
+      },
+      {
+        "path": "C00_A",
+        "date": "2025-07-24",
+        "mv": 238979.0,
+        "cash": 192648.73,
+        "equity": 363083.73,
+        "err": 68544.0
+      },
+      {
+        "path": "C00_B",
+        "date": "2025-07-22",
+        "mv": 237104.0,
+        "cash": 193858.25,
+        "equity": 362624.25,
+        "err": 68338.0
+      },
+      {
+        "path": "C00_A",
+        "date": "2025-07-22",
+        "mv": 240913.0,
+        "cash": 192648.73,
+        "equity": 365223.73,
+        "err": 68338.0
+      },
+      {
+        "path": "C00_B",
+        "date": "2025-07-23",
+        "mv": 233451.0,
+        "cash": 193858.25,
+        "equity": 359695.25,
+        "err": 67614.0
+      }
+    ]
+  },
+  "sell_on_first_bar_after_stale_endofday": 24,
+  "sell_examples": [
+    {
+      "path": "run_S08_high_52w_10",
+      "symbol": "000957.SZ",
+      "previous_date": "2022-07-05",
+      "sell_date": "2022-07-06",
+      "last_quote": "2022-06-21",
+      "last_mark": 21.32,
+      "sell_price": 19.1708,
+      "new_bar_raw_close": 19.19,
+      "hypothetical_close_return": -0.09990619136960599,
+      "realized_fill_return_vs_last_mark": -0.1008067542213884,
+      "hypothetical_equity_impact": -0.01781129280638207,
+      "realized_equity_impact_before_fees": -0.01797184530491848,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S08_high_52w_gross",
+      "symbol": "000957.SZ",
+      "previous_date": "2022-07-05",
+      "sell_date": "2022-07-06",
+      "last_quote": "2022-06-21",
+      "last_mark": 21.32,
+      "sell_price": 19.19,
+      "new_bar_raw_close": 19.19,
+      "hypothetical_close_return": -0.09990619136960599,
+      "realized_fill_return_vs_last_mark": -0.09990619136960599,
+      "hypothetical_equity_impact": -0.017779825850286212,
+      "realized_equity_impact_before_fees": -0.017779825850286212,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S08_high_52w_30",
+      "symbol": "000957.SZ",
+      "previous_date": "2022-07-05",
+      "sell_date": "2022-07-06",
+      "last_quote": "2022-06-21",
+      "last_mark": 21.32,
+      "sell_price": 19.1324,
+      "new_bar_raw_close": 19.19,
+      "hypothetical_close_return": -0.09990619136960599,
+      "realized_fill_return_vs_last_mark": -0.10260787992495313,
+      "hypothetical_equity_impact": -0.017678318534617276,
+      "realized_equity_impact_before_fees": -0.018156380106257638,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S10_xs_reversal_20d_10",
+      "symbol": "000016.SZ",
+      "previous_date": "2025-01-13",
+      "sell_date": "2025-01-14",
+      "last_quote": "2024-12-27",
+      "last_mark": 5.52,
+      "sell_price": 6.0639,
+      "new_bar_raw_close": 6.07,
+      "hypothetical_close_return": 0.0996376811594204,
+      "realized_fill_return_vs_last_mark": 0.09853260869565239,
+      "hypothetical_equity_impact": 0.013887062055512987,
+      "realized_equity_impact_before_fees": 0.013733041912715493,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S10_xs_reversal_20d_30",
+      "symbol": "000016.SZ",
+      "previous_date": "2025-01-13",
+      "sell_date": "2025-01-14",
+      "last_quote": "2024-12-27",
+      "last_mark": 5.52,
+      "sell_price": 6.0518,
+      "new_bar_raw_close": 6.07,
+      "hypothetical_close_return": 0.0996376811594204,
+      "realized_fill_return_vs_last_mark": 0.09634057971014509,
+      "hypothetical_equity_impact": 0.013873838272016305,
+      "realized_equity_impact_before_fees": 0.013414740351015047,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S10_xs_reversal_20d_gross",
+      "symbol": "000016.SZ",
+      "previous_date": "2025-01-13",
+      "sell_date": "2025-01-14",
+      "last_quote": "2024-12-27",
+      "last_mark": 5.52,
+      "sell_price": 6.07,
+      "new_bar_raw_close": 6.07,
+      "hypothetical_close_return": 0.0996376811594204,
+      "realized_fill_return_vs_last_mark": 0.0996376811594204,
+      "hypothetical_equity_impact": 0.013828435473488193,
+      "realized_equity_impact_before_fees": 0.013828435473488193,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S08_high_52w_10",
+      "symbol": "000959.SZ",
+      "previous_date": "2021-09-10",
+      "sell_date": "2021-09-13",
+      "last_quote": "2021-08-27",
+      "last_mark": 8.25,
+      "sell_price": 9.0709,
+      "new_bar_raw_close": 9.08,
+      "hypothetical_close_return": 0.10060606060606059,
+      "realized_fill_return_vs_last_mark": 0.0995030303030302,
+      "hypothetical_equity_impact": 0.01273696323682893,
+      "realized_equity_impact_before_fees": 0.01259731701338899,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S08_high_52w_30",
+      "symbol": "000959.SZ",
+      "previous_date": "2021-09-10",
+      "sell_date": "2021-09-13",
+      "last_quote": "2021-08-27",
+      "last_mark": 8.25,
+      "sell_price": 9.0528,
+      "new_bar_raw_close": 9.08,
+      "hypothetical_close_return": 0.10060606060606059,
+      "realized_fill_return_vs_last_mark": 0.09730909090909079,
+      "hypothetical_equity_impact": 0.01270753420792259,
+      "realized_equity_impact_before_fees": 0.012291094532674993,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S08_high_52w_gross",
+      "symbol": "000959.SZ",
+      "previous_date": "2021-09-10",
+      "sell_date": "2021-09-13",
+      "last_quote": "2021-08-27",
+      "last_mark": 8.25,
+      "sell_price": 9.08,
+      "new_bar_raw_close": 9.08,
+      "hypothetical_close_return": 0.10060606060606059,
+      "realized_fill_return_vs_last_mark": 0.10060606060606059,
+      "hypothetical_equity_impact": 0.012692908441625995,
+      "realized_equity_impact_before_fees": 0.012692908441625995,
+      "exit_day_in_position_days": false
+    },
+    {
+      "path": "run_S06_xs_reversal_5d_30",
+      "symbol": "000615.SZ",
+      "previous_date": "2020-04-07",
+      "sell_date": "2020-04-08",
+      "last_quote": "2020-04-03",
+      "last_mark": 4.03,
+      "sell_price": 4.4167,
+      "new_bar_raw_close": 4.43,
+      "hypothetical_close_return": 0.0992555831265507,
+      "realized_fill_return_vs_last_mark": 0.09595533498759279,
+      "hypothetical_equity_impact": 0.012438538190953119,
+      "realized_equity_impact_before_fees": 0.012024956796103915,
+      "exit_day_in_position_days": false
+    }
+  ],
+  "exit_days_without_bar": 0
+}

@@ -1,0 +1,45 @@
+{
+  "checks": {
+    "subprocesses_exit0": true,
+    "watched_sources_unchanged": true,
+    "fresh_binding_ok": true,
+    "fresh_results_zero": true,
+    "original_mutations_20_of_20": true,
+    "independent_baselines_zero": true,
+    "independent_all_curve_hashes_match": true,
+    "ordinary_mutations_detected": true,
+    "timing_counterexamples_reproduced": true,
+    "independent_bindings_detected": true,
+    "raw_path_identity_ok": true,
+    "path_counts_match": true
+  },
+  "all_expected_observations_confirmed": true,
+  "additional_command_exit_codes": {
+    "probe_comparator.py": 0,
+    "probe_path_risk.py_initial": 0,
+    "probe_path_risk.py_final": 0
+  },
+  "manifest_sha256": {
+    "command-1.log": "8564a7dae8af2c498341c34d459d82ffb7d61158d7ddaa64e070c4149f4fb949",
+    "command-2.log": "e3643bd0d48955ce22dca68b6cf5922bf292c8653b2e05b7c649a44213a168a7",
+    "execution.json": "bdcd7abf10b19f1354ff37db43057049348871c61e481d9210ebd8bd1b920125",
+    "git-status-final.txt": "ae1769cf844c7db545accb26018f69f5eddd70829d0eddbac66c058676688eb9",
+    "mutation-report.json": "efa801654f23b203e1c17bc181f7df109607b8c81824da100873f543334bba28",
+    "orchestrator.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "probe-comparator.json": "3664f7286e56407cb1887c656d3b81f423a80664e0c2c9a75af9f8cda91b64b9",
+    "probe-comparator.log": "518d142e51fcd4bf89df47e51d617ba3f88ff7233955ce6839e964c878b8cff0",
+    "probe-path-risk.json": "0d30473bfe279f7b441b46d6d4035af5905806a093629834e6ee00db161f0e2b",
+    "probe-path-risk.log": "658817b8f4e446d397effc189c247ffb06d810f49ea804769d02583ef84c51a7",
+    "probe_comparator.py": "4201b16ae051cb18e6c6d5097d7c1cc95223122566cfd891ee6b13e58b51b5a0",
+    "probe_path_risk.py": "fcbca04f9191e7600adaa7deb23aafa952e85ec567b8ba4b4e838d2ea40e48f6",
+    "REPORT.md": "48b733c61355d144c1a122ee02470a9cd861ec10b0cb8ba94fe6259811c3629e",
+    "run_checks.py": "310befb88df41421cd4ac0086c349e9ca51c56c43c5e8f8694aeff4ce417f86c",
+    "fresh-verify\\binding.json": "5f1cd9a8d1da2bc7be49bd14e3ff033ab7d7080a8fca335fa767cf04c5620236",
+    "fresh-verify\\compare_g1_first_board_chain_rebreak.json": "13bd0252c76014e5c193ab97dda85997c365c6cc5077e61b6732a7cca9104d45",
+    "fresh-verify\\compare_g2_first_limit_pullback_3f_runner_t74.json": "695667550eae75b9a23ad4243e7f0704068a4fb180122e09ab30bb927a6e5c7a",
+    "fresh-verify\\compare_summary.json": "1ff7542106f3cdb754b14f96f0869b4a16433a19bf7e93fc2b9007598b368950",
+    "fresh-verify\\prod_g1_first_board_chain_rebreak.json": "65af185e967fbca258f3267824e66d8a4fc14a13a76be41c17d96fa9ffba51a2",
+    "fresh-verify\\prod_g2_first_limit_pullback_3f_runner_t74.json": "24886fd5771f4e849b0af09c8950709a6907025d604585748a69757824d53ef6"
+  },
+  "self_check_note": "Initial final self-check exit1: reviewer compared a four-value observed tuple to a three-value expected tuple (omitted expected 839). Corrected expected tuple only; original observations unchanged. Corrected self-check exit0."
+}

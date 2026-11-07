@@ -1,0 +1,98 @@
+{
+  "runs": [
+    {
+      "id": "industry",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/audit_data_gaps.py",
+        "--check",
+        "industry"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check industry",
+      "exit_code": 0,
+      "elapsed_seconds": 9.937,
+      "recorded_at": "2026-11-07T00:41:23.556014+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_industry.log"
+    },
+    {
+      "id": "index",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/audit_data_gaps.py",
+        "--check",
+        "index"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check index",
+      "exit_code": 0,
+      "elapsed_seconds": 23.265,
+      "recorded_at": "2026-11-07T00:41:56.019756+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_index.log"
+    },
+    {
+      "id": "etf",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/audit_data_gaps.py",
+        "--check",
+        "etf"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check etf",
+      "exit_code": 0,
+      "elapsed_seconds": 41.656,
+      "recorded_at": "2026-11-07T00:43:31.803482+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_etf.log"
+    },
+    {
+      "id": "short",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/audit_data_gaps.py",
+        "--check",
+        "short"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check short",
+      "exit_code": 0,
+      "elapsed_seconds": 21.703,
+      "recorded_at": "2026-11-07T00:43:37.918918+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_short.log"
+    },
+    {
+      "id": "universe616",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/audit_data_gaps.py",
+        "--check",
+        "universe616"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check universe616",
+      "exit_code": 0,
+      "elapsed_seconds": 10.593,
+      "recorded_at": "2026-11-07T00:43:55.179525+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_universe616.log"
+    },
+    {
+      "id": "independent_recheck",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/independent_recheck.py"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/independent_recheck.py",
+      "exit_code": 0,
+      "elapsed_seconds": 53.0,
+      "recorded_at": "2026-11-07T00:45:01.032101+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_independent_recheck.log"
+    },
+    {
+      "id": "build_summary",
+      "argv": [
+        "backend/.venv/Scripts/python.exe",
+        "research/data-gaps-20261107/scripts/build_summary.py"
+      ],
+      "command": "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/build_summary.py",
+      "exit_code": 0,
+      "elapsed_seconds": 0.297,
+      "recorded_at": "2026-11-07T00:46:03.230843+08:00",
+      "output_path": "research/data-gaps-20261107/results/run_build_summary.log"
+    }
+  ]
+}

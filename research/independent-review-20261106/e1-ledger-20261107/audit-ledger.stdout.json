@@ -1,0 +1,23 @@
+{
+  "scope": "Enumerated distinct rule-form lower bound, NOT exact global hypothesis count or effective independent DSR N",
+  "enumerated_lower_bound_rule_forms": 17,
+  "global_N_exact": null,
+  "dsr_effective_independent_N": null,
+  "counts_reconciliation": {
+    "old_freeze_total": 15,
+    "global_v3_lower_bound": 15,
+    "prior_independent_lower_bound": 17,
+    "delta_to_v3": 2,
+    "reason": "12 public fixed rules + 3 distinct T03 rules + 2 distinct first-board production rules = 17 enumerable forms; no overlap with T03 by inspected conditions, filters, and exit rules."
+  },
+  "selected_execution_records": {
+    "public_search_registry_rows": 36,
+    "T03_two_registries_rows": 48,
+    "batch_fold_simulations": 12,
+    "sum_of_selected_records": 96,
+    "not_global_execution_count": true,
+    "E1_C00_replays": 2,
+    "E1_alpha_delta": 0,
+    "audit_replays_alpha_delta": 0
+  }
+}

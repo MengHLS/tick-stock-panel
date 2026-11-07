@@ -6,6 +6,7 @@
 
 | 目录 | 主题 |
 | --- | --- |
+| [strategy-reliability-20261106/](strategy-reliability-20261106/RESULTS.md) | WFO 交易日/账户口径修复、T74 331% 来源核查与动量/突破/择时负结果 |
 | [khunter-feasibility-20261105/](khunter-feasibility-20261105/RESULTS.md) | KHunter 策略源码、接入可行性与指标方向隔离验证 |
 | [first-board-entry-study-20261026/](first-board-entry-study-20261026/REPORT.md) | 首板事件链入场研究 |
 | [first-board-entry-exit-study-20261026/](first-board-entry-exit-study-20261026/REPORT.md) | 入场 × 退出二维研究 |
@@ -30,6 +31,7 @@
 | [auction-market-return-model-20261101/](auction-market-return-model-20261101/RESULTS.md) | 竞价 D+5 市场绝对收益模型 |
 | [auction-lockbox-20261101/](auction-lockbox-20261101/PROTOCOL.md) | 竞价 D+5 前瞻锁箱协议（等待数据） |
 | [first-board-right-tail-20261102/](first-board-right-tail-20261102/RESULTS.md) | 首板右尾 v2/v3 动态入场、早盘与市场特征、事件级两阶段及退出变体 pilot（No-Go） |
+| [first-board-t74-right-tail-20261106/](first-board-t74-right-tail-20261106/RESULTS.md) | T74 331% 基线 20 日右尾路径与止损先后诊断 |
 
 ## 已迁出的研究档案
 

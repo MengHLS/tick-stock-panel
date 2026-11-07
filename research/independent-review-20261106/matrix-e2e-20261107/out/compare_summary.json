@@ -1,0 +1,32 @@
+{
+  "registry": "C:\\work\\sourcecode\\tick-stock-panel\\research\\independent-review-20261106\\matrix-e2e-20261107\\out\\registry.json",
+  "n_groups": 2,
+  "total_result_diffs": 0,
+  "total_telemetry_diffs": 39,
+  "telemetry_keys": [
+    "market_matrix_bytes",
+    "market_matrix_shape",
+    "matrix_compute_cache",
+    "matrix_data_cache_hit",
+    "matrix_data_cache_status",
+    "panel_columns",
+    "panel_rows",
+    "shared_market_data_bytes"
+  ],
+  "groups": [
+    {
+      "group": "g1_first_board_chain_rebreak",
+      "n_result_diffs": 0,
+      "n_telemetry_diffs": 18,
+      "production_duplicate_dates": 0,
+      "production_timeline_complete": true
+    },
+    {
+      "group": "g2_first_limit_pullback_3f_runner_t74",
+      "n_result_diffs": 0,
+      "n_telemetry_diffs": 21,
+      "production_duplicate_dates": 0,
+      "production_timeline_complete": true
+    }
+  ]
+}

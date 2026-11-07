@@ -1,0 +1,151 @@
+{
+ "schema_version": "1.0.0",
+ "check": "etf",
+ "generated_at": "2026-11-07T00:43:31",
+ "data_root": "D:/TSP/data",
+ "python": "3.11.15",
+ "duckdb": "1.5.3",
+ "id": "etf",
+ "family": "ETF 全族（轮动 / 套利 / 基准）",
+ "status": "blocked",
+ "verdict": "确证",
+ "conclusion": "不可做。kline_etf_daily / kline_etf_enriched / kline_etf_minute 三个目录均为 0 个文件、0 字节，adj_factor_etf 同样为空；本地只有 1,769 条 ETF 代码元数据。股票日线面板里没有一只 ETF（51/15/56/58/16 前缀为 0），全量分钟线（5,917 只代码）里也没有一只 ETF，因此库里没有任何可用于 ETF 轮动、ETF 套利或 ETF 基准净值的行情表。",
+ "facts": [
+  {
+   "name": "三个 ETF 行情目录的文件数 / 字节数",
+   "value": {
+    "kline_etf_daily": {
+     "path": "D:/TSP/data/kline_etf_daily",
+     "exists": true,
+     "files": 0,
+     "bytes": 0,
+     "non_empty_files": 0,
+     "sample_files": []
+    },
+    "kline_etf_enriched": {
+     "path": "D:/TSP/data/kline_etf_enriched",
+     "exists": true,
+     "files": 0,
+     "bytes": 0,
+     "non_empty_files": 0,
+     "sample_files": []
+    },
+    "kline_etf_minute": {
+     "path": "D:/TSP/data/kline_etf_minute",
+     "exists": true,
+     "files": 0,
+     "bytes": 0,
+     "non_empty_files": 0,
+     "sample_files": []
+    }
+   },
+   "source": "D:/TSP/data/kline_etf_daily、D:/TSP/data/kline_etf_enriched、D:/TSP/data/kline_etf_minute",
+   "note": "0 文件 0 字节 = 目录存在但从未落过任何分区"
+  },
+  {
+   "name": "ETF 复权因子目录（adj_factor_etf）",
+   "value": {
+    "path": "D:/TSP/data/adj_factor_etf",
+    "exists": true,
+    "files": 0,
+    "bytes": 0,
+    "non_empty_files": 0,
+    "sample_files": []
+   },
+   "source": "D:/TSP/data/adj_factor_etf",
+   "note": "同为 0 文件 0 字节"
+  },
+  {
+   "name": "ETF 元数据（instruments_etf）",
+   "value": {
+    "rows": 1769,
+    "symbols": 1769,
+    "prefixes": 19,
+    "top_prefixes": [
+     {
+      "prefix": "159",
+      "n": 718
+     },
+     {
+      "prefix": "588",
+      "n": 88
+     },
+     {
+      "prefix": "560",
+      "n": 84
+     },
+     {
+      "prefix": "561",
+      "n": 84
+     },
+     {
+      "prefix": "512",
+      "n": 82
+     },
+     {
+      "prefix": "516",
+      "n": 80
+     },
+     {
+      "prefix": "515",
+      "n": 80
+     },
+     {
+      "prefix": "513",
+      "n": 75
+     }
+    ]
+   },
+   "sql": "select count(*) as rows, count(distinct symbol) as symbols, count(distinct substr(symbol,1,3)) as prefixes from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet') ; select substr(symbol,1,3) as prefix, count(*) as n from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet') group by 1 order by 2 desc limit 8",
+   "source": "D:/TSP/data/instruments_etf/instruments_etf.parquet",
+   "note": "有 1,769 条 ETF 代码表，但没有任何行情"
+  },
+  {
+   "name": "ETF 代码是否混在股票日线面板里",
+   "value": {
+    "etf_symbols_present_in_stock_kline": 0
+   },
+   "sql": "select count(distinct k.symbol) as etf_symbols_present_in_stock_kline from read_parquet('D:/TSP/data/kline_daily/**/*.parquet') k where k.symbol in (select symbol from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet'))"
+  },
+  {
+   "name": "股票日线面板中的 ETF 类代码前缀（51/15/56/58/16）",
+   "value": "未找到",
+   "sql": "select substr(symbol,1,2) as prefix, count(distinct symbol) as n from read_parquet('D:/TSP/data/kline_daily/**/*.parquet') where substr(symbol,1,2) in ('51','15','56','58','16') group by 1 order by 1",
+   "note": "空结果 = 面板里连一只 ETF 都没有"
+  },
+  {
+   "name": "分钟线是否覆盖 ETF（全量 symbol 列扫描）",
+   "value": {
+    "symbols": 5917,
+    "etf_like_symbols": 0
+   },
+   "sql": "select count(distinct symbol) as symbols, count(distinct symbol) filter (where substr(symbol,1,2) in ('51','15','56','58','16')) as etf_like_symbols from read_parquet('D:/TSP/data/kline_minute/**/*.parquet')",
+   "source": "D:/TSP/data/kline_minute",
+   "note": "etf_like_symbols = 0 → 分钟线也只有股票代码，ETF 没有任何粒度的行情"
+  }
+ ],
+ "code_evidence": [
+  {
+   "path": "backend/app/api/data.py:432",
+   "statement": "读接口已按 ETF 专区命名（daily/enriched/minute 三套），说明管道存在、缺的是数据",
+   "search": "grep -n \"\"kline_etf_daily\"\" backend/app/api/data.py"
+  }
+ ],
+ "unknown": [
+  "ETF 行情是'从未采购'还是'曾经有后被清理'：目录 mtime 2026-10-28 之后无写入，无法判定原因"
+ ],
+ "needs_without_purchase": "现有本地数据不可补：需要 ETF 日线与复权/公司行为记录；分钟及折溢价按策略需求补齐。kline_etf_daily / kline_etf_enriched / kline_etf_minute 三个专区与读接口已经存在，尚需核验可用来源、历史覆盖及采集校验链；免费来源与采购必要性未验证。",
+ "evidence_paths": [
+  "D:/TSP/data/kline_etf_daily",
+  "D:/TSP/data/kline_etf_enriched",
+  "D:/TSP/data/kline_etf_minute",
+  "D:/TSP/data/adj_factor_etf",
+  "D:/TSP/data/instruments_etf/instruments_etf.parquet"
+ ],
+ "sql_log": [
+  "select count(*) as rows, count(distinct symbol) as symbols, count(distinct substr(symbol,1,3)) as prefixes from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet') ; select substr(symbol,1,3) as prefix, count(*) as n from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet') group by 1 order by 2 desc limit 8",
+  "select count(distinct k.symbol) as etf_symbols_present_in_stock_kline from read_parquet('D:/TSP/data/kline_daily/**/*.parquet') k where k.symbol in (select symbol from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet'))",
+  "select substr(symbol,1,2) as prefix, count(distinct symbol) as n from read_parquet('D:/TSP/data/kline_daily/**/*.parquet') where substr(symbol,1,2) in ('51','15','56','58','16') group by 1 order by 1",
+  "select count(distinct symbol) as symbols, count(distinct symbol) filter (where substr(symbol,1,2) in ('51','15','56','58','16')) as etf_like_symbols from read_parquet('D:/TSP/data/kline_minute/**/*.parquet')"
+ ]
+}

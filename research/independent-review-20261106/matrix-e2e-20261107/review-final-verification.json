@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "batch_exit_0": true,
+    "verify_exit_0": true,
+    "strict_independent_exit_0": true,
+    "instrumented_exit_0": true,
+    "actual_loads_1": true,
+    "prepares_12_same_readonly_memory": true,
+    "extras_in_production_dates_0": true,
+    "extras_in_IS_OOS_0": true,
+    "all_evidence_bound": true,
+    "final_hash_backend/app/backtest/engine.py": true,
+    "final_hash_backend/app/backtest/strategy.py": true,
+    "final_hash_backend/app/backtest/walkforward.py": true,
+    "final_hash_backend/app/backtest/matrix.py": true,
+    "final_hash_backend/app/backtest/optimizer.py": true,
+    "final_hash_backend/app/backtest/evidence.py": true,
+    "final_hash_backend/app/tickflow/repository.py": true,
+    "final_hash_run_batch.py": true
+  },
+  "all_pass": true
+}

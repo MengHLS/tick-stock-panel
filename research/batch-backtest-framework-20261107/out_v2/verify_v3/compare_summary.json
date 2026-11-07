@@ -1,0 +1,86 @@
+{
+  "schema": "batch-verify-report/2",
+  "registry": "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\out_v2\\registry.json",
+  "groups": 2,
+  "total_result_diffs": 0,
+  "total_unproven_diffs": 0,
+  "total_exempt_diffs": 135,
+  "binding_ok": true,
+  "elapsed_s": 62.19,
+  "axis_proven": [
+    {
+      "group": "g1_first_board_chain_rebreak",
+      "proven": true
+    },
+    {
+      "group": "g2_first_limit_pullback_3f_runner_t74",
+      "proven": true
+    }
+  ],
+  "groups_detail": [
+    {
+      "group": "g1_first_board_chain_rebreak",
+      "n_result_diffs": 0,
+      "n_unproven_diffs": 0,
+      "n_exempt_diffs": 72,
+      "n_device_diffs": 30,
+      "production_duplicate_dates": 0,
+      "production_timeline_complete": true,
+      "curves": {
+        "equity_curve": {
+          "n_prod": 189,
+          "n_batch": 189,
+          "prod_sha256": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+          "batch_sha256": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+          "equal": true
+        },
+        "trades": {
+          "n_prod": 325,
+          "n_batch": 325,
+          "prod_sha256": "a0675bfd4d6093a80bc2a3147c203c802e43021c7f4ec1a4e3f1e5453b3633de",
+          "batch_sha256": "a0675bfd4d6093a80bc2a3147c203c802e43021c7f4ec1a4e3f1e5453b3633de",
+          "equal": true
+        },
+        "drawdown_curve": {
+          "n_prod": 189,
+          "n_batch": 189,
+          "prod_sha256": "0d5a5993539d90011d7e080b23dded16a34684b1a935f96bf9654f5a460854bc",
+          "batch_sha256": "0d5a5993539d90011d7e080b23dded16a34684b1a935f96bf9654f5a460854bc",
+          "equal": true
+        }
+      }
+    },
+    {
+      "group": "g2_first_limit_pullback_3f_runner_t74",
+      "n_result_diffs": 0,
+      "n_unproven_diffs": 0,
+      "n_exempt_diffs": 63,
+      "n_device_diffs": 21,
+      "production_duplicate_dates": 0,
+      "production_timeline_complete": true,
+      "curves": {
+        "equity_curve": {
+          "n_prod": 189,
+          "n_batch": 189,
+          "prod_sha256": "5bbad671ea2cab3906d6836742c71d155737606b4a362e4db5b10e3b53440781",
+          "batch_sha256": "5bbad671ea2cab3906d6836742c71d155737606b4a362e4db5b10e3b53440781",
+          "equal": true
+        },
+        "trades": {
+          "n_prod": 246,
+          "n_batch": 246,
+          "prod_sha256": "58bc213564648a39cb8214da89eb6c844a91fe4ddd9c3f6cc65b1acd4b9cb417",
+          "batch_sha256": "58bc213564648a39cb8214da89eb6c844a91fe4ddd9c3f6cc65b1acd4b9cb417",
+          "equal": true
+        },
+        "drawdown_curve": {
+          "n_prod": 189,
+          "n_batch": 189,
+          "prod_sha256": "4e1af00877cd483b3a72dff201c6a7f641631c826ca1e4a3148eea610aa8ad47",
+          "batch_sha256": "4e1af00877cd483b3a72dff201c6a7f641631c826ca1e4a3148eea610aa8ad47",
+          "equal": true
+        }
+      }
+    }
+  ]
+}

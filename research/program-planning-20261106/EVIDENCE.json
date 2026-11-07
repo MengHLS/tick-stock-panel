@@ -1,0 +1,881 @@
+{
+  "schema_version": 1,
+  "label": "v0.8",
+  "date_local": "2026-11-06",
+  "timezone": "Asia/Shanghai",
+  "repo": "C:\\work\\sourcecode\\tick-stock-panel",
+  "branch": "dev",
+  "head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+  "worktree_dirty": true,
+  "scope": "总体规划与交付计划取证：本目录四份文件；登记册、索引与验证状态的只读核对；S 线（策略搜索）产物与回测阻断状态的只读核对。不包含任何代码执行、测试运行、部署或交易。",
+  "revision": {
+    "current": "v0.8",
+    "previous": "v0.7",
+    "basis": "23:26–23:35 read-only recheck of research/strategy-search-20261107 (5 new md docs, PROTOCOL post-hoc), registry.json recompute of 36 runs, and reconciliation of the OOS +31.8% vs +7.81% unit difference"
+  },
+  "corrections_v06": [
+    {
+      "id": "C1",
+      "item": "v0.4 是否登记",
+      "previous_claim_in_planner_v05": "registry.json 22:39:55 全文不含 v0.4，故 v0.4 从未登记",
+      "actual": "文档管理员于 22:48:46–22:50 依规划方 v0.4 清单登记了四份（47abfc77…/22,951、d5bf6a4e…/13,748、833711ca…/13,297、9949bc14…/22,034），现登记册 107 条、四代链路 v0.1→v0.2→v0.3→v0.4→v0.5 完整，v0.4 标 superseded_by=v0.5",
+      "why_previous_claim_wrong": "规划方读数时点 22:39:55 早于该次写入，属时序误判，非管理员漏登",
+      "verified_by_planner": "registry.json 107 条、含 v0.4/v0.5 文本、四条本目录条目 label=v0.5 且摘要与磁盘逐位一致（2026-11-06 23:01 只读）"
+    },
+    {
+      "id": "C2",
+      "item": "docs/README.md 22:39:35 改动归属",
+      "previous_claim_in_planner_v05": "记为第三方并发写入导致的漂移",
+      "actual": "该次是文档管理员在 v0.3 轮改第 76 行指针所致（6,972 B / cd66113d…），管理员已在 registry governance_notes 与 ISSUES 更正归属",
+      "why_previous_claim_wrong": "规划方只比对摘要变化，未追改动来源即作归属判断",
+      "verified_by_planner": "管理员回执 + ISSUES 新增行 + 当前文件 7,135 B / ee3d4604…（22:56:50，v0.5 同步后）与 107 条登记一致"
+    },
+    {
+      "id": "C3",
+      "item": "engine.py 摘要",
+      "previous_claim_in_planner_v05": "b1766c08…/268,176 B，后又记 22:45:42 的 efe55703…/268,504 B",
+      "actual": "22:47:36 再次改为 268,802 B / 77079303…；开发回执自己的 268,504 B 表述也已过期",
+      "why_previous_claim_wrong": "改动仍在进行，任何单点摘要都会过期，需记录链而不是终值",
+      "verified_by_planner": "本机只读重算（23:02）"
+    },
+    {
+      "id": "C4",
+      "item": "S2 是否仍为空目录",
+      "previous_claim_in_planner_v05": "results/ 空、仅 common.py 与 smoke.py",
+      "actual": "22:48–23:01 已落 27 次试验（9 策略 × 10bps/30bps/gross）、results/registry.json 131,776 B、controls.json 4,365 B、27 组 .npy 与 27 份 run json",
+      "why_previous_claim_wrong": "规划方 22:48 取证后研究侧继续写入",
+      "verified_by_planner": "目录列举 + registry.json 解析（23:01–23:02）"
+    }
+  ],
+  "user_goal_addressing_strategy_search": {
+    "verbatim_zh": "可以利用各种公开的策略，在这个系统中实现，直到能找到一个稳定盈利的策略",
+    "relayed_by": "MausBot, assignment 019169a5-991b-445f-bf11-5be8d0451f53, described as sent on the user's behalf at this bot's level",
+    "planner_interpretation_zh": "程序目标，不是盈利承诺，也不是带日期的承诺。成功指某个候选在未见数据上通过既定判定标准；若长期不通过，则以负结果与停止理由收口，同样算有效交付。",
+    "no_promise": [
+      "no profit guarantee",
+      "no calendar date or duration commitment",
+      "no historical backtest number presented as future return",
+      "strategy count or trial count is not evidence of success"
+    ]
+  },
+  "strategy_search_program": {
+    "track": "S",
+    "phase_order": [
+      {
+        "id": "S1",
+        "name_zh": "评估框架就绪",
+        "owner_zh": "开发实现；架构定契约；研究员定指标口径；独立审核验框架",
+        "gate_zh": "同一策略同一冻结数据两次运行逐字段一致；成本可参数化并入账；净值只取连续账户口径，逐折复利仅作诊断并显式标注；框架自身经独立审核"
+      },
+      {
+        "id": "S2",
+        "name_zh": "策略候选库与评估协议",
+        "owner_zh": "研究员主导；行情数据给可用宇宙；开发给适配能力",
+        "gate_zh": "每条候选有不用猜参数的规格与数据可用性判定；协议在开跑前冻结并登记，事后不改切分"
+      },
+      {
+        "id": "S3",
+        "name_zh": "批量试验与登记",
+        "owner_zh": "开发实现编排与登记册；研究员定试验设计与判读",
+        "gate_zh": "报告任一数字可反查到唯一试验记录与指纹；n_trials 自动累计并进入显著性计算；失败与重复试验不被静默丢弃"
+      },
+      {
+        "id": "S4",
+        "name_zh": "独立复核",
+        "owner_zh": "独立审核",
+        "gate_zh": "只有审核原文结论可标作独立复核；未通过回 S2/S3 继续迭代，且已消耗样本计入消耗"
+      },
+      {
+        "id": "S5",
+        "name_zh": "推荐候选与验收",
+        "owner_zh": "研究员提名；独立审核结论；总体规划汇总；用户确认上线范围",
+        "gate_zh": "锁箱仅在 S4 通过后开封且只开一次；结果正负均登记；必达项任一不满足即不通过"
+      },
+      {
+        "id": "S6",
+        "name_zh": "正式实现与上线观察",
+        "owner_zh": "开发实现；架构、审核、复盘、用户授权",
+        "gate_zh": "仅模拟观察，真实交易另行授权；偏差超预设带即回 S2，不解释为行情不同"
+      }
+    ],
+    "acceptance_criteria_draft": {
+      "status": "confirmed by the user on 2026-11-06 as admission conditions for advancing a candidate, explicitly not a profit promise; numeric thresholds still belong to the quantitative researcher and are subject to re-check by independent review",
+      "dimensions": [
+        {
+          "dim": "样本外长度",
+          "proposal_zh": "完全未参与选择/调参/事件修正的样本外 >= 1 个完整年度（>=240 交易日）；另设一次性锁箱 >= 60 交易日，仅在 S5 开封",
+          "required": true
+        },
+        {
+          "dim": "成本后收益",
+          "proposal_zh": "净年化 > 0（含佣金、印花税、滑点、冲击），且对基准超额 > 0",
+          "required": true
+        },
+        {
+          "dim": "跨市场状态",
+          "proposal_zh": "按上行/下行/震荡/高波动分段净收益均 >= 0；单一年度不亏损（首个不完整年度除外）",
+          "required": false
+        },
+        {
+          "dim": "回撤与换手",
+          "proposal_zh": "账户级最大回撤 <= 20%；换手上限与资金使用率明确；成本翻倍后仍为正",
+          "required": false
+        },
+        {
+          "dim": "统计显著性",
+          "proposal_zh": "BH-FDR q < 0.1 或 DSR >= 0.95，且 n_trials 如实计入；同时报告 Newey-West t",
+          "required": true
+        },
+        {
+          "dim": "稳健性",
+          "proposal_zh": "参数邻域平台而非单点最优；留一法后结论不反转；给出容量上限",
+          "required": false
+        },
+        {
+          "dim": "可复现",
+          "proposal_zh": "数据版本与结果指纹固定，独立复跑一致（S4）",
+          "required": true
+        }
+      ],
+      "usage_rule_zh": "必达项（样本外长度、成本后收益、统计显著性、可复现）任一不满足即不通过；其余为质量分级，用于比较候选。未通过锁箱的显著性结论只作探索性记录，不进入 S5 推荐候选。若长期无候选通过，正确动作是记录负结果并收窄范围，不是下调阈值。"
+    },
+    "dependencies_and_blockers": [
+      {
+        "item": "S1 评估框架",
+        "state": "blocked",
+        "detail_zh": "G1-04 未关闭：三项 P1 只有修复候选；engine.py 于 22:45:42 再变为 268,504 B / efe55703…。当前任何批量绩效只能作调试数据"
+      },
+      {
+        "item": "S2 候选库与协议",
+        "state": "in_progress_gate_not_met",
+        "detail_zh": "目录 22:45:54 建立，scripts/common.py（22,821 B，22:47:00）与 scripts/smoke.py（2,285 B，22:47:24）已落盘，results/ 空；缺候选卡、registry.json、protocol.md，规格与数据可用性判定不可审查"
+      },
+      {
+        "item": "S3 批量试验",
+        "state": "partial_foundation_started",
+        "detail_zh": "无跨策略编排与试验登记册；candidates.py 上限 200 且按 factor/strategy 分类，不能充当试验账本；开发已在 research/strategy-harness-20261106/PROGRESS.md 自述缺口与本规划一致；登记册 schema 与 n_trials 联动仍缺"
+      },
+      {
+        "item": "S4 独立复核",
+        "state": "not_started",
+        "detail_zh": "依赖 S3 登记册完整"
+      },
+      {
+        "item": "S5 判定",
+        "state": "criteria_confirmed_thresholds_pending",
+        "detail_zh": "用户 2026-11-06 确认判定口径、准入条件定性与降级规则；研究员改口径建议未定稿；两档目标未获用户选择"
+      },
+      {
+        "item": "S6 上线观察",
+        "state": "not_started",
+        "detail_zh": "G4-01/G4-02 未达成；交易授权不在本规划范围"
+      }
+    ],
+    "existing_negative_evidence": [
+      {
+        "source": "docs/research/strategy-reliability-20261106/RESULTS.md",
+        "fact_zh": "2023-2026 三类固定动量/突破/择时候选、两个成本情景共 24 组全部亏损"
+      },
+      {
+        "source": "docs/research/strategy-reliability-20261106/RESULTS.md",
+        "fact_zh": "T74 +331.04% 是使用 73,853 条事后 allowlist 的历史复现，不是独立样本外收益；连续账户口径 +23.08%、最大回撤 -13.62%、Sharpe 0.69，仍受参数与事件选择污染"
+      },
+      {
+        "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+        "fact_zh": "KHunter 12 个启用类与 8 个 disabled 类的可行性盘点，含 3 处移植缺陷（固定 9.5% 涨停、倒序 EMA、机器当前时间过滤）；技术可移植不代表收益有效"
+      },
+      {
+        "source": "docs/research/auction-lockbox-20261101/PROTOCOL.md",
+        "fact_zh": "已有前瞻锁箱协议先例，仍在等待数据；S5 可沿用其治理形式"
+      }
+    ],
+    "reusable_capability_read_only": [
+      {
+        "path": "backend/app/backtest/stats_v2.py",
+        "finding_zh": "有 Newey-West t、naive_t、normal_two_sided_p、bh_fdr_qvalues、expected_max_sharpe、deflated_sharpe_psr；BH-FDR 仅被 factor.py 的 IC 显著性使用，DSR 未被任何策略试验流程调用"
+      },
+      {
+        "path": "backend/app/backtest/optimizer.py",
+        "finding_zh": "单策略参数网格展开、组合计数与目标函数取值"
+      },
+      {
+        "path": "backend/app/backtest/robust_optimizer.py",
+        "finding_zh": "分窗验证、稳健分数、champion 收敛与邻域平台"
+      },
+      {
+        "path": "backend/app/backtest/factor.py",
+        "finding_zh": "run_batch 与 /api/backtest/factor/batch 的批量因子评估"
+      },
+      {
+        "path": "backend/app/backtest/candidates.py",
+        "finding_zh": "候选本地存储，kind 为 factor 或 strategy，MAX_CANDIDATES=200，状态 pending/validated/rejected"
+      }
+    ],
+    "notes_zh": "以上均为只读代码核对，未运行；它们不构成 S3 的试验账本，也不构成任何收益证据。",
+    "phase_status_v06": {
+      "S1": "阻塞（G1-04 未复验；engine.py 第三次改动）",
+      "S2": "已开工、产出已超门槛但门槛未达（27 次试验已跑，协议未冻结、候选卡与来源许可缺失）",
+      "S3": "部分具备、账本雏形出现（研究侧 registry.json 有 meta 与逐 run 指标；缺 params_hash/n_trials/编排）",
+      "S4": "未开始",
+      "S5": "未开始（口径已确认、阈值待定稿、锁箱段因 OOS 被消耗需另划）",
+      "S6": "未开始"
+    }
+  },
+  "strategy_search_first_results": {
+    "location": "research/strategy-search-20261107/results/",
+    "runs": 36,
+    "strategies": 12,
+    "cost_scenarios": [
+      "@10 (10bps)",
+      "@30 (30bps)",
+      "gross (零滑点)"
+    ],
+    "window": "2019-07-01—2026-10-30",
+    "is_end": "2022-12-30",
+    "oos_days": 924,
+    "meta_snapshot": {
+      "panel_hash": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3",
+      "panel_rows": 6422875,
+      "panel_symbols": 3384,
+      "panel_dates": 2136,
+      "account": {
+        "initial_capital": 1000000,
+        "max_positions": 5,
+        "max_exposure_pct": 0.6,
+        "commission_pct": 0.0003,
+        "stamp_tax_pct": 0.001,
+        "transfer_fee_pct": 1e-05,
+        "min_commission": 5.0
+      }
+    },
+    "oos_cagr_at_10bps": {
+      "S01_ma_cross_20_60": -0.0942,
+      "S02_donchian_20_10": -0.2577,
+      "S03_tsmom_60": -0.1148,
+      "S04_rsi14_reversion": -0.0258,
+      "S05_bollinger_20_2": -0.0107,
+      "S06_xs_reversal_5d": -0.2278,
+      "S07_xs_lowvol_60d": 0.0781,
+      "S08_high_52w": -0.1595,
+      "S09_volume_breakout_55": -0.3904
+    },
+    "oos_worst_drawdown_at_10bps": {
+      "S07_xs_lowvol_60d": -0.0936,
+      "S05_bollinger_20_2": -0.2662,
+      "S04_rsi14_reversion": -0.2317,
+      "S01_ma_cross_20_60": -0.4126,
+      "S03_tsmom_60": -0.4504,
+      "S08_high_52w": -0.4762,
+      "S06_xs_reversal_5d": -0.6621,
+      "S02_donchian_20_10": -0.6926,
+      "S09_volume_breakout_55": -0.8372
+    },
+    "controls": {
+      "equal_weight": {
+        "IS_ann": 0.0352,
+        "OOS_ann": -0.0255,
+        "OOS_mdd": -0.3697,
+        "ALL_ann": 0.0032,
+        "ALL_mdd": -0.4561
+      },
+      "C00_liquidity": {
+        "IS_ann": -0.0844,
+        "OOS_ann": -0.0678
+      }
+    },
+    "verdict": "0/27 在 IS 与 OOS 同时为正。OOS 为正的 5 次中，S07 三档 IS 全负（符号反转，疑 regime 依赖），S04/S05 的正值仅出现在零滑点 gross 档且 IS ≤0；@10/@30 下均为负。按用户已确认的降级规则，这批结果只作探索性结论，不构成候选通过、不构成「稳定盈利」。",
+    "governance_gaps": [
+      "无 protocol.md，协议未在开跑前冻结",
+      "无候选卡、README、公开来源与许可登记（scripts/ 内 0 处 URL/引用）",
+      "OOS 924 个交易日已被 27 次试验消耗，不能充当 S5 锁箱",
+      "无 params_hash、失败原因、n_trials 自动累计；DSR/BH 未接入策略流程",
+      "目录无署名；研究员回执称未启动实验、目录不存在，与磁盘事实冲突，归属未明"
+    ],
+    "planner_did_not_do": [
+      "未复跑任何试验",
+      "未审核 common.py 的实现是否正确",
+      "未据此判定任何候选通过或失败"
+    ],
+    "strategy_ids": [
+      "S01_ma_cross_20_60",
+      "S02_donchian_20_10",
+      "S03_tsmom_60_m",
+      "S04_rsi14_reversion",
+      "S05_bollinger_20_2",
+      "S06_xs_reversal_5d",
+      "S07_xs_lowvol_60d",
+      "S08_high_52w",
+      "S09_volume_breakout_55",
+      "S10_xs_reversal_20d",
+      "S11_lowvol_reversal",
+      "S12_lowvol_breadth"
+    ],
+    "registry_snapshot": {
+      "path": "results/registry.json",
+      "bytes": 175133,
+      "sha256_prefix": "2597d6fa",
+      "mtime": "23:09:33",
+      "created_at": "2026-11-06T23:08:56.938296+08:00"
+    },
+    "verdict_zh": "0/36 在样本内与样本外同时为正；OOS 为正仅 5 次（S07 三档、S04 gross、S05 gross）；S07 为唯一「回撤≤20% 且 OOS 为正」但 IS 全负、2024 年集中（+33.6%）、DSR 0.027；仅作探索性结论。",
+    "multiplicity": {
+      "dsr_max": 0.027010474567635445,
+      "dsr_max_strategy": "S07_xs_lowvol_60d",
+      "n_trials_recorded": 12,
+      "n_trials_executed": 36,
+      "note_zh": "DSR 已由研究侧实现，但 n_trials 按策略数取 12，未覆盖 36 次执行"
+    },
+    "self_checks_by_researcher": {
+      "verification_json": "3 个 run 各 150 笔成交价与 raw open+滑点一致（最大相对偏差 1.4e-5）、入场不早于信号、3 个截断点前缀逐字节一致",
+      "carry_check_json": "各年段 净值末值=统计末值=现金 全部 true",
+      "entry_gaps_json": "信号→次日开盘缺口分布已出",
+      "status_zh": "研究侧自检，不替代 S4 独立复核"
+    },
+    "artifacts": {
+      "registry.csv": {
+        "bytes": 14335,
+        "mtime": "23:09:54"
+      },
+      "summary.json": {
+        "bytes": 43041,
+        "mtime": "23:09:54"
+      },
+      "registry_table.md": {
+        "bytes": 4706,
+        "mtime": "23:09:54"
+      },
+      "yearly_table.md": {
+        "bytes": 1200,
+        "mtime": "23:09:54"
+      },
+      "verification.json": {
+        "bytes": 4450,
+        "sha256_prefix": "4356fcf1",
+        "mtime": "23:11:02"
+      },
+      "controls.json": {
+        "bytes": 4365,
+        "mtime": "22:50:47"
+      },
+      "carry_check.json": {
+        "bytes": 3630,
+        "mtime": "23:05:53"
+      },
+      "entry_gaps.json": {
+        "bytes": 3044,
+        "mtime": "23:10:29"
+      },
+      "data_boundary.json": {
+        "bytes": 420,
+        "sha256_prefix": "47d091a1",
+        "mtime": "23:16:28",
+        "content_zh": "panel_rows 6,422,875；symbols 3,384；calendar 2,136 日（2018-01-08–2026-10-30）；expected_symbol_days 6,456,889；missing 34,014（0.53%）；181 只证券在面板结束前已无数据；27 只不足 120 根；962 只在日历起点后开始"
+      }
+    }
+  },
+  "engine_hash_chain": [
+    {
+      "time": "2026-11-06 22:37 前后",
+      "bytes": 268176,
+      "sha256_prefix": "b1766c08",
+      "note": "规划方 v0.4/v0.5 曾引用"
+    },
+    {
+      "time": "2026-11-06 22:45:42",
+      "bytes": 268504,
+      "sha256_prefix": "efe55703",
+      "note": "规划方 v0.5 记录"
+    },
+    {
+      "time": "2026-11-06 22:47:36",
+      "bytes": 268802,
+      "sha256_full": "77079303ee83fd20623bf2962bdc9655dbf8cc8fe25ae5351bf64a96754b2a1b",
+      "note": "本轮实测，改动仍在进行"
+    }
+  ],
+  "blocker_recheck_20261106_2236_2238": {
+    "trigger_zh": "三项 P1 涉及的核心文件在本轮 v0.3 落盘之后被改动；规划方重新计算摘要并只读复核对应位置",
+    "files": [
+      {
+        "path": "backend/app/api/backtest.py",
+        "mtime_local": "2026-11-06T22:37:58",
+        "review_digest": "769a0cfadb99e98061e523265e055e1e89d32547cf659d8aa802f2fa7bc1a286",
+        "current_digest": "6cd4e01d2bfe9ce647c2d3310bfb3d09198e667036d2f7f250e4b6d408515ff3",
+        "bytes": 64373
+      },
+      {
+        "path": "backend/app/backtest/walkforward.py",
+        "mtime_local": "2026-11-06T22:37:47",
+        "review_digest": "ec4b8d5bcdff778beca77b8e0ce83c389c98592e7f561768b83f4de2a28164ae",
+        "current_digest": "bde5da934aeaab99419047fc360cc275bae3cd27d125761b8cb2cbc95b5ef5a0",
+        "bytes": 39556
+      },
+      {
+        "path": "backend/app/backtest/engine.py",
+        "mtime_local": "2026-11-06T22:36:55",
+        "review_digest": "2b650ca978961abba54df15c7f164cdfb3fe6e2080ab8073d8ad5c4f7d9514bb",
+        "current_digest": "b1766c081a7a95bc4f074e0fbe2fc9e0713a9e3b13294fdc766f714b7087d94e",
+        "bytes": 268176
+      }
+    ],
+    "read_only_observations": [
+      {
+        "p1": "R1",
+        "observation_zh": "api/backtest.py 第 1373 行 walkforward_stream 签名已声明 continuous_account: bool = True，第 1455 与 1518 行透传；审核记录的 F821 前提（签名缺该参数）在当前文件中不存在",
+        "planner_verification": "read only; Ruff and TestClient NOT run"
+      },
+      {
+        "p1": "R3",
+        "observation_zh": "api/backtest.py 第 1416 行在 continuous_account 为真且 step_days != test_days 时直接报错；walkforward.py 的 generate_folds 仍只拒 step_days < test_days（离线/重置口径）",
+        "planner_verification": "read only; no service-level probe"
+      },
+      {
+        "p1": "R2",
+        "observation_zh": "engine.py 结转处（约 2682 行）仍设 entry_time_id = -1，但同处注释与 4166-4171 行改为按 hold_session_age 计算持有日，缺失时按 hold_days + 1 补值；持有期基准不再是本段 time_id - entry_time_id",
+        "planner_verification": "read only; matching and accounting equivalence NOT executed"
+      }
+    ],
+    "planner_status_judgement_zh": "修复候选存在，不是已修复，也不是已验收。G1-04 仍是唯一放行口；hold_session_age 在「跨折 + 延展 + 止损 + 待执行订单 + 中间训练失败」全组合下与完整回放的等价性没有任何实测证据。",
+    "review_verdict_still_authoritative_zh": "独立审核 22:18 的阻断结论既未被推翻，也未被复验确认关闭。"
+  },
+  "review_gate": {
+    "path": "research/independent-review-20261106/REVIEW.md",
+    "sha256": "73ab7d812340d80953fd0f08906dbc80b949a56f6fc5fbab5c4a3a1813e17588",
+    "bytes": 15957,
+    "mtime_local_observed": "2026-11-06T22:18",
+    "conclusion_as_written_zh": "阻断验收，不建议合并当前回测相关改动；确认 3 项 P1，要求开发修复后由独立审核复验；复审不授予发布/合并/交易许可。",
+    "p1_items": [
+      "R1: GET /api/backtest/walkforward/stream returns 500; with exception propagation NameError on continuous_account",
+      "R2: cross-fold carry resets entry_time_id to -1, changing hold-extension exit day and duration",
+      "R3: spaced test windows skip position management and miss stop loss"
+    ],
+    "planner_actions": [
+      "Read the review file and quoted its conclusion by path, size and hash.",
+      "Re-read the cited source positions read-only, both at the review time and after the 22:36-22:38 edits.",
+      "Compared current file digests with the digests recorded in the review; the three core files have since changed."
+    ],
+    "planner_did_not_do": [
+      "Did not run the reviewer's TestClient probe, matching probe or WalkForwardService probe.",
+      "Did not run Ruff, pytest, frontend build or any product test.",
+      "Did not add to, soften or reinterpret the reviewer's verdict; nothing is claimed as re-verified."
+    ],
+    "unblock_condition_source_zh": "REVIEW.md 第 4 节：R1 正常 API 成功且覆盖布尔参数；R2 同参数跨段与完整回放逐笔/费用/现金/期末权益一致；R3 拒绝或真实回放缺口并覆盖中间训练失败。",
+    "developer_self_report_20261106_2300": {
+      "source": "系统开发工程师回执（信息，非验证）",
+      "claims": [
+        "R1 参数已进签名与 _make_wf_job_key 并下传服务层；API 拒绝连续模式下的间隔窗（step_days!=test_days → 400）",
+        "R2 hold_session_age 随 carry_state 结转，折边界不再清零",
+        "R3 口径为「连续账户下禁止稀疏窗」，关闭连续账户仍允许稀疏窗并标注为逐折复利诊断",
+        "只做 py_compile 语法检查，未跑 Ruff/pytest，无等价性对照"
+      ],
+      "planner_verified": [
+        "engine.py/api 摘要与 mtime 与回执时间线一致",
+        "R3 口径已按开发说明写入本规划，避免误记为全局禁止"
+      ],
+      "planner_did_not_verify": [
+        "任何行为等价性",
+        "Ruff/pytest 结果"
+      ],
+      "status": "修复候选待复验"
+    }
+  },
+  "registry_state": {
+    "as_of": "2026-11-06 23:11",
+    "registry_entries": 109,
+    "my_entries_label": "v0.6（23:09:45 已登记；v0.7 待登记）",
+    "my_entries_sha_match_disk": true,
+    "superseded_chain": [
+      "v0.1",
+      "v0.2",
+      "v0.3",
+      "v0.4",
+      "v0.5",
+      "v0.6"
+    ],
+    "admin_receipt": {
+      "check_exit": 0,
+      "registered": 109,
+      "links": 136,
+      "link_failures": 0,
+      "unregistered": 0,
+      "drift": 0,
+      "checked_at": "2026-11-06T15:11:11Z",
+      "reruns": 2
+    },
+    "planner_recomputed_sha": true,
+    "planner_reran_check": false,
+    "note_zh": "规划方重算四份 v0.6 摘要与登记值逐位一致；未复跑 check.py。v0.7 落盘后本目录将再产生 3 条预期漂移。"
+  },
+  "observations": [
+    "Independent review landed at 22:18 with a blocking verdict and three P1 items; the v0.1 statement that no review existed was withdrawn in v0.2.",
+    "The three core files were edited at 22:36:55-22:37:58, after the review and after v0.3 was written; their digests no longer equal the review's audited digests.",
+    "Read-only re-inspection shows targeting changes for R1 (parameter declared), R3 (stepped continuous windows rejected at the API) and R2 (hold_session_age carried across folds).",
+    "Code presence is not repair correctness: no Ruff, TestClient, matching probe or equivalence run was made by the planner, and the independent reviewer has not re-reviewed.",
+    "docs/README.md changed again at 22:39:35 (6,972 bytes, cd66113d...), so the registry already carries one content drift while v0.4 is being written.",
+    "research/strategy-search-20261107/ did not exist at 22:38 or 22:40; the S-line candidate library has no artifact yet.",
+    "stats_v2.py already provides BH-FDR and deflated-Sharpe / expected-max-Sharpe primitives, but DSR is not called by any strategy trial flow and n_trials is not accumulated system-wide.",
+    "candidates.py stores at most 200 candidates and distinguishes factor vs strategy; it is a candidate cache, not a trial ledger.",
+    "Prior in-repo strategy evidence is mostly negative: 24 constrained momentum/breakout/timing runs all lost money; T74 +331.04% is a hindsight reproduction, not out-of-sample performance.",
+    "Planner did not rerun Ruff, pytest, probes, frontend build, browser flow, deployment or any trade.",
+    "22:45-22:48 取证：engine.py changed again at 22:45:42 to 268,504 bytes / efe55703... (v0.4 recorded 268,176 bytes / b1766c08...); diff not compared line by line.",
+    "research/strategy-search-20261107/ was created at 22:45:54 and received scripts/common.py (22,821 bytes) and scripts/smoke.py (2,285 bytes); results/ is empty and no candidate spec, registry or protocol exists yet, so S2 is started but its gate is not met.",
+    "research/strategy-harness-20261106/PROGRESS.md (22:46:29) records the developer's own read-only survey and names the same gaps the plan lists: cross-strategy orchestration, single cost source, full trial ledger with data version, as-of checks.",
+    "docs/document-management/registry.json was last written at 22:39:55 and contains no occurrence of v0.4, so v0.4 is still unregistered; verification.json at 22:45:52 lists 2 unregistered documents and 4 content drifts, all inside this planning directory.",
+    "The user confirmed the acceptance criteria on 2026-11-06 and fixed their meaning: they are admission conditions for the next stage, not a profit promise; any multiple-testing result that fails the lockbox is exploratory only.",
+    "The quantitative researcher reports the candidate library as not delivered at its check time and judges out-of-sample stable profit unreachable under the current data boundary (no adjusted-price factors for 616 securities, no suspension/delisting tables, industry PIT only 6 days, cross-section backtest unsupported), while stating the existence of positive alpha remains unknown.",
+    "2026-11-06 22:48–23:01：research/strategy-search-20261107/ 由 scripts/ 两个文件扩为 scripts/ 四文件 + results/ 27 组产物；results/registry.json 于 23:01:01 定稿。",
+    "2026-11-06 22:53:42：backend/app/api/backtest.py 再改为 64,369 B / 42155e3a…（此前 22:37:58 记 6cd4e01d…/64,373 B）。",
+    "2026-11-06 23:00:25：docs/document-management/registry.json 196,911 B，107 条，含 v0.4 与 v0.5 两代记录。",
+    "2026-11-06 23:00:56：verification.json 记 EXIT=0、107 条、链接 136、失败 0、漂移 0。",
+    "2026-11-06 22:56:50：docs/README.md 7,135 B / ee3d4604…，第 76 行指 v0.5，登记一致。",
+    "工作区仍有 71 条未提交改动（HEAD 848bd04b，dev）。"
+  ],
+  "checks_performed_by_planner": [
+    "Read project AGENTS.md, CONTRIBUTING.md, docs/README.md and secondary-development guidance, current feature docs and research indexes.",
+    "Read git status, branch and HEAD; inspected actual research delivery files and selected current source entry points.",
+    "Read research/independent-review-20261106/REVIEW.md in full and cross-checked its cited source locations read-only.",
+    "Re-inspected backend/app/api/backtest.py, backend/app/backtest/walkforward.py and backend/app/backtest/engine.py after the 22:36-22:38 edits.",
+    "Read docs/research/strategy-reliability-20261106/RESULTS.md, khunter-feasibility-20261105/RESULTS.md and auction-lockbox-20261101/PROTOCOL.md for prior strategy evidence.",
+    "Read backend/app/backtest/stats_v2.py, optimizer.py, robust_optimizer.py, factor.py and candidates.py read-only to bound the S-line reusable surface and gaps.",
+    "Verified that research/strategy-search-20261107/ and docs/research/strategy-search-20261107/ do not exist (two checks: 22:38 and 22:40).",
+    "Computed SHA-256 and byte sizes for all cited evidence sources and for the three planning deliverables.",
+    "Recomputed SHA-256 for all 102 registry entries read-only (102 matched, 0 mismatched, 0 missing) at the v0.2 state.",
+    "Re-read the three written Markdown deliverables as UTF-8: no trailing whitespace, uniform table pipe counts, continuous risk IDs R01-R19.",
+    "只读重算本目录四份 v0.5 摘要，与登记册四条逐位一致",
+    "只读解析 results/registry.json 的 meta 与 27 条 run，计算 OOS 年化与回撤分布、正收益计数（5/27）、IS∩OOS 同为正计数（0/27）",
+    "只读解析 controls.json 的等权与流动性对照",
+    "只读统计 scripts/ 内 URL/引用/许可、protocol/n_trials/fdr/deflated/newey/lockbox 关键字出现次数",
+    "只读核对 registry.json 107 条、v0.4/v0.5 记录与 superseded 链",
+    "只读重算 engine.py、api/backtest.py、walkforward.py、candidates.py、stats_v2.py 摘要与 mtime"
+  ],
+  "limitations": [
+    "No product tests, frontend build, browser flow, full data audit or deployment performed by the planner.",
+    "The three P1 items are recorded from the reviewer's executed probes; the planner's own check of the new code is read-only source inspection and does not establish repair correctness.",
+    "The stable-profit criteria are user-confirmed admission conditions, but their numeric thresholds are not finalised by the researcher and have not been reviewed by independent review; the planner did not set them.",
+    "check.py was not re-run by the planner, so its exit code and link counts remain the administrator's artifact.",
+    "Hashes identify file contents at the sampled read, not an atomic snapshot of concurrent work; other agents were writing in the same tree at 22:36-22:39.",
+    "Specimen locations for the Wyckoff exact rules and frozen daily samples remain unknown.",
+    "v0.4 has not been registered when this file was written; the registry still carries v0.2 for this directory and the v0.3 registration is in flight.",
+    "No evidence exists yet on whether any public strategy passes the draft criteria; the S line has produced no experiment and no candidate.",
+    "未复跑任何回测、未运行 Ruff/pytest/前端构建/浏览器联调/部署",
+    "未审核 research/strategy-search-20261107/scripts/ 的实现正确性（信号时点、可成交性、停牌涨跌停处理、宇宙口径均为未验证）",
+    "27 次试验的产出者身份未明；规划方不推断作者",
+    "27 次试验的 registry 与 controls 均为采样时点读取，非并发写入下的原子快照",
+    "未验证 CATALOG 每行措辞；索引状态以文档管理员回执与正文为准",
+    "v0.7 的试验数字由规划方解析 research 侧 registry.json 重算，未复跑任何策略；口径正确性（信号时点、可成交性、宇宙）未由规划方审核。",
+    "研究员回执与磁盘的矛盾未解，规划方不推断作者。"
+  ],
+  "source_sha256": {
+    "backend/app/backtest/engine.py": {
+      "bytes": 268802,
+      "sha256": "77079303ee83fd20623bf2962bdc9655dbf8cc8fe25ae5351bf64a96754b2a1b",
+      "mtime_local": "2026-11-06 22:47:36"
+    },
+    "backend/app/api/backtest.py": {
+      "bytes": 64369,
+      "sha256": "42155e3a4ce2a1c060cef8979ec32ee972ac778fbf487c5d2365b142df3e304d",
+      "mtime_local": "2026-11-06 22:53:42"
+    },
+    "backend/app/backtest/walkforward.py": {
+      "bytes": 39556,
+      "sha256": "bde5da934aeaab99419047fc360cc275bae3cd27d125761b8cb2cbc95b5ef5a0",
+      "mtime_local": "2026-11-06 22:37:47"
+    },
+    "backend/app/backtest/candidates.py": {
+      "bytes": 13449,
+      "sha256": "442dbab3a4f6f7fd9e5cb1f1666caf964e936ce54f66926e400de73c4bce804b",
+      "mtime_local": "2026-10-29 12:27:03"
+    },
+    "backend/app/backtest/stats_v2.py": {
+      "bytes": 6298,
+      "sha256": "e158f3ad402119998543559e9a7b09d880c16bfee1a7c889bbbdef3fbedf8c4d",
+      "mtime_local": "2026-10-26 18:07:02"
+    },
+    "research/strategy-search-20261107/scripts/common.py": {
+      "bytes": 23076,
+      "sha256": "612d4b9e70b2505725849fe148454c1784a6633d8fc6bedc34e6ac18715a020b",
+      "mtime_local": "2026-11-06 22:55:55"
+    },
+    "research/strategy-search-20261107/scripts/run_suite.py": {
+      "bytes": 5420,
+      "sha256": "9e111f794fb077a37be5d667287a0430f104f240e47c46699e8bc0ee4b6192bf",
+      "mtime_local": "2026-11-06 22:56:03"
+    },
+    "research/strategy-search-20261107/scripts/controls.py": {
+      "bytes": 3837,
+      "sha256": "2ed3ac7042c7ff6cce334ab3d2d2721f71052830e4e75e3121bd5303c90c2d9e",
+      "mtime_local": "2026-11-06 22:49:43"
+    },
+    "research/strategy-search-20261107/results/registry.json": {
+      "bytes": 131776,
+      "sha256": "0f44df6aedc82bd221f6d120a2d66aed31ea5f131d912c7f4eebed0012adcb3e",
+      "mtime_local": "2026-11-06 23:01:01"
+    },
+    "research/strategy-search-20261107/results/controls.json": {
+      "bytes": 4365,
+      "sha256": "63e11fb7ccafd6f456330d10ccf8e1a4e703a426e40039274705edb862b97338",
+      "mtime_local": "2026-11-06 22:50:47"
+    },
+    "docs/document-management/registry.json": {
+      "bytes": 196911,
+      "sha256": "194dea8e27249843409bfdd0016a0e7185ede990348b19bca71ece1e413d8166",
+      "mtime_local": "2026-11-06 23:00:25"
+    },
+    "docs/document-management/verification.json": {
+      "bytes": 355,
+      "sha256": "db40c84595a5b8fdb27bb1c55388dc48ff80c2236aee50abc8c50227f212cb7f",
+      "mtime_local": "2026-11-06 23:00:56"
+    },
+    "docs/document-management/CATALOG.md": {
+      "bytes": 28794,
+      "sha256": "f393392fe2e401ece1b2bdcc39426ccce987e6067b26a4628b83eb57575e4dc1",
+      "mtime_local": "2026-11-06 22:58:56"
+    },
+    "docs/README.md": {
+      "bytes": 7135,
+      "sha256": "ee3d46040d96e09bfcf65664d6cfd9691ed4c35a1fd31844a214540aa5b9f07b",
+      "mtime_local": "2026-11-06 22:56:50"
+    }
+  },
+  "deliverable_sha256": {
+    "PROGRAM-PLAN.md": "e8d6a9ba77031974e5ec514e895294f330a21fee423bce6423ee33619a1c83a4",
+    "DELIVERY-CHECKLIST.md": "4dad233bf75f15cf114378bc553290f780be10b26b8ece25b5ab6c4837a5046e",
+    "RISKS-DEPENDENCIES.md": "a9914063b461bc1e4d69d1fd5eb312ebceb5df45ec4c7528a678f16e25793a60"
+  },
+  "deliverable_bytes": {
+    "PROGRAM-PLAN.md": 43802,
+    "DELIVERY-CHECKLIST.md": 16303,
+    "RISKS-DEPENDENCIES.md": 18723
+  },
+  "self_sha256_note": "EVIDENCE.json 不能包含自身摘要；其值由登记方复核时重算。另：本文件内 source_sha256 的 mtime 为取证据时快照。",
+  "threshold_confirmation_20261106": {
+    "confirmed_at_local": "2026-11-06",
+    "confirmed_by": "user, relayed on the user's behalf",
+    "kept_as_confirmed_zh": [
+      "样本外 >= 1 个完整年度 + 一次性锁箱 >= 60 交易日",
+      "账户最大回撤 <= 20%",
+      "多重检验校正门槛保留：BH-FDR q < 0.1 或 DSR >= 0.95"
+    ],
+    "characterisation_zh": "这些是候选进入下一阶段的准入条件，不是盈利承诺，也不是对未来的收益预期。",
+    "downgrade_rule_zh": "任何未通过锁箱的多重检验校正结果，一律降级为探索性结论，不得写入推荐候选，不得表述为「已找到稳定盈利策略」。",
+    "ownership_zh": "阈值数值由量化研究员定稿、独立审核复核；总体规划不裁定数值，不改写审核结论。",
+    "change_path_zh": "口径变更只能经由「研究员定稿文件 + 用户确认」，并在 DELIVERY-CHECKLIST 留变更记录。"
+  },
+  "researcher_response_20261106": {
+    "candidate_library_fact_zh": "研究员只读核对确认：research/strategy-search-20261107/ 在其核对时为不存在，docs/research/ 无对应目录，research/**/*.md 全文搜「公开策略/策略候选库/strategy-search」零命中；其提出的文件形态（README.md、candidates/<id>.md、registry.json、protocol.md、results/）为草案，非已交付。",
+    "thresholds_researcher_zh": {
+      "can_finalise": [
+        "数据版本与指纹固定、独立复跑一致",
+        "成本翻倍后仍为正",
+        "参数邻域平台 + 留一法后不反转",
+        "n_trials 如实计入且必须含全部试过的参数组合与候选版本，必报 Newey-West t"
+      ],
+      "suggests_changing": [
+        "锁箱 >= 60 交易日 -> 建议 >= 120 交易日",
+        "分状态均 >= 0 与单一年度不亏损 -> 建议降为推荐等级，硬门槛改为分状态不显著为负并报样本量与置信区间",
+        "MDD <= 20% -> 建议按策略类型分档（低频多头 25%）",
+        "BH-FDR 或 DSR -> 建议主判据 BH-FDR + NW t，DSR 仅作报告项"
+      ],
+      "status_zh": "以上建议均未定稿、未生效；用户已确认口径为当前执行基线。"
+    },
+    "data_boundary_zh": "研究员的方法结论：当前数据边界下「样本外稳定盈利」不可达，属数据问题——daily_cross_section_backtest.supported=false、616 证券无复权因子、无停牌/退市表、行业 PIT 仅 6 天；四项任一未补齐，任何「稳定盈利」结论都过不了其验收。建议分两档目标：门槛档（成本后不显著为负 + 超额方向为正且置信区间不排除 0 以上 + 分状态不显著为负 + 通过稳健性 + 显式列未覆盖风险）与宣称档（稳定盈利，当前不可达）。两档未获用户选择。",
+    "unknown_zh": "研究员明确 unknown：这套数据上是否真存在可复现的正 alpha；负面证据不构成「不存在」的证明。"
+  },
+  "corrections_v07": [
+    {
+      "id": "C5",
+      "item": "R3 修复候选的适用范围",
+      "previous_claim_in_planner_v06": "R3 的处置是按「先拒绝连续模式下 step_days != test_days」记录，但未说明非连续模式下的行为，易被读成全局禁止稀疏窗",
+      "actual": "开发本人指正：规则是「连续账户下禁止稀疏窗（step_days != test_days 即 400）」，关闭连续账户时仍允许稀疏窗并标注为逐折复利诊断；不是全局禁止",
+      "verified_by_planner": "已按开发回执改写 PROGRAM-PLAN 与 R14 相关表述；规划方未逐行复核该分支代码",
+      "corrected_in": "v0.7"
+    },
+    {
+      "id": "C6",
+      "item": "S2 首轮试验的规模",
+      "previous_claim_in_planner_v06": "27 次试验 / 9 策略（22:51–23:01 快照）",
+      "actual": "23:16 磁盘：run_*.json 与 rets_*.npy 各 36 份，registry.json 175,133 B / 2597d6fa…（23:09:33），12 策略 × 3 成本档 = 36 次；新增 S10_xs_reversal_20d、S11_lowvol_reversal、S12_lowvol_breadth",
+      "verified_by_planner": "规划方自行遍历 results/ 与解析 registry.json.runs（36 个键），并从 registry 重算 10bps 表；结论 0/36 样本内外同时为正",
+      "corrected_in": "v0.7"
+    },
+    {
+      "id": "C7",
+      "item": "多重检验是否已接入",
+      "previous_claim_in_planner_v06": "这批试验没有把 n_trials 接进 BH-FDR/DSR",
+      "actual": "研究侧 summary.json 已实现 DSR（deflated_sharpe 逐策略，最高 S07 0.027、sr0_daily 0.0476、z -1.93），但 n_trials 取 12（按策略数）而实际执行 36；生产侧 stats_v2.py 的 deflated_sharpe_psr/expected_max_sharpe 仍只在测试中被引用",
+      "verified_by_planner": "规划方读 summary.json 与开发回执；两侧结论分别成立，故表述改为「已接入但低估、且研究侧与生产侧未合一」",
+      "corrected_in": "v0.7"
+    },
+    {
+      "id": "C8",
+      "item": "研究员回执与磁盘的一致性",
+      "previous_claim_in_planner_v06": "研究员回执称目录不存在、未启动实验，磁盘 22:48–23:01 有写入；记为归属未明（R21）",
+      "actual": "研究员 23:11 回执仍称 Test-Path 为 False、未写任何文件；同期磁盘为 8 个脚本 + 81 个结果文件，23:09:54–23:11:02 仍在写入。矛盾未解，双方证据冲突",
+      "verified_by_planner": "规划方只读复核磁盘（23:16）；不推断作者，不据此认定交付或未交付",
+      "corrected_in": "v0.7"
+    },
+    {
+      "id": "C9",
+      "item": "v0.6 登记状态",
+      "previous_claim_in_planner_v06": "v0.6 尚未登记，registry 仍指 v0.5",
+      "actual": "文档管理员 23:09:45 完成 v0.6 登记：109 条、链接 136、失败 0、未登记 0、漂移 0（23:11:11 重跑两次一致），v0.5 入 superseded_versions，链路 v0.1→…→v0.6 完整",
+      "verified_by_planner": "规划方重算四份摘要与登记值逐位一致（770fac46…/35,143、6294aa0e…/16,087、86130616…/16,977、d0183522…/37,132）",
+      "corrected_in": "v0.7"
+    },
+    {
+      "id": "C10",
+      "item": "新增研究产物的登记",
+      "previous_claim_in_planner_v06": "未涉及",
+      "actual": "results/registry_table.md（4,706 B）、yearly_table.md（1,200 B，均 23:09:54）在登记期间出现，曾使 check.py 返回 exit 1；文档管理员已按「研究产物、未审核、作者未明」登记，此后 exit 0",
+      "verified_by_planner": "规划方确认两文件存在与字节数；未核其数值与 registry.json 的一致性",
+      "corrected_in": "v0.7"
+    },
+    {
+      "id": "C11",
+      "item": "数据可用性判定是否有产出",
+      "actual": "results/data_boundary.json（420 B，23:16:28）在 23:16 后出现，量化面板缺口（34,014 个证券×交易日 / 0.53%、181 只提前断档），但不含停牌/退市表、复权因子、行业 PIT",
+      "verified_by_planner": "规划方直接读取该文件；仅记录数值，未复算底层面板",
+      "corrected_in": "v0.7"
+    }
+  ],
+  "teammate_reports_20261106_2311": {
+    "doc_admin_zh": "v0.6 登记完成（109 条、exit 0、漂移 0）；认领 docs/README.md 22:39:35 为其 v0.3 轮同步；报告 27 次已在 23:09 被 36 次超越，并要求计数更新走 v0.7；登记了 registry_table.md / yearly_table.md 两份新研究产物；称根目录有两个疑似 shell 误建残留文件，未删未登记。",
+    "researcher_zh": "只读核对，称 research/strategy-search-20261107/ 不存在（Test-Path False）、未启动实验、未写文件；给出候选库文件形态草案（非交付）；阈值归属：可定稿四项方法门槛，建议改口径四项（锁箱≥120、MDD 分档 25%、DSR 降报告项、分状态改不显著为负）；方法结论：当前数据边界下「稳定盈利」不可达，四缺口为 daily_cross_section_backtest.supported=false、616 只无复权因子、无停牌/退市表、行业 PIT 仅 6 天；提出门槛档/宣称档两档目标。",
+    "dev_zh": "R1/R2/R3 代码已落盘（R3 口径为连续账户下禁止稀疏窗），但只做 py_compile，未跑 Ruff、未跑相关 pytest、无等价性对照；S3 缺口为编排层+登记册+统计接线+回归测试；candidates.py 上限 200 与字段不足；生产代码未接线统计原语；不确定是否与审核报告逐条对得上。",
+    "planner_treatment_zh": "三份均为回执（information only），按磁盘复核采用可验证部分；不可验证部分标为对方自述；争议不下结论，登记为 R21。"
+  },
+  "disk_verification_20261106_2316": {
+    "performed_by": "planner, read-only",
+    "strategy_search_scripts": 8,
+    "strategy_search_result_files": 81,
+    "run_json": 36,
+    "rets_npy": 36,
+    "engine_py": {
+      "sha256_prefix": "77079303",
+      "bytes": 268802,
+      "mtime": "22:47:36"
+    },
+    "docs_registry": {
+      "bytes": 210591,
+      "sha256_prefix": "d1d32b2c",
+      "mtime": "23:10:44"
+    },
+    "docs_readme": {
+      "bytes": 7155,
+      "sha256_prefix": "b1e2961a",
+      "mtime": "23:07:55"
+    },
+    "my_prev_deliverables": {
+      "PROGRAM-PLAN.md": "770fac46…/35,143",
+      "DELIVERY-CHECKLIST.md": "6294aa0e…/16,087",
+      "RISKS-DEPENDENCIES.md": "86130616…/16,977",
+      "EVIDENCE.json": "d0183522…/37,132"
+    },
+    "not_run": [
+      "Ruff",
+      "pytest",
+      "TestClient",
+      "撮合探针",
+      "前端构建",
+      "任何回测或策略复跑"
+    ],
+    "result_files": 82,
+    "note_zh": "23:19 复核：results/ 82 个文件，新增 data_boundary.json（23:16:28）；run_*.json 仍 36，registry.json 仍 175,133 B / 2597d6fa…（23:09:33）；engine.py 仍 77079303…/268,802 B"
+  },
+  "corrections_v08": [
+    {
+      "id": "C12",
+      "kind": "conflict_resolved",
+      "claim": "S07 OOS +31.8% (research docs) vs +7.81% (plan v0.7)",
+      "finding": "same run S07_xs_lowvol_60d@10: OOS.total_return=0.31771 (cumulative +31.77%), OOS.cagr=0.07815 (annualized +7.81%). Unit difference, not a data conflict.",
+      "effect": "the ISSUES item recorded by 文档管理员 can be closed; no file changed"
+    },
+    {
+      "id": "C13",
+      "kind": "correction",
+      "claim": "S07 是唯一回撤 ≤20% 且 OOS 为正的组合",
+      "finding": "ALL.max_drawdown=-0.29925 (-29.93%), ALL.cagr=-0.00102 (-0.10%), ALL.total_return=-0.0072. The -9.36% figure is the OOS segment only.",
+      "effect": "S07 breaches the MDD<=20% gate on the full period; best full-period MDD among 36 runs is -19.91% (S12_lowvol_breadth@gross)"
+    },
+    {
+      "id": "C14",
+      "kind": "correction",
+      "claim": "PROTOCOL.md 是预注册评估协议",
+      "finding": "mtime PROTOCOL.md 23:25:33, STRATEGIES.md 23:22:30, README.md/CAPABILITIES.md 23:25:33, REPORT.md 23:24:19; earliest run run_S01_ma_cross_20_60_10.json 22:51:55. PROTOCOL.md itself states it was written before any run.",
+      "effect": "S2 gate \"protocol frozen before runs\" remains unmet; recorded as self-described pre-registration without timestamp support (R23)"
+    },
+    {
+      "id": "C15",
+      "kind": "refinement",
+      "claim": "n_trials 记 12 而实际执行 36 = 低估",
+      "finding": "PROTOCOL.md §8 states cost scenarios (10/30/gross) are not counted as separate trials; §5 states IS/OOS is time-extrapolation, not parameter-extrapolation; parameters are public defaults, no search.",
+      "effect": "12 vs 36 is a documented convention, not an omission; 0/36 is a negative result not contaminated by parameter search, but strategy-set selection bias remains"
+    },
+    {
+      "id": "C16",
+      "kind": "independent_recompute",
+      "claim": "0/36 with IS and OOS both positive",
+      "finding": "recomputed from results/registry.json (175,133 B / 2597d6fa…): runs with IS.cagr>0 and OOS.cagr>0 = 0; OOS.cagr>0 count = 5",
+      "effect": "plan v0.7 verdict stands"
+    }
+  ],
+  "s07_reconciliation": {
+    "run": "S07_xs_lowvol_60d@10",
+    "is": {
+      "cagr": -0.08002,
+      "total_return": -0.24595,
+      "max_drawdown": -0.25131,
+      "n_days": 853
+    },
+    "oos": {
+      "cagr": 0.07815,
+      "total_return": 0.31771,
+      "max_drawdown": -0.09356,
+      "sharpe": 0.9667,
+      "n_days": 924
+    },
+    "all": {
+      "cagr": -0.00102,
+      "total_return": -0.0072,
+      "max_drawdown": -0.29925,
+      "sharpe": 0.031
+    },
+    "verdict": "fails every gate on the full period; research-line only"
+  },
+  "s2_gate_v08": {
+    "protocol_frozen_before_runs": false,
+    "evidence": "PROTOCOL.md 23:25:33 > first run 22:51:55",
+    "external_sources_cited": 0,
+    "note": "STRATEGIES.md contains 0 occurrences of \"http\"; scripts/common.py has no source attribution or licence",
+    "verification_json_scope": "self-check of 4 properties over 3-4 runs (price mapping 450/450, timing 1345 trades, prefix 3 cutoffs identical, equity continuous) — not independent review",
+    "gate_result": "未达"
+  },
+  "research_docs_v08": {
+    "README.md": {
+      "bytes": 6301,
+      "sha256": "b0d2b9abfc4272770f94cc926368336e872869a2741e6a1c323dc7897cd0a1cb",
+      "mtime_local": "23:25:33"
+    },
+    "CAPABILITIES.md": {
+      "bytes": 5657,
+      "sha256": "e3e33d738ea11b9ca79b2c3ce9ebe53601268ff5afc0d8257bdefc3629ff19dc",
+      "mtime_local": "23:25:33"
+    },
+    "PROTOCOL.md": {
+      "bytes": 8307,
+      "sha256": "411a9e3c3683f1fa8fbcfe8b94b590158da213f08ec6777986d66e5920f375df",
+      "mtime_local": "23:25:33"
+    },
+    "STRATEGIES.md": {
+      "bytes": 6687,
+      "sha256": "25f7e612f2725252cbaf7fd258e630dbd556310d677a2cb207616a730b153dc7",
+      "mtime_local": "23:22:30"
+    },
+    "REPORT.md": {
+      "bytes": 14723,
+      "sha256": "53e19a517fea17c56bd9f57822c5e596be634f0d226521e24886f40fd8f8bd55",
+      "mtime_local": "23:24:19"
+    }
+  },
+  "research_docs_v08_note": "all five written after the first run; hashes are sampled values because the author was still writing during the check"
+}

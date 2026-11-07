@@ -1,0 +1,72 @@
+ M backend/app/api/backtest.py
+ M backend/app/backtest/engine.py
+ M backend/app/backtest/strategy.py
+ M backend/app/backtest/walkforward.py
+ M backend/app/custom/industry_chain/__init__.py
+ M backend/app/custom/industry_chain/routes.py
+ D backend/app/custom/industry_chain/service.py
+ M backend/app/extensions/adapters.py
+ M backend/app/services/quote_service.py
+ M backend/app/strategy/monitor.py
+ M backend/tests/backtest/test_khunter_limit_up_pullback.py
+ M backend/tests/backtest/test_robust_optimizer.py
+ M backend/tests/backtest/test_walkforward.py
+ M backend/tests/backtest/test_worker_process.py
+ M backend/tests/fixtures/khunter_strategies/custom_khunter_limit_up_pullback.py
+ M backend/tests/test_backtest_stream_date_guard.py
+ M backend/tests/test_etf_monitor_stale_snapshot.py
+ M backend/tests/test_extension_read_contracts.py
+ M backend/tests/test_industry_chain_extension.py
+ M docs/README.md
+ M docs/backtest-evidence.md
+ M docs/features.md
+ M docs/research/README.md
+ M docs/secondary-development.md
+ M frontend/src/custom/README.md
+ D frontend/src/custom/industry-chain/AnalysisPanel.tsx
+ M frontend/src/custom/industry-chain/GraphCanvas.test.tsx
+ M frontend/src/custom/industry-chain/GraphCanvas.tsx
+ M frontend/src/custom/industry-chain/Page.test.tsx
+ M frontend/src/custom/industry-chain/Page.tsx
+ M frontend/src/custom/industry-chain/StockLinkDrawer.tsx
+ M frontend/src/custom/industry-chain/StockListPanel.test.tsx
+ M frontend/src/custom/industry-chain/StockListPanel.tsx
+ M frontend/src/custom/industry-chain/StockWorkspaceDialog.test.tsx
+ M frontend/src/custom/industry-chain/StockWorkspaceDialog.tsx
+ M frontend/src/custom/industry-chain/layout.test.ts
+ M frontend/src/custom/industry-chain/layout.ts
+ M frontend/src/lib/api.ts
+ M frontend/src/lib/queryKeys.ts
+ M frontend/src/lib/walkforwardTask.ts
+ M frontend/src/pages/backtest/StrategyWalkForward.tsx
+?? "=.5,sum(1 for r in rows if r.get(windows,{}).get(3d,{}).get(closeness,0)\357\200\276=.5))\357\200\212    print("
+?? backend/.tmp-review/
+?? backend/.venv-wsl-recovery/
+?? backend/app/custom/strategy_research/
+?? backend/app/services/quote_freshness.py
+?? backend/tests/backtest/test_continuous_account.py
+?? backend/tests/test_quote_freshness.py
+?? backend/tests/test_strategy_research.py
+?? docs/INDEX_BACKTEST_INVENTORY.md
+?? docs/document-management/
+?? docs/research/first-board-t74-right-tail-20261106/
+?? docs/research/parallel-data-20261106/
+?? docs/research/parallel-review-20261106/
+?? docs/research/strategy-reliability-20261106/
+?? docs/strategy-research.md
+?? frontend/src/custom/industry-chain/StockFinancialSnapshot.test.tsx
+?? frontend/src/custom/industry-chain/StockFinancialSnapshot.tsx
+?? frontend/src/custom/strategy-research/
+?? mcp-results/
+?? research/architecture-20261106/
+?? research/batch-backtest-framework-20261107/
+?? research/data-gaps-20261107/
+?? research/independent-review-20261106/
+?? research/parallel-data-20261106/
+?? research/parallel-review-20261106/
+?? research/program-planning-20261106/
+?? research/strategy-harness-20261106/
+?? research/strategy-reliability-20261106/
+?? research/strategy-search-20261107/
+?? research/wyckoff-system-design-20261106/
+?? scripts/strategy_research.py

@@ -31,6 +31,7 @@
 | [strategy.md](strategy.md) | 策略编写与参数 |
 | [strategy-iteration.md](strategy-iteration.md) | AI 策略迭代流程 |
 | [backtest-evidence.md](backtest-evidence.md) | 正式回测的未来数据检查、版本指纹与证据接口 |
+| [strategy-research.md](strategy-research.md) | T74 右尾路径诊断、受控退出实验与因子研究记录 |
 | [mining.md](mining.md) | 因子与策略挖掘 |
 | [market-phase.md](market-phase.md) | 市场阶段与主线识别 |
 | [custom-data-source.md](custom-data-source.md) | 自定义数据源契约 |
@@ -72,6 +73,7 @@
 | [`../research/archive/2026-10-27-firstboard-classification/`](../research/archive/2026-10-27-firstboard-classification/README.md) | 研究工作区，含脚本、CSV、大 HTML | 已按历史快照迁出 `docs/` 并封存；不是维护型文档 |
 | [research/firstboard-confirmatory-20261030/](research/firstboard-confirmatory-20261030/RESULTS.md)、[research/firstboard-negative-20261030/](research/firstboard-negative-20261030/RESULTS.md) | 进行中研究 | 研究结束后只保留 `RESULTS.md` 与必要数据清单 |
 | [superpowers/specs/](superpowers/specs/) | 设计提案与历史计划 | 只保留可定位到具体文件的条目；完成或失效后合并或删除 |
+| [research/program-planning-20261106/](../research/program-planning-20261106/PROGRAM-PLAN.md) | 系统总体规划 v0.8（执行规划、阶段交付清单、风险依赖、取证记录；含策略搜索主线 S1–S6、用户确认的候选准入口径与 v0.8 五处更正 C12–C16；v0.1–v0.7 已被替代，摘要保留于登记册） | 过程/规划材料，不并入现行文档；路径、版本、维护人与证据边界统一登记于 [文档管理统一索引](document-management/README.md) |
 
 2026-10-29 的实施阶段计划文件已删除，设计稿仍保留于上表；历史版本由 Git 保留。
 

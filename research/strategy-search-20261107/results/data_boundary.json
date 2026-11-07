@@ -1,0 +1,14 @@
+{
+  "panel_rows": 6422875,
+  "symbols": 3384,
+  "calendar_days": 2136,
+  "calendar_first": "2018-01-08",
+  "calendar_last": "2026-10-30",
+  "expected_symbol_days": 6456889,
+  "observed": 6422875,
+  "missing_symbol_days": 34014,
+  "missing_share": 0.005267861968821208,
+  "symbols_last_before_panel_end_with_120bars": 181,
+  "symbols_fewer_than_120_bars": 27,
+  "symbols_starting_after_calendar_start": 962
+}

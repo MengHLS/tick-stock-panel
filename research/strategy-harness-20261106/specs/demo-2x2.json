@@ -1,0 +1,41 @@
+{
+  "name": "demo-2x2",
+  "asset_type": "stock",
+  "start": "2025-01-02",
+  "end": "2026-11-06",
+  "walkforward": { "train_days": 250, "test_days": 60, "step_days": 60 },
+  "fold_used": 0,
+  "windows": ["IS", "OOS", "ALL"],
+  "symbols": { "mode": "even_stride", "n": 200, "reference_date": "2025-01-02" },
+  "prewarm_years": 3,
+  "base": {
+    "mode": "position",
+    "holding_days": 5,
+    "max_positions": 5,
+    "max_exposure_pct": 1.0,
+    "initial_capital": 1000000.0,
+    "position_sizing": "equal",
+    "entry_fill": "open_t+1",
+    "exit_fill": "open_t+1"
+  },
+  "cost_tiers": [
+    {
+      "id": "zero",
+      "fees_pct": 0.0,
+      "commission_pct": 0.0,
+      "stamp_tax_pct": 0.0,
+      "slippage_bps": 0.0
+    },
+    {
+      "id": "real",
+      "fees_pct": 0.0002,
+      "commission_pct": 0.00025,
+      "stamp_tax_pct": 0.0005,
+      "slippage_bps": 5.0
+    }
+  ],
+  "strategies": [
+    { "id": "first_limit_pullback_3f_runner_t74", "params": {}, "overrides": {} },
+    { "id": "first_board_chain_rebreak", "params": {}, "overrides": {} }
+  ]
+}

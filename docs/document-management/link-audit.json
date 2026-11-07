@@ -1,0 +1,1376 @@
+{
+  "checked_at": "2026-11-06T14:14:01.224018+00:00",
+  "method": "Markdown内联及引用定义目标文件存在检查；不检查纯锚点、HTML链接、代码块和外网",
+  "links_checked": 228,
+  "broken_count": 1,
+  "links": [
+    {
+      "source": "AGENTS.md",
+      "target": "CONTRIBUTING.md",
+      "exists": true,
+      "resolved": "CONTRIBUTING.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "docs/secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "docs/README.md",
+      "exists": true,
+      "resolved": "docs/README.md"
+    },
+    {
+      "source": "CONTRIBUTING.md",
+      "target": "docs/secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "CONTRIBUTING.md",
+      "target": "docs/secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "docs/backtest-evidence.md",
+      "target": "research/strategy-reliability-20261106/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/strategy-reliability-20261106/RESULTS.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./deployment.md#更新代码已部署用户必读",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./deployment.md#访问密码设置公网部署必读",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./deploy-password.md#方式二ssh-端口转发",
+      "exists": true,
+      "resolved": "docs/deploy-password.md"
+    },
+    {
+      "source": "docs/configuration.md",
+      "target": "./deployment.md#老-cpu-兼容avx2fma-缺失",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "docs/custom-data-source.md",
+      "target": "./plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/deployment.md",
+      "target": "./configuration.md",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "docs/deployment.md",
+      "target": "../README.md#-快速开始",
+      "exists": true,
+      "resolved": "README.md"
+    },
+    {
+      "source": "docs/examples/custom-data-source/README.md",
+      "target": "../../custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/extension-packages.md",
+      "target": "external-data-source-packages.md",
+      "exists": true,
+      "resolved": "docs/external-data-source-packages.md"
+    },
+    {
+      "source": "docs/extension-packages.md",
+      "target": "page-sdk.md",
+      "exists": true,
+      "resolved": "docs/page-sdk.md"
+    },
+    {
+      "source": "docs/external-data-source-packages.md",
+      "target": "plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/external-data-source-packages.md",
+      "target": "plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/external-data-source-packages.md",
+      "target": "../examples/data-source-plugin/provider.py",
+      "exists": true,
+      "resolved": "examples/data-source-plugin/provider.py"
+    },
+    {
+      "source": "docs/factor-system-design.md",
+      "target": "factor-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/factor-platform-plan.md"
+    },
+    {
+      "source": "docs/factor-system-design.md",
+      "target": "factor-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/factor-platform-plan.md"
+    },
+    {
+      "source": "docs/factor-system-design.md",
+      "target": "features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./configuration.md",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./strategy.md#示例策略",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./strategy.md#扩展策略的三种方式",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./strategy-research.md",
+      "exists": true,
+      "resolved": "docs/strategy-research.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./auto-strategy-lab-plan.md",
+      "exists": true,
+      "resolved": "docs/auto-strategy-lab-plan.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./mining.md",
+      "exists": true,
+      "resolved": "docs/mining.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./market-phase.md",
+      "exists": true,
+      "resolved": "docs/market-phase.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./factor-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/factor-platform-plan.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./page-sdk.md",
+      "exists": true,
+      "resolved": "docs/page-sdk.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./configuration.md#全量分钟-full_minute",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./open-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/open-platform-plan.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "../examples/open-api/README.md",
+      "exists": true,
+      "resolved": "examples/open-api/README.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "./configuration.md#开放接口网络门禁默认仅本机内网",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "docs/features.md",
+      "target": "../mcp-server/README.md",
+      "exists": true,
+      "resolved": "mcp-server/README.md"
+    },
+    {
+      "source": "docs/open-platform-plan.md",
+      "target": "./features.md#-开放接口open-api--tier-a",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "docs/open-platform-plan.md",
+      "target": "../CONTRIBUTING.md",
+      "exists": true,
+      "resolved": "CONTRIBUTING.md"
+    },
+    {
+      "source": "docs/open-platform-plan.md",
+      "target": "./secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "docs/page-sdk.md",
+      "target": "extension-packages.md",
+      "exists": true,
+      "resolved": "docs/extension-packages.md"
+    },
+    {
+      "source": "docs/paper-trading-plan.md",
+      "target": "secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "docs/paper-trading-plan.md",
+      "target": "features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "docs/paper-trading-plan.md",
+      "target": "../CONTRIBUTING.md",
+      "exists": true,
+      "resolved": "CONTRIBUTING.md"
+    },
+    {
+      "source": "docs/plugin-development.md",
+      "target": "./custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/plugin-development.md",
+      "target": "external-data-source-packages.md",
+      "exists": true,
+      "resolved": "docs/external-data-source-packages.md"
+    },
+    {
+      "source": "docs/plugin-development.md",
+      "target": "./custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "configuration.md",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "deploy-password.md",
+      "exists": true,
+      "resolved": "docs/deploy-password.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "strategy-iteration.md",
+      "exists": true,
+      "resolved": "docs/strategy-iteration.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "backtest-evidence.md",
+      "exists": true,
+      "resolved": "docs/backtest-evidence.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "strategy-research.md",
+      "exists": true,
+      "resolved": "docs/strategy-research.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "mining.md",
+      "exists": true,
+      "resolved": "docs/mining.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "market-phase.md",
+      "exists": true,
+      "resolved": "docs/market-phase.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "external-data-source-packages.md",
+      "exists": true,
+      "resolved": "docs/external-data-source-packages.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "extension-packages.md",
+      "exists": true,
+      "resolved": "docs/extension-packages.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "page-sdk.md",
+      "exists": true,
+      "resolved": "docs/page-sdk.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "historical-st-filter.md",
+      "exists": true,
+      "resolved": "docs/historical-st-filter.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "examples/custom-data-source/",
+      "exists": true,
+      "resolved": "docs/examples/custom-data-source"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "factor-system-design.md",
+      "exists": true,
+      "resolved": "docs/factor-system-design.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "factor-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/factor-platform-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "open-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/open-platform-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "paper-trading-plan.md",
+      "exists": true,
+      "resolved": "docs/paper-trading-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "robust-optimizer-plan.md",
+      "exists": true,
+      "resolved": "docs/robust-optimizer-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "auto-strategy-lab-plan.md",
+      "exists": true,
+      "resolved": "docs/auto-strategy-lab-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "ext-architecture-plan.md",
+      "exists": true,
+      "resolved": "docs/ext-architecture-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "backend-data-performance-plan.md",
+      "exists": true,
+      "resolved": "docs/backend-data-performance-plan.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "tickflow-pro-phase1-probe.md",
+      "exists": true,
+      "resolved": "docs/tickflow-pro-phase1-probe.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "tickflow-pro-shared-rate-limit.md",
+      "exists": true,
+      "resolved": "docs/tickflow-pro-shared-rate-limit.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md",
+      "exists": true,
+      "resolved": "docs/superpowers/specs/2026-10-29-firstboard-factor-discovery-design.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md",
+      "exists": true,
+      "resolved": "docs/superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md",
+      "exists": true,
+      "resolved": "docs/superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "research/README.md",
+      "exists": true,
+      "resolved": "docs/research/README.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "../research/archive/2026-10-27-firstboard-classification/README.md",
+      "exists": true,
+      "resolved": "research/archive/2026-10-27-firstboard-classification/README.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "research/firstboard-confirmatory-20261030/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/firstboard-confirmatory-20261030/RESULTS.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "research/firstboard-negative-20261030/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/firstboard-negative-20261030/RESULTS.md"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "superpowers/specs/",
+      "exists": true,
+      "resolved": "docs/superpowers/specs"
+    },
+    {
+      "source": "docs/README.md",
+      "target": "research/README.md",
+      "exists": true,
+      "resolved": "docs/research/README.md"
+    },
+    {
+      "source": "docs/research/auction-d-day-veto-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_d_day_veto_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_d_day_veto_study.py"
+    },
+    {
+      "source": "docs/research/auction-d5-loss-attribution-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_d5_loss_attribution.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_d5_loss_attribution.py"
+    },
+    {
+      "source": "docs/research/auction-downside-model-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_downside_model_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_downside_model_study.py"
+    },
+    {
+      "source": "docs/research/auction-expected-return-model-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_expected_return_model_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_expected_return_model_study.py"
+    },
+    {
+      "source": "docs/research/auction-holding-risk-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_holding_period_risk_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_holding_period_risk_study.py"
+    },
+    {
+      "source": "docs/research/auction-lockbox-20261101/PROTOCOL.md",
+      "target": "../../../backend/scripts/auction_lockbox_readiness.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_lockbox_readiness.py"
+    },
+    {
+      "source": "docs/research/auction-market-gate-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_market_gate_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_market_gate_study.py"
+    },
+    {
+      "source": "docs/research/auction-market-return-model-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_market_return_model_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_market_return_model_study.py"
+    },
+    {
+      "source": "docs/research/auction-multifactor-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_multifactor_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_multifactor_study.py"
+    },
+    {
+      "source": "docs/research/auction-multifactor-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_high_open_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_high_open_study.py"
+    },
+    {
+      "source": "docs/research/auction-path-stop-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_path_stop_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_path_stop_study.py"
+    },
+    {
+      "source": "docs/research/auction-portfolio-construction-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_portfolio_construction_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_portfolio_construction_study.py"
+    },
+    {
+      "source": "docs/research/auction-return-market-combo-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_return_market_combo_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_return_market_combo_study.py"
+    },
+    {
+      "source": "docs/research/auction-risk-budget-exposure-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_risk_budget_exposure_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_risk_budget_exposure_study.py"
+    },
+    {
+      "source": "docs/research/auction-tail-loss-attribution-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_tail_loss_attribution.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_tail_loss_attribution.py"
+    },
+    {
+      "source": "docs/research/auction-tail-stability-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_tail_stability_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_tail_stability_study.py"
+    },
+    {
+      "source": "docs/research/auction-tail-strength-20261031/RESULTS.md",
+      "target": "../../../backend/scripts/auction_high_open_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_high_open_study.py"
+    },
+    {
+      "source": "docs/research/auction-tail-strength-20261031/RESULTS.md",
+      "target": "../../../backend/scripts/auction_factor_admission.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_factor_admission.py"
+    },
+    {
+      "source": "docs/research/auction-walkforward-20261101/RESULTS.md",
+      "target": "../../../backend/scripts/auction_walkforward_study.py",
+      "exists": true,
+      "resolved": "backend/scripts/auction_walkforward_study.py"
+    },
+    {
+      "source": "docs/research/first-board-entry-exit-study-20261026/REPORT.md",
+      "target": "../first-board-rationing-study-20261026/REPORT.md",
+      "exists": true,
+      "resolved": "docs/research/first-board-rationing-study-20261026/REPORT.md"
+    },
+    {
+      "source": "docs/research/firstboard-confirmatory-20261030/RESULTS.md",
+      "target": "study.json",
+      "exists": true,
+      "resolved": "docs/research/firstboard-confirmatory-20261030/study.json"
+    },
+    {
+      "source": "docs/research/firstboard-confirmatory-20261030/RESULTS.md",
+      "target": "../../superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md",
+      "exists": true,
+      "resolved": "docs/superpowers/specs/2026-10-30-firstboard-confirmatory-validation-design.md"
+    },
+    {
+      "source": "docs/research/firstboard-negative-20261030/RESULTS.md",
+      "target": "study.json",
+      "exists": true,
+      "resolved": "docs/research/firstboard-negative-20261030/study.json"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../CONTRIBUTING.md",
+      "exists": true,
+      "resolved": "CONTRIBUTING.md"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/api/strategy.py",
+      "exists": true,
+      "resolved": "backend/app/api/strategy.py"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/strategy/engine.py",
+      "exists": true,
+      "resolved": "backend/app/strategy/engine.py"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/strategy/prompts/strategy-guide-compact.md",
+      "exists": true,
+      "resolved": "backend/app/strategy/prompts/strategy-guide-compact.md"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/backtest/matrix.py",
+      "exists": true,
+      "resolved": "backend/app/backtest/matrix.py"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/strategy/strategy_seeds.py",
+      "exists": true,
+      "resolved": "backend/app/strategy/strategy_seeds.py"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/strategy/seeds/platform_consolidation_breakout.py",
+      "exists": true,
+      "resolved": "backend/app/strategy/seeds/platform_consolidation_breakout.py"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/app/strategy/seeds/pullback_to_support.py",
+      "exists": true,
+      "resolved": "backend/app/strategy/seeds/pullback_to_support.py"
+    },
+    {
+      "source": "docs/research/khunter-feasibility-20261105/RESULTS.md",
+      "target": "../../../backend/tests/backtest/test_limit_up_close_fill.py",
+      "exists": true,
+      "resolved": "backend/tests/backtest/test_limit_up_close_fill.py"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "../../research/README.md",
+      "exists": true,
+      "resolved": "research/README.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "strategy-reliability-20261106/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/strategy-reliability-20261106/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "khunter-feasibility-20261105/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/khunter-feasibility-20261105/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "first-board-entry-study-20261026/REPORT.md",
+      "exists": true,
+      "resolved": "docs/research/first-board-entry-study-20261026/REPORT.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "first-board-entry-exit-study-20261026/REPORT.md",
+      "exists": true,
+      "resolved": "docs/research/first-board-entry-exit-study-20261026/REPORT.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "first-board-rationing-study-20261026/REPORT.md",
+      "exists": true,
+      "resolved": "docs/research/first-board-rationing-study-20261026/REPORT.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "firstboard-confirmatory-20261030/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/firstboard-confirmatory-20261030/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "firstboard-negative-20261030/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/firstboard-negative-20261030/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-tail-strength-20261031/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-tail-strength-20261031/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-multifactor-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-multifactor-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-portfolio-construction-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-portfolio-construction-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-tail-stability-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-tail-stability-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-tail-loss-attribution-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-tail-loss-attribution-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-holding-risk-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-holding-risk-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-d5-loss-attribution-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-d5-loss-attribution-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-walkforward-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-walkforward-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-d-day-veto-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-d-day-veto-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-market-gate-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-market-gate-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-path-stop-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-path-stop-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-downside-model-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-downside-model-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-expected-return-model-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-expected-return-model-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-return-market-combo-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-return-market-combo-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-risk-budget-exposure-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-risk-budget-exposure-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-market-return-model-20261101/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/auction-market-return-model-20261101/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "auction-lockbox-20261101/PROTOCOL.md",
+      "exists": true,
+      "resolved": "docs/research/auction-lockbox-20261101/PROTOCOL.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "first-board-right-tail-20261102/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/first-board-right-tail-20261102/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "first-board-t74-right-tail-20261106/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/first-board-t74-right-tail-20261106/RESULTS.md"
+    },
+    {
+      "source": "docs/research/README.md",
+      "target": "../../research/archive/2026-10-27-firstboard-classification/README.md",
+      "exists": true,
+      "resolved": "research/archive/2026-10-27-firstboard-classification/README.md"
+    },
+    {
+      "source": "docs/research/strategy-reliability-20261106/RESULTS.md",
+      "target": "../../../research/strategy-reliability-20261106/README.md",
+      "exists": true,
+      "resolved": "research/strategy-reliability-20261106/README.md"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "../CONTRIBUTING.md",
+      "exists": true,
+      "resolved": "CONTRIBUTING.md"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "extension-packages.md",
+      "exists": true,
+      "resolved": "docs/extension-packages.md"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "strategy.md#资源导入与批量导出",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "external-data-source-packages.md",
+      "exists": true,
+      "resolved": "docs/external-data-source-packages.md"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "../frontend/src/custom/_template/extension.tsx.example",
+      "exists": true,
+      "resolved": "frontend/src/custom/_template/extension.tsx.example"
+    },
+    {
+      "source": "docs/secondary-development.md",
+      "target": "../backend/app/custom/_template.py.example",
+      "exists": true,
+      "resolved": "backend/app/custom/_template.py.example"
+    },
+    {
+      "source": "docs/strategy-iteration.md",
+      "target": "./mining.md",
+      "exists": true,
+      "resolved": "docs/mining.md"
+    },
+    {
+      "source": "docs/strategy-iteration.md",
+      "target": "./mining.md",
+      "exists": true,
+      "resolved": "docs/mining.md"
+    },
+    {
+      "source": "docs/strategy-iteration.md",
+      "target": "./strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "docs/strategy-research.md",
+      "target": "../research/first-board-t74-right-tail-20261106/RESULTS.md",
+      "exists": false,
+      "resolved": "research/first-board-t74-right-tail-20261106/RESULTS.md"
+    },
+    {
+      "source": "docs/strategy.md",
+      "target": "../backend/app/strategy/prompts/strategy-guide.md",
+      "exists": true,
+      "resolved": "backend/app/strategy/prompts/strategy-guide.md"
+    },
+    {
+      "source": "docs/strategy.md",
+      "target": "./mining.md",
+      "exists": true,
+      "resolved": "docs/mining.md"
+    },
+    {
+      "source": "docs/strategy.md",
+      "target": "./configuration.md#ai可选",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "docs/strategy.md",
+      "target": "./strategy-iteration.md",
+      "exists": true,
+      "resolved": "docs/strategy-iteration.md"
+    },
+    {
+      "source": "docs/strategy.md",
+      "target": "../backend/app/strategy/prompts/strategy-guide.md",
+      "exists": true,
+      "resolved": "backend/app/strategy/prompts/strategy-guide.md"
+    },
+    {
+      "source": "docs/strategy.md",
+      "target": "../backend/app/strategy/prompts/strategy-guide.md",
+      "exists": true,
+      "resolved": "backend/app/strategy/prompts/strategy-guide.md"
+    },
+    {
+      "source": "docs/superpowers/specs/2026-11-01-cross-sectional-linkage-factors-design.md",
+      "target": "../../features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./screenshots/README.md",
+      "exists": true,
+      "resolved": "screenshots/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./screenshots/README.md",
+      "exists": true,
+      "resolved": "screenshots/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/page-sdk.md",
+      "exists": true,
+      "resolved": "docs/page-sdk.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/open-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/open-platform-plan.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./mcp-server/README.md",
+      "exists": true,
+      "resolved": "mcp-server/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./examples/open-api/README.md",
+      "exists": true,
+      "resolved": "examples/open-api/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/open-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/open-platform-plan.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/configuration.md#开放接口网络门禁默认仅本机内网",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./screenshots/AI对话助手.png",
+      "exists": true,
+      "resolved": "screenshots/AI对话助手.png"
+    },
+    {
+      "source": "README.md",
+      "target": "./.env.example",
+      "exists": true,
+      "resolved": ".env.example"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docker-compose.yml",
+      "exists": true,
+      "resolved": "docker-compose.yml"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./examples/open-api/README.md",
+      "exists": true,
+      "resolved": "examples/open-api/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./mcp-server/README.md",
+      "exists": true,
+      "resolved": "mcp-server/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./frontend/page-pack-template",
+      "exists": true,
+      "resolved": "frontend/page-pack-template"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/configuration.md",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/README.md",
+      "exists": true,
+      "resolved": "docs/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/configuration.md",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/open-platform-plan.md",
+      "exists": true,
+      "resolved": "docs/open-platform-plan.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./mcp-server/README.md",
+      "exists": true,
+      "resolved": "mcp-server/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./examples/open-api/README.md",
+      "exists": true,
+      "resolved": "examples/open-api/README.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/strategy-iteration.md",
+      "exists": true,
+      "resolved": "docs/strategy-iteration.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/mining.md",
+      "exists": true,
+      "resolved": "docs/mining.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/market-phase.md",
+      "exists": true,
+      "resolved": "docs/market-phase.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/external-data-source-packages.md",
+      "exists": true,
+      "resolved": "docs/external-data-source-packages.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/secondary-development.md",
+      "exists": true,
+      "resolved": "docs/secondary-development.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./docs/page-sdk.md",
+      "exists": true,
+      "resolved": "docs/page-sdk.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./backend/app/strategy/prompts/strategy-guide.md",
+      "exists": true,
+      "resolved": "backend/app/strategy/prompts/strategy-guide.md"
+    },
+    {
+      "source": "README.md",
+      "target": "./LICENSE",
+      "exists": true,
+      "resolved": "LICENSE"
+    },
+    {
+      "source": "README.md",
+      "target": "./CONTRIBUTING.md",
+      "exists": true,
+      "resolved": "CONTRIBUTING.md"
+    },
+    {
+      "source": "research/archive/2026-10-27-firstboard-classification/README.md",
+      "target": "event-replay-v01/README.md",
+      "exists": true,
+      "resolved": "research/archive/2026-10-27-firstboard-classification/event-replay-v01/README.md"
+    },
+    {
+      "source": "research/README.md",
+      "target": "../docs/research/README.md",
+      "exists": true,
+      "resolved": "docs/research/README.md"
+    },
+    {
+      "source": "research/README.md",
+      "target": "archive/2026-10-27-firstboard-classification/README.md",
+      "exists": true,
+      "resolved": "research/archive/2026-10-27-firstboard-classification/README.md"
+    },
+    {
+      "source": "research/README.md",
+      "target": "industry-chains-20261105/README.md",
+      "exists": true,
+      "resolved": "research/industry-chains-20261105/README.md"
+    },
+    {
+      "source": "research/strategy-reliability-20261106/README.md",
+      "target": "../../docs/research/strategy-reliability-20261106/RESULTS.md",
+      "exists": true,
+      "resolved": "docs/research/strategy-reliability-20261106/RESULTS.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "./docs/deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "README.md",
+      "exists": true,
+      "resolved": "README.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/features.md",
+      "exists": true,
+      "resolved": "docs/features.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/configuration.md",
+      "exists": true,
+      "resolved": "docs/configuration.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/deployment.md",
+      "exists": true,
+      "resolved": "docs/deployment.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/strategy.md",
+      "exists": true,
+      "resolved": "docs/strategy.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/custom-data-source.md",
+      "exists": true,
+      "resolved": "docs/custom-data-source.md"
+    },
+    {
+      "source": "操作说明书.md",
+      "target": "docs/plugin-development.md",
+      "exists": true,
+      "resolved": "docs/plugin-development.md"
+    }
+  ]
+}

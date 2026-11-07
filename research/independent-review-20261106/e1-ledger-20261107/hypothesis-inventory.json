@@ -1,0 +1,656 @@
+{
+  "scope": "Enumerated distinct rule-form lower bound, NOT exact global hypothesis count or effective independent DSR N",
+  "enumerated_lower_bound_rule_forms": 17,
+  "global_N_exact": null,
+  "dsr_effective_independent_N": null,
+  "counts_reconciliation": {
+    "old_freeze_total": 15,
+    "global_v3_lower_bound": 15,
+    "prior_independent_lower_bound": 17,
+    "delta_to_v3": 2,
+    "reason": "12 public fixed rules + 3 distinct T03 rules + 2 distinct first-board production rules = 17 enumerable forms; no overlap with T03 by inspected conditions, filters, and exit rules."
+  },
+  "selected_execution_records": {
+    "public_search_registry_rows": 36,
+    "T03_two_registries_rows": 48,
+    "batch_fold_simulations": 12,
+    "sum_of_selected_records": 96,
+    "not_global_execution_count": true,
+    "E1_C00_replays": 2,
+    "E1_alpha_delta": 0,
+    "audit_replays_alpha_delta": 0
+  },
+  "identities": [
+    {
+      "id": "S01_ma_cross_20_60",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & (pl.col('ma20') > pl.col('ma60')) & (pl.col('ma20').shift(1).over('symbol') <= pl.col('ma60').shift(1).over('symbol'))).fill_null(False)",
+        "exit": "(pl.col('ma20') < pl.col('ma60')).fill_null(False)",
+        "score": "pl.col('ret20').fill_null(0)",
+        "max_hold_days": 60,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:284",
+        "research/strategy-search-20261107/scripts/common.py:223",
+        "research/strategy-search-20261107/results/registry.json#runs/S01_ma_cross_20_60"
+      ],
+      "semantic_signature_sha256": "82df3bcd5f718a845b5570f4827ec252d04a05687d299dc4617a0b79a8709f68",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S01_ma_cross_20_60@10",
+        "S01_ma_cross_20_60@30",
+        "S01_ma_cross_20_60@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S02_donchian_20_10",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & (pl.col('close') > pl.col('prior_high20'))).fill_null(False)",
+        "exit": "(pl.col('close') < pl.col('prior_low10')).fill_null(False)",
+        "score": "pl.col('ret20').fill_null(0)",
+        "max_hold_days": 60,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:286",
+        "research/strategy-search-20261107/scripts/common.py:229",
+        "research/strategy-search-20261107/results/registry.json#runs/S02_donchian_20_10"
+      ],
+      "semantic_signature_sha256": "7b9c064216db2c2f88ce087cb934dd8c6e7ac0f19edb6cb239be39baeb6285ec",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S02_donchian_20_10@10",
+        "S02_donchian_20_10@30",
+        "S02_donchian_20_10@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S03_tsmom_60_m",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('month_end') & (pl.col('ret60') > 0) & (pl.col('close') > pl.col('ma120')) & (pl.col('ma20') > pl.col('ma60'))).fill_null(False)",
+        "exit": "(pl.col('month_end') & ((pl.col('ret60') <= 0) | (pl.col('close') < pl.col('ma120')))).fill_null(False)",
+        "score": "pl.col('ret60').fill_null(0)",
+        "max_hold_days": 60,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:288",
+        "research/strategy-search-20261107/scripts/common.py:233",
+        "research/strategy-search-20261107/results/registry.json#runs/S03_tsmom_60_m"
+      ],
+      "semantic_signature_sha256": "febb5199e7354bc83c0e86236f44e3fad534df91c8b004ba42ed73e62850b856",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S03_tsmom_60_m@10",
+        "S03_tsmom_60_m@30",
+        "S03_tsmom_60_m@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S04_rsi14_reversion",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & (pl.col('rsi14') < 30)).fill_null(False)",
+        "exit": "(pl.col('rsi14') > 55).fill_null(False)",
+        "score": "(-pl.col('rsi14')).fill_null(0)",
+        "max_hold_days": 10,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:290",
+        "research/strategy-search-20261107/scripts/common.py:239",
+        "research/strategy-search-20261107/results/registry.json#runs/S04_rsi14_reversion"
+      ],
+      "semantic_signature_sha256": "a9df25abe4ce86c085e3217872481e02f1861907c572e98f5af7641c9510259d",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S04_rsi14_reversion@10",
+        "S04_rsi14_reversion@30",
+        "S04_rsi14_reversion@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S05_bollinger_20_2",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & (pl.col('sd20') > 0) & (pl.col('close') < pl.col('bb_lower'))).fill_null(False)",
+        "exit": "(pl.col('close') > pl.col('ma20')).fill_null(False)",
+        "score": "(-pl.col('bb_z')).fill_null(0)",
+        "max_hold_days": 10,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:292",
+        "research/strategy-search-20261107/scripts/common.py:243",
+        "research/strategy-search-20261107/results/registry.json#runs/S05_bollinger_20_2"
+      ],
+      "semantic_signature_sha256": "d5bb3778d34385600dbefe333c55e490f46cadd78636846df85de03387eae9ce",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S05_bollinger_20_2@10",
+        "S05_bollinger_20_2@30",
+        "S05_bollinger_20_2@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S06_xs_reversal_5d",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('week_end') & (pl.col('rk_ret5') <= 0.05)).fill_null(False)",
+        "exit": "pl.lit(False)",
+        "score": "(-pl.col('ret5')).fill_null(0)",
+        "max_hold_days": 5,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:294",
+        "research/strategy-search-20261107/scripts/common.py:248",
+        "research/strategy-search-20261107/results/registry.json#runs/S06_xs_reversal_5d"
+      ],
+      "semantic_signature_sha256": "a14028be3441b9f6d75ec66f950d47a0283da422d1248229ed6609a71a38cb71",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S06_xs_reversal_5d@10",
+        "S06_xs_reversal_5d@30",
+        "S06_xs_reversal_5d@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S07_xs_lowvol_60d",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('month_end') & (pl.col('rk_vol60') <= 0.1)).fill_null(False)",
+        "exit": "pl.lit(False)",
+        "score": "(-pl.col('vol60')).fill_null(0)",
+        "max_hold_days": 20,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:296",
+        "research/strategy-search-20261107/scripts/common.py:252",
+        "research/strategy-search-20261107/results/registry.json#runs/S07_xs_lowvol_60d"
+      ],
+      "semantic_signature_sha256": "e6cdd0bc12f9e5bbe53f997fe83cbd1df04666b68da54298cdacad71bb1f18ba",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S07_xs_lowvol_60d@10",
+        "S07_xs_lowvol_60d@30",
+        "S07_xs_lowvol_60d@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S08_high_52w",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('month_end') & (pl.col('dist_52w_high') >= -0.03) & (pl.col('close') > pl.col('ma120'))).fill_null(False)",
+        "exit": "pl.lit(False)",
+        "score": "pl.col('dist_52w_high').fill_null(-1)",
+        "max_hold_days": 20,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:298",
+        "research/strategy-search-20261107/scripts/common.py:256",
+        "research/strategy-search-20261107/results/registry.json#runs/S08_high_52w"
+      ],
+      "semantic_signature_sha256": "9c51eb5e17d9486a9b3395790bacaf9f5ed3b7a33b7cca7afb924cf6b636917d",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S08_high_52w@10",
+        "S08_high_52w@30",
+        "S08_high_52w@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S09_volume_breakout_55",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & (pl.col('close') > pl.col('prior_high55')) & (pl.col('volume') > 1.5 * pl.col('prior_vol20'))).fill_null(False)",
+        "exit": "(pl.col('close') < pl.col('ma20')).fill_null(False)",
+        "score": "pl.col('ret60').fill_null(0)",
+        "max_hold_days": 20,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:300",
+        "research/strategy-search-20261107/scripts/common.py:261",
+        "research/strategy-search-20261107/results/registry.json#runs/S09_volume_breakout_55"
+      ],
+      "semantic_signature_sha256": "628fa813320a8757dd2a8a95661f4a957fe69ab3bf2cf1d564c47dc0075cfd18",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S09_volume_breakout_55@10",
+        "S09_volume_breakout_55@30",
+        "S09_volume_breakout_55@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S10_xs_reversal_20d",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('month_end') & (pl.col('rk_ret20') <= 0.1)).fill_null(False)",
+        "exit": "pl.lit(False)",
+        "score": "(-pl.col('ret20')).fill_null(0)",
+        "max_hold_days": 20,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:302",
+        "research/strategy-search-20261107/scripts/common.py:266",
+        "research/strategy-search-20261107/results/registry.json#runs/S10_xs_reversal_20d"
+      ],
+      "semantic_signature_sha256": "a946bd29431f33d59ab126a68c76e06f3dc1d02c9d283c5cd27f77b5047763d1",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S10_xs_reversal_20d@10",
+        "S10_xs_reversal_20d@30",
+        "S10_xs_reversal_20d@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S11_lowvol_reversal",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('month_end') & (pl.col('rk_vol60') <= 0.3) & (pl.col('rk_ret20') <= 0.3)).fill_null(False)",
+        "exit": "pl.lit(False)",
+        "score": "(-(pl.col('rk_vol60') + pl.col('rk_ret20'))).fill_null(-9)",
+        "max_hold_days": 20,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:304",
+        "research/strategy-search-20261107/scripts/common.py:270",
+        "research/strategy-search-20261107/results/registry.json#runs/S11_lowvol_reversal"
+      ],
+      "semantic_signature_sha256": "ce56e44b357c18e72357d87852c46035b97c683dc46b2e0ba099442271b1911c",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S11_lowvol_reversal@10",
+        "S11_lowvol_reversal@30",
+        "S11_lowvol_reversal@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "S12_lowvol_breadth",
+      "origin": "public-search",
+      "fixed_rule": {
+        "entry": "(u & pl.col('month_end') & (pl.col('rk_vol60') <= 0.1) & (pl.col('market_breadth') >= 0.5)).fill_null(False)",
+        "exit": "pl.lit(False)",
+        "score": "(-pl.col('vol60')).fill_null(0)",
+        "max_hold_days": 20,
+        "common_universe": "common.py:175-202; shared universe/indicator dependencies included in source hash"
+      },
+      "evidence": [
+        "research/strategy-search-20261107/scripts/common.py:306",
+        "research/strategy-search-20261107/scripts/common.py:275",
+        "research/strategy-search-20261107/results/registry.json#runs/S12_lowvol_breadth"
+      ],
+      "semantic_signature_sha256": "730f2c3831762705dc87badd8c621e33d392d6fdedf51404953a27a1243c3c42",
+      "observed_registry_execution_rows": 3,
+      "execution_keys": [
+        "S12_lowvol_breadth@10",
+        "S12_lowvol_breadth@30",
+        "S12_lowvol_breadth@gross"
+      ],
+      "dedup_reason": "10/30/gross are prespecified cost robustness scenarios of this rule; not 3 identities. Different entry/exit/hold definition from other S rows. Scenario choice history remains unknown."
+    },
+    {
+      "id": "T03_momentum",
+      "origin": "prior-search",
+      "fixed_rule": "eligible: bars>=120, non-ST, raw price>=3, prior amount20>=1e8, volume>0, mom60 cross-sectional rs>=0.9, close>ma60 and ma20>ma60; daily entry; exit close<ma20; score mom60; max_hold20",
+      "evidence": [
+        "research/strategy-reliability-20261106/scripts/validate_candidates.py:43-85",
+        "research/strategy-reliability-20261106/scripts/validate_candidates.py:103-109",
+        "research/strategy-reliability-20261106/results/validation.json",
+        "research/strategy-reliability-20261106/results/constrained-validation.json"
+      ],
+      "semantic_signature_sha256": "fbae8bb7b59c58ae7df0fa5b02cc6e7e27c13c271209d340cf53d4b2e88745aa",
+      "observed_registry_execution_rows": 16,
+      "executions": [
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2023,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2023,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2024,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2024,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2025,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2025,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2026,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2026,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2023,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2023,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2024,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2024,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2025,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2025,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2026,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2026,
+          "slippage_bps": 30
+        }
+      ],
+      "dedup_reason": "Years and prespecified costs are executions, not new rule families. S03 differs: monthly, MA120, no RS>=0.9; S09 differs: no RS>=0.9/MA60/MA20 eligibility; S12 lowvol entry differs. Original vs constrained execution revisions cannot be certified pure reruns: selection/accounting delta unknown."
+    },
+    {
+      "id": "T03_breakout_volume",
+      "origin": "prior-search",
+      "fixed_rule": "momentum eligible AND close>prior_high55 AND volume>1.5*prior_vol20; exit close<ma20; score mom60; max_hold20",
+      "evidence": [
+        "research/strategy-reliability-20261106/scripts/validate_candidates.py:43-85",
+        "research/strategy-reliability-20261106/scripts/validate_candidates.py:103-109",
+        "research/strategy-reliability-20261106/results/validation.json",
+        "research/strategy-reliability-20261106/results/constrained-validation.json"
+      ],
+      "semantic_signature_sha256": "7d50ceab562ecfd9e646c0a3283ef364bb4e58618425f007e0f46f72368955f1",
+      "observed_registry_execution_rows": 16,
+      "executions": [
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2023,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2023,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2024,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2024,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2025,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2025,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2026,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2026,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2023,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2023,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2024,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2024,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2025,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2025,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2026,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2026,
+          "slippage_bps": 30
+        }
+      ],
+      "dedup_reason": "Years and prespecified costs are executions, not new rule families. S03 differs: monthly, MA120, no RS>=0.9; S09 differs: no RS>=0.9/MA60/MA20 eligibility; S12 lowvol entry differs. Original vs constrained execution revisions cannot be certified pure reruns: selection/accounting delta unknown."
+    },
+    {
+      "id": "T03_breakout_volume_market",
+      "origin": "prior-search",
+      "fixed_rule": "breakout_volume AND market_breadth>=0.5 (breadth from all calculable MA60 rows); exit close<ma20; score mom60; max_hold20",
+      "evidence": [
+        "research/strategy-reliability-20261106/scripts/validate_candidates.py:43-85",
+        "research/strategy-reliability-20261106/scripts/validate_candidates.py:103-109",
+        "research/strategy-reliability-20261106/results/validation.json",
+        "research/strategy-reliability-20261106/results/constrained-validation.json"
+      ],
+      "semantic_signature_sha256": "2f23a64850c9d270c494ad8fa09877977b41f93399015ce51a060e76ecfa3ac2",
+      "observed_registry_execution_rows": 16,
+      "executions": [
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2023,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2023,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2024,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2024,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2025,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2025,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2026,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/validation.json",
+          "year": 2026,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2023,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2023,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2024,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2024,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2025,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2025,
+          "slippage_bps": 30
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2026,
+          "slippage_bps": 10
+        },
+        {
+          "registry": "research/strategy-reliability-20261106/results/constrained-validation.json",
+          "year": 2026,
+          "slippage_bps": 30
+        }
+      ],
+      "dedup_reason": "Years and prespecified costs are executions, not new rule families. S03 differs: monthly, MA120, no RS>=0.9; S09 differs: no RS>=0.9/MA60/MA20 eligibility; S12 lowvol entry differs. Original vs constrained execution revisions cannot be certified pure reruns: selection/accounting delta unknown."
+    },
+    {
+      "id": "first_board_chain_rebreak",
+      "origin": "production-batch",
+      "fixed_rule": "Strict first-board event-chain rebreak; pullback threshold 5%; exit MA20 cross-down; SL8%, maxhold10",
+      "batch_explicit_params": {
+        "min_pullback_pct": 5.0
+      },
+      "full_default_source_sha256": "e125ceded5ebfeb945c39327a5cf19ccd63d23da30942753bff8936be89a01f9",
+      "evidence": [
+        "backend/app/custom/first_board_event_chain/strategy_rebreak.py:75-163",
+        "research/batch-backtest-framework-20261107/groups.json",
+        "research/batch-backtest-framework-20261107/out/registry.json#runs/551c42e797f9"
+      ],
+      "semantic_signature_sha256": "29d652a9914ac59f34e4a968e6c4fdb23e1fe982df605215873f96ebcf6b0f7f",
+      "observed_registry_execution_rows": 6,
+      "dedup_reason": "Event-chain/first-board pullback conditions and exits differ materially from all 12 public rules and 3 T03 rules; not a name alias. 3 IS plus 3 OOS fold simulations count 6 executions for 1 parameterized rule; audit/native-vs-single reruns add zero new identities. Earlier equivalent T74 versions deduplication and historical parameter selection remain unknown."
+    },
+    {
+      "id": "first_limit_pullback_3f_runner_t74",
+      "origin": "production-batch",
+      "fixed_rule": "First-board T1-T5 pullback, amplitude<14%, 3-factor score>=55%, Top3, daily cap2, SL6%, profit3% activates close-drawdown8%, runner extension74",
+      "batch_explicit_params": {
+        "min_score_pct": 55.0
+      },
+      "full_default_source_sha256": "ae8f10c5b115ceca40959e6ab4ba24792d003281c8d7305e2cfeac799b2a3976",
+      "evidence": [
+        "backend/app/custom/first_board_event_chain/first_limit_pullback_3f_runner_t74.py:13-130",
+        "research/batch-backtest-framework-20261107/groups.json",
+        "research/batch-backtest-framework-20261107/out/registry.json#runs/25ca1af3104b"
+      ],
+      "semantic_signature_sha256": "f86a83d48de9f8baac1c5b7417abf5542b17c1c17fd41d2a5b37a826b2332cf2",
+      "observed_registry_execution_rows": 6,
+      "dedup_reason": "Event-chain/first-board pullback conditions and exits differ materially from all 12 public rules and 3 T03 rules; not a name alias. 3 IS plus 3 OOS fold simulations count 6 executions for 1 parameterized rule; audit/native-vs-single reruns add zero new identities. Earlier equivalent T74 versions deduplication and historical parameter selection remain unknown."
+    }
+  ],
+  "unknowns": [
+    "Historical production parameter grids, T74 entry/exit studies and strategy revisions lack exhaustive identities and selection links; do not assume only 17 total",
+    "T03 validation vs constrained-validation have distinct source hashes and different data/results: execution revision history and selection use unresolved",
+    "Public search score mapping/final code changes and repeated S07 results are not proven pure reproductions; trial lineage and use of observations incomplete",
+    "Cost-scenario winner choice or universe/data-version choice used to improve results must be registered; no evidence of exhaustive absence",
+    "Rule-form count differs from count of selection opportunities and from effective independent trials; correlations do not justify arbitrary N reduction",
+    "Unknown missing/deleted/unregistered trials cannot be inferred from current files"
+  ],
+  "input_sha256": {
+    "research/strategy-search-20261107/FREEZE.json": "be106e064eb0ac425f6366d36efba87d2543c6d7f87b779cb9e17ae8f2f6fadb",
+    "research/strategy-search-20261107/GLOBAL_LEDGER_v3.json": "0a5bb9603c814565c5026af73a6908266b2a3018ef401dc1c66eaa6d9460a80d",
+    "research/independent-review-20261106/matrix-e2e-20261107/trial-accounting.json": "374bb02028a2b54e2722ded8404268c4357995b062fa99f8a80590f8bfd0214e",
+    "research/strategy-search-20261107/results/registry.json": "396199982168cc0fb240554827c400fcad2bd3fc947724c87f30cd2cbbe5a5f7",
+    "research/batch-backtest-framework-20261107/out/registry.json": "506645a014e3e772f57dd747defe9b3ecf007800d262a207930182b049696c8b",
+    "research/strategy-search-20261107/scripts/common.py": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09",
+    "research/strategy-reliability-20261106/scripts/validate_candidates.py": "ce2976a6cbdd9e46aad4954ff38d13bd4208b66e3ca51819d86238224125ad23",
+    "research/strategy-reliability-20261106/results/validation.json": "63a2f70eff72156cad503fe0cc49cbc4dcb958005cb6ea9e3a928b589ff95bf8",
+    "research/strategy-reliability-20261106/results/constrained-validation.json": "17b739386096bd2a4bc7da557b2ea65cc4fcac8b36b9e1b0869fb99330a928d7",
+    "backend/app/custom/first_board_event_chain/strategy_rebreak.py": "e125ceded5ebfeb945c39327a5cf19ccd63d23da30942753bff8936be89a01f9",
+    "backend/app/custom/first_board_event_chain/first_limit_pullback_3f_runner_t74.py": "ae8f10c5b115ceca40959e6ab4ba24792d003281c8d7305e2cfeac799b2a3976"
+  }
+}

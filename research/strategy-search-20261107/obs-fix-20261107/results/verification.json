@@ -1,0 +1,214 @@
+{
+  "schema": "obsfix-verification/1",
+  "verdict": "PASS",
+  "failed_checks": [],
+  "checks": {
+    "V1_input_fingerprints": {
+      "ok": true,
+      "mismatch": [],
+      "observed": {
+        "replay_script": "9e62bb05703176db27d7ebf3070ef4bef5b2ac63f200bc17b41c58f747151ff2",
+        "verify_script": "4878c10d159d4c1cb1cff034ab5f6d3a23a8307aaf33cd36f4d2b702b89b4e1a",
+        "common_py": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09",
+        "engine_py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+        "matrix_py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+        "protocol": "310ffb89e5b26162b6f8794450c5c1312bb28ef6a6fd914483280e31772e5c79",
+        "old_run": "b11d4feeb905572e6e404067def923f26f5174748e1c3741996a4bc6b99690c0"
+      }
+    },
+    "V2_legacy_untouched": {
+      "ok": true,
+      "changed": []
+    },
+    "V3_count_vs_full_equivalence": {
+      "equity_identical": true,
+      "trades_identical": true,
+      "signals_identical": true,
+      "final_cash_identical": true,
+      "final_positions_identical": true,
+      "ok": true
+    },
+    "V4_reproduction_vs_old_run": {
+      "n_equity_old": 1779,
+      "n_equity_full": 1779,
+      "n_equity_diff": 0,
+      "first_equity_diff_idx": [],
+      "n_trades_old": 314,
+      "n_trades_full": 314,
+      "n_trade_diff": 0,
+      "first_trade_diff_idx": [],
+      "final_cash_old": 403929.4105367986,
+      "final_cash_full": 403929.4105367986,
+      "final_positions_old": 5,
+      "final_positions_full": 5,
+      "ok": true
+    },
+    "V5_daily_reconciliation": {
+      "days_checked": 1779,
+      "days_within_1cny": 1766,
+      "days_over_1cny": 13,
+      "share_within": 0.9927,
+      "max_abs_diff_cny": 49416.0,
+      "worst_5": [
+        {
+          "date": "2022-08-11",
+          "diff_cny": 49416.0,
+          "pct_of_equity": 6.231,
+          "positions": 5
+        },
+        {
+          "date": "2022-08-12",
+          "diff_cny": 49380.5,
+          "pct_of_equity": 6.2194,
+          "positions": 5
+        },
+        {
+          "date": "2022-08-15",
+          "diff_cny": 49380.5,
+          "pct_of_equity": 6.2337,
+          "positions": 5
+        },
+        {
+          "date": "2022-08-16",
+          "diff_cny": 49380.5,
+          "pct_of_equity": 6.2337,
+          "positions": 5
+        },
+        {
+          "date": "2022-08-17",
+          "diff_cny": 49167.5,
+          "pct_of_equity": 6.179,
+          "positions": 5
+        }
+      ],
+      "unexplained": "残差原因 UNKNOWN（候选：公司行动改股数/分红现金、复权因子版本、段内 last_close 回退），未修补",
+      "ok": true
+    },
+    "V6_segment_share_conservation": {
+      "segments": [
+        {
+          "segment_end": "2019-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2020-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2021-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2022-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2023-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2024-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2025-12-31",
+          "n_carried": 0,
+          "n_rebuilt": 0,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        },
+        {
+          "segment_end": "2026-10-30",
+          "n_carried": 5,
+          "n_rebuilt": 5,
+          "symbol_set_identical": true,
+          "share_mismatch": {}
+        }
+      ],
+      "all_symbol_sets_identical": true,
+      "share_mismatch_total": 0,
+      "note": "股数差异若出现，候选原因含公司行动改股数（引擎在 raw 基准下会调整 shares），未在此归因",
+      "ok": true
+    },
+    "V7_final_lots": {
+      "n_final_open_lots": 5,
+      "final_positions_reported": 5,
+      "count_matches": true,
+      "final_cash": 403929.4105367986,
+      "cash_plus_mv": 992800.4105367986,
+      "last_equity_value": 992800.41,
+      "residual_cny": 0.0,
+      "trades_with_exit_reason_end": 0,
+      "trades_open_at_end": 0,
+      "symbols": [
+        "000001.SZ",
+        "000027.SZ",
+        "000088.SZ",
+        "000166.SZ",
+        "000538.SZ"
+      ],
+      "ok": true
+    },
+    "V8_attributable_position_days": {
+      "days_checked": 1779,
+      "days_with_count_mismatch": 0,
+      "worst": [],
+      "old_artifact_unidentified_days_this_path": 85,
+      "note": "85 = PATH_RISK 中 run_S07_xs_lowvol_60d_10 的 holdings.unidentified_position_days",
+      "ok": true
+    },
+    "V9_mark_provenance": {
+      "lot_count": 5,
+      "mark_source_counts": {
+        "same_day_close": 5
+      },
+      "all_sources_allowed": true,
+      "sum_of_sources_equals_lots": true,
+      "age_consistent": true,
+      "price_basis_all_raw": true,
+      "ok": true
+    },
+    "V10_unknowns_declared": {
+      "unknowns": [
+        "残差日的具体原因（公司行动/复权版本/股本/段内回退）未区分",
+        "面板无零量行，缺报价 ≠ 停牌 ≠ 退市；无生命周期表",
+        "盘中可成交性、竞价排队、T+1 现实约束未测",
+        "旧 S07@10 产物生成时（23:19:26）的 engine.py 哈希未记录，无法证明与本次同引擎"
+      ],
+      "ok": true
+    },
+    "V11_trial_accounting": {
+      "n_trials_after": 15,
+      "new_alpha_hypotheses": 0,
+      "nature": "reproduction_of_registered_strategy",
+      "ok": true
+    },
+    "V12_scope": {
+      "git_status_hash_excluding_obsfix": "f81f899ba9243f2ba0051482582c95dc040c12ad5372a3a69d1b50eeeb941bac",
+      "expected": "f81f899ba9243f2ba0051482582c95dc040c12ad5372a3a69d1b50eeeb941bac",
+      "ok": true,
+      "panel_hash": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3",
+      "panel_hash_expected": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3"
+    }
+  },
+  "engine_sha256": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+  "generated_by": "verify_obsfix.py (independent recomputation from raw artifacts)"
+}

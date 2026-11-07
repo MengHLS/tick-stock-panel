@@ -1,0 +1,57 @@
+{
+  "schema": "obsfix-freeze/1",
+  "created_at": "2026-11-07T01:30:51.984505+08:00",
+  "purpose": "S07@10bp 期末持仓可观测性补全的最小闭环（复现，非新试验）",
+  "panel_hash": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3",
+  "panel": {
+    "rows": 6422875,
+    "symbols": 3384,
+    "dates": 2136,
+    "window": [
+      "2018-01-08",
+      "2026-10-30"
+    ]
+  },
+  "n_trials": {
+    "before": 15,
+    "after": 15,
+    "new_alpha_hypotheses": 0,
+    "reason": "仅改产物持久化，信号/参数/宇宙/成本/时序不变"
+  },
+  "sha256": {
+    "protocol": "310ffb89e5b26162b6f8794450c5c1312bb28ef6a6fd914483280e31772e5c79",
+    "replay_script": "9e62bb05703176db27d7ebf3070ef4bef5b2ac63f200bc17b41c58f747151ff2",
+    "verify_script": "88746bc4802494f68a7bc805f5bab1da7c5d4f0ef544b67a065229c42eaddad9",
+    "common_py": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09",
+    "engine_py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+    "matrix_py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+    "old_run": "b11d4feeb905572e6e404067def923f26f5174748e1c3741996a4bc6b99690c0"
+  },
+  "sizes": {
+    "protocol": 7853,
+    "replay_script": 15662,
+    "verify_script": 16389,
+    "common_py": 25080,
+    "engine_py": 268800,
+    "matrix_py": 178557,
+    "old_run": 485032
+  },
+  "mtimes": {
+    "protocol": "2026-11-07T01:26:03.676486",
+    "replay_script": "2026-11-07T01:30:37.863883",
+    "verify_script": "2026-11-07T01:30:37.864883",
+    "common_py": "2026-11-06T23:07:02.585469",
+    "engine_py": "2026-11-07T00:01:33.840914",
+    "matrix_py": "2026-11-03T21:42:26.194849",
+    "old_run": "2026-11-06T23:19:26.791740"
+  },
+  "legacy_artifacts": {
+    "results/PATH_RISK.md": "63ab1aaf81949d42f8a336ec3c08917bbf70e23c1d64b4fd9a401e8af2c24690",
+    "results/path_risk/path_risk.json": "e085e16dfe4381595b2b6e2970c66599c06222f271e163971062e019c98a775e",
+    "results/path_risk/path_position_days.parquet": "bad1d9f2ef6376b65ba31aa3e101279ac706b4844b743dc818e027b38b10c2f2",
+    "results/path_risk/path_risk_verification.json": "f8d32cdaec30147ce602e6f00f26fcb4f93ab6e581b9efe292b55470d6014bb5"
+  },
+  "git_status_hash_excluding_obsfix": "f81f899ba9243f2ba0051482582c95dc040c12ad5372a3a69d1b50eeeb941bac",
+  "git_head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+  "note": "复算与验证脚本必须与本文件 sha256 一致；不一致即 exit 2，不得改本文件迁就结果"
+}

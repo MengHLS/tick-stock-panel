@@ -1,0 +1,27 @@
+{
+  "verification_verdict": "PASS",
+  "checks": {
+    "frozen_files_unchanged": true,
+    "old_freeze_preserved": true,
+    "old_protocol_archive_matches_old_freeze": true,
+    "execution_hashes": true,
+    "panel_ipc_hash": true,
+    "A_cagr": true,
+    "A_accounting": true,
+    "A_share": true,
+    "haircuts_recomputed": true,
+    "B_cagr": true,
+    "B_accounting": true,
+    "B_share": true,
+    "yearly_recomputed": true,
+    "fail_trigger": true,
+    "actual_exit_matches_machine_judgement": true
+  },
+  "e1_verdict": "FAIL",
+  "e1_actual_exit_code": 3,
+  "reason": "A全部未平仓市值/权益47.3177%超过原协议2%；其中停更仓位市值为0。FAIL不是显著幸存者收益差异或退市挂账损失的证据，原门槛混合正常持仓与停更风险。不得事后改门槛使本次PASS。",
+  "blocked": "停止后续策略回测；若拟修订E1指标，应先登记新版本并保留本次FAIL，不选择性重跑。",
+  "alpha_hypothesis_delta": 0,
+  "global_N_exact": null,
+  "global_N_lower_bound": 15
+}

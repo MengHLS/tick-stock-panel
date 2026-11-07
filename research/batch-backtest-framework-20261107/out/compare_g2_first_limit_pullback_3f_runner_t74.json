@@ -1,0 +1,348 @@
+{
+  "group": "g2_first_limit_pullback_3f_runner_t74",
+  "run_id": "25ca1af3104b",
+  "strategy_id": "first_limit_pullback_3f_runner_t74",
+  "params": {
+    "min_score_pct": 55.0
+  },
+  "n_diffs": 21,
+  "n_result_diffs": 0,
+  "n_telemetry_diffs": 21,
+  "diffs": [
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_bytes",
+      "left": 29947239,
+      "right": 29628270,
+      "kind": "value",
+      "delta": 318969.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_shape[1]",
+      "left": 5727,
+      "right": 5666,
+      "kind": "value",
+      "delta": 61.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.current_bytes",
+      "left": 813234,
+      "right": 804572,
+      "kind": "value",
+      "delta": 8662.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 4.241,
+      "right": 5.516,
+      "kind": "value",
+      "delta": -1.2750000000000004
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "left": 813234,
+      "right": 804572,
+      "kind": "value",
+      "delta": 8662.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.peak_bytes",
+      "left": 813234,
+      "right": 804572,
+      "kind": "value",
+      "delta": 8662.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_market_data_bytes",
+      "left": 54373086,
+      "right": 40953740,
+      "kind": "value",
+      "delta": 13419346.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_bytes",
+      "left": 29947239,
+      "right": 29628270,
+      "kind": "value",
+      "delta": 318969.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_shape[1]",
+      "left": 5727,
+      "right": 5666,
+      "kind": "value",
+      "delta": 61.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.current_bytes",
+      "left": 807507,
+      "right": 798906,
+      "kind": "value",
+      "delta": 8601.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 4.375,
+      "right": 5.602,
+      "kind": "value",
+      "delta": -1.2270000000000003
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "left": 807507,
+      "right": 798906,
+      "kind": "value",
+      "delta": 8601.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.peak_bytes",
+      "left": 807507,
+      "right": 798906,
+      "kind": "value",
+      "delta": 8601.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_market_data_bytes",
+      "left": 54008737,
+      "right": 40683890,
+      "kind": "value",
+      "delta": 13324847.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_bytes",
+      "left": 29947239,
+      "right": 29628270,
+      "kind": "value",
+      "delta": 318969.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_shape[1]",
+      "left": 5727,
+      "right": 5666,
+      "kind": "value",
+      "delta": 61.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.current_bytes",
+      "left": 824688,
+      "right": 815904,
+      "kind": "value",
+      "delta": 8784.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 4.517,
+      "right": 5.842,
+      "kind": "value",
+      "delta": -1.3249999999999993
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "left": 824688,
+      "right": 815904,
+      "kind": "value",
+      "delta": 8784.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.peak_bytes",
+      "left": 824688,
+      "right": 815904,
+      "kind": "value",
+      "delta": 8784.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_market_data_bytes",
+      "left": 55177000,
+      "right": 41568656,
+      "kind": "value",
+      "delta": 13608344.0
+    }
+  ],
+  "result_diffs": [],
+  "telemetry_diffs": [
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_bytes",
+      "left": 29947239,
+      "right": 29628270,
+      "kind": "value",
+      "delta": 318969.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_shape[1]",
+      "left": 5727,
+      "right": 5666,
+      "kind": "value",
+      "delta": 61.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.current_bytes",
+      "left": 813234,
+      "right": 804572,
+      "kind": "value",
+      "delta": 8662.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 4.241,
+      "right": 5.516,
+      "kind": "value",
+      "delta": -1.2750000000000004
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "left": 813234,
+      "right": 804572,
+      "kind": "value",
+      "delta": 8662.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.peak_bytes",
+      "left": 813234,
+      "right": 804572,
+      "kind": "value",
+      "delta": 8662.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_market_data_bytes",
+      "left": 54373086,
+      "right": 40953740,
+      "kind": "value",
+      "delta": 13419346.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_bytes",
+      "left": 29947239,
+      "right": 29628270,
+      "kind": "value",
+      "delta": 318969.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_shape[1]",
+      "left": 5727,
+      "right": 5666,
+      "kind": "value",
+      "delta": 61.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.current_bytes",
+      "left": 807507,
+      "right": 798906,
+      "kind": "value",
+      "delta": 8601.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 4.375,
+      "right": 5.602,
+      "kind": "value",
+      "delta": -1.2270000000000003
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "left": 807507,
+      "right": 798906,
+      "kind": "value",
+      "delta": 8601.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.peak_bytes",
+      "left": 807507,
+      "right": 798906,
+      "kind": "value",
+      "delta": 8601.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_market_data_bytes",
+      "left": 54008737,
+      "right": 40683890,
+      "kind": "value",
+      "delta": 13324847.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_bytes",
+      "left": 29947239,
+      "right": 29628270,
+      "kind": "value",
+      "delta": 318969.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_shape[1]",
+      "left": 5727,
+      "right": 5666,
+      "kind": "value",
+      "delta": 61.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.current_bytes",
+      "left": 824688,
+      "right": 815904,
+      "kind": "value",
+      "delta": 8784.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 4.517,
+      "right": 5.842,
+      "kind": "value",
+      "delta": -1.3249999999999993
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "left": 824688,
+      "right": 815904,
+      "kind": "value",
+      "delta": 8784.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.peak_bytes",
+      "left": 824688,
+      "right": 815904,
+      "kind": "value",
+      "delta": 8784.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_market_data_bytes",
+      "left": 55177000,
+      "right": 41568656,
+      "kind": "value",
+      "delta": 13608344.0
+    }
+  ],
+  "production": {
+    "duplicate_dates": 0,
+    "timeline_complete": true,
+    "timeline": {
+      "complete": true,
+      "n_missing_dates": 0,
+      "missing_dates": [],
+      "trading_day_gap": null
+    },
+    "n_folds_replayed": 3,
+    "final_equity": 992786.95,
+    "shared_market_data": true,
+    "matrix_data_cache_status": [
+      "covering",
+      "covering",
+      "covering"
+    ]
+  },
+  "batch": {
+    "duplicate_dates": 0,
+    "timeline_complete": true,
+    "final_equity": 992786.95
+  },
+  "config": {
+    "strategy_id": "first_limit_pullback_3f_runner_t74",
+    "param_grid": {
+      "min_score_pct": [
+        55.0
+      ]
+    },
+    "train_days": 252,
+    "test_days": 63,
+    "step_days": 63,
+    "objective": "sortino",
+    "min_trades_oos": 10,
+    "continuous_account": true,
+    "trading_days": 463
+  }
+}

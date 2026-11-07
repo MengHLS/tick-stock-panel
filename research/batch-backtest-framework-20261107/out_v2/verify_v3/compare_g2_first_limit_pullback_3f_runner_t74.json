@@ -1,0 +1,736 @@
+{
+  "group": "g2_first_limit_pullback_3f_runner_t74",
+  "run_id": "8b03ddbc7b85",
+  "strategy_id": "first_limit_pullback_3f_runner_t74",
+  "params": {
+    "min_score_pct": 55.0
+  },
+  "folds": {
+    "n_batch": 3,
+    "n_prod": 3,
+    "n_matched": 3
+  },
+  "continuous_account": {
+    "curves": {
+      "equity_curve": {
+        "n_prod": 189,
+        "n_batch": 189,
+        "prod_sha256": "5bbad671ea2cab3906d6836742c71d155737606b4a362e4db5b10e3b53440781",
+        "batch_sha256": "5bbad671ea2cab3906d6836742c71d155737606b4a362e4db5b10e3b53440781",
+        "equal": true
+      },
+      "trades": {
+        "n_prod": 246,
+        "n_batch": 246,
+        "prod_sha256": "58bc213564648a39cb8214da89eb6c844a91fe4ddd9c3f6cc65b1acd4b9cb417",
+        "batch_sha256": "58bc213564648a39cb8214da89eb6c844a91fe4ddd9c3f6cc65b1acd4b9cb417",
+        "equal": true
+      },
+      "drawdown_curve": {
+        "n_prod": 189,
+        "n_batch": 189,
+        "prod_sha256": "4e1af00877cd483b3a72dff201c6a7f641631c826ca1e4a3148eea610aa8ad47",
+        "batch_sha256": "4e1af00877cd483b3a72dff201c6a7f641631c826ca1e4a3148eea610aa8ad47",
+        "equal": true
+      }
+    },
+    "invariants_failed": []
+  },
+  "summary": {
+    "production_summary_account_is_same_object": true,
+    "note": "生产 summary.continuous_account 与顶层 continuous_account 是同一个对象（walkforward.py 里 summary[...] = continuous_report），因此账户字段只在 continuous_account 一处比对，避免重复计数；这里记录同源事实。",
+    "n_keys_batch": 13,
+    "n_keys_prod": 13
+  },
+  "scalars": {
+    "objective": {
+      "expected": "sortino",
+      "actual": "sortino"
+    },
+    "direction": {
+      "expected": "<not asserted>",
+      "actual": "max"
+    },
+    "window_basis": {
+      "expected": "trading_days",
+      "actual": "trading_days"
+    },
+    "n_trading_days": {
+      "expected": 463,
+      "actual": 463
+    },
+    "n_folds": {
+      "expected": 3,
+      "actual": 3
+    },
+    "n_skipped": {
+      "expected": 0,
+      "actual": 0
+    },
+    "n_planned_folds": {
+      "expected": 3,
+      "actual": 3
+    },
+    "shared_market_data": {
+      "expected": true,
+      "actual": true
+    }
+  },
+  "axis_proof": {
+    "batch_axis_symbols": 5727,
+    "batch_axis_symbols_sha256": "54cb6200156b497e68518203dbb2b92945fecd3e76974d883d19d91aa5dfd398",
+    "batch_tradable_symbols_in_official_span": 5630,
+    "official_span": [
+      "2024-12-02",
+      "2026-10-31"
+    ],
+    "batch_matrix_window": [
+      "2023-10-30",
+      "2026-10-30"
+    ],
+    "production_load_count": 1,
+    "production_load_axes": [
+      {
+        "n_symbols": 5666,
+        "n_dates": 519,
+        "window": [
+          "2024-08-05",
+          "2026-09-22"
+        ],
+        "requested_symbols": null,
+        "cache_status": "covering",
+        "symbols_sha256": "11e04250b169819b647f41cec8b4672624e8a82d06d55cba8ed3f8ab49cc6fc8"
+      }
+    ],
+    "production_matrix_shape_columns": [
+      5666
+    ],
+    "production_shared_market_data": true,
+    "n_batch_only_symbols": 61,
+    "batch_only_symbols": [
+      "000005.SZ",
+      "000038.SZ",
+      "000046.SZ",
+      "000150.SZ",
+      "000416.SZ",
+      "000540.SZ",
+      "000587.SZ",
+      "000606.SZ",
+      "000616.SZ",
+      "000666.SZ",
+      "000667.SZ",
+      "000671.SZ",
+      "000732.SZ",
+      "000806.SZ",
+      "000918.SZ",
+      "000961.SZ",
+      "002002.SZ",
+      "002013.SZ",
+      "002089.SZ",
+      "002113.SZ",
+      "002118.SZ",
+      "002411.SZ",
+      "002417.SZ",
+      "002499.SZ",
+      "002503.SZ",
+      "002504.SZ",
+      "002699.SZ",
+      "002740.SZ",
+      "002751.SZ",
+      "002776.SZ",
+      "002781.SZ",
+      "300089.SZ",
+      "300116.SZ",
+      "300273.SZ",
+      "300297.SZ",
+      "300309.SZ",
+      "300330.SZ",
+      "300336.SZ",
+      "300356.SZ",
+      "300392.SZ",
+      "300495.SZ",
+      "300526.SZ",
+      "600077.SH",
+      "600122.SH",
+      "600139.SH",
+      "600242.SH",
+      "600260.SH",
+      "600290.SH",
+      "600311.SH",
+      "600321.SH",
+      "600393.SH",
+      "600466.SH",
+      "600532.SH",
+      "600767.SH",
+      "600781.SH",
+      "600823.SH",
+      "601258.SH",
+      "603555.SH",
+      "603603.SH",
+      "688086.SH",
+      "688555.SH"
+    ],
+    "n_production_only_symbols": 0,
+    "production_only_symbols": [],
+    "batch_only_with_tradable_days_in_official_span": {},
+    "compared_group": "g2_first_limit_pullback_3f_runner_t74",
+    "window_covered_by_batch": true,
+    "proven": true,
+    "reasons": [],
+    "scope": "只证明：批量并集轴中多出的证券列在该组正式 IS/OOS 区间内 0 个可交易日，且不存在生产侧独有证券、生产确实走了共享矩阵。不证明两侧物理矩阵同轴同窗口。"
+  },
+  "n_result_diffs": 0,
+  "n_unproven_diffs": 0,
+  "n_device_diffs": 21,
+  "n_exempt_diffs": 63,
+  "n_annotation_keys": 10,
+  "result_diffs": [],
+  "device_diffs": [
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_bytes",
+      "batch": 29947239,
+      "prod": 29628270
+    },
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_shape[0]",
+      "batch": 63,
+      "prod": 63
+    },
+    {
+      "field": "oos_folds[0].oos_stats.market_matrix_shape[1]",
+      "batch": 5727,
+      "prod": 5666
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.current_bytes",
+      "batch": 813234,
+      "prod": 804572
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "batch": 813234,
+      "prod": 804572
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.peak_bytes",
+      "batch": 813234,
+      "prod": 804572
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_market_data_bytes",
+      "batch": 54373086,
+      "prod": 40953740
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_bytes",
+      "batch": 29947239,
+      "prod": 29628270
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_shape[0]",
+      "batch": 63,
+      "prod": 63
+    },
+    {
+      "field": "oos_folds[1].oos_stats.market_matrix_shape[1]",
+      "batch": 5727,
+      "prod": 5666
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.current_bytes",
+      "batch": 807507,
+      "prod": 798906
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "batch": 807507,
+      "prod": 798906
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.peak_bytes",
+      "batch": 807507,
+      "prod": 798906
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_market_data_bytes",
+      "batch": 54008737,
+      "prod": 40683890
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_bytes",
+      "batch": 29947239,
+      "prod": 29628270
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_shape[0]",
+      "batch": 63,
+      "prod": 63
+    },
+    {
+      "field": "oos_folds[2].oos_stats.market_matrix_shape[1]",
+      "batch": 5727,
+      "prod": 5666
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.current_bytes",
+      "batch": 824688,
+      "prod": 815904
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.computed_bytes",
+      "batch": 824688,
+      "prod": 815904
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.peak_bytes",
+      "batch": 824688,
+      "prod": 815904
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_market_data_bytes",
+      "batch": 55177000,
+      "prod": 41568656
+    }
+  ],
+  "exempt_diffs": [
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "reason": "缓存指纹计算耗时",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "reason": "单项算子计算耗时",
+      "batch": 4.071,
+      "prod": 5.569
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_data_cache_timing_ms.axes",
+      "reason": "未登记",
+      "batch": 8.1,
+      "prod": 668.5
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_data_cache_timing_ms.derived",
+      "reason": "未登记",
+      "batch": 508.6,
+      "prod": 315.8
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_data_cache_timing_ms.flush_close",
+      "reason": "未登记",
+      "batch": 2333.4,
+      "prod": 1405.7
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_data_cache_timing_ms.layout",
+      "reason": "未登记",
+      "batch": 725.2,
+      "prod": 337.2
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_data_cache_timing_ms.scan",
+      "reason": "未登记",
+      "batch": 7497.0,
+      "prod": 4384.2
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_data_cache_timing_ms.total_before_publish",
+      "reason": "未登记",
+      "batch": 11072.8,
+      "prod": 7112.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_prepare_timing_ms.load_panel",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_prepare_timing_ms.market_data_direct_load",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_prepare_timing_ms.market_data_matrix_build",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_prepare_timing_ms.total",
+      "reason": "未登记",
+      "batch": 0.6,
+      "prod": 0.6
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.filter_score",
+      "reason": "未登记",
+      "batch": 148.7,
+      "prod": 144.1
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.load_panel",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.market_data_matrix_build",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.matrix_build",
+      "reason": "未登记",
+      "batch": 85.1,
+      "prod": 82.3
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.signals_score",
+      "reason": "未登记",
+      "batch": 1317.6,
+      "prod": 1286.7
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.simulate",
+      "reason": "未登记",
+      "batch": 75.1,
+      "prod": 74.5
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.statistics",
+      "reason": "未登记",
+      "batch": 1.5,
+      "prod": 1.5
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.strategy_signals",
+      "reason": "未登记",
+      "batch": 1139.7,
+      "prod": 1114.7
+    },
+    {
+      "field": "oos_folds[0].oos_stats.timing_ms.total",
+      "reason": "未登记",
+      "batch": 1478.6,
+      "prod": 1444.2
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "reason": "缓存指纹计算耗时",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "reason": "单项算子计算耗时",
+      "batch": 4.351,
+      "prod": 9.495
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_data_cache_timing_ms.axes",
+      "reason": "未登记",
+      "batch": 8.1,
+      "prod": 668.5
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_data_cache_timing_ms.derived",
+      "reason": "未登记",
+      "batch": 508.6,
+      "prod": 315.8
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_data_cache_timing_ms.flush_close",
+      "reason": "未登记",
+      "batch": 2333.4,
+      "prod": 1405.7
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_data_cache_timing_ms.layout",
+      "reason": "未登记",
+      "batch": 725.2,
+      "prod": 337.2
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_data_cache_timing_ms.scan",
+      "reason": "未登记",
+      "batch": 7497.0,
+      "prod": 4384.2
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_data_cache_timing_ms.total_before_publish",
+      "reason": "未登记",
+      "batch": 11072.8,
+      "prod": 7112.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_prepare_timing_ms.load_panel",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_prepare_timing_ms.market_data_direct_load",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_prepare_timing_ms.market_data_matrix_build",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_prepare_timing_ms.total",
+      "reason": "未登记",
+      "batch": 0.6,
+      "prod": 0.5
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.filter_score",
+      "reason": "未登记",
+      "batch": 147.8,
+      "prod": 147.7
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.load_panel",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.market_data_matrix_build",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.matrix_build",
+      "reason": "未登记",
+      "batch": 85.2,
+      "prod": 83.2
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.signals_score",
+      "reason": "未登记",
+      "batch": 1326.5,
+      "prod": 1335.6
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.simulate",
+      "reason": "未登记",
+      "batch": 103.9,
+      "prod": 101.6
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.statistics",
+      "reason": "未登记",
+      "batch": 1.5,
+      "prod": 1.5
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.strategy_signals",
+      "reason": "未登记",
+      "batch": 1149.4,
+      "prod": 1157.8
+    },
+    {
+      "field": "oos_folds[1].oos_stats.timing_ms.total",
+      "reason": "未登记",
+      "batch": 1516.4,
+      "prod": 1521.1
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "reason": "缓存指纹计算耗时",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "reason": "单项算子计算耗时",
+      "batch": 4.404,
+      "prod": 5.467
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_data_cache_timing_ms.axes",
+      "reason": "未登记",
+      "batch": 8.1,
+      "prod": 668.5
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_data_cache_timing_ms.derived",
+      "reason": "未登记",
+      "batch": 508.6,
+      "prod": 315.8
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_data_cache_timing_ms.flush_close",
+      "reason": "未登记",
+      "batch": 2333.4,
+      "prod": 1405.7
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_data_cache_timing_ms.layout",
+      "reason": "未登记",
+      "batch": 725.2,
+      "prod": 337.2
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_data_cache_timing_ms.scan",
+      "reason": "未登记",
+      "batch": 7497.0,
+      "prod": 4384.2
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_data_cache_timing_ms.total_before_publish",
+      "reason": "未登记",
+      "batch": 11072.8,
+      "prod": 7112.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_prepare_timing_ms.load_panel",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_prepare_timing_ms.market_data_direct_load",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_prepare_timing_ms.market_data_matrix_build",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_prepare_timing_ms.total",
+      "reason": "未登记",
+      "batch": 0.6,
+      "prod": 0.5
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.filter_score",
+      "reason": "未登记",
+      "batch": 150.3,
+      "prod": 146.9
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.load_panel",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.market_data_matrix_build",
+      "reason": "未登记",
+      "batch": 0.0,
+      "prod": 0.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.matrix_build",
+      "reason": "未登记",
+      "batch": 85.5,
+      "prod": 83.7
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.signals_score",
+      "reason": "未登记",
+      "batch": 1364.6,
+      "prod": 1329.7
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.simulate",
+      "reason": "未登记",
+      "batch": 85.9,
+      "prod": 83.7
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.statistics",
+      "reason": "未登记",
+      "batch": 1.5,
+      "prod": 1.4
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.strategy_signals",
+      "reason": "未登记",
+      "batch": 1185.4,
+      "prod": 1155.1
+    },
+    {
+      "field": "oos_folds[2].oos_stats.timing_ms.total",
+      "reason": "未登记",
+      "batch": 1536.9,
+      "prod": 1498.0
+    }
+  ],
+  "annotations": [
+    {
+      "field": "oos_folds[0].elapsed_ms",
+      "reason": "生产折记录不含单折耗时",
+      "batch": 1773.7
+    },
+    {
+      "field": "oos_folds[0].segment_return",
+      "reason": "段收益与 continuous_account.boundaries[*].segment_return 比对，此键为折记录内的回声",
+      "batch": 0.0542
+    },
+    {
+      "field": "oos_folds[1].elapsed_ms",
+      "reason": "生产折记录不含单折耗时",
+      "batch": 1827.9
+    },
+    {
+      "field": "oos_folds[1].segment_return",
+      "reason": "段收益与 continuous_account.boundaries[*].segment_return 比对，此键为折记录内的回声",
+      "batch": -0.0721
+    },
+    {
+      "field": "oos_folds[2].elapsed_ms",
+      "reason": "生产折记录不含单折耗时",
+      "batch": 1836.2
+    },
+    {
+      "field": "oos_folds[2].segment_return",
+      "reason": "段收益与 continuous_account.boundaries[*].segment_return 比对，此键为折记录内的回声",
+      "batch": 0.0149
+    },
+    {
+      "field": "continuous_account.drawdown_curve_sha256",
+      "reason": "批量侧规范化摘要，用于替代原文存储",
+      "batch": "4e1af00877cd483b3a72dff201c6a7f641631c826ca1e4a3148eea610aa8ad47"
+    },
+    {
+      "field": "continuous_account.equity_curve_sha256",
+      "reason": "批量侧规范化摘要，用于替代原文存储",
+      "batch": "5bbad671ea2cab3906d6836742c71d155737606b4a362e4db5b10e3b53440781"
+    },
+    {
+      "field": "continuous_account.n_folds_total",
+      "reason": "生产 run() 用顶层 n_planned_folds 表达计划折数",
+      "batch": 3
+    },
+    {
+      "field": "continuous_account.trades_sha256",
+      "reason": "批量侧规范化摘要，用于替代原文存储",
+      "batch": "58bc213564648a39cb8214da89eb6c844a91fe4ddd9c3f6cc65b1acd4b9cb417"
+    }
+  ],
+  "unproven_diffs": [],
+  "production": {
+    "duplicate_dates": 0,
+    "timeline_complete": true,
+    "shared_market_data": true,
+    "n_folds": 3,
+    "n_planned_folds": 3,
+    "final_equity": 992786.95
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-06",
+  "interpreter": "backend/.venv/Scripts/python.exe",
+  "python": "3.11.15",
+  "synthetic_data_only": true,
+  "commands": [
+    {"command": "backend/.venv/Scripts/python.exe -B -m pytest -p no:cacheprovider --noconftest research/parallel-review-20261106/test_review_reconciliation.py -q", "exit": 1, "result": "No usable temporary directory found; default fd capture required a writable temporary file"},
+    {"command": "backend/.venv/Scripts/python.exe -B -m ruff check research/parallel-review-20261106", "exit": 2, "result": "Failed to create temporary file in .ruff_cache; access denied"},
+    {"command": "backend/.venv/Scripts/python.exe -B -m pytest --capture=sys -p no:cacheprovider --noconftest research/parallel-review-20261106/test_review_reconciliation.py -q", "exit": 0, "result": "29 passed, 1 warning in 0.42s; anyio CallSpec2 deprecation; stderr pytest_asyncio loop-scope deprecation"},
+    {"command": "backend/.venv/Scripts/python.exe -B -m ruff check --no-cache research/parallel-review-20261106", "exit": 0, "result": "All checks passed!"},
+    {"command": "backend/.venv/Scripts/python.exe -B research/parallel-review-20261106/review_reconciliation.py capture research/parallel-review-20261106/synthetic_input.json", "exit": 0, "result": "UTF-8 Chinese preserved; snapshot matches synthetic_snapshot.json"},
+    {"command": "backend/.venv/Scripts/python.exe -B research/parallel-review-20261106/review_reconciliation.py replay research/parallel-review-20261106/synthetic_snapshot.json", "exit": 0, "result": "ledger_consistent=true, plan_reconciled=false, simulated_fill_qty=100, fill_difference_qty=0; unsubmitted event remains unknown"},
+    {"command": "git diff --check", "exit": 2, "result": "Existing unrelated backend/tests/test_industry_chain_extension.py:808: new blank line at EOF; left unchanged"}
+  ],
+  "sha256": {
+    "review_reconciliation.py": "015df82a0373a6c40bc260aade8039f7a2b91e1f532b4a83167551a4ff037bb8",
+    "test_review_reconciliation.py": "10bfb77af3ce80e1fead8c5321dfa0c101a0ab4ce76a2855e49e6031554c37ac",
+    "input_payload": "087a9d8ebfd5d7fd034996abe82eb02e954aa37863b61a9aecfb247b9a46f96b"
+  }
+}

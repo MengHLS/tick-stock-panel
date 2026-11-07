@@ -1,0 +1,98 @@
+{
+  "S01_ma_cross_20_60": {
+    "signals": 24902,
+    "with_next_bar": 24890,
+    "mean_gap": -0.0007000754842679438,
+    "median_gap": -0.0007962843585870294,
+    "share_gap_gt_1pct": 0.1081960626757734,
+    "share_gap_lt_minus1pct": 0.15705102450783448
+  },
+  "S02_donchian_20_10": {
+    "signals": 127877,
+    "with_next_bar": 127773,
+    "mean_gap": 0.0033756132347637978,
+    "median_gap": -2.220446049250313e-16,
+    "share_gap_gt_1pct": 0.2318799746425301,
+    "share_gap_lt_minus1pct": 0.23410266644752803
+  },
+  "S03_tsmom_60_m": {
+    "signals": 54988,
+    "with_next_bar": 54742,
+    "mean_gap": 0.0010757823951716584,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.18061086551459574,
+    "share_gap_lt_minus1pct": 0.15017719484125536
+  },
+  "S04_rsi14_reversion": {
+    "signals": 75482,
+    "with_next_bar": 75034,
+    "mean_gap": -0.0010894064645689575,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.1173201481994829,
+    "share_gap_lt_minus1pct": 0.12123837193805474
+  },
+  "S05_bollinger_20_2": {
+    "signals": 100085,
+    "with_next_bar": 99686,
+    "mean_gap": -0.001798129657487404,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.11740866320245572,
+    "share_gap_lt_minus1pct": 0.13407098288626287
+  },
+  "S06_xs_reversal_5d": {
+    "signals": 18694,
+    "with_next_bar": 18616,
+    "mean_gap": -0.0032225007556613513,
+    "median_gap": -0.000786472791690862,
+    "share_gap_gt_1pct": 0.13853674258702192,
+    "share_gap_lt_minus1pct": 0.225827245380318
+  },
+  "S07_xs_lowvol_60d": {
+    "signals": 4883,
+    "with_next_bar": 4794,
+    "mean_gap": 0.00042952432878745834,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.04630788485607009,
+    "share_gap_lt_minus1pct": 0.026282853566958697
+  },
+  "S08_high_52w": {
+    "signals": 5306,
+    "with_next_bar": 5251,
+    "mean_gap": 0.009577749743428867,
+    "median_gap": 0.0007573462587093793,
+    "share_gap_gt_1pct": 0.3026090268520282,
+    "share_gap_lt_minus1pct": 0.1746334031613026
+  },
+  "S09_volume_breakout_55": {
+    "signals": 52965,
+    "with_next_bar": 52934,
+    "mean_gap": 0.0011073102581098818,
+    "median_gap": -0.0010866613135582792,
+    "share_gap_gt_1pct": 0.2482336494502588,
+    "share_gap_lt_minus1pct": 0.3027354819208826
+  },
+  "S10_xs_reversal_20d": {
+    "signals": 8162,
+    "with_next_bar": 7999,
+    "mean_gap": 0.0009928831186302872,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.15526940867608452,
+    "share_gap_lt_minus1pct": 0.1053881735216902
+  },
+  "S11_lowvol_reversal": {
+    "signals": 1293,
+    "with_next_bar": 1293,
+    "mean_gap": 0.001532793770061372,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.06419180201082754,
+    "share_gap_lt_minus1pct": 0.038669760247486466
+  },
+  "S12_lowvol_breadth": {
+    "signals": 2595,
+    "with_next_bar": 2595,
+    "mean_gap": 0.0005536678204558369,
+    "median_gap": 0.0,
+    "share_gap_gt_1pct": 0.04431599229287091,
+    "share_gap_lt_minus1pct": 0.021965317919075144
+  }
+}

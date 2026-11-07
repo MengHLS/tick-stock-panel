@@ -1,0 +1,132 @@
+{
+  "periods": {},
+  "equal_weight": {
+    "IS": {
+      "days": 854,
+      "cum_return": 0.12449420534093769,
+      "ann_return": 0.035229304667440786,
+      "ann_vol": 0.22090037479306956,
+      "sharpe": 0.2678792828172155,
+      "max_drawdown": -0.2960379247123196,
+      "avg_universe": 1218.1135831381732
+    },
+    "OOS": {
+      "days": 925,
+      "cum_return": -0.09039930103739569,
+      "ann_return": -0.02548255169383351,
+      "ann_vol": 0.21516901604011032,
+      "sharpe": -0.012062714119592729,
+      "max_drawdown": -0.36968653223930825,
+      "avg_universe": 1625.0972972972972
+    },
+    "ALL": {
+      "days": 1779,
+      "cum_return": 0.02284071515751429,
+      "ann_return": 0.0032041726408738036,
+      "ann_vol": 0.2178863896419551,
+      "sharpe": 0.12417907556608593,
+      "max_drawdown": -0.45613327349659294,
+      "avg_universe": 1429.7268128161888
+    }
+  },
+  "controls": [
+    {
+      "name": "C00_liquidity_control",
+      "slippage_bps": 10.0,
+      "IS": {
+        "label": "IS",
+        "n_days": 853,
+        "total_return": -0.25809196,
+        "cagr": -0.08441684164489838,
+        "ann_vol": 0.17047253301146212,
+        "sharpe": -0.4318103561565803,
+        "sortino": -0.582803900535499,
+        "max_drawdown": -0.4746728430132031,
+        "calmar": -0.17784215568142436,
+        "n_closed_trades": 200,
+        "n_open_at_end": 0,
+        "win_rate": 0.465,
+        "profit_factor": 0.7723947740067033,
+        "avg_pnl_pct": -0.010616315000000003,
+        "median_pnl_pct": -0.007249,
+        "avg_holding_days": 19.485,
+        "pct_trades_gt_20pct": 0.05,
+        "gross_traded_over_initial": 77.35667554000003,
+        "avg_exposure": 0.5478624999999999,
+        "final_equity": 741908.04,
+        "start_equity": 1000000.0
+      },
+      "OOS": {
+        "label": "OOS",
+        "n_days": 924,
+        "total_return": -0.22708071109788663,
+        "cagr": -0.0678385668986673,
+        "ann_vol": 0.16688394365780646,
+        "sharpe": -0.33748598778598776,
+        "sortino": -0.5023499804636945,
+        "max_drawdown": -0.3161145843845802,
+        "calmar": -0.21460119288939838,
+        "n_closed_trades": 220,
+        "n_open_at_end": 0,
+        "win_rate": 0.39090909090909093,
+        "profit_factor": 0.8828868272902907,
+        "avg_pnl_pct": -0.004036059090909092,
+        "median_pnl_pct": -0.024513,
+        "avg_holding_days": 19.568181818181817,
+        "pct_trades_gt_20pct": 0.07727272727272727,
+        "gross_traded_over_initial": 77.35667554000003,
+        "avg_exposure": 0.5478624999999999,
+        "final_equity": 575633.65,
+        "start_equity": 744752.6
+      },
+      "ALL": {
+        "label": "ALL",
+        "n_days": 1778,
+        "total_return": -0.42436635,
+        "cagr": -0.07529124495956219,
+        "ann_vol": 0.16852899839843036,
+        "sharpe": -0.3800011272076253,
+        "sortino": -0.5378450341348319,
+        "max_drawdown": -0.5608522542805193,
+        "calmar": -0.13424434757090956,
+        "n_closed_trades": 420,
+        "n_open_at_end": 0,
+        "win_rate": 0.4261904761904762,
+        "profit_factor": 0.8225190317327862,
+        "avg_pnl_pct": -0.007169514285714287,
+        "median_pnl_pct": -0.017041,
+        "avg_holding_days": 19.52857142857143,
+        "pct_trades_gt_20pct": 0.06428571428571428,
+        "gross_traded_over_initial": 77.35667554000003,
+        "avg_exposure": 0.5478624999999999,
+        "final_equity": 575633.65,
+        "start_equity": 1000000.0
+      },
+      "trade_count": 420,
+      "final_positions": 5
+    }
+  ],
+  "index": {
+    "IS": {
+      "symbol": "000001.SH",
+      "first": "2019-07-01",
+      "last": "2022-12-30",
+      "price_return": 0.014566971285118635
+    },
+    "OOS": {
+      "symbol": "000001.SH",
+      "first": "2023-01-03",
+      "last": "2026-10-30",
+      "price_return": 0.15482308426856695
+    }
+  },
+  "accounting_check": {
+    "start_equity": 1000000.0,
+    "final_equity": 575633.65,
+    "closed_pnl": -368357.6800000001,
+    "closed_pnl_plus_open_cost_basis": -368357.6800000001,
+    "note": "期末仍有未平仓持仓，差额应为这些持仓的浮动盈亏；需与 final_positions 一起读",
+    "final_positions": 5,
+    "final_cash": 254098.65129774986
+  }
+}

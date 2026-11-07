@@ -1,0 +1,49 @@
+{
+  "schema": "batch-verify-binding/2",
+  "registry": "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\out_v2\\registry.json",
+  "entry": {
+    "at": "2026-11-07T01:06:37+08:00",
+    "code": {
+      "sha256": "28bddd65cfd4b4628d22c8cc0148db18a2f9b02e6173bcea650ad4feaf065550",
+      "files": {
+        "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+        "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+        "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+        "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+        "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+        "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+        "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+        "run_batch.py": "d12c8a90cc3ae3c5ed041c7c4e9d96c274034e51afd3efa3fc7500266151db1c"
+      }
+    },
+    "data_generation": "2b948c890e75472ab8317ca0ce40af77",
+    "groups_sha256": "050b18b21597e07a27204f26b8ad99a40c5b05632cd8fc94af762c92e0120151",
+    "inputs_sha256": "a429195971dc079db12d3b560f128fcbaf91c954de6b3977218f864dc73bae01",
+    "verify_sha256": "be83a9b285b0e01c22b5aec67a291b620faaa08ae762a0083fce04a2810f9f20",
+    "run_batch_sha256": "d12c8a90cc3ae3c5ed041c7c4e9d96c274034e51afd3efa3fc7500266151db1c"
+  },
+  "exit": {
+    "at": "2026-11-07T01:07:38+08:00",
+    "code": {
+      "sha256": "28bddd65cfd4b4628d22c8cc0148db18a2f9b02e6173bcea650ad4feaf065550",
+      "files": {
+        "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+        "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+        "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+        "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+        "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+        "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+        "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+        "run_batch.py": "d12c8a90cc3ae3c5ed041c7c4e9d96c274034e51afd3efa3fc7500266151db1c"
+      }
+    },
+    "data_generation": "2b948c890e75472ab8317ca0ce40af77",
+    "groups_sha256": "050b18b21597e07a27204f26b8ad99a40c5b05632cd8fc94af762c92e0120151",
+    "inputs_sha256": "a429195971dc079db12d3b560f128fcbaf91c954de6b3977218f864dc73bae01",
+    "verify_sha256": "be83a9b285b0e01c22b5aec67a291b620faaa08ae762a0083fce04a2810f9f20",
+    "run_batch_sha256": "d12c8a90cc3ae3c5ed041c7c4e9d96c274034e51afd3efa3fc7500266151db1c"
+  },
+  "drift_during_verify": [],
+  "registry_violations": [],
+  "ok": true
+}

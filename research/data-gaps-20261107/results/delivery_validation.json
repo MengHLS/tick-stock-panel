@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "required_fields": [
+    "evidence_command",
+    "evidence_path",
+    "exit_code",
+    "family",
+    "remediation",
+    "status",
+    "verdict"
+  ],
+  "audited_items": 5,
+  "strategy_families": 4,
+  "actual_stages": 7,
+  "all_exit_codes_zero": true,
+  "independent_matches": true,
+  "scope": "research/data-gaps-20261107 only; preexisting working-tree changes preserved",
+  "unverified": [
+    "外部免费历史源完整性与采购必要性",
+    "外部公司行为完整性",
+    "历史真实券源可得性"
+  ]
+}

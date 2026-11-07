@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-11-06T15:58:07.141774+00:00",
+  "registered_documents": 120,
+  "archived_documents": [
+    "research/strategy-harness-20261106/_api.txt",
+    "research/strategy-harness-20261106/_api2.txt",
+    "research/strategy-harness-20261106/runs/demo-2x2-20261106T234454/summary.md",
+    "research/strategy-harness-20261106/runs/demo-2x2-20261106T234706/summary.md",
+    "research/strategy-harness-20261106/runs/demo-2x2-20261106T234915/summary.md",
+    "research/strategy-harness-20261106/runs/demo-2x2-20261106T235336/summary.md"
+  ],
+  "new_local_links_checked": 152,
+  "new_link_failures": 0,
+  "unregistered_documents": [],
+  "problems": [],
+  "content_drift_warnings": [
+    {
+      "changed_since_registration": "research/strategy-harness-20261106/PROGRESS.md",
+      "note": "快照：2026-11-06 22:46 工作区状态（1,924 B / 5ab8fabc…）；23:56 实测已改写为 4,142 B / fa4f8a23…，登记方不再逐次追平，按 content_drift_warnings 报告"
+    },
+    {
+      "changed_since_registration": "research/strategy-harness-20261106/README.md",
+      "note": "快照：第 2 次取基线 13,145 B / e719c067…（23:55:59）；23:56:55 实测已再改为 14,498 B / 9f627000…，登记方不再逐次追平，按 content_drift_warnings 报告"
+    }
+  ],
+  "scope": "新增Markdown目标存在、登记正文SHA256（removed项跳过并按历史保留）、docs/research文档覆盖（research/*/runs/*/summary.md 视为自动生成运行产物，按目录口径不逐次登记）、未验证锚点与外链"
+}

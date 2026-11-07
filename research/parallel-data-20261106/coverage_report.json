@@ -1,0 +1,581 @@
+{
+ "schema_version": "1.0.0",
+ "generated_at": "2026-11-06T21:50:19",
+ "audit_as_of": "2026-11-06",
+ "data_root": "D:\\TSP\\data",
+ "execution": {
+  "python": "3.11.15",
+  "argv": [
+   "research/parallel-data-20261106/audit_data_quality.py",
+   "--json-out",
+   "-",
+   "--as-of",
+   "2026-11-06"
+  ],
+  "mode": "read_only"
+ },
+ "inputs": {
+  "kline_daily": {
+   "partitions": 2141,
+   "rows": 9780842,
+   "symbols": 5813,
+   "first": "2018-01-08",
+   "last": "2026-11-06"
+  },
+  "kline_daily_enriched": {
+   "partitions": 2141
+  },
+  "kline_index_daily": {
+   "partitions": 2435
+  },
+  "adj_factor": {
+   "rows": 32888
+  },
+  "st_history": {
+   "rows": 7758
+  },
+  "instruments": {
+   "rows": 5536
+  },
+  "ext_hy_ths_pit": {
+   "snapshot_days": 6,
+   "industry_column": "所属同花顺行业"
+  },
+  "suspension_table": {
+   "present": false
+  }
+ },
+ "calendar": {
+  "source": "kline_index_daily_partition_names",
+  "available": true,
+  "trading_days": 2435
+ },
+ "checks": [
+  {
+   "id": "panel_partition_integrity",
+   "title": "daily panel partitions, duplicate rows, row/partition date agreement",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "partitions": 2141,
+    "rows": 9780842,
+    "symbols": 5813,
+    "duplicate_symbol_rows": 0,
+    "duplicate_sample": [],
+    "row_partition_date_mismatch": 0,
+    "row_partition_date_mismatch_sample": [],
+    "unparsable_row_dates": 0,
+    "partitions_not_iso_date": [],
+    "partitions_off_calendar": [],
+    "future_partitions": [],
+    "rows_off_calendar": 0,
+    "as_of": "2026-11-06"
+   },
+   "findings": [],
+   "unknown_reason": null
+  },
+  {
+   "id": "price_row_integrity",
+   "title": "zero-price rows versus the local suspension convention",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "rows_with_prices": 9780842,
+    "open_zero_and_high_zero": 0,
+    "open_zero_and_high_zero_share": 0,
+    "open_zero_only": 0,
+    "high_zero_only": 0,
+    "negative_price_rows": 0,
+    "convention": "a daily row is treated as suspended when open == 0 and high == 0",
+    "note": "this is a value convention on rows that exist; it says nothing about a trading day for which the symbol has no row at all"
+   },
+   "findings": [],
+   "unknown_reason": null
+  },
+  {
+   "id": "calendar_coverage",
+   "title": "index trading calendar versus panel partition dates",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "calendar_source": "kline_index_daily_partition_names",
+    "window_start": "2018-01-08",
+    "window_end": "2026-11-06",
+    "index_days": 2435,
+    "panel_days": 2141,
+    "missing_from_panel": [],
+    "missing_from_panel_count": 0,
+    "extra_in_panel": [],
+    "extra_in_panel_count": 0,
+    "note": "both sides come from the same provider, so this proves internal agreement, not exchange truth"
+   },
+   "findings": [],
+   "unknown_reason": null
+  },
+  {
+   "id": "enriched_parity",
+   "title": "raw daily partitions versus adjusted (enriched) partitions",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "panel_partitions": 2141,
+    "enriched_partitions": 2141,
+    "only_in_panel": [],
+    "only_in_enriched": [],
+    "only_in_panel_count": 0,
+    "only_in_enriched_count": 0
+   },
+   "findings": [],
+   "unknown_reason": null
+  },
+  {
+   "id": "adj_factor_integrity",
+   "title": "adjustment factor duplicates, conflicts, value contract and panel alignment",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "rows": 32888,
+    "distinct_symbols": 5197,
+    "native_rows": 32888,
+    "date_min": "2018-01-11",
+    "date_max": "2026-11-02",
+    "ex_factor_min": 1,
+    "ex_factor_max": 3.5814332247557004,
+    "contract": "0.2 <= ex_factor <= 5.0",
+    "duplicate_pairs": 0,
+    "duplicate_sample": [],
+    "conflicting_pairs": 0,
+    "conflicting_sample": [],
+    "invalid_values": 0,
+    "invalid_sample": [],
+    "future_rows": 0,
+    "future_sample": [],
+    "panel_symbols_without_factor": 616,
+    "panel_symbols_without_factor_sample": [
+     "000004.SZ",
+     "000005.SZ",
+     "000007.SZ",
+     "000010.SZ",
+     "000016.SZ"
+    ],
+    "factor_symbols_not_in_panel": 0,
+    "factor_symbols_not_in_panel_sample": [],
+    "as_of": "2026-11-06"
+   },
+   "findings": [],
+   "unknown_reason": "factor rows are event based; without a corporate-action ledger a symbol with no factor row cannot be proven to have had no adjustment event"
+  },
+  {
+   "id": "st_history_integrity",
+   "title": "historical ST flag table: conflicts and per-trading-day coverage",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "rows": 7758,
+    "distinct_symbols": 5817,
+    "date_min": "2019-01-01",
+    "date_max": "2026-10-29",
+    "flag_days": 1436,
+    "trading_days_in_window": 2141,
+    "trading_days_without_state": 793,
+    "trading_days_before_first_flag": 239,
+    "trading_days_after_last_flag": 6,
+    "trading_days_without_state_sample": [
+     "2018-01-08",
+     "2018-01-09",
+     "2018-01-10",
+     "2018-01-11",
+     "2018-01-12"
+    ],
+    "conflicting_flags": 0,
+    "conflicting_sample": []
+   },
+   "findings": [],
+   "unknown_reason": "st_history rows exist only on change dates; trading days with no row cannot be distinguished between 'not ST' and 'state not recorded' without a per-day state table"
+  },
+  {
+   "id": "instruments_snapshot_integrity",
+   "title": "current instrument snapshot: as_of, listing dates, panel membership",
+   "required": true,
+   "status": "fail",
+   "evidence": {
+    "rows": 5536,
+    "distinct_symbols": 5536,
+    "as_of_values": [
+     "2026-11-05"
+    ],
+    "missing_listing_date": 3,
+    "missing_listing_date_sample": [
+     "002525.SZ",
+     "300060.SZ",
+     "600849.SH"
+    ],
+    "listed_on_or_before_panel_start": 3537,
+    "panel_symbols_not_in_instruments": 355,
+    "panel_symbols_not_in_instruments_sample": [
+     "920000.BJ",
+     "920001.BJ",
+     "920002.BJ",
+     "920003.BJ",
+     "920005.BJ"
+    ],
+    "panel_start_truncated_symbols": 3060,
+    "panel_start_truncated_with_earlier_listing": 3060,
+    "panel_start_truncated_with_earlier_listing_sample": [
+     "000001.SZ",
+     "000002.SZ",
+     "000008.SZ",
+     "000009.SZ",
+     "000010.SZ"
+    ],
+    "bars_before_listing_date": 0,
+    "bars_before_listing_date_sample": [],
+    "note": "a single snapshot describes today; it is not a historical membership table"
+   },
+   "findings": [
+    "3 instruments rows have no usable listing_date"
+   ],
+   "unknown_reason": "panel symbols absent from the instrument snapshot have no local listing metadata; their lifecycle cannot be verified from this project"
+  },
+  {
+   "id": "industry_pit_integrity",
+   "title": "industry snapshot duplicates, conflicts, empty and future partitions",
+   "required": true,
+   "status": "pass",
+   "evidence": {
+    "snapshot_days": 6,
+    "date_min": "2026-11-01",
+    "date_max": "2026-11-06",
+    "symbols_per_day": {
+     "2026-11-01": 5578,
+     "2026-11-02": 5578,
+     "2026-11-03": 5578,
+     "2026-11-04": 5578,
+     "2026-11-05": 5579,
+     "2026-11-06": 5579
+    },
+    "duplicate_rows": 0,
+    "conflicting_symbol_days": 0,
+    "conflicting_sample": [],
+    "partitions_not_iso_date": [],
+    "empty_partitions": [],
+    "future_partitions": [],
+    "industry_column": "所属同花顺行业"
+   },
+   "findings": [],
+   "unknown_reason": null
+  },
+  {
+   "id": "industry_pit_calendar_alignment",
+   "title": "industry snapshot dates versus trading calendar",
+   "required": true,
+   "status": "fail",
+   "evidence": {
+    "snapshot_days": 6,
+    "non_trading_snapshot_days": [
+     "2026-11-01"
+    ],
+    "trading_snapshot_days": 5
+   },
+   "findings": [
+    "1 industry snapshots are dated on non-trading days; a daily join would inject a pseudo trading date"
+   ],
+   "unknown_reason": null
+  },
+  {
+   "id": "industry_pit_history_depth",
+   "title": "industry snapshot history depth versus panel history",
+   "required": true,
+   "status": "fail",
+   "evidence": {
+    "panel_trading_days": 2141,
+    "snapshot_days_in_panel": 5,
+    "coverage_ratio": 0.002335,
+    "available_at_column": false,
+    "note": "snapshot rows carry only a date; the intraday moment the membership became knowable is not recorded anywhere in the dataset"
+   },
+   "findings": [
+    "industry snapshots cover 5 of 2141 panel trading days (0.23%); a multi-year industry backtest has no point-in-time membership for the rest"
+   ],
+   "unknown_reason": "no available_at/as_of column and no vendor publication log, so intraday availability for a historical decision time is unknown"
+  },
+  {
+   "id": "security_lifecycle_coverage",
+   "title": "per-symbol first/last date, stale tails and interior holes",
+   "required": true,
+   "status": "unknown",
+   "evidence": {
+    "symbols": 5813,
+    "symbols_truncated_at_window_start": 3060,
+    "symbols_truncated_at_window_start_sample": [
+     "000001.SZ",
+     "000002.SZ",
+     "000008.SZ",
+     "000009.SZ",
+     "000010.SZ"
+    ],
+    "symbols_stale_before_window_end": 241,
+    "symbols_stale_before_window_end_sample": [
+     "000004.SZ",
+     "000005.SZ",
+     "000016.SZ",
+     "000018.SZ",
+     "000023.SZ",
+     "000038.SZ",
+     "000040.SZ",
+     "000043.SZ",
+     "000046.SZ",
+     "000150.SZ",
+     "000413.SZ",
+     "000416.SZ",
+     "000502.SZ",
+     "000540.SZ",
+     "000584.SZ",
+     "000585.SZ",
+     "000587.SZ",
+     "000606.SZ",
+     "000611.SZ",
+     "000613.SZ"
+    ],
+    "symbols_with_holes": 2083,
+    "total_missing_symbol_days": 43503,
+    "worst_holes": [
+     {
+      "symbol": "000670.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1529,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 612
+     },
+     {
+      "symbol": "000995.SZ",
+      "first": "2018-01-23",
+      "last": "2026-11-06",
+      "rows": 1727,
+      "expected_trading_days": 2130,
+      "missing_trading_days": 403
+     },
+     {
+      "symbol": "600610.SH",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1773,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 368
+     },
+     {
+      "symbol": "002323.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1818,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 323
+     },
+     {
+      "symbol": "000792.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1827,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 314
+     },
+     {
+      "symbol": "300362.SZ",
+      "first": "2019-10-29",
+      "last": "2021-08-27",
+      "rows": 154,
+      "expected_trading_days": 449,
+      "missing_trading_days": 295
+     },
+     {
+      "symbol": "002711.SZ",
+      "first": "2019-10-29",
+      "last": "2021-07-14",
+      "rows": 154,
+      "expected_trading_days": 417,
+      "missing_trading_days": 263
+     },
+     {
+      "symbol": "600891.SH",
+      "first": "2019-10-29",
+      "last": "2021-04-30",
+      "rows": 113,
+      "expected_trading_days": 368,
+      "missing_trading_days": 255
+     },
+     {
+      "symbol": "000760.SZ",
+      "first": "2019-10-29",
+      "last": "2021-07-22",
+      "rows": 176,
+      "expected_trading_days": 423,
+      "missing_trading_days": 247
+     },
+     {
+      "symbol": "002656.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1906,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 235
+     },
+     {
+      "symbol": "002359.SZ",
+      "first": "2019-10-29",
+      "last": "2021-07-22",
+      "rows": 190,
+      "expected_trading_days": 423,
+      "missing_trading_days": 233
+     },
+     {
+      "symbol": "000912.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1913,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 228
+     },
+     {
+      "symbol": "600614.SH",
+      "first": "2019-10-29",
+      "last": "2021-07-14",
+      "rows": 189,
+      "expected_trading_days": 417,
+      "missing_trading_days": 228
+     },
+     {
+      "symbol": "600701.SH",
+      "first": "2019-10-29",
+      "last": "2021-04-26",
+      "rows": 153,
+      "expected_trading_days": 364,
+      "missing_trading_days": 211
+     },
+     {
+      "symbol": "002252.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1932,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 209
+     },
+     {
+      "symbol": "600399.SH",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1937,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 204
+     },
+     {
+      "symbol": "600423.SH",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1941,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 200
+     },
+     {
+      "symbol": "001914.SZ",
+      "first": "2019-01-08",
+      "last": "2026-11-06",
+      "rows": 1709,
+      "expected_trading_days": 1898,
+      "missing_trading_days": 189
+     },
+     {
+      "symbol": "002263.SZ",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1964,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 177
+     },
+     {
+      "symbol": "600751.SH",
+      "first": "2018-01-08",
+      "last": "2026-11-06",
+      "rows": 1970,
+      "expected_trading_days": 2141,
+      "missing_trading_days": 171
+     }
+    ],
+    "suspension_table_available": false,
+    "note": "first date == panel start means truncation or listing; local data cannot separate the two without a listing record"
+   },
+   "findings": [
+    "2083 symbols have at least one trading-day hole inside their own first/last span (43503 symbol-days in total)",
+    "241 symbols stop updating before the panel's last trading day"
+   ],
+   "unknown_reason": "no local suspension table and no authoritative listing/delisting record; a hole or an early stop cannot be attributed to suspension, delisting or a real gap"
+  }
+ ],
+ "gaps": [
+  {
+   "id": "instruments_snapshot_integrity",
+   "status": "fail",
+   "reason": "3 instruments rows have no usable listing_date"
+  },
+  {
+   "id": "industry_pit_calendar_alignment",
+   "status": "fail",
+   "reason": "1 industry snapshots are dated on non-trading days; a daily join would inject a pseudo trading date"
+  },
+  {
+   "id": "industry_pit_history_depth",
+   "status": "fail",
+   "reason": "industry snapshots cover 5 of 2141 panel trading days (0.23%); a multi-year industry backtest has no point-in-time membership for the rest"
+  },
+  {
+   "id": "security_lifecycle_coverage",
+   "status": "unknown",
+   "reason": "no local suspension table and no authoritative listing/delisting record; a hole or an early stop cannot be attributed to suspension, delisting or a real gap"
+  }
+ ],
+ "backtest_suitability": {
+  "daily_cross_section_backtest": {
+   "supported": false,
+   "permitted_use": "exploratory_research_only",
+   "integrity_checks_pass": true,
+   "statement": "local consistency checks pass, but this is not a data-availability verdict: it permits only exploratory daily cross-section research over the audited window, with every unknown below declared in writing; any conclusion that omits them is unsupported by this evidence",
+   "unknowns": [
+    "adjustment factor completeness: 616 panel symbols carry no factor row at all",
+    "completeness of the historical symbol universe over time: there is no delisting record set, so survivorship bias cannot be ruled out",
+    "attribution of 43503 missing symbol-days and 241 symbols that stop updating before the panel ends: without a suspension table the cause of a hole is unknown, and a suspension is only one of the possible causes",
+    "execution feasibility and liquidity: turnover, limit-up/limit-down tradability and capacity are not audited here"
+   ]
+  },
+  "delisted_universe_backtest": {
+   "supported": false,
+   "reason": "no delisting record set; the panel's symbol universe over time cannot be proven complete"
+  },
+  "suspension_aware_execution": {
+   "supported": false,
+   "reason": "no suspension table; execution cannot be modelled around halted days"
+  },
+  "historical_industry_rotation": {
+   "supported": false,
+   "reason": "industry point-in-time snapshots start at 2026-11-01 and cover 0.002335 of panel days"
+  },
+  "adjustment_rebuild": {
+   "supported": true,
+   "unknowns": [
+    "economic correctness of factors without a corporate-action ledger"
+   ]
+  }
+ },
+ "verdict": {
+  "verdict": "anomaly_detected",
+  "exit_code": 1,
+  "required_failed": [
+   "instruments_snapshot_integrity",
+   "industry_pit_calendar_alignment",
+   "industry_pit_history_depth"
+  ],
+  "required_unknown": [
+   "security_lifecycle_coverage"
+  ],
+  "required_total": 11
+ }
+}

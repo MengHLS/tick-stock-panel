@@ -1,0 +1,44 @@
+{
+  "freeze_n_trials": {
+    "baseline_v0": 12,
+    "prior_search_same_project": 3,
+    "total": 15,
+    "basis": "PROTOCOL.md §6.2；prior = research/strategy-reliability-20261106 T03 的 3 条固定规则",
+    "policy": "只增不减；参数邻域每格 +1；情景间择优 +2"
+  },
+  "research_hypotheses": [
+    "S01_ma_cross_20_60",
+    "S02_donchian_20_10",
+    "S03_tsmom_60_m",
+    "S04_rsi14_reversion",
+    "S05_bollinger_20_2",
+    "S06_xs_reversal_5d",
+    "S07_xs_lowvol_60d",
+    "S08_high_52w",
+    "S09_volume_breakout_55",
+    "S10_xs_reversal_20d",
+    "S11_lowvol_reversal",
+    "S12_lowvol_breadth"
+  ],
+  "research_execution_rows": 36,
+  "research_registry_meta_n_trials": null,
+  "T03_rules": [
+    "momentum",
+    "breakout_volume",
+    "breakout_volume_market"
+  ],
+  "additional_production_rule_families": [
+    "first_board_chain_rebreak",
+    "first_limit_pullback_3f_runner_t74"
+  ],
+  "identifiable_lower_bound_rule_families": 17,
+  "global_exact_count": null,
+  "unknowns": [
+    "T74 and other production strategy historical parameter searches and rule revisions lack a shared identity/selection ledger",
+    "cost-scenario selection decisions not registered centrally",
+    "diagnostics and regression reruns must not be mechanically added to independent hypotheses"
+  ],
+  "batch_local_executions": 12,
+  "batch_local_distinct_rule_parameter_groups": 2,
+  "independent_audit_reruns_add_hypotheses": 0
+}

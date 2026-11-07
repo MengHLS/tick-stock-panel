@@ -1,0 +1,2 @@
+# Regenerable panel cache; keep experiment reports and registry in Git.
+results/**/*.arrow

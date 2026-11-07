@@ -1,0 +1,380 @@
+{
+ "schema_version": "1.0.0",
+ "check": "universe616",
+ "generated_at": "2026-11-07T00:43:55",
+ "data_root": "D:/TSP/data",
+ "python": "3.11.15",
+ "duckdb": "1.5.3",
+ "id": "universe616",
+ "family": "口径争议：616 只无因子 vs 78 / 355 / 236",
+ "status": "available",
+ "status_meaning": "该口径可复现且已定论（status 枚举在此表示'争议可否定论'，不是'策略族可做'）",
+ "verdict": "确证",
+ "settlement": "616 可复现但语义不成立（应为'无复权因子事件行'）；78/355/236 三数均可复现；663 无法复现",
+ "conclusion": "定论：616 可精确复现，但语义被误读。616 = 面板 5,813 只证券中在 adj_factor（复权因子事件表）里没有任何一行的证券数（5,813 − 5,197 = 616，按前缀 00:225 / 30:92 / 60:186 / 68:69 / 92:44）。adj_factor 是按除权事件写的表，这 616 只在 789,432 行行情里 close 与 raw_close 完全相等（0 行差异），仅说明本地价格一致，不能证明真实世界没有除权事件；不能将其直接等同于'研究因子库缺失'；'无因子'应写作'无复权因子事件行'。另外三个数字同样可精确复现且口径互不相同：78 = 元数据 5,536 中有、日线面板 5,813 中完全没有日线的证券（1990 年代上市、2018 年前已退市/更名的老代码，15 只名称含'退'）；355 = 日线面板中有、元数据中没有的证券（全部为北交所 92x）；236 = 日线面板中四张财务表都没有任何记录的证券（样例均为退市/*ST）。三者之和 669 ≠ 616，说明它们不是同一口径下的互补分解，不能互相印证。数值巧合：2026-11-06 当日科创板（68x）恰好也是 616 只，与'无复权因子行'的 616 无关。663 无法复现：236 / 313 / 266 / 628 / 802 / 1,079 均不等于 663。",
+ "facts": [
+  {
+   "name": "缺表矩阵：面板 5,813 只 / 元数据 5,536 只 对各数据集的缺口",
+   "value": [
+    {
+     "table_name": "instruments",
+     "table_symbols": 5536,
+     "panel_missing": 355,
+     "instruments_missing": 78
+    },
+    {
+     "table_name": "adj_factor",
+     "table_symbols": 5197,
+     "panel_missing": 616,
+     "instruments_missing": 650
+    },
+    {
+     "table_name": "balance_sheet",
+     "table_symbols": 4734,
+     "panel_missing": 1079,
+     "instruments_missing": 802
+    },
+    {
+     "table_name": "income",
+     "table_symbols": 5577,
+     "panel_missing": 236,
+     "instruments_missing": 313
+    },
+    {
+     "table_name": "cash_flow",
+     "table_symbols": 5223,
+     "panel_missing": 590,
+     "instruments_missing": 313
+    },
+    {
+     "table_name": "metrics",
+     "table_symbols": 5577,
+     "panel_missing": 236,
+     "instruments_missing": 313
+    },
+    {
+     "table_name": "any_financials",
+     "table_symbols": 5577,
+     "panel_missing": 236,
+     "instruments_missing": 313
+    }
+   ],
+   "sql": "select 'instruments' as table_name, (select count(*) from ins) as table_symbols, (select count(*) from panel_agg where symbol not in (select symbol from ins)) as panel_missing, (select count(*) from ins where symbol not in (select symbol from panel_agg)) as instruments_missing union all select 'adj_factor', (select count(*) from adj_syms), (select count(*) from panel_agg where symbol not in (select symbol from adj_syms)), (select count(*) from ins where symbol not in (select symbol from adj_syms)) union all select 'balance_sheet', (select count(*) from fin_bs), (select count(*) from panel_agg where symbol not in (select symbol from fin_bs)), (select count(*) from ins where symbol not in (select symbol from fin_bs)) union all select 'income', (select count(*) from fin_income), (select count(*) from panel_agg where symbol not in (select symbol from fin_income)), (select count(*) from ins where symbol not in (select symbol from fin_income)) union all select 'cash_flow', (select count(*) from fin_cf), (select count(*) from panel_agg where symbol not in (select symbol from fin_cf)), (select count(*) from ins where symbol not in (select symbol from fin_cf)) union all select 'metrics', (select count(*) from fin_metrics), (select count(*) from panel_agg where symbol not in (select symbol from fin_metrics)), (select count(*) from ins where symbol not in (select symbol from fin_metrics)) union all select 'any_financials', (select count(*) from fin_any), (select count(*) from panel_agg where symbol not in (select symbol from fin_any)), (select count(*) from ins where symbol not in (select symbol from fin_any))",
+   "note": "panel_missing = 该表没有、但面板有日线的证券数；instruments_missing = 该表没有、但元数据里有的证券数"
+  },
+  {
+   "name": "两个宇宙的交集",
+   "value": {
+    "panel_symbols": 5813,
+    "instruments_symbols": 5536,
+    "intersection": 5458
+   },
+   "sql": "select (select count(*) from panel_agg) as panel_symbols, (select count(*) from ins) as instruments_symbols, (select count(*) from ins where symbol in (select symbol from panel_agg)) as intersection",
+   "note": "5,458 = 5,813 − 355 = 5,536 − 78：78 与 355 是互补的两个缺口，不是同一个数的两种说法"
+  },
+  {
+   "name": "616 只无复权因子行的证券（按代码前缀）",
+   "value": [
+    {
+     "prefix": "00",
+     "n": 225
+    },
+    {
+     "prefix": "30",
+     "n": 92
+    },
+    {
+     "prefix": "60",
+     "n": 186
+    },
+    {
+     "prefix": "68",
+     "n": 69
+    },
+    {
+     "prefix": "92",
+     "n": 44
+    }
+   ],
+   "sql": "select substr(symbol,1,2) as prefix, count(*) as n from panel_agg where symbol not in (select symbol from adj_syms) group by 1 order by 1"
+  },
+  {
+   "name": "616 只的首根 K 线年份分布",
+   "value": [
+    {
+     "bucket": "2018-2019",
+     "n": 457
+    },
+    {
+     "bucket": "2023+",
+     "n": 104
+    },
+    {
+     "bucket": "2020-2022",
+     "n": 55
+    }
+   ],
+   "sql": "select case when first_date >= date '2023-01-01' then '2023+' when first_date >= date '2020-01-01' then '2020-2022' when first_date >= date '2018-01-08' then '2018-2019' else 'pre-2018' end as bucket, count(*) as n from panel_agg where symbol not in (select symbol from adj_syms) group by 1 order by 2 desc"
+  },
+  {
+   "name": "616 只的 复权价 vs 原始价 一致性",
+   "value": {
+    "rows_scanned": 789432,
+    "rows_with_adjusted_diff": 0,
+    "symbols_with_adjusted_diff": 0
+   },
+   "sql": "select count(*) as rows_scanned, count(*) filter (where close is not null and raw_close is not null and abs(close - raw_close) > 1e-6) as rows_with_adjusted_diff, count(distinct symbol) filter (where abs(close - raw_close) > 1e-6) as symbols_with_adjusted_diff from read_parquet('D:/TSP/data/kline_daily_enriched/**/*.parquet') where symbol not in (select symbol from adj_syms)",
+   "note": "0 差异仅证明本地复权价与原始价一致；无因子事件行不能证明真实世界无除权，也不能排除供应商漏记"
+  },
+  {
+   "name": "78 只无日线的证券（按代码前缀）",
+   "value": [
+    {
+     "prefix": "00",
+     "n": 21
+    },
+    {
+     "prefix": "30",
+     "n": 3
+    },
+    {
+     "prefix": "60",
+     "n": 54
+    }
+   ],
+   "sql": "select substr(i.symbol,1,2) as prefix, count(*) as n from ins i where i.symbol not in (select symbol from panel_agg) group by 1 order by 1"
+  },
+  {
+   "name": "78 只无日线的证券：退市名称 / 缺失上市日",
+   "value": {
+    "n": 78,
+    "delisted_name": 15,
+    "null_listing_date": 3,
+    "earliest_listing": "1990-12-19",
+    "latest_listing": "2014-07-08"
+   },
+   "sql": "select count(*) as n, count(*) filter (where coalesce(i.name,'') like '%退%') as delisted_name, count(*) filter (where i.listing_date is null) as null_listing_date, min(i.listing_date) as earliest_listing, max(i.listing_date) as latest_listing from ins i where i.symbol not in (select symbol from panel_agg)"
+  },
+  {
+   "name": "78 只无日线的样例",
+   "value": [
+    {
+     "symbol": "000022.SZ",
+     "name": "深赤湾Ａ",
+     "listing_date": "1993-05-04"
+    },
+    {
+     "symbol": "000024.SZ",
+     "name": "招商地产",
+     "listing_date": "1993-06-07"
+    },
+    {
+     "symbol": "000033.SZ",
+     "name": "新都退",
+     "listing_date": "1994-01-03"
+    },
+    {
+     "symbol": "000418.SZ",
+     "name": "小天鹅Ａ",
+     "listing_date": "1997-03-28"
+    },
+    {
+     "symbol": "000511.SZ",
+     "name": "烯碳退",
+     "listing_date": "1993-05-18"
+    },
+    {
+     "symbol": "000522.SZ",
+     "name": "白云山Ａ",
+     "listing_date": "1993-11-08"
+    },
+    {
+     "symbol": "000527.SZ",
+     "name": "美的电器",
+     "listing_date": "1993-11-12"
+    },
+    {
+     "symbol": "000562.SZ",
+     "name": "宏源证券",
+     "listing_date": "1994-02-02"
+    },
+    {
+     "symbol": "000578.SZ",
+     "name": "盐湖集团",
+     "listing_date": "1995-03-03"
+    },
+    {
+     "symbol": "000594.SZ",
+     "name": "国恒退  ",
+     "listing_date": "1996-03-20"
+    }
+   ],
+   "sql": "select i.symbol, i.name, i.listing_date from ins i where i.symbol not in (select symbol from panel_agg) order by i.symbol limit 10",
+   "note": "样例为 1990 年代上市、2018 年前已退市/更名的老代码"
+  },
+  {
+   "name": "236 只无任何财务报表的证券（按代码前缀）",
+   "value": [
+    {
+     "prefix": "00",
+     "n": 98
+    },
+    {
+     "prefix": "30",
+     "n": 41
+    },
+    {
+     "prefix": "60",
+     "n": 93
+    },
+    {
+     "prefix": "68",
+     "n": 3
+    },
+    {
+     "prefix": "92",
+     "n": 1
+    }
+   ],
+   "sql": "select substr(symbol,1,2) as prefix, count(*) as n from panel_agg where symbol not in (select symbol from fin_any) group by 1 order by 1"
+  },
+  {
+   "name": "236 只的样例（面板内且有元数据的交集部分）",
+   "value": [
+    {
+     "symbol": "000004.SZ",
+     "name": "国华退",
+     "listing_date": "1990-12-01"
+    },
+    {
+     "symbol": "000005.SZ",
+     "name": "ST星源",
+     "listing_date": "1990-12-10"
+    },
+    {
+     "symbol": "000016.SZ",
+     "name": "*ST康佳A",
+     "listing_date": "1992-03-27"
+    },
+    {
+     "symbol": "000018.SZ",
+     "name": "神城A退",
+     "listing_date": "1992-06-16"
+    },
+    {
+     "symbol": "000022.SZ",
+     "name": "深赤湾Ａ",
+     "listing_date": "1993-05-04"
+    },
+    {
+     "symbol": "000023.SZ",
+     "name": "*ST深天",
+     "listing_date": "1993-04-29"
+    },
+    {
+     "symbol": "000024.SZ",
+     "name": "招商地产",
+     "listing_date": "1993-06-07"
+    },
+    {
+     "symbol": "000033.SZ",
+     "name": "新都退",
+     "listing_date": "1994-01-03"
+    },
+    {
+     "symbol": "000038.SZ",
+     "name": "大通退",
+     "listing_date": "1994-08-08"
+    },
+    {
+     "symbol": "000040.SZ",
+     "name": "*ST旭蓝",
+     "listing_date": "1994-08-08"
+    }
+   ],
+   "sql": "select i.symbol, i.name, i.listing_date from ins i where i.symbol not in (select symbol from fin_any) order by i.symbol limit 10",
+   "note": "样例均为退市/*ST 老代码；财务报表库只覆盖当前存续标的"
+  },
+  {
+   "name": "三表齐全的证券数",
+   "value": {
+    "panel_all_three": 4734,
+    "instruments_all_three": 4734
+   },
+   "sql": "select (select count(*) from panel_agg where symbol in (select symbol from fin_bs) and symbol in (select symbol from fin_income) and symbol in (select symbol from fin_cf)) as panel_all_three, (select count(*) from ins where symbol in (select symbol from fin_bs) and symbol in (select symbol from fin_income) and symbol in (select symbol from fin_cf)) as instruments_all_three"
+  },
+  {
+   "name": "主板口径下的财务缺口（用于对账 663）",
+   "value": {
+    "panel_mainboard_any_missing": 553,
+    "instruments_mainboard_any_missing": 628,
+    "instruments_mainboard_no_income": 266
+   },
+   "sql": "select (select count(*) from panel_agg where substr(symbol,1,2) in ('60','00') and (symbol not in (select symbol from fin_bs) or symbol not in (select symbol from fin_income) or symbol not in (select symbol from fin_cf))) as panel_mainboard_any_missing, (select count(*) from ins where substr(symbol,1,2) in ('60','00') and (symbol not in (select symbol from fin_bs) or symbol not in (select symbol from fin_income) or symbol not in (select symbol from fin_cf))) as instruments_mainboard_any_missing, (select count(*) from ins where substr(symbol,1,2) in ('60','00') and symbol not in (select symbol from fin_income)) as instruments_mainboard_no_income"
+  },
+  {
+   "name": "2026-11-06 当日各板块证券数",
+   "value": [
+    {
+     "prefix": "00",
+     "n": 1490
+    },
+    {
+     "prefix": "30",
+     "n": 1411
+    },
+    {
+     "prefix": "60",
+     "n": 1700
+    },
+    {
+     "prefix": "68",
+     "n": 616
+    },
+    {
+     "prefix": "92",
+     "n": 355
+    }
+   ],
+   "sql": "select substr(symbol,1,2) as prefix, count(*) as n from read_parquet('D:/TSP/data/kline_daily/date=2026-11-06/part.parquet') group by 1 order by 1",
+   "note": "68 开头正好 616 只 —— 与'无复权因子行'的 616 数值相同但完全无关"
+  },
+  {
+   "name": "对账 663 的候选口径",
+   "value": {
+    "panel_no_any_financials": 236,
+    "panel_no_income": 236,
+    "instruments_no_income": 313,
+    "panel_no_all_three": 1079,
+    "instruments_no_all_three": 802
+   },
+   "note": "由 sql_log 中面板/元数据/三表齐全三条 SQL 组合而成；没有任何候选等于 663，'663 只无财务'在本数据上无法复现（差异 ≥ 35）"
+  }
+ ],
+ "code_evidence": [],
+ "unknown": [
+  "供应商是否漏记了某些除权事件：close==raw_close 只能证明面板内部一致，不能证明外部公司行为台账完整"
+ ],
+ "needs_without_purchase": "无需采购：这是口径问题，不是数据采购问题。建议统一口径为'面板 ∩ 元数据 = 5,458；元数据无日线 78；面板无元数据 355（北交所）；面板无财务 236；面板无复权因子事件 616'，并在任何报告里写明每一数的分母。",
+ "evidence_paths": [
+  "D:/TSP/data/instruments/instruments.parquet",
+  "D:/TSP/data/adj_factor/all.parquet",
+  "D:/TSP/data/financials",
+  "D:/TSP/data/kline_daily"
+ ],
+ "sql_log": [
+  "select 'instruments' as table_name, (select count(*) from ins) as table_symbols, (select count(*) from panel_agg where symbol not in (select symbol from ins)) as panel_missing, (select count(*) from ins where symbol not in (select symbol from panel_agg)) as instruments_missing union all select 'adj_factor', (select count(*) from adj_syms), (select count(*) from panel_agg where symbol not in (select symbol from adj_syms)), (select count(*) from ins where symbol not in (select symbol from adj_syms)) union all select 'balance_sheet', (select count(*) from fin_bs), (select count(*) from panel_agg where symbol not in (select symbol from fin_bs)), (select count(*) from ins where symbol not in (select symbol from fin_bs)) union all select 'income', (select count(*) from fin_income), (select count(*) from panel_agg where symbol not in (select symbol from fin_income)), (select count(*) from ins where symbol not in (select symbol from fin_income)) union all select 'cash_flow', (select count(*) from fin_cf), (select count(*) from panel_agg where symbol not in (select symbol from fin_cf)), (select count(*) from ins where symbol not in (select symbol from fin_cf)) union all select 'metrics', (select count(*) from fin_metrics), (select count(*) from panel_agg where symbol not in (select symbol from fin_metrics)), (select count(*) from ins where symbol not in (select symbol from fin_metrics)) union all select 'any_financials', (select count(*) from fin_any), (select count(*) from panel_agg where symbol not in (select symbol from fin_any)), (select count(*) from ins where symbol not in (select symbol from fin_any))",
+  "select (select count(*) from panel_agg) as panel_symbols, (select count(*) from ins) as instruments_symbols, (select count(*) from ins where symbol in (select symbol from panel_agg)) as intersection",
+  "select substr(symbol,1,2) as prefix, count(*) as n from panel_agg where symbol not in (select symbol from adj_syms) group by 1 order by 1",
+  "select case when first_date >= date '2023-01-01' then '2023+' when first_date >= date '2020-01-01' then '2020-2022' when first_date >= date '2018-01-08' then '2018-2019' else 'pre-2018' end as bucket, count(*) as n from panel_agg where symbol not in (select symbol from adj_syms) group by 1 order by 2 desc",
+  "select count(*) as rows_scanned, count(*) filter (where close is not null and raw_close is not null and abs(close - raw_close) > 1e-6) as rows_with_adjusted_diff, count(distinct symbol) filter (where abs(close - raw_close) > 1e-6) as symbols_with_adjusted_diff from read_parquet('D:/TSP/data/kline_daily_enriched/**/*.parquet') where symbol not in (select symbol from adj_syms)",
+  "select substr(i.symbol,1,2) as prefix, count(*) as n from ins i where i.symbol not in (select symbol from panel_agg) group by 1 order by 1",
+  "select count(*) as n, count(*) filter (where coalesce(i.name,'') like '%退%') as delisted_name, count(*) filter (where i.listing_date is null) as null_listing_date, min(i.listing_date) as earliest_listing, max(i.listing_date) as latest_listing from ins i where i.symbol not in (select symbol from panel_agg)",
+  "select i.symbol, i.name, i.listing_date from ins i where i.symbol not in (select symbol from panel_agg) order by i.symbol limit 10",
+  "select substr(symbol,1,2) as prefix, count(*) as n from panel_agg where symbol not in (select symbol from fin_any) group by 1 order by 1",
+  "select i.symbol, i.name, i.listing_date from ins i where i.symbol not in (select symbol from fin_any) order by i.symbol limit 10",
+  "select (select count(*) from panel_agg where symbol in (select symbol from fin_bs) and symbol in (select symbol from fin_income) and symbol in (select symbol from fin_cf)) as panel_all_three, (select count(*) from ins where symbol in (select symbol from fin_bs) and symbol in (select symbol from fin_income) and symbol in (select symbol from fin_cf)) as instruments_all_three",
+  "select (select count(*) from panel_agg where substr(symbol,1,2) in ('60','00') and (symbol not in (select symbol from fin_bs) or symbol not in (select symbol from fin_income) or symbol not in (select symbol from fin_cf))) as panel_mainboard_any_missing, (select count(*) from ins where substr(symbol,1,2) in ('60','00') and (symbol not in (select symbol from fin_bs) or symbol not in (select symbol from fin_income) or symbol not in (select symbol from fin_cf))) as instruments_mainboard_any_missing, (select count(*) from ins where substr(symbol,1,2) in ('60','00') and symbol not in (select symbol from fin_income)) as instruments_mainboard_no_income",
+  "select substr(symbol,1,2) as prefix, count(*) as n from read_parquet('D:/TSP/data/kline_daily/date=2026-11-06/part.parquet') group by 1 order by 1"
+ ]
+}

@@ -1,0 +1,375 @@
+{
+  "schema_version": "1",
+  "topic": "data-gaps-20261107",
+  "generated_at": "2026-11-07T00:46:03+08:00",
+  "generated_by": "research/data-gaps-20261107/scripts/build_summary.py",
+  "data_root": "D:/TSP/data",
+  "repo": "C:/work/sourcecode/tick-stock-panel",
+  "git_branch": "dev",
+  "git_head": "848bd04b",
+  "status_legend": {
+    "blocked": "不能支撑该族任何可信（无前视）检验；若存在有限可用切片，记在 partial_capability",
+    "partial": "存在可用的有限切片，但不足以支持该族结论",
+    "available": "可做（本目录内仅 616 口径定论属此档，它本身不是策略族）"
+  },
+  "verdict_legend": {
+    "确证": "已用可重跑命令本地复核",
+    "未知": "无法用本地数据判定"
+  },
+  "families": [
+    {
+      "family": "行业中性 / 行业轮动 / 行业分层归因",
+      "id": "industry",
+      "status": "blocked",
+      "verdict": "确证",
+      "partial_capability": "2026-11-02~06 共 5 个交易日可做当日截面行业相对强弱（无前视）；无法做行业中性化回测或行业轮动",
+      "one_line": "历史上不可做：本地行业归属只有 2026-11-01~06 的 6 个时点快照（面板内 5 个交易日，0.23%），另有一份无日期列的当前快照与一份无日期维度的产业链图谱；财务表无主营构成字段，因此没有任何无前视的历史行业归属来源。预计算行业联动因子在 9,752,990 行历史中非空数为 0。唯一合规的可用切片是 2026-11-02~06 五天的当日截面行业相对强弱，不具有跨期检验价值。另已排查唯一候选捷径 mainline_history 的 industry 维度（2018-01-10 起 6,476 行）：它是用当前行业快照回看历史聚合涨停梯队得到的，代码自带前视声明，且只覆盖涨停事件、不含全样本个股归属，否决。",
+      "evidence_path": "research/data-gaps-20261107/results/check_industry.json",
+      "evidence_command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check industry",
+      "exit_code": 0,
+      "execution_log": "research/data-gaps-20261107/results/execution_log.json",
+      "output_path": "research/data-gaps-20261107/results/run_industry.log",
+      "remediation": "不可补",
+      "remediation_scope": "限本次检查的现存本地文件与历史回测区间",
+      "external_free_history": "未验证",
+      "purchase_required": "未知",
+      "key_sql": "select date::varchar as snapshot_date, count(*) as n_rows, count(distinct symbol) as n_symbols, count(distinct \"所属同花顺行业\") as n_industries, count(*) filter (where \"所属同花顺行业\" is null or trim(\"所属同花顺行业\") = '') as n_null_industry from read_parquet('D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries/**/*.parquet', hive_partitioning=true) group by 1 order by 1",
+      "sql_count": 12,
+      "code_evidence": [
+        {
+          "path": "backend/app/services/market_mainline.py:31",
+          "statement": "主业/概念主线时序按当前成分回看历史生成，代码自认'早年存在归属漂移'，只能当展示口径",
+          "search": "grep -n \"当前快照回看历史\" backend/app/services/market_mainline.py"
+        },
+        {
+          "path": "backend/app/services/rps_rotation.py:108",
+          "statement": "行业归属映射的唯一来源是 ExtConfigStore 的当前快照，无日期维度，不可 PIT 化",
+          "search": "grep -n \"维度成分股是 snapshot\" backend/app/services/rps_rotation.py"
+        },
+        {
+          "path": "backend/app/custom/cross_sectional_linkage/store.py:363",
+          "statement": "系统自己就拒绝用 snapshot 行业回填历史，只有 timeseries 且 require_complete=True 才可作为 PIT 来源",
+          "search": "grep -n \"snapshot 行业归属不能回填历史\" backend/app/custom/cross_sectional_linkage/store.py"
+        },
+        {
+          "path": "backend/app/custom/cross_sectional_linkage/compute.py:49",
+          "statement": "行业归属用 join_asof backward + 最大 30 天时效：快照只能向前覆盖 30 天，不能回填",
+          "search": "grep -n \"_MAX_INDUSTRY_AGE_DAYS\" backend/app/custom/cross_sectional_linkage/compute.py"
+        }
+      ],
+      "unknown": [
+        "供应商是否提供历史行业成员关系接口：仓库内只有 catalog + constituents(当前) 两个端点，是否存在历史端点未知（需向数据方确认，属采购/外部能力问题）",
+        "产业链图谱（431 节点 / 3,539 条股票映射）的来源与更新规则未审计：它只有当前版本，无法作为历史归属"
+      ],
+      "needs": "仅凭现存本地文件不可补历史：未找到历史行业分类落盘文件，财务表缺少主营构成字段，当前快照倒推即前视。本地已知可行做法是向前累积每日快照（已有落盘配置，2026-11-01 起已有六天落盘）；公开历史档案是否足够、是否需采购均未验证。",
+      "evidence_paths": [
+        "D:/TSP/data/ext_data/ext_hy_ths_pit/timeseries",
+        "D:/TSP/data/ext_data/ext_hy_ths/part.parquet",
+        "D:/TSP/data/user_data/industry_chain/graph.json",
+        "D:/TSP/data/ext_data/ext_hy_ths_pit/config.json"
+      ]
+    },
+    {
+      "family": "指数增强 / 指数成分轮动 / 跟踪误差约束",
+      "id": "index",
+      "status": "blocked",
+      "verdict": "确证",
+      "partial_capability": null,
+      "one_line": "不可做。本地只有 599 个指数的日线价格（2016-10-28~2026-11-06），不存在任何指数成分或权重数据：所有指数数据集的列里没有成分/权重字段，数据根下没有成分数据集目录，扩展数据配置里没有成分类配方，概念快照中也没有以宽基指数名为标签的成员关系。指数增强需要成分与权重，用今天的成分回测 2019 年即前视，故本族在现有数据下无法做可信检验。",
+      "evidence_path": "research/data-gaps-20261107/results/check_index.json",
+      "evidence_command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check index",
+      "exit_code": 0,
+      "execution_log": "research/data-gaps-20261107/results/execution_log.json",
+      "output_path": "research/data-gaps-20261107/results/run_index.log",
+      "remediation": "不可补",
+      "remediation_scope": "限本次检查的现存本地文件与历史回测区间",
+      "external_free_history": "未验证",
+      "purchase_required": "未知",
+      "key_sql": "select count(distinct symbol) as index_symbols, count(distinct date) as dates, min(date) as first_date, max(date) as last_date from read_parquet('D:/TSP/data/kline_index_daily/**/*.parquet')",
+      "sql_count": 3,
+      "code_evidence": [
+        {
+          "path": "backend/app/services/ext_presets.py:46",
+          "statement": "仓库内唯一成分接口是 ths-stock-list（当前成分，无历史版本参数），且服务于板块/概念，不是指数权重",
+          "search": "grep -n \"_FUYAO_CONSTITUENTS_PATH\" backend/app/services/ext_presets.py"
+        }
+      ],
+      "unknown": [
+        "历史上是否存在过成分数据文件后又被删除：本审计只能证明'当前不存在'，无法证明'从未存在'"
+      ],
+      "needs": "现有本地数据不可补：需要指数成分与权重及生效日期的历史，本地未找到。外部免费覆盖与采购必要性未验证；本次不推测替代方案。",
+      "evidence_paths": [
+        "D:/TSP/data/kline_index_daily",
+        "D:/TSP/data/instruments_index",
+        "D:/TSP/data/ext_data/ext_gn_ths/part.parquet"
+      ]
+    },
+    {
+      "family": "ETF 全族（轮动 / 套利 / 基准）",
+      "id": "etf",
+      "status": "blocked",
+      "verdict": "确证",
+      "partial_capability": null,
+      "one_line": "不可做。kline_etf_daily / kline_etf_enriched / kline_etf_minute 三个目录均为 0 个文件、0 字节，adj_factor_etf 同样为空；本地只有 1,769 条 ETF 代码元数据。股票日线面板里没有一只 ETF（51/15/56/58/16 前缀为 0），全量分钟线（5,917 只代码）里也没有一只 ETF，因此库里没有任何可用于 ETF 轮动、ETF 套利或 ETF 基准净值的行情表。",
+      "evidence_path": "research/data-gaps-20261107/results/check_etf.json",
+      "evidence_command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check etf",
+      "exit_code": 0,
+      "execution_log": "research/data-gaps-20261107/results/execution_log.json",
+      "output_path": "research/data-gaps-20261107/results/run_etf.log",
+      "remediation": "不可补",
+      "remediation_scope": "限本次检查的现存本地文件与历史回测区间",
+      "external_free_history": "未验证",
+      "purchase_required": "未知",
+      "key_sql": "select count(*) as rows, count(distinct symbol) as symbols, count(distinct substr(symbol,1,3)) as prefixes from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet') ; select substr(symbol,1,3) as prefix, count(*) as n from read_parquet('D:/TSP/data/instruments_etf/instruments_etf.parquet') group by 1 order by 2 desc limit 8",
+      "sql_count": 4,
+      "code_evidence": [
+        {
+          "path": "backend/app/api/data.py:432",
+          "statement": "读接口已按 ETF 专区命名（daily/enriched/minute 三套），说明管道存在、缺的是数据",
+          "search": "grep -n \"\"kline_etf_daily\"\" backend/app/api/data.py"
+        }
+      ],
+      "unknown": [
+        "ETF 行情是'从未采购'还是'曾经有后被清理'：目录 mtime 2026-10-28 之后无写入，无法判定原因"
+      ],
+      "needs": "现有本地数据不可补：需要 ETF 日线与复权/公司行为记录；分钟及折溢价按策略需求补齐。kline_etf_daily / kline_etf_enriched / kline_etf_minute 三个专区与读接口已经存在，尚需核验可用来源、历史覆盖及采集校验链；免费来源与采购必要性未验证。",
+      "evidence_paths": [
+        "D:/TSP/data/kline_etf_daily",
+        "D:/TSP/data/kline_etf_enriched",
+        "D:/TSP/data/kline_etf_minute",
+        "D:/TSP/data/adj_factor_etf",
+        "D:/TSP/data/instruments_etf/instruments_etf.parquet"
+      ]
+    },
+    {
+      "family": "做空 / 对冲 / 市场中性 / 配对交易",
+      "id": "short",
+      "status": "blocked",
+      "verdict": "确证",
+      "partial_capability": null,
+      "one_line": "不可做。代码层没有任何做空或对冲的执行路径：撮合器只有 buy/sell，仓位权重全为非负，受现金与敞口上限约束；因子层的 long_short 只是分组净值价差统计，不含券源、费率与保证金。数据层没有两融余额、融券余额、券源、保证金或借券费表，唯一相关的是概念快照里的'融资融券'标签（3,891 只，当前快照、无历史）。对冲类策略（市场中性、配对、多空）只能测多头腿，其 Sharpe 含市场 beta，不能当作中性策略的结论。",
+      "evidence_path": "research/data-gaps-20261107/results/check_short.json",
+      "evidence_command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check short",
+      "exit_code": 0,
+      "execution_log": "research/data-gaps-20261107/results/execution_log.json",
+      "output_path": "research/data-gaps-20261107/results/run_short.log",
+      "remediation": "不可补",
+      "remediation_scope": "限本次检查的现存本地文件与历史回测区间",
+      "external_free_history": "未验证",
+      "purchase_required": "未知",
+      "key_sql": "select count(*) filter (where \"所属概念\" like '%融资融券%') as margin_tag_symbols, count(*) filter (where \"所属概念\" like '%转融券%') as lending_tag_symbols from read_parquet('D:/TSP/data/ext_data/ext_gn_ths/part.parquet')",
+      "sql_count": 1,
+      "code_evidence": [
+        {
+          "path": "backend/app/backtest/engine.py:218",
+          "statement": "滑点/成本按 buy/sell 两向计算，买卖是唯一的委托语义",
+          "search": "grep -n \"sign = 1 if side == \"buy\" else -1\" backend/app/backtest/engine.py"
+        },
+        {
+          "path": "backend/app/backtest/engine.py:3509",
+          "statement": "仓位受现金与敞口上限约束，weights 全部 >= 0（1/n 或 max(score,0) 归一），不存在负仓位",
+          "search": "grep -n \"capacity = max(0.0, equity * max_exposure_pct - market_value)\" backend/app/backtest/engine.py"
+        },
+        {
+          "path": "backend/app/backtest/factor.py:1481",
+          "statement": "因子层的 long_short 是净值价差记账（多空组合统计），不产生可执行空头，也没有券源/费率",
+          "search": "grep -n \"50/50 理论多空两腿\" backend/app/backtest/factor.py"
+        },
+        {
+          "path": "backend/app/strategy/prompt_builder.py:22",
+          "statement": "short 只作为策略描述里的中文标签出现，不进入撮合",
+          "search": "grep -n \"DIRECTION_CN\" backend/app/strategy/prompt_builder.py"
+        }
+      ],
+      "unknown": [
+        "A 股实际券源可得性无法从行情数据推断；即使采购两融明细，也无法对 2019–2022 的个股券源做逐日判定"
+      ],
+      "needs": "现有本地数据不可补，且不只是数据问题：需要两融明细（融资余额/融券余额/费率/标的调整历史）＋引擎的空头账户（保证金、借券费、强平及适用结算限制）。仅补行情无法证明历史券源可得性，免费来源及采购必要性未验证；任何多空结论都要额外打折。",
+      "evidence_paths": [
+        "C:/work/sourcecode/tick-stock-panel/backend/app",
+        "D:/TSP/data/ext_data/ext_gn_ths/part.parquet"
+      ]
+    },
+    {
+      "family": "口径争议：616 只无因子 vs 78 / 355 / 236",
+      "id": "universe616",
+      "status": "available",
+      "verdict": "确证",
+      "partial_capability": null,
+      "one_line": "定论：616 可精确复现，但语义被误读。616 = 面板 5,813 只证券中在 adj_factor（复权因子事件表）里没有任何一行的证券数（5,813 − 5,197 = 616，按前缀 00:225 / 30:92 / 60:186 / 68:69 / 92:44）。adj_factor 是按除权事件写的表，这 616 只在 789,432 行行情里 close 与 raw_close 完全相等（0 行差异），仅说明本地价格一致，不能证明真实世界没有除权事件；不能将其直接等同于'研究因子库缺失'；'无因子'应写作'无复权因子事件行'。另外三个数字同样可精确复现且口径互不相同：78 = 元数据 5,536 中有、日线面板 5,813 中完全没有日线的证券（1990 年代上市、2018 年前已退市/更名的老代码，15 只名称含'退'）；355 = 日线面板中有、元数据中没有的证券（全部为北交所 92x）；236 = 日线面板中四张财务表都没有任何记录的证券（样例均为退市/*ST）。三者之和 669 ≠ 616，说明它们不是同一口径下的互补分解，不能互相印证。数值巧合：2026-11-06 当日科创板（68x）恰好也是 616 只，与'无复权因子行'的 616 无关。663 无法复现：236 / 313 / 266 / 628 / 802 / 1,079 均不等于 663。",
+      "evidence_path": "research/data-gaps-20261107/results/check_universe616.json",
+      "evidence_command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/audit_data_gaps.py --check universe616",
+      "exit_code": 0,
+      "execution_log": "research/data-gaps-20261107/results/execution_log.json",
+      "output_path": "research/data-gaps-20261107/results/run_universe616.log",
+      "remediation": "可补",
+      "remediation_scope": "仅澄清统计口径",
+      "external_free_history": "不适用",
+      "purchase_required": "不需要",
+      "key_sql": "select 'instruments' as table_name, (select count(*) from ins) as table_symbols, (select count(*) from panel_agg where symbol not in (select symbol from ins)) as panel_missing, (select count(*) from ins where symbol not in (select symbol from panel_agg)) as instruments_missing union all select 'adj_factor', (select count(*) from adj_syms), (select count(*) from panel_agg where symbol not in (select symbol from adj_syms)), (select count(*) from ins where symbol not in (select symbol from adj_syms)) union all select 'balance_sheet', (select count(*) from fin_bs), (select count(*) from panel_agg where symbol not in (select symbol from fin_bs)), (select count(*) from ins where symbol not in (select symbol from fin_bs)) union all select 'income', (select count(*) from fin_income), (select count(*) from panel_agg where symbol not in (select symbol from fin_income)), (select count(*) from ins where symbol not in (select symbol from fin_income)) union all select 'cash_flow', (select count(*) from fin_cf), (select count(*) from panel_agg where symbol not in (select symbol from fin_cf)), (select count(*) from ins where symbol not in (select symbol from fin_cf)) union all select 'metrics', (select count(*) from fin_metrics), (select count(*) from panel_agg where symbol not in (select symbol from fin_metrics)), (select count(*) from ins where symbol not in (select symbol from fin_metrics)) union all select 'any_financials', (select count(*) from fin_any), (select count(*) from panel_agg where symbol not in (select symbol from fin_any)), (select count(*) from ins where symbol not in (select symbol from fin_any))",
+      "sql_count": 13,
+      "code_evidence": [],
+      "unknown": [
+        "供应商是否漏记了某些除权事件：close==raw_close 只能证明面板内部一致，不能证明外部公司行为台账完整"
+      ],
+      "needs": "无需采购：这是口径问题，不是数据采购问题。建议统一口径为'面板 ∩ 元数据 = 5,458；元数据无日线 78；面板无元数据 355（北交所）；面板无财务 236；面板无复权因子事件 616'，并在任何报告里写明每一数的分母。",
+      "evidence_paths": [
+        "D:/TSP/data/instruments/instruments.parquet",
+        "D:/TSP/data/adj_factor/all.parquet",
+        "D:/TSP/data/financials",
+        "D:/TSP/data/kline_daily"
+      ]
+    }
+  ],
+  "dispute_616": {
+    "id": "universe616",
+    "verdict": "确证",
+    "settlement": "616 可复现但语义不成立（应为'无复权因子事件行'）；78/355/236 三数均可复现；663 无法复现",
+    "definition": {
+      "616": "面板 5,813 只中在 adj_factor 里没有任何一行的证券数（5,813 − 5,197）",
+      "78": "元数据 5,536 只中在日线面板 5,813 里完全没有日线的证券数",
+      "355": "日线面板中有、元数据中没有的证券数（北交所 92x）",
+      "236": "日线面板中四张财务表都没有任何记录的证券数",
+      "663": "无法复现（本审计候选口径 236/313/266/628/802/1,079 均不等于 663）"
+    },
+    "cross_check": {
+      "matrix": [
+        {
+          "table_name": "instruments",
+          "table_symbols": 5536,
+          "panel_missing": 355,
+          "instruments_missing": 78
+        },
+        {
+          "table_name": "adj_factor",
+          "table_symbols": 5197,
+          "panel_missing": 616,
+          "instruments_missing": 650
+        },
+        {
+          "table_name": "balance_sheet",
+          "table_symbols": 4734,
+          "panel_missing": 1079,
+          "instruments_missing": 802
+        },
+        {
+          "table_name": "income",
+          "table_symbols": 5577,
+          "panel_missing": 236,
+          "instruments_missing": 313
+        },
+        {
+          "table_name": "cash_flow",
+          "table_symbols": 5223,
+          "panel_missing": 590,
+          "instruments_missing": 313
+        },
+        {
+          "table_name": "metrics",
+          "table_symbols": 5577,
+          "panel_missing": 236,
+          "instruments_missing": 313
+        },
+        {
+          "table_name": "any_financials",
+          "table_symbols": 5577,
+          "panel_missing": 236,
+          "instruments_missing": 313
+        }
+      ],
+      "panel_vs_adj_factor_by_prefix": [
+        {
+          "prefix": "00",
+          "n": 225
+        },
+        {
+          "prefix": "30",
+          "n": 92
+        },
+        {
+          "prefix": "60",
+          "n": 186
+        },
+        {
+          "prefix": "68",
+          "n": 69
+        },
+        {
+          "prefix": "92",
+          "n": 44
+        }
+      ],
+      "adjusted_equals_raw": {
+        "rows_scanned": 789432,
+        "rows_with_adjusted_diff": 0,
+        "symbols_with_adjusted_diff": 0
+      },
+      "sse_star_daily_count_20261106": [
+        {
+          "prefix": "00",
+          "n": 1490
+        },
+        {
+          "prefix": "30",
+          "n": 1411
+        },
+        {
+          "prefix": "60",
+          "n": 1700
+        },
+        {
+          "prefix": "68",
+          "n": 616
+        },
+        {
+          "prefix": "92",
+          "n": 355
+        }
+      ]
+    },
+    "sum_check": {
+      "78+355+236": 669,
+      "note": "669 ≠ 616：三个数字口径互不相同，不是同一分解，不能互相印证"
+    },
+    "evidence_path": "research/data-gaps-20261107/results/check_universe616.json",
+    "provenance": [
+      "docs/research/parallel-data-20261106/DATA_QUALITY.md:74 —— 原始表述是「完全没有因子行」",
+      "research/parallel-data-20261106/audit_data_quality.py:1171-1205 —— panel_symbols_without_factor 的计算点"
+    ]
+  },
+  "independent_recheck": {
+    "role": "第二条独立路径：不复用 audit_data_gaps.py 任何代码，独立 DuckDB 会话重算",
+    "all_match": true,
+    "diffs": {},
+    "got": {
+      "panel_symbols": 5813,
+      "panel_trading_days": 2141,
+      "instruments_symbols": 5536,
+      "adj_symbols": 5197,
+      "no_adj_in_panel": 616,
+      "instr_not_in_panel": 78,
+      "panel_not_in_instr": 355,
+      "panel_no_financials": 236,
+      "instr_no_adj": 650,
+      "industry_partitions": 6,
+      "industry_panel_days_aligned": 5,
+      "etf_dirs_empty": 4,
+      "index_symbols": 599,
+      "index_constituent_columns": 0
+    },
+    "evidence_path": "research/data-gaps-20261107/results/independent_recheck.json",
+    "evidence_command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/independent_recheck.py",
+    "exit_code": 0,
+    "exit_code_on_diff": 2
+  },
+  "reproduce_all": [
+    "cd C:/work/sourcecode/tick-stock-panel",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py industry",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py index",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py etf",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py short",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py universe616",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py independent_recheck",
+    "PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/data-gaps-20261107/scripts/verify_delivery.py build_summary"
+  ]
+}

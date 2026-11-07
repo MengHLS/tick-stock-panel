@@ -1,0 +1,141 @@
+{
+  "schema": "strategy-search-freeze/1",
+  "created_at": "2026-11-06T23:44:23+08:00",
+  "protocol_version": "v2",
+  "freeze_rule": "确认性 run 需：run mtime > PROTOCOL.md mtime；代码 sha256 与本文件一致；且策略已在 STRATEGIES.md 登记",
+  "n_trials": {
+    "baseline_v0": 12,
+    "prior_search_same_project": 3,
+    "total": 15,
+    "basis": "PROTOCOL.md §6.2；prior = research/strategy-reliability-20261106 T03 的 3 条固定规则",
+    "policy": "只增不减；参数邻域每格 +1；情景间择优 +2"
+  },
+  "dsr": {
+    "sr_variance_daily": 0.000818,
+    "sr0_daily": 0.0506,
+    "sr0_annual": 0.804,
+    "threshold": 0.95
+  },
+  "lockbox": {
+    "burned_history": [
+      "2019-07-01",
+      "2026-10-30"
+    ],
+    "burned_note": "T1+T2 已全部被观测（含逐年表），不得重新称为样本外",
+    "prospective_start": "2026-11-09",
+    "min_quarters": 4,
+    "earliest_confirmatory_date": "2027-09-30"
+  },
+  "panel": {
+    "rows": 6422875,
+    "symbols": 3384,
+    "dates": 2136,
+    "hash": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3",
+    "eval_window": [
+      "2019-07-01",
+      "2026-10-30"
+    ],
+    "git_head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643"
+  },
+  "docs": [
+    {
+      "path": "PROTOCOL.md",
+      "exists": true,
+      "bytes": 14660,
+      "sha256": "3fcaaa9dfc4b05a8e4361a83487d293c2474c394740128022867760fc9ed1206",
+      "mtime": "2026-11-06T23:44:17"
+    },
+    {
+      "path": "STRATEGIES.md",
+      "exists": true,
+      "bytes": 13679,
+      "sha256": "b5af613bcdf656966e959a98233bcb26185e209b16c68c155d546111b1b18a64",
+      "mtime": "2026-11-06T23:40:39"
+    },
+    {
+      "path": "E1_E2_SPEC.md",
+      "exists": true,
+      "bytes": 9033,
+      "sha256": "5597e58dd736dd2b96c52e7115dc29c4e88b612a8d4d134379e459bd9841ad8a",
+      "mtime": "2026-11-06T23:41:08"
+    },
+    {
+      "path": "DATA-BOUNDARY.md",
+      "exists": true,
+      "bytes": 8683,
+      "sha256": "6ccf5ddc81a5daaef3ceef9e9568d5cf188ef1354aa987b71190ead98d7b73be",
+      "mtime": "2026-11-06T23:41:29"
+    },
+    {
+      "path": "README.md",
+      "exists": true,
+      "bytes": 8260,
+      "sha256": "60fe62a0115b008bc33931ab0701611ded082ba3c4de11e21bfe53c697964c01",
+      "mtime": "2026-11-06T23:44:08"
+    }
+  ],
+  "code": [
+    {
+      "path": "scripts/common.py",
+      "exists": true,
+      "bytes": 25080,
+      "sha256": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09",
+      "mtime": "2026-11-06T23:07:02"
+    },
+    {
+      "path": "scripts/run_suite.py",
+      "exists": true,
+      "bytes": 5420,
+      "sha256": "9e111f794fb077a37be5d667287a0430f104f240e47c46699e8bc0ee4b6192bf",
+      "mtime": "2026-11-06T22:56:03"
+    },
+    {
+      "path": "scripts/judge_e2.py",
+      "exists": true,
+      "bytes": 7687,
+      "sha256": "2846abf5aac2bf3c774c27cf0404f3c1974eb7ac0a193c52572feae95fdeb416",
+      "mtime": "2026-11-06T23:42:22"
+    },
+    {
+      "path": "scripts/make_freeze.py",
+      "exists": true,
+      "bytes": 3727,
+      "sha256": "4c1ddbd01781e87e5d1e1358a61e4eac27753469deb450ca0be94b17af190fd9",
+      "mtime": "2026-11-06T23:43:13"
+    }
+  ],
+  "results": [
+    {
+      "path": "results/registry.json",
+      "exists": true,
+      "bytes": 175133,
+      "sha256": "396199982168cc0fb240554827c400fcad2bd3fc947724c87f30cd2cbbe5a5f7",
+      "mtime": "2026-11-06T23:19:26"
+    },
+    {
+      "path": "results/e2_judgement.json",
+      "exists": true,
+      "bytes": 13515,
+      "sha256": "fc803f3ffeccfe0b3d5b050c3835b61bee7b427eb839013bece5e2f5850b748d",
+      "mtime": "2026-11-06T23:42:28"
+    }
+  ],
+  "verification": {
+    "runs_in_registry": 36,
+    "all_runs_exploratory": true,
+    "reason": "PROTOCOL.md v1 mtime 23:25:33 > 首个 run 22:51:55；common.py 于 23:07:02 中途修改",
+    "reproduced_on_final_code": [
+      "S07_xs_lowvol_60d@10"
+    ]
+  },
+  "e2_judgement": {
+    "summary": {
+      "n_strategies": 12,
+      "n_pass": 0,
+      "n_warn": 0,
+      "n_fail": 12,
+      "any_data_mismatch": false
+    },
+    "exit_code": 2
+  }
+}

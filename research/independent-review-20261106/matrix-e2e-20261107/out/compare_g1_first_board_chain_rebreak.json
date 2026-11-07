@@ -1,0 +1,306 @@
+{
+  "group": "g1_first_board_chain_rebreak",
+  "run_id": "71254717e32e",
+  "strategy_id": "first_board_chain_rebreak",
+  "params": {
+    "min_pullback_pct": 5.0
+  },
+  "n_diffs": 18,
+  "n_result_diffs": 0,
+  "n_telemetry_diffs": 18,
+  "diffs": [
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "left": 58.806,
+      "right": 59.672,
+      "kind": "value",
+      "delta": -0.8659999999999997
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 12.684,
+      "right": 15.537,
+      "kind": "value",
+      "delta": -2.8530000000000015
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.matrix_feature.compute_ms",
+      "left": 27.641,
+      "right": 34.115,
+      "kind": "value",
+      "delta": -6.474000000000004
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.valid_rolling_mean.compute_ms",
+      "left": 12.259,
+      "right": 17.756,
+      "kind": "value",
+      "delta": -5.497
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.valid_shift.compute_ms",
+      "left": 4.249,
+      "right": 5.274,
+      "kind": "value",
+      "delta": -1.0250000000000004
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_market_data_bytes",
+      "left": 126255182,
+      "right": 111135902,
+      "kind": "value",
+      "delta": 15119280.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "left": 59.97,
+      "right": 60.475,
+      "kind": "value",
+      "delta": -0.5050000000000026
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 12.247,
+      "right": 16.2,
+      "kind": "value",
+      "delta": -3.9529999999999994
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.matrix_feature.compute_ms",
+      "left": 27.846,
+      "right": 34.286,
+      "kind": "value",
+      "delta": -6.440000000000001
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.valid_rolling_mean.compute_ms",
+      "left": 12.015,
+      "right": 18.27,
+      "kind": "value",
+      "delta": -6.254999999999999
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.valid_shift.compute_ms",
+      "left": 4.358,
+      "right": 6.119,
+      "kind": "value",
+      "delta": -1.7610000000000001
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_market_data_bytes",
+      "left": 126287642,
+      "right": 111168362,
+      "kind": "value",
+      "delta": 15119280.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "left": 58.652,
+      "right": 63.782,
+      "kind": "value",
+      "delta": -5.1299999999999955
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 14.372,
+      "right": 17.39,
+      "kind": "value",
+      "delta": -3.0180000000000007
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.matrix_feature.compute_ms",
+      "left": 27.812,
+      "right": 33.428,
+      "kind": "value",
+      "delta": -5.615999999999996
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.valid_rolling_mean.compute_ms",
+      "left": 12.155,
+      "right": 16.463,
+      "kind": "value",
+      "delta": -4.308000000000002
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.valid_shift.compute_ms",
+      "left": 4.6,
+      "right": 6.022,
+      "kind": "value",
+      "delta": -1.4220000000000006
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_market_data_bytes",
+      "left": 126325054,
+      "right": 111205774,
+      "kind": "value",
+      "delta": 15119280.0
+    }
+  ],
+  "result_diffs": [],
+  "telemetry_diffs": [
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "left": 58.806,
+      "right": 59.672,
+      "kind": "value",
+      "delta": -0.8659999999999997
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 12.684,
+      "right": 15.537,
+      "kind": "value",
+      "delta": -2.8530000000000015
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.matrix_feature.compute_ms",
+      "left": 27.641,
+      "right": 34.115,
+      "kind": "value",
+      "delta": -6.474000000000004
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.valid_rolling_mean.compute_ms",
+      "left": 12.259,
+      "right": 17.756,
+      "kind": "value",
+      "delta": -5.497
+    },
+    {
+      "field": "oos_folds[0].oos_stats.matrix_compute_cache.operations.valid_shift.compute_ms",
+      "left": 4.249,
+      "right": 5.274,
+      "kind": "value",
+      "delta": -1.0250000000000004
+    },
+    {
+      "field": "oos_folds[0].oos_stats.shared_market_data_bytes",
+      "left": 126255182,
+      "right": 111135902,
+      "kind": "value",
+      "delta": 15119280.0
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "left": 59.97,
+      "right": 60.475,
+      "kind": "value",
+      "delta": -0.5050000000000026
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 12.247,
+      "right": 16.2,
+      "kind": "value",
+      "delta": -3.9529999999999994
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.matrix_feature.compute_ms",
+      "left": 27.846,
+      "right": 34.286,
+      "kind": "value",
+      "delta": -6.440000000000001
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.valid_rolling_mean.compute_ms",
+      "left": 12.015,
+      "right": 18.27,
+      "kind": "value",
+      "delta": -6.254999999999999
+    },
+    {
+      "field": "oos_folds[1].oos_stats.matrix_compute_cache.operations.valid_shift.compute_ms",
+      "left": 4.358,
+      "right": 6.119,
+      "kind": "value",
+      "delta": -1.7610000000000001
+    },
+    {
+      "field": "oos_folds[1].oos_stats.shared_market_data_bytes",
+      "left": 126287642,
+      "right": 111168362,
+      "kind": "value",
+      "delta": 15119280.0
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.fingerprint_ms",
+      "left": 58.652,
+      "right": 63.782,
+      "kind": "value",
+      "delta": -5.1299999999999955
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.basic_filter_mask.compute_ms",
+      "left": 14.372,
+      "right": 17.39,
+      "kind": "value",
+      "delta": -3.0180000000000007
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.matrix_feature.compute_ms",
+      "left": 27.812,
+      "right": 33.428,
+      "kind": "value",
+      "delta": -5.615999999999996
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.valid_rolling_mean.compute_ms",
+      "left": 12.155,
+      "right": 16.463,
+      "kind": "value",
+      "delta": -4.308000000000002
+    },
+    {
+      "field": "oos_folds[2].oos_stats.matrix_compute_cache.operations.valid_shift.compute_ms",
+      "left": 4.6,
+      "right": 6.022,
+      "kind": "value",
+      "delta": -1.4220000000000006
+    },
+    {
+      "field": "oos_folds[2].oos_stats.shared_market_data_bytes",
+      "left": 126325054,
+      "right": 111205774,
+      "kind": "value",
+      "delta": 15119280.0
+    }
+  ],
+  "production": {
+    "duplicate_dates": 0,
+    "timeline_complete": true,
+    "timeline": {
+      "complete": true,
+      "n_missing_dates": 0,
+      "missing_dates": [],
+      "trading_day_gap": null
+    },
+    "n_folds_replayed": 3,
+    "final_equity": 434227.12,
+    "shared_market_data": true,
+    "matrix_data_cache_status": [
+      "covering",
+      "covering",
+      "covering"
+    ]
+  },
+  "batch": {
+    "duplicate_dates": 0,
+    "timeline_complete": true,
+    "final_equity": 434227.12
+  },
+  "config": {
+    "strategy_id": "first_board_chain_rebreak",
+    "param_grid": {
+      "min_pullback_pct": [
+        5.0
+      ]
+    },
+    "train_days": 252,
+    "test_days": 63,
+    "step_days": 63,
+    "objective": "sortino",
+    "min_trades_oos": 10,
+    "continuous_account": true,
+    "trading_days": 463
+  }
+}

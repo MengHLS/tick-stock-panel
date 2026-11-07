@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0",
+  "check": "independent_recheck",
+  "generated_at": "2026-11-07T00:45:00+08:00",
+  "data_root": "D:\\TSP\\data",
+  "python": "3.11.15",
+  "duckdb": "1.5.3",
+  "method": "本脚本不复用 audit_data_gaps.py 的任何代码路径；独立 DuckDB 会话 + 独立文件普查",
+  "facts": [
+    {
+      "name": "三个宇宙与四个差集",
+      "value": {
+        "panel_symbols": 5813,
+        "panel_trading_days": 2141,
+        "instruments_symbols": 5536,
+        "adj_symbols": 5197,
+        "fin_symbols": 5577,
+        "no_adj_in_panel": 616,
+        "instr_not_in_panel": 78,
+        "panel_not_in_instr": 355,
+        "panel_no_financials": 236,
+        "instr_no_adj": 650,
+        "panel_instr_intersection": 5458,
+        "adj_outside_panel": 0
+      },
+      "sql": "p=panel(i), i=instruments, a=adj_factor, f=financials; 差集方向见字段名",
+      "note": "78/355 互为反向差集，不可相加对账"
+    },
+    {
+      "name": "616 的构成分解",
+      "value": {
+        "面板内且有元数据": 572,
+        "面板内且无元数据": 44
+      },
+      "sql": "select count(*) filter (where symbol in (select symbol from i)) ... from p where symbol not in (select symbol from a)"
+    },
+    {
+      "name": "616 只的 close vs raw_close 一致性",
+      "value": {
+        "rows_scanned": 789432,
+        "rows_with_diff": 0,
+        "symbols_with_diff": 0
+      },
+      "sql": "... from read_parquet(kline_daily_enriched) where symbol not in (select symbol from a)",
+      "note": "0 差异只证明本地复权价与原始价同值；真实公司行为是否漏记仍未知"
+    },
+    {
+      "name": "行业时点快照分区",
+      "value": {
+        "partitions": 6,
+        "dates": [
+          "2026-11-01",
+          "2026-11-02",
+          "2026-11-03",
+          "2026-11-04",
+          "2026-11-05",
+          "2026-11-06"
+        ]
+      },
+      "note": "目录枚举，非 SQL"
+    },
+    {
+      "name": "行业快照与面板交易日同日对齐天数",
+      "value": 5,
+      "sql": "snap(d) ∩ panel_days(d) 计数",
+      "note": "分母是面板 2141 个交易日"
+    },
+    {
+      "name": "行业快照累计证券数（6 天并集）",
+      "value": 5579
+    },
+    {
+      "name": "ETF 行情目录普查",
+      "value": {
+        "dirs": {
+          "kline_etf_daily": {
+            "exists": true,
+            "files": 0,
+            "bytes": 0
+          },
+          "kline_etf_enriched": {
+            "exists": true,
+            "files": 0,
+            "bytes": 0
+          },
+          "kline_etf_minute": {
+            "exists": true,
+            "files": 0,
+            "bytes": 0
+          },
+          "adj_factor_etf": {
+            "exists": true,
+            "files": 0,
+            "bytes": 0
+          }
+        },
+        "empty_dirs": 4
+      },
+      "note": "os.walk 语义的文件级普查"
+    },
+    {
+      "name": "股票面板中的 ETF 形态代码数",
+      "value": 0,
+      "sql": "regexp_matches(symbol,'^(51|15|56|58|16)') on kline_daily"
+    },
+    {
+      "name": "指数数据集里的权重/成分列",
+      "value": {
+        "matches": [],
+        "index_symbols": 599
+      },
+      "sql": "describe kline_index_enriched where column_name ~ 'weight|constituent|member'"
+    },
+    {
+      "name": "数据根下名称含 成分/权重 的目录",
+      "value": [],
+      "note": "实际顶层目录名普查，范围为 DATA_ROOT 直接子目录"
+    }
+  ],
+  "expected": {
+    "panel_symbols": 5813,
+    "panel_trading_days": 2141,
+    "instruments_symbols": 5536,
+    "adj_symbols": 5197,
+    "no_adj_in_panel": 616,
+    "instr_not_in_panel": 78,
+    "panel_not_in_instr": 355,
+    "panel_no_financials": 236,
+    "instr_no_adj": 650,
+    "industry_partitions": 6,
+    "industry_panel_days_aligned": 5,
+    "etf_dirs_empty": 4,
+    "index_symbols": 599,
+    "index_constituent_columns": 0
+  },
+  "got": {
+    "panel_symbols": 5813,
+    "panel_trading_days": 2141,
+    "instruments_symbols": 5536,
+    "adj_symbols": 5197,
+    "no_adj_in_panel": 616,
+    "instr_not_in_panel": 78,
+    "panel_not_in_instr": 355,
+    "panel_no_financials": 236,
+    "instr_no_adj": 650,
+    "industry_partitions": 6,
+    "industry_panel_days_aligned": 5,
+    "etf_dirs_empty": 4,
+    "index_symbols": 599,
+    "index_constituent_columns": 0
+  },
+  "diffs": {},
+  "all_match": true
+}

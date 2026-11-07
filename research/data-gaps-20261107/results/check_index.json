@@ -1,0 +1,143 @@
+{
+ "schema_version": "1.0.0",
+ "check": "index",
+ "generated_at": "2026-11-07T00:41:55",
+ "data_root": "D:/TSP/data",
+ "python": "3.11.15",
+ "duckdb": "1.5.3",
+ "id": "index",
+ "family": "指数增强 / 指数成分轮动 / 跟踪误差约束",
+ "status": "blocked",
+ "verdict": "确证",
+ "conclusion": "不可做。本地只有 599 个指数的日线价格（2016-10-28~2026-11-06），不存在任何指数成分或权重数据：所有指数数据集的列里没有成分/权重字段，数据根下没有成分数据集目录，扩展数据配置里没有成分类配方，概念快照中也没有以宽基指数名为标签的成员关系。指数增强需要成分与权重，用今天的成分回测 2019 年即前视，故本族在现有数据下无法做可信检验。",
+ "facts": [
+  {
+   "name": "指数日线（kline_index_daily）",
+   "value": {
+    "index_symbols": 599,
+    "dates": 2435,
+    "first_date": "2016-10-28",
+    "last_date": "2026-11-06",
+    "columns": [
+     "symbol",
+     "date",
+     "open",
+     "high",
+     "low",
+     "close",
+     "volume",
+     "amount"
+    ]
+   },
+   "sql": "select count(distinct symbol) as index_symbols, count(distinct date) as dates, min(date) as first_date, max(date) as last_date from read_parquet('D:/TSP/data/kline_index_daily/**/*.parquet')"
+  },
+  {
+   "name": "指数增强行情（kline_index_enriched）列",
+   "value": {
+    "columns": [
+     "symbol",
+     "date",
+     "open",
+     "high",
+     "low",
+     "close",
+     "volume",
+     "amount",
+     "raw_close",
+     "raw_high",
+     "raw_low"
+    ]
+   },
+   "source": "D:/TSP/data/kline_index_enriched/**/*.parquet",
+   "note": "只有 OHLCV + 复权价，无成分/权重字段"
+  },
+  {
+   "name": "指数元数据（instruments_index）",
+   "value": {
+    "columns": [
+     "symbol",
+     "name",
+     "code",
+     "asset_type"
+    ],
+    "rows": 599
+   },
+   "sql": "select count(*) from read_parquet('D:/TSP/data/instruments_index/instruments_index.parquet')",
+   "source": "D:/TSP/data/instruments_index/instruments_index.parquet",
+   "note": "599 条指数名称表，无成分、无权重"
+  },
+  {
+   "name": "数据根下名称含 成分/权重/constituent/weight 的目录",
+   "value": "未找到",
+   "source": "D:/TSP/data",
+   "note": "目录名普查：root.rglob('*') 逐目录正则 constituent|weight|member|成分|权重|index_member；空集 = 未找到"
+  },
+  {
+   "name": "指数类数据集中的权重/成分列",
+   "value": {
+    "kline_index_daily": [],
+    "kline_index_enriched": [],
+    "instruments_index": []
+   },
+   "source": "D:/TSP/data/kline_index_daily/**/*.parquet、D:/TSP/data/kline_index_enriched/**/*.parquet、D:/TSP/data/instruments_index/instruments_index.parquet",
+   "note": "对三张指数表 describe 后按 weight|constituent|成分|权重 正则过滤；全为空 → 任何指数数据集都不带成分或权重"
+  },
+  {
+   "name": "ext_data 配置中提及 成分/权重 的配方文件",
+   "value": [
+    {
+     "path": "D:/TSP/data/ext_data/ext_gn_ths/config.json",
+     "match": "constituent",
+     "snippet": "{ \"url\": \"https://fuyao.aicubes.cn/api/a-share-index/constituents/ths-stock-list\", \"param\": \"thscode\", \"id_field",
+     "is_index_weight_recipe": false
+    },
+    {
+     "path": "D:/TSP/data/ext_data/ext_hy_ths/config.json",
+     "match": "constituent",
+     "snippet": "{ \"url\": \"https://fuyao.aicubes.cn/api/a-share-index/constituents/ths-stock-list\", \"param\": \"thscode\", \"id_field",
+     "is_index_weight_recipe": false
+    },
+    {
+     "path": "D:/TSP/data/ext_data/ext_hy_ths_pit/config.json",
+     "match": "constituent",
+     "snippet": "{ \"url\": \"https://fuyao.aicubes.cn/api/a-share-index/constituents/ths-stock-list\", \"param\": \"thscode\", \"id_field",
+     "is_index_weight_recipe": false
+    }
+   ],
+   "source": "D:/TSP/data/ext_data/ext_gn_ths/config.json、D:/TSP/data/ext_data/ext_hy_ths/config.json、D:/TSP/data/ext_data/ext_hy_ths_pit/config.json",
+   "note": "逐条给出命中片段：全部是 ths-stock-list 板块成分端点，is_index_weight_recipe 均为 false"
+  },
+  {
+   "name": "概念快照中带 沪深300/中证500/中证1000/上证50 标签的证券数",
+   "value": {
+    "hs300": 0,
+    "zz500": 0,
+    "zz1000": 0,
+    "sz50": 0
+   },
+   "sql": "select count(*) filter (where \"所属概念\" like '%沪深300%') as hs300, count(*) filter (where \"所属概念\" like '%中证500%') as zz500, count(*) filter (where \"所属概念\" like '%中证1000%') as zz1000, count(*) filter (where \"所属概念\" like '%上证50%') as sz50 from read_parquet('D:/TSP/data/ext_data/ext_gn_ths/part.parquet')",
+   "note": "全 0：连'当前成分'的快照代理都不存在"
+  }
+ ],
+ "code_evidence": [
+  {
+   "path": "backend/app/services/ext_presets.py:46",
+   "statement": "仓库内唯一成分接口是 ths-stock-list（当前成分，无历史版本参数），且服务于板块/概念，不是指数权重",
+   "search": "grep -n \"_FUYAO_CONSTITUENTS_PATH\" backend/app/services/ext_presets.py"
+  }
+ ],
+ "unknown": [
+  "历史上是否存在过成分数据文件后又被删除：本审计只能证明'当前不存在'，无法证明'从未存在'"
+ ],
+ "needs_without_purchase": "现有本地数据不可补：需要指数成分与权重及生效日期的历史，本地未找到。外部免费覆盖与采购必要性未验证；本次不推测替代方案。",
+ "evidence_paths": [
+  "D:/TSP/data/kline_index_daily",
+  "D:/TSP/data/instruments_index",
+  "D:/TSP/data/ext_data/ext_gn_ths/part.parquet"
+ ],
+ "sql_log": [
+  "select count(distinct symbol) as index_symbols, count(distinct date) as dates, min(date) as first_date, max(date) as last_date from read_parquet('D:/TSP/data/kline_index_daily/**/*.parquet')",
+  "select count(*) from read_parquet('D:/TSP/data/instruments_index/instruments_index.parquet')",
+  "select count(*) filter (where \"所属概念\" like '%沪深300%') as hs300, count(*) filter (where \"所属概念\" like '%中证500%') as zz500, count(*) filter (where \"所属概念\" like '%中证1000%') as zz1000, count(*) filter (where \"所属概念\" like '%上证50%') as sz50 from read_parquet('D:/TSP/data/ext_data/ext_gn_ths/part.parquet')"
+ ]
+}

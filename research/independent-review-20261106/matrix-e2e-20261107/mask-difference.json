@@ -1,0 +1,84 @@
+{
+  "limit_up_locked": {
+    "count": 55,
+    "dates": [
+      "2024-08-05",
+      "2024-08-07",
+      "2024-08-08",
+      "2024-08-12"
+    ],
+    "count_IS_OOS": 0,
+    "examples": [
+      {
+        "date": "2024-08-05",
+        "symbol": "000040.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000558.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000679.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000901.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000908.SZ",
+        "union": true,
+        "single": false
+      }
+    ]
+  },
+  "limit_down_locked": {
+    "count": 42,
+    "dates": [
+      "2024-08-05",
+      "2024-08-06"
+    ],
+    "count_IS_OOS": 0,
+    "examples": [
+      {
+        "date": "2024-08-05",
+        "symbol": "000413.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000506.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000518.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000550.SZ",
+        "union": true,
+        "single": false
+      },
+      {
+        "date": "2024-08-05",
+        "symbol": "000572.SZ",
+        "union": true,
+        "single": false
+      }
+    ]
+  }
+}

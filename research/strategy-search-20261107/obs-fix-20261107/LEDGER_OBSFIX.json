@@ -1,0 +1,72 @@
+{
+  "schema": "obsfix-ledger/1",
+  "created_at": "2026-11-07T01:30:00+08:00",
+  "purpose": "S07@10bp 期末持仓可观测性补全（复现，非新试验）",
+  "nature": "reproduction_of_registered_strategy",
+  "strategy": {
+    "key": "S07_xs_lowvol_60d",
+    "parent_id": null,
+    "definition_unchanged": true,
+    "params": {
+      "entry": "in_universe & month_end & rk_vol60 <= 0.10",
+      "score": "-vol60",
+      "max_hold_days": 20,
+      "slippage_bps": 10.0,
+      "costs": "commission 0.03% + stamp 0.1% sell + transfer 0.001% + min 5 CNY",
+      "entry_delay_bars": 1,
+      "exit_delay_bars": 1,
+      "entry_price_basis": "raw"
+    }
+  },
+  "n_trials_before": 15,
+  "n_trials_after": 15,
+  "new_alpha_hypotheses": 0,
+  "n_trials_reason": "改动只在产物持久化（写出 carry_state 中引擎已算出但被丢弃的字段），信号列、参数、宇宙、成本、时序、撮合口径零改动；按 PROTOCOL.md §6.1 同一固定形式的重跑不计入 N。若本轮出现任何参数或规则改动，必须 N+1 并重算 SR0，本轮未出现（由 verify V3 机器证明）。",
+  "executions": [
+    {
+      "execution_id": "OBSFIX-E1-count",
+      "kind": "reproduction",
+      "mode": "count",
+      "fold": "continuous natural-year replay 2019-07-01..2026-10-30",
+      "cost_axis": "10bp",
+      "status": "planned",
+      "exit_code": null,
+      "result_path": "research/strategy-search-20261107/obs-fix-20261107/results/replay_S07_xs_lowvol_60d_10_count.json"
+    },
+    {
+      "execution_id": "OBSFIX-E2-full",
+      "kind": "reproduction_with_persistence",
+      "mode": "full",
+      "fold": "continuous natural-year replay 2019-07-01..2026-10-30",
+      "cost_axis": "10bp",
+      "status": "planned",
+      "exit_code": null,
+      "result_path": "research/strategy-search-20261107/obs-fix-20261107/results/replay_S07_xs_lowvol_60d_10_full.json"
+    },
+    {
+      "execution_id": "OBSFIX-V1",
+      "kind": "verification",
+      "mode": "verify",
+      "status": "planned",
+      "exit_code": null,
+      "result_path": "research/strategy-search-20261107/obs-fix-20261107/results/verification.json"
+    }
+  ],
+  "selections": [],
+  "revisions": [
+    {
+      "revision_id": "R-OBSFIX-1",
+      "what": "新增 OBSFIX 轮：期末未平仓 lot、跨段 carry 快照、逐日现金/权益持久化",
+      "why": "旧 36 次 run 只保存 final_positions 计数，导致 1,839 个持仓日不可归属（PATH_RISK cross_path.total_unidentified_position_days）",
+      "affects_old_results": false,
+      "old_files_overwritten": []
+    }
+  ],
+  "not_claimed": [
+    "no profitability claim",
+    "not out-of-sample / not confirmatory",
+    "E1 v3 FAIL preserved",
+    "no threshold change",
+    "panel cannot distinguish suspension / zero-volume / delisting"
+  ]
+}

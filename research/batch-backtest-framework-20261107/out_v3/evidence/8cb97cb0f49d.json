@@ -1,0 +1,539 @@
+{
+  "schema": "batch-backtest-evidence/2",
+  "batch_id": "3f5563f56c09",
+  "run_id": "8cb97cb0f49d",
+  "group": "g1_first_board_chain_rebreak",
+  "strategy_id": "first_board_chain_rebreak",
+  "params": {
+    "min_pullback_pct": 5.0
+  },
+  "code": {
+    "sha256": "1856c1a2cba45ce5c1ae9097f8fd5bebfeeb9f72a2a3b1f884d57a9b64977582",
+    "files": {
+      "backend/app/backtest/engine.py": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+      "backend/app/backtest/strategy.py": "c3bfb254969efcc6f756a2b248056f2c592e098883be02b78b41b47c1e12a23d",
+      "backend/app/backtest/walkforward.py": "c9506b15d5f1704f44138488a39cd6d976b2ff3961c4abd2ca6ddf90db1cd0ef",
+      "backend/app/backtest/matrix.py": "fd4938c9a6d6d066d2ef7d1fa54b18b964b933bb2e475288ce18e567e19ef844",
+      "backend/app/backtest/optimizer.py": "6263d0a5647b2683e4a074018221534874eb6e86933145e21ed6af8603d54bb5",
+      "backend/app/backtest/evidence.py": "46140847a7c623dd6e7e5a9ea2fd2c5362de586f85713528cb9e21b84fa4d366",
+      "backend/app/tickflow/repository.py": "9e498cb11a6505fcac851eb6e0b39aba6fd4f171a0d2592890b025519e993ac8",
+      "run_batch.py": "2908fbc1c1bbd2153c89b2eace04a7c5a1e291d561469031cea0831a3b10a08b"
+    }
+  },
+  "data_generation": {
+    "before": "2b948c890e75472ab8317ca0ce40af77",
+    "after": "2b948c890e75472ab8317ca0ce40af77",
+    "bound": "2b948c890e75472ab8317ca0ce40af77"
+  },
+  "slice": {
+    "symbols": "all",
+    "start": "2024-12-02",
+    "end": "2026-10-31",
+    "asset_type": "stock",
+    "trading_days": 463,
+    "n_folds": 3,
+    "folds": [
+      {
+        "index": 0,
+        "train_start": "2024-12-02",
+        "train_end": "2025-12-12",
+        "test_start": "2025-12-15",
+        "test_end": "2026-03-23"
+      },
+      {
+        "index": 1,
+        "train_start": "2025-03-10",
+        "train_end": "2026-03-23",
+        "test_start": "2026-03-24",
+        "test_end": "2026-06-25"
+      },
+      {
+        "index": 2,
+        "train_start": "2025-06-12",
+        "train_end": "2026-06-25",
+        "test_start": "2026-06-26",
+        "test_end": "2026-09-22"
+      }
+    ]
+  },
+  "matrix": {
+    "matrix_load_count": 1,
+    "matrix_load_elapsed_s": 1.489,
+    "matrix_bytes_mb": 250.5,
+    "matrix_shape": [
+      728,
+      5727
+    ],
+    "matrix_window": [
+      "2023-10-30",
+      "2026-10-30"
+    ],
+    "matrix_cache_status": "covering",
+    "matrix_cache_path": "D:\\TSP\\data\\.backtest_matrix_cache\\v5-37c5e60878129b26f6a2ffc7ca1fea95556046dd",
+    "profile_generation": "ea9918e28533e53abc69c287",
+    "profile_warmup_bars": 513,
+    "profile_forward_bars": 74,
+    "field_columns": [
+      "amount",
+      "close",
+      "consecutive_limit_ups",
+      "date",
+      "float_shares",
+      "high",
+      "low",
+      "name",
+      "open",
+      "price_limit_pct",
+      "raw_close",
+      "raw_high",
+      "raw_low",
+      "signal_limit_down",
+      "signal_limit_up",
+      "symbol",
+      "total_shares",
+      "turnover_rate",
+      "volume"
+    ],
+    "prepare_total_s": 1.753
+  },
+  "policy": {
+    "is": "BacktestResultPolicy(required_stats=frozenset({'sortino', 'n_trades'}), include_monte_carlo=False, include_curves=False, include_trades=False, include_per_symbol_stats=False, include_return_distribution=False, include_benchmark=False, include_strategy_info=False)",
+    "oos": "BacktestResultPolicy(required_stats=None, include_monte_carlo=True, include_curves=True, include_trades=True, include_per_symbol_stats=True, include_return_distribution=True, include_benchmark=True, include_strategy_info=True)"
+  },
+  "folds": [
+    {
+      "index": 0,
+      "train_start": "2024-12-02",
+      "train_end": "2025-12-12",
+      "test_start": "2025-12-15",
+      "test_end": "2026-03-23"
+    },
+    {
+      "index": 1,
+      "train_start": "2025-03-10",
+      "train_end": "2026-03-23",
+      "test_start": "2026-03-24",
+      "test_end": "2026-06-25"
+    },
+    {
+      "index": 2,
+      "train_start": "2025-06-12",
+      "train_end": "2026-06-25",
+      "test_start": "2026-06-26",
+      "test_end": "2026-09-22"
+    }
+  ],
+  "is_runs": [
+    {
+      "index": 0,
+      "train_start": "2024-12-02",
+      "train_end": "2025-12-12",
+      "test_start": "2025-12-15",
+      "test_end": "2026-03-23",
+      "is_score": -3.68,
+      "is_n_trades": 412,
+      "is_params": {
+        "min_pullback_pct": 5.0
+      },
+      "n_combinations": 1,
+      "n_completed": 1,
+      "error": null
+    },
+    {
+      "index": 1,
+      "train_start": "2025-03-10",
+      "train_end": "2026-03-23",
+      "test_start": "2026-03-24",
+      "test_end": "2026-06-25",
+      "is_score": -3.33,
+      "is_n_trades": 402,
+      "is_params": {
+        "min_pullback_pct": 5.0
+      },
+      "n_combinations": 1,
+      "n_completed": 1,
+      "error": null
+    },
+    {
+      "index": 2,
+      "train_start": "2025-06-12",
+      "train_end": "2026-06-25",
+      "test_start": "2026-06-26",
+      "test_end": "2026-09-22",
+      "is_score": -3.28,
+      "is_n_trades": 413,
+      "is_params": {
+        "min_pullback_pct": 5.0
+      },
+      "n_combinations": 1,
+      "n_completed": 1,
+      "error": null
+    }
+  ],
+  "oos_summary": {
+    "n_folds": 3,
+    "n_sufficient_trades": 3,
+    "n_insufficient_trades": 0,
+    "compounded_oos_return": -0.5658,
+    "return_kind": "single_account_single_timeline",
+    "avg_is_objective": -3.43,
+    "avg_oos_objective": -3.6333,
+    "degradation": 0.2033,
+    "consistency": 0.0,
+    "consistency_sufficient": 0.0,
+    "oos_equity_curve": [
+      {
+        "fold": 0,
+        "date": "2026-03-23",
+        "value": 0.7694,
+        "fold_return": -0.2306,
+        "statistically_insufficient": false
+      },
+      {
+        "fold": 1,
+        "date": "2026-06-25",
+        "value": 0.6517,
+        "fold_return": -0.153,
+        "statistically_insufficient": false
+      },
+      {
+        "fold": 2,
+        "date": "2026-09-22",
+        "value": 0.4342,
+        "fold_return": -0.3337,
+        "statistically_insufficient": false
+      }
+    ],
+    "continuous_account": {
+      "enabled": true,
+      "return_kind": "single_account_single_timeline",
+      "replay_span": {
+        "start": "2025-12-15",
+        "end": "2026-09-22",
+        "n_trading_days": 189,
+        "planned_start": "2025-12-15",
+        "planned_end": "2026-09-22",
+        "covers_planned_span": true
+      },
+      "initial_capital": 1000000.0,
+      "final_equity": 434227.12,
+      "final_cash": 434227.12,
+      "final_positions": 0,
+      "final_market_value": 0.0,
+      "n_folds_replayed": 3,
+      "n_folds_total": 3,
+      "n_boundaries_with_positions": 2,
+      "duplicate_dates": 0,
+      "stopped_early": null,
+      "timeline": {
+        "complete": true,
+        "n_missing_dates": 0,
+        "missing_dates": [],
+        "trading_day_gap": null
+      },
+      "trade_lifecycle": {
+        "n_trades": 325,
+        "completed_trade_count": 325,
+        "open_at_end_count": 0,
+        "unique_trade_records": 325,
+        "duplicate_trade_records": 0
+      },
+      "open_at_end_by_fold": [
+        {
+          "index": 0,
+          "n_trades": 104,
+          "open_at_end": 0,
+          "open_positions_at_end": 5
+        },
+        {
+          "index": 1,
+          "n_trades": 107,
+          "open_at_end": 0,
+          "open_positions_at_end": 6
+        },
+        {
+          "index": 2,
+          "n_trades": 114,
+          "open_at_end": 0,
+          "open_positions_at_end": 0
+        }
+      ],
+      "carry_policy": "折边界仅切换策略参数与信号; 现金、持仓、峰值和待执行开盘计划延续到下一折。已持仓继续按新折的风险/持有规则管理。",
+      "invariants": {
+        "equity_equals_cash_plus_market_value": true,
+        "final_positions_match_open_trades": true,
+        "trade_counts_add_up": true,
+        "fold_trade_counts_add_up": true,
+        "open_trades_come_from_last_fold": true,
+        "no_duplicate_trade_records": true,
+        "timeline_covers_trading_days": true,
+        "timeline_complete": true,
+        "return_kind_matches_timeline": true
+      },
+      "stats": {
+        "total_return": -0.5658,
+        "annual_return": -0.6712,
+        "max_drawdown": -0.6123,
+        "sharpe": -2.97,
+        "sortino": -3.58,
+        "calmar": -1.1,
+        "win_rate": 0.2585,
+        "profit_factor": 1.68,
+        "n_trades": 325,
+        "completed_trade_count": 325,
+        "open_at_end_count": 0,
+        "avg_pnl": -0.0263,
+        "avg_win": 0.1444,
+        "avg_loss": 0.0858,
+        "best": 0.5808,
+        "worst": -0.3025,
+        "median_pnl": -0.0813,
+        "avg_holding_days": 4.8,
+        "final_equity": 434227.12,
+        "initial_capital": 1000000.0,
+        "avg_exposure": 0.8076,
+        "max_exposure": 0.9998,
+        "mc_maxdd_p50": -1.0,
+        "mc_maxdd_p95": -1.0,
+        "execution": {
+          "buy_invalid_price": 0,
+          "buy_suspended": 0,
+          "buy_limit_up": 17,
+          "buy_no_slot": 151,
+          "buy_cash": 0,
+          "buy_lot_size": 0,
+          "buy_same_day_reentry": 0,
+          "buy_exposure": 0,
+          "buy_score_filter": 0,
+          "sell_invalid_price": 0,
+          "sell_suspended": 0,
+          "sell_limit_down": 7,
+          "pending_exit": 3,
+          "buy_planned": 8
+        },
+        "return_kind": "single_account_single_timeline"
+      },
+      "boundaries": [
+        {
+          "index": 0,
+          "test_start": "2025-12-15",
+          "test_end": "2026-03-23",
+          "equity_start": 1000000.0,
+          "equity_end": 769378.88,
+          "segment_return": -0.2306,
+          "carried_in_positions": 0,
+          "carried_out_positions": 5,
+          "pending_buy_plans": 0,
+          "params_changed": false
+        },
+        {
+          "index": 1,
+          "test_start": "2026-03-24",
+          "test_end": "2026-06-25",
+          "equity_start": 769378.88,
+          "equity_end": 651669.73,
+          "segment_return": -0.153,
+          "carried_in_positions": 5,
+          "carried_out_positions": 6,
+          "pending_buy_plans": 4,
+          "params_changed": false
+        },
+        {
+          "index": 2,
+          "test_start": "2026-06-26",
+          "test_end": "2026-09-22",
+          "equity_start": 651669.73,
+          "equity_end": 434227.12,
+          "segment_return": -0.3337,
+          "carried_in_positions": 6,
+          "carried_out_positions": 0,
+          "pending_buy_plans": 4,
+          "params_changed": false
+        }
+      ],
+      "n_curve_points": 189,
+      "n_trade_records": 325,
+      "n_drawdown_points": 189,
+      "equity_curve_sha256": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+      "trades_sha256": "a0675bfd4d6093a80bc2a3147c203c802e43021c7f4ec1a4e3f1e5453b3633de",
+      "drawdown_curve_sha256": "0d5a5993539d90011d7e080b23dded16a34684b1a935f96bf9654f5a460854bc"
+    },
+    "continuous_replay_span": {
+      "start": "2025-12-15",
+      "end": "2026-09-22",
+      "n_trading_days": 189,
+      "planned_start": "2025-12-15",
+      "planned_end": "2026-09-22",
+      "covers_planned_span": true
+    },
+    "compounded_oos_return_is_diagnostic": true
+  },
+  "continuous_account": {
+    "enabled": true,
+    "return_kind": "single_account_single_timeline",
+    "replay_span": {
+      "start": "2025-12-15",
+      "end": "2026-09-22",
+      "n_trading_days": 189,
+      "planned_start": "2025-12-15",
+      "planned_end": "2026-09-22",
+      "covers_planned_span": true
+    },
+    "initial_capital": 1000000.0,
+    "final_equity": 434227.12,
+    "final_cash": 434227.12,
+    "final_positions": 0,
+    "final_market_value": 0.0,
+    "n_folds_replayed": 3,
+    "n_folds_total": 3,
+    "n_boundaries_with_positions": 2,
+    "duplicate_dates": 0,
+    "stopped_early": null,
+    "timeline": {
+      "complete": true,
+      "n_missing_dates": 0,
+      "missing_dates": [],
+      "trading_day_gap": null
+    },
+    "trade_lifecycle": {
+      "n_trades": 325,
+      "completed_trade_count": 325,
+      "open_at_end_count": 0,
+      "unique_trade_records": 325,
+      "duplicate_trade_records": 0
+    },
+    "open_at_end_by_fold": [
+      {
+        "index": 0,
+        "n_trades": 104,
+        "open_at_end": 0,
+        "open_positions_at_end": 5
+      },
+      {
+        "index": 1,
+        "n_trades": 107,
+        "open_at_end": 0,
+        "open_positions_at_end": 6
+      },
+      {
+        "index": 2,
+        "n_trades": 114,
+        "open_at_end": 0,
+        "open_positions_at_end": 0
+      }
+    ],
+    "carry_policy": "折边界仅切换策略参数与信号; 现金、持仓、峰值和待执行开盘计划延续到下一折。已持仓继续按新折的风险/持有规则管理。",
+    "invariants": {
+      "equity_equals_cash_plus_market_value": true,
+      "final_positions_match_open_trades": true,
+      "trade_counts_add_up": true,
+      "fold_trade_counts_add_up": true,
+      "open_trades_come_from_last_fold": true,
+      "no_duplicate_trade_records": true,
+      "timeline_covers_trading_days": true,
+      "timeline_complete": true,
+      "return_kind_matches_timeline": true
+    },
+    "stats": {
+      "total_return": -0.5658,
+      "annual_return": -0.6712,
+      "max_drawdown": -0.6123,
+      "sharpe": -2.97,
+      "sortino": -3.58,
+      "calmar": -1.1,
+      "win_rate": 0.2585,
+      "profit_factor": 1.68,
+      "n_trades": 325,
+      "completed_trade_count": 325,
+      "open_at_end_count": 0,
+      "avg_pnl": -0.0263,
+      "avg_win": 0.1444,
+      "avg_loss": 0.0858,
+      "best": 0.5808,
+      "worst": -0.3025,
+      "median_pnl": -0.0813,
+      "avg_holding_days": 4.8,
+      "final_equity": 434227.12,
+      "initial_capital": 1000000.0,
+      "avg_exposure": 0.8076,
+      "max_exposure": 0.9998,
+      "mc_maxdd_p50": -1.0,
+      "mc_maxdd_p95": -1.0,
+      "execution": {
+        "buy_invalid_price": 0,
+        "buy_suspended": 0,
+        "buy_limit_up": 17,
+        "buy_no_slot": 151,
+        "buy_cash": 0,
+        "buy_lot_size": 0,
+        "buy_same_day_reentry": 0,
+        "buy_exposure": 0,
+        "buy_score_filter": 0,
+        "sell_invalid_price": 0,
+        "sell_suspended": 0,
+        "sell_limit_down": 7,
+        "pending_exit": 3,
+        "buy_planned": 8
+      },
+      "return_kind": "single_account_single_timeline"
+    },
+    "boundaries": [
+      {
+        "index": 0,
+        "test_start": "2025-12-15",
+        "test_end": "2026-03-23",
+        "equity_start": 1000000.0,
+        "equity_end": 769378.88,
+        "segment_return": -0.2306,
+        "carried_in_positions": 0,
+        "carried_out_positions": 5,
+        "pending_buy_plans": 0,
+        "params_changed": false
+      },
+      {
+        "index": 1,
+        "test_start": "2026-03-24",
+        "test_end": "2026-06-25",
+        "equity_start": 769378.88,
+        "equity_end": 651669.73,
+        "segment_return": -0.153,
+        "carried_in_positions": 5,
+        "carried_out_positions": 6,
+        "pending_buy_plans": 4,
+        "params_changed": false
+      },
+      {
+        "index": 2,
+        "test_start": "2026-06-26",
+        "test_end": "2026-09-22",
+        "equity_start": 651669.73,
+        "equity_end": 434227.12,
+        "segment_return": -0.3337,
+        "carried_in_positions": 6,
+        "carried_out_positions": 0,
+        "pending_buy_plans": 4,
+        "params_changed": false
+      }
+    ],
+    "n_curve_points": 189,
+    "n_trade_records": 325,
+    "n_drawdown_points": 189,
+    "equity_curve_sha256": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+    "trades_sha256": "a0675bfd4d6093a80bc2a3147c203c802e43021c7f4ec1a4e3f1e5453b3633de",
+    "drawdown_curve_sha256": "0d5a5993539d90011d7e080b23dded16a34684b1a935f96bf9654f5a460854bc"
+  },
+  "skipped": [],
+  "timing": {
+    "is_s": 9.08,
+    "oos_s": 3.54,
+    "n_prepare_calls": 6
+  },
+  "peak_rss_mb": 743.5,
+  "engine_execution_count": 6,
+  "engine_execution_count_cumulative": 6,
+  "engine_evaluations": {
+    "is_trials": 3,
+    "oos_folds": 3
+  },
+  "hypothesis_count": 1
+}

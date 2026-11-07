@@ -1,0 +1,339 @@
+{
+  "schema": "batch-mutation-report/1",
+  "registry": "C:\\work\\sourcecode\\tick-stock-panel\\research\\batch-backtest-framework-20261107\\out_v2\\registry.json",
+  "production_capture": "research\\batch-backtest-framework-20261107\\out_v2\\verify_v3\\prod_g1_first_board_chain_rebreak.json",
+  "group": "g1_first_board_chain_rebreak",
+  "baseline": {
+    "n_result_diffs": 0,
+    "clean": true,
+    "first": []
+  },
+  "n_mutations": 20,
+  "n_detected": 20,
+  "undetected": [],
+  "axis_proof": {
+    "available": true,
+    "positive_proven": false,
+    "positive_reasons": [
+      "生产装载窗口未被批量并集窗口覆盖，shape[0] 差异无法解释"
+    ],
+    "negative_proven": false,
+    "negative_reasons": [
+      "1 个批量侧独有证券在正式区间内仍有可交易日，不能作为轴差异解释",
+      "生产装载窗口未被批量并集窗口覆盖，shape[0] 差异无法解释"
+    ],
+    "negative_dropped_symbol": "000001.SZ",
+    "negative_dropped_symbol_tradable_days": 463,
+    "ok": false
+  },
+  "mutations": [
+    {
+      "mutation": "curve_point_value",
+      "description": "第一个权益点 value += 999",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.equity_curve",
+          "kind": "canonical_hash",
+          "batch": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+          "prod": "795baf93eec24ef4e448649b5ddc1770e0ca50e252a9a0477e3a6aa6ca5d4370"
+        }
+      ]
+    },
+    {
+      "mutation": "curve_point_cash",
+      "description": "第 6 个权益点 cash += 0.01",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.equity_curve",
+          "kind": "canonical_hash",
+          "batch": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+          "prod": "9039f2df9e4974432d1f0f96255da6d3d25ab77ff9b31727304bc6a9e1ea54a2"
+        }
+      ]
+    },
+    {
+      "mutation": "curve_point_date",
+      "description": "第 4 个权益点日期被改",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.equity_curve",
+          "kind": "canonical_hash",
+          "batch": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+          "prod": "94661656fa5da7e610f2140635966cdc088028f05ae7de88e5cf7681aa4df4e3"
+        }
+      ]
+    },
+    {
+      "mutation": "curve_length",
+      "description": "曲线末尾少一个点",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.equity_curve",
+          "kind": "canonical_hash",
+          "batch": "95c21c7c09ffc7286faec06524cb28a88e845a10fec4b52be2467af2bbd3ccc4",
+          "prod": "02d5aebfcf8c772eb3e19d9f021e28e84cf4ee3247558abedf1112fe485befce"
+        }
+      ]
+    },
+    {
+      "mutation": "trade_pnl_amount",
+      "description": "第一笔逐笔 pnl_amount += 999",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.trades",
+          "kind": "canonical_hash",
+          "batch": "a0675bfd4d6093a80bc2a3147c203c802e43021c7f4ec1a4e3f1e5453b3633de",
+          "prod": "91675651731e3e20b48049f806f0bd6213abb8861281accc27c1785881760bdd"
+        }
+      ]
+    },
+    {
+      "mutation": "trade_entry_value",
+      "description": "第一笔逐笔 entry_value += 0.01",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.trades",
+          "kind": "canonical_hash",
+          "batch": "a0675bfd4d6093a80bc2a3147c203c802e43021c7f4ec1a4e3f1e5453b3633de",
+          "prod": "2d6afa6aea13d192cedd71078c3ede43e85f9be0cae2bc6b9d857babdce1dee7"
+        }
+      ]
+    },
+    {
+      "mutation": "fold_total_return",
+      "description": "第 1 折 oos_stats.total_return = 999",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "oos_folds[0].oos_stats.total_return",
+          "kind": "value",
+          "batch": -0.2306,
+          "prod": 999.0,
+          "delta": -999.2306
+        }
+      ]
+    },
+    {
+      "mutation": "fold_account_cumulative_return",
+      "description": "第 2 折 account_total_return_cumulative = 999",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "oos_folds[1].oos_stats.account_total_return_cumulative",
+          "kind": "value",
+          "batch": -0.3483,
+          "prod": 999.0,
+          "delta": -999.3483
+        }
+      ]
+    },
+    {
+      "mutation": "account_stats_return",
+      "description": "账户 stats 收益字段 = 999",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.stats.total_return",
+          "kind": "value",
+          "batch": -0.5658,
+          "prod": 999.0,
+          "delta": -999.5658
+        }
+      ]
+    },
+    {
+      "mutation": "summary_field",
+      "description": "summary.n_folds +1",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "summary.n_folds",
+          "kind": "value",
+          "batch": 3,
+          "prod": 4,
+          "delta": -1.0
+        }
+      ]
+    },
+    {
+      "mutation": "delete_prod_required",
+      "description": "生产侧缺 final_equity",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.final_equity",
+          "kind": "extra_in_batch",
+          "batch": 434227.12,
+          "prod": "<missing>"
+        }
+      ]
+    },
+    {
+      "mutation": "delete_prod_curve",
+      "description": "生产侧缺 drawdown_curve",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.drawdown_curve",
+          "kind": "missing_required",
+          "batch": "0d5a5993539d90011d7e080b23dded16a34684b1a935f96bf9654f5a460854bc",
+          "prod": "<missing>"
+        }
+      ]
+    },
+    {
+      "mutation": "delete_entry_required",
+      "description": "批量侧缺 trades_sha256",
+      "detected": true,
+      "n_result_diffs": 2,
+      "first": [
+        {
+          "field": "continuous_account.trades_sha256",
+          "kind": "missing_required",
+          "batch": "<missing>",
+          "prod": "<required>"
+        },
+        {
+          "field": "continuous_account.trades",
+          "kind": "missing_required",
+          "batch": null,
+          "prod": "<present>"
+        }
+      ]
+    },
+    {
+      "mutation": "delete_entry_fold_stat",
+      "description": "批量侧折缺 oos_stats.n_trades",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "oos_folds[0].oos_stats.n_trades",
+          "kind": "missing_required",
+          "batch": "<missing>",
+          "prod": 104
+        }
+      ]
+    },
+    {
+      "mutation": "boundary_equity",
+      "description": "首个折边界 equity_end = 1.0",
+      "detected": true,
+      "n_result_diffs": 1,
+      "first": [
+        {
+          "field": "continuous_account.boundaries[0].equity_end",
+          "kind": "value",
+          "batch": 769378.88,
+          "prod": 1.0,
+          "delta": 769377.88
+        }
+      ]
+    },
+    {
+      "mutation": "duplicate_dates",
+      "description": "duplicate_dates 改成 3",
+      "detected": true,
+      "n_result_diffs": 2,
+      "first": [
+        {
+          "field": "continuous_account.duplicate_dates",
+          "kind": "value",
+          "batch": 0,
+          "prod": 3,
+          "delta": -3.0
+        },
+        {
+          "field": "continuous_account.duplicate_dates",
+          "kind": "invariant_failed",
+          "batch": 0,
+          "prod": 3
+        }
+      ]
+    },
+    {
+      "mutation": "timeline_incomplete",
+      "description": "timeline.complete 改成 false",
+      "detected": true,
+      "n_result_diffs": 2,
+      "first": [
+        {
+          "field": "continuous_account.timeline.complete",
+          "kind": "value",
+          "batch": true,
+          "prod": false
+        },
+        {
+          "field": "continuous_account.timeline.complete",
+          "kind": "invariant_failed",
+          "batch": true,
+          "prod": false
+        }
+      ]
+    },
+    {
+      "mutation": "code_sha256",
+      "description": "registry 代码 SHA256 被改",
+      "detected": true,
+      "violations": [
+        {
+          "check": "code_sha256",
+          "phase": "mutation",
+          "expected": [
+            "0000000000000000000000000000000000000000000000000000000000000000",
+            "28bddd65cfd4b4628d22c8cc0148db18a2f9b02e6173bcea650ad4feaf065550"
+          ],
+          "actual": "28bddd65cfd4b4628d22c8cc0148db18a2f9b02e6173bcea650ad4feaf065550",
+          "fix": "backend 或本仓脚本已变；旧证据失效，必须重跑批次与比较"
+        }
+      ]
+    },
+    {
+      "mutation": "data_generation",
+      "description": "registry 数据世代被改",
+      "detected": true,
+      "violations": [
+        {
+          "check": "data_generation",
+          "phase": "mutation",
+          "expected": "deadbeefdeadbeef",
+          "actual": "2b948c890e75472ab8317ca0ce40af77",
+          "fix": "enriched 数据已重新发布；必须重跑批次才能比较"
+        }
+      ]
+    },
+    {
+      "mutation": "groups_input_hash",
+      "description": "groups 清单哈希被改",
+      "detected": true,
+      "violations": [
+        {
+          "check": "inputs(groups/strategy/override)",
+          "phase": "mutation",
+          "expected": "b9b8fc161d5ff5e1007096a0d0d385c695521f3063f48fb1e50fb5481ed60b00",
+          "actual": "a429195971dc079db12d3b560f128fcbaf91c954de6b3977218f864dc73bae01",
+          "fix": "groups 清单、策略定义或 override 变了；批量结果不再对应同一份输入"
+        }
+      ]
+    }
+  ],
+  "ok": false
+}

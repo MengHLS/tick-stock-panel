@@ -1,0 +1,50 @@
+{
+  "created_at": "2026-11-07T00:43:25.984344+08:00",
+  "scope": "global search accounting reconciliation, not batch-local execution counter",
+  "old_freeze_sha256": "be106e064eb0ac425f6366d36efba87d2543c6d7f87b779cb9e17ae8f2f6fadb",
+  "baseline_global_hypotheses": {
+    "baseline_v0": 12,
+    "prior_search_same_project": 3,
+    "total": 15,
+    "basis": "PROTOCOL.md §6.2；prior = research/strategy-reliability-20261106 T03 的 3 条固定规则",
+    "policy": "只增不减；参数邻域每格 +1；情景间择优 +2"
+  },
+  "batch_registry_sha256": "506645a014e3e772f57dd747defe9b3ecf007800d262a207930182b049696c8b",
+  "batch_id": "55df8aec7ce9",
+  "batch_local_execution_trials": 12,
+  "batch_rules": [
+    {
+      "strategy_id": "first_board_chain_rebreak",
+      "params": {
+        "min_pullback_pct": 5.0
+      },
+      "n_trials_execution": 6,
+      "n_trials_cumulative_local": 6
+    },
+    {
+      "strategy_id": "first_limit_pullback_3f_runner_t74",
+      "params": {
+        "min_score_pct": 55.0
+      },
+      "n_trials_execution": 6,
+      "n_trials_cumulative_local": 12
+    }
+  ],
+  "reconciliation": "旧全局12+3=15；批量局部12=两组各6次IS/OOS折执行，不是12个独立规则。批量2条与旧prior3的参数/数据/选择沿革重叠尚未独立证实。全局已知下限15，精确全局N未核定，禁止用局部12或未经核实的15直接重算DSR并验收。",
+  "global_N_exact": null,
+  "global_N_lower_bound": 15,
+  "e1_entry": {
+    "id": "E1-v3-C00",
+    "type": "data_diagnostic",
+    "alpha_hypothesis_delta": 0,
+    "planned_replays": 2,
+    "haircuts": [
+      0,
+      -0.3,
+      -0.5,
+      -1
+    ],
+    "status": "frozen_before_run"
+  },
+  "policy": "纯复现不新增独立假设；参数邻域每格、规则改变、数据版本改变和情景择优按协议登记；禁止减少累计试验数。此次不执行DSR或新alpha搜索。"
+}
