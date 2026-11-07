@@ -1,0 +1,75 @@
+C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\pytest_asyncio\plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_______ test_preview_compile_sees_ext_columns_registered_by_the_warmup ________
+
+ext_probe_env = WindowsPath('C:/Users/A/AppData/Local/Temp/pytest-of-A/pytest-2060/test_preview_compile_sees_ext_0')
+
+    def test_preview_compile_sees_ext_columns_registered_by_the_warmup(ext_probe_env) -> None:
+        from app.factors import registry
+    
+        assert registry.peek_factor(EXT_PROBE_COL) is None, "前置条件: 扩展列尚未注册"
+        resources = {
+            "factor:uf_ext_probe": {
+                "key": "factor:uf_ext_probe",
+                "id": "uf_ext_probe",
+                "kind": "factor",
+                "inputs": frozenset(),
+                "payload": json.dumps(EXT_PROBE_FACTOR, ensure_ascii=False).encode("utf-8"),
+            }
+        }
+        resource_bundle._analyze(resources)
+    
+>       assert resources["factor:uf_ext_probe"]["issues"] == []
+E       AssertionError: assert ['公式无效 [E001]...ext_tags_hot'] == []
+E         
+E         Left contains one more item: '公式无效 [E001]: 未知标识符: ext_tags_hot'
+E         Use -v to get more diff
+
+tests\test_resource_bundle.py:758: AssertionError
+----------------------------- Captured log setup ------------------------------
+WARNING  app.services.strategy_cache:strategy_cache.py:111 策略缓存被清除, 调用链: C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\_pytest\fixtures.py:1067:call_fixture_func <- C:\work\sourcecode\tick-stock-panel\backend\tests\test_resource_bundle.py:726:ext_probe_env <- C:\work\sourcecode\tick-stock-panel\backend\app\services\ext_data.py:567:upsert <- C:\work\sourcecode\tick-stock-panel\backend\app\services\ext_data.py:945:_invalidate_ext_derived <- C:\work\sourcecode\tick-stock-panel\backend\app\factors\ext_factors.py:433:invalidate_ext_caches
+___ test_preview_signal_whitelist_sees_ext_columns_registered_by_the_warmup ___
+
+ext_probe_env = WindowsPath('C:/Users/A/AppData/Local/Temp/pytest-of-A/pytest-2060/test_preview_signal_whitelist_0')
+
+    def test_preview_signal_whitelist_sees_ext_columns_registered_by_the_warmup(ext_probe_env) -> None:
+        from app.factors import registry
+    
+        assert registry.peek_factor(EXT_PROBE_COL) is None, "前置条件: 扩展列尚未注册"
+        resources = {
+            "signal:probe": {
+                "key": "signal:probe",
+                "id": "probe",
+                "kind": "signal",
+                "inputs": frozenset(),
+                "payload": json.dumps(EXT_PROBE_SIGNAL, ensure_ascii=False).encode("utf-8"),
+            }
+        }
+        resource_bundle._analyze(resources)
+    
+>       assert resources["signal:probe"]["issues"] == []
+E       assert ["第 1 个条件: 字段...s_hot' 不在白名单"] == []
+E         
+E         Left contains one more item: "第 1 个条件: 字段 'ext_tags_hot' 不在白名单"
+E         Use -v to get more diff
+
+tests\test_resource_bundle.py:777: AssertionError
+----------------------------- Captured log setup ------------------------------
+WARNING  app.services.strategy_cache:strategy_cache.py:111 策略缓存被清除, 调用链: C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\_pytest\fixtures.py:1067:call_fixture_func <- C:\work\sourcecode\tick-stock-panel\backend\tests\test_resource_bundle.py:726:ext_probe_env <- C:\work\sourcecode\tick-stock-panel\backend\app\services\ext_data.py:567:upsert <- C:\work\sourcecode\tick-stock-panel\backend\app\services\ext_data.py:945:_invalidate_ext_derived <- C:\work\sourcecode\tick-stock-panel\backend\app\factors\ext_factors.py:433:invalidate_ext_caches
+============================== warnings summary ===============================
+.venv\Lib\site-packages\anyio\pytest_plugin.py:14
+  C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\anyio\pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_resource_bundle.py::test_preview_compile_sees_ext_columns_registered_by_the_warmup
+FAILED tests/test_resource_bundle.py::test_preview_signal_whitelist_sees_ext_columns_registered_by_the_warmup
+2 failed, 69 deselected, 1 warning in 2.82s
