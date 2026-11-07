@@ -12,6 +12,20 @@ export const LINK_BASIS_LABELS: Record<IndustryChainStockLink['basis'], string> 
   theme_clue: '题材线索',
 }
 
+export function isExcludedStock(symbol: string, name?: string | null): boolean {
+  if (symbol.toUpperCase().endsWith('.BJ')) return true
+  const text = (name ?? '').toUpperCase()
+  return text.includes('ST') || text.includes('退')
+}
+
+export function visibleStockLinks(graph: IndustryChainGraph): IndustryChainStockLink[] {
+  const hidden = new Set(graph.hidden_stock_symbols ?? [])
+  return graph.stock_links.filter(link =>
+    !hidden.has(link.symbol)
+    && !isExcludedStock(link.symbol, graph.stock_names?.[link.symbol]),
+  )
+}
+
 export interface LayoutNode {
   key: string
   type: GraphItemType
@@ -86,10 +100,10 @@ interface TreeItem {
 }
 
 const DIMENSIONS: Record<GraphItemType, { width: number; height: number }> = {
-  root: { width: 176, height: 70 },
-  category: { width: 158, height: 58 },
-  chain: { width: 204, height: 74 },
-  node: { width: 194, height: 66 },
+  root: { width: 176, height: 56 },
+  category: { width: 158, height: 42 },
+  chain: { width: 204, height: 48 },
+  node: { width: 194, height: 54 },
 }
 
 const H_GAP = 70
@@ -130,7 +144,7 @@ export function stockChainAssociations(
   const nodes = new Map(graph.nodes.map(node => [node.id, node]))
   const chains = new Map(graph.chains.map(chain => [chain.id, chain]))
   const currentChainId = nodes.get(currentNodeId)?.chain_id
-  return graph.stock_links.flatMap(link => {
+  return visibleStockLinks(graph).flatMap(link => {
     const node = nodes.get(link.node_id)
     if (link.symbol !== symbol || !node || node.chain_id === currentChainId) return []
     const chain = chains.get(node.chain_id)
@@ -164,7 +178,7 @@ export function stockLinksForScope(
       if (node.parent_id === current) pending.push(node.id)
     }
   }
-  return graph.stock_links.filter(link => scope.has(link.node_id))
+  return visibleStockLinks(graph).filter(link => scope.has(link.node_id))
 }
 
 export function defaultExpandedKeys(graph: IndustryChainGraph): Set<string> {
@@ -184,7 +198,7 @@ export function defaultExpandedKeys(graph: IndustryChainGraph): Set<string> {
 
   const chainNodes = graph.nodes.filter(item => item.chain_id === preferred.id)
   const nodeIds = new Set(chainNodes.map(item => item.id))
-  const firstLink = [...graph.stock_links]
+  const firstLink = [...visibleStockLinks(graph)]
     .filter(item => nodeIds.has(item.node_id))
     .sort((a, b) => a.sort_order - b.sort_order || a.id.localeCompare(b.id))[0]
   if (!firstLink) return expanded
@@ -221,8 +235,9 @@ export function searchGraph(graph: IndustryChainGraph, query: string): GraphSear
   }
   const nodeById = new Map(graph.nodes.map(node => [node.id, node]))
   const chainById = new Map(graph.chains.map(chain => [chain.id, chain]))
+  const stockLinks = visibleStockLinks(graph)
   const linksByNode = new Map<string, IndustryChainStockLink[]>()
-  for (const link of graph.stock_links) {
+  for (const link of stockLinks) {
     const list = linksByNode.get(link.node_id) ?? []
     list.push(link)
     linksByNode.set(link.node_id, list)
@@ -248,7 +263,7 @@ export function searchGraph(graph: IndustryChainGraph, query: string): GraphSear
       return node.parent_id ? nodeKey(node.parent_id) : chainKey(node.chain_id)
     }
     if (key.startsWith('stock:')) {
-      const link = graph.stock_links.find(item => item.id === key.slice('stock:'.length))
+      const link = stockLinks.find(item => item.id === key.slice('stock:'.length))
       return link ? nodeKey(link.node_id) : null
     }
     return null
@@ -330,7 +345,7 @@ export function searchGraph(graph: IndustryChainGraph, query: string): GraphSear
     revealPath(key)
   }
 
-  for (const link of graph.stock_links) {
+  for (const link of stockLinks) {
     const name = graph.stock_names?.[link.symbol] ?? ''
     if (
       !matches(link.symbol)
@@ -364,8 +379,9 @@ export function buildLayout(
     key === 'root' || expanded.has(key) || (search.active && search.reveal.has(key))
   const isDimmed = (key: string) => search.active && !search.visible.has(key)
 
+  const stockLinks = visibleStockLinks(graph)
   const linksByNode = new Map<string, IndustryChainStockLink[]>()
-  for (const link of graph.stock_links) {
+  for (const link of stockLinks) {
     const list = linksByNode.get(link.node_id) ?? []
     list.push(link)
     linksByNode.set(link.node_id, list)
@@ -406,9 +422,6 @@ export function buildLayout(
       for (const child of childNodes) children.push(buildNode(child, key))
     }
     const stockCount = countUnderNode(node.id)
-    const parts: string[] = []
-    if (childNodes.length) parts.push(`${childNodes.length} 个细分`)
-    if (stockCount) parts.push(`${stockCount} 只股票`)
     return {
       key,
       type: 'node',
@@ -416,7 +429,7 @@ export function buildLayout(
       chainId: node.chain_id,
       name: node.name,
       description: node.description,
-      subtitle: node.description || parts.join(' · ') || '待补充成员',
+      subtitle: node.description,
       kind: node.kind,
       parentKey,
       order: node.order,
@@ -450,7 +463,7 @@ export function buildLayout(
       chainId: chain.id,
       name: chain.name,
       description: '',
-      subtitle: `分类树 · ${roots.length} 个方向 · ${symbols.size} 只股票`,
+      subtitle: '',
       kind: null,
       parentKey,
       order: chain.order,
@@ -481,7 +494,7 @@ export function buildLayout(
         chainId: null,
         name: category.name,
         description: '',
-        subtitle: `${chains.length} 条产业链`,
+        subtitle: '',
         kind: null,
         parentKey: 'root',
         order: category.order,
@@ -503,7 +516,7 @@ export function buildLayout(
     .filter((item): item is TreeItem => !!item)
   const rootChildren = [...categories, ...directChains].sort(byOrder)
 
-  const totalSymbols = new Set(graph.stock_links.map(link => link.symbol)).size
+  const totalSymbols = new Set(stockLinks.map(link => link.symbol)).size
   const root: TreeItem = {
     key: 'root',
     type: 'root',
@@ -511,7 +524,7 @@ export function buildLayout(
     chainId: null,
     name: '产业链研究',
     description: '',
-    subtitle: `${graph.chains.length} 条产业链 · ${totalSymbols} 只股票`,
+    subtitle: '',
     kind: null,
     parentKey: null,
     order: 0,

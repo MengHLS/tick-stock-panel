@@ -3138,6 +3138,8 @@ export interface IndustryChainGraph {
   stock_links: IndustryChainStockLink[]
   /** 后端按关联代码批量回填的股票名称，不写入图谱文件 */
   stock_names?: Record<string, string>
+  /** 后端标记的退市、北交所和 ST 股票，仅用于展示过滤，不写入图谱文件 */
+  hidden_stock_symbols?: string[]
 }
 
 export interface IndustryChainQuoteRow {
@@ -3164,69 +3166,189 @@ export interface IndustryChainQuotes {
   rows: IndustryChainQuoteRow[]
 }
 
-export type IndustryChainWindowKey = 'd1' | 'd5' | 'd20'
-
-export interface IndustryChainAnalysisWindow {
-  return_pct: number | null
-  up_count: number
-  down_count: number
-  flat_count: number
-  priced_count: number
-  stock_count: number
-  amount: number
+// ===== Strategy research =====
+export interface StrategyResearchInboxItem {
+  file_name: string
+  size: number
+  modified_at: string
 }
 
-export interface IndustryChainAnalysisStock {
+export interface StrategyResearchBaselineBrief {
+  baseline_id: string
+  label: string
+  strategy_id?: string | null
+  strategy_name?: string | null
+  start?: string | null
+  end?: string | null
+  trade_count?: number | null
+  stats?: Record<string, number | null>
+  data?: Record<string, unknown>
+  legacy_config?: Record<string, unknown>
+}
+
+export interface StrategyResearchThresholdSummary {
+  threshold: number
+  evaluable_count: number
+  hit_count: number
+  hit_rate: number | null
+  stopped_before_hit_count: number
+  stopped_before_hit_rate: number | null
+  hit_before_stop_count: number
+  no_hit_stopped_count: number
+  actual_realized_count: number
+  actual_realized_rate: number | null
+  median_days_to_target: number | null
+  median_pre_target_adverse_excursion: number | null
+  median_pnl_hit: number | null
+  median_pnl_miss: number | null
+  same_day_target_and_stop_count: number
+}
+
+export interface StrategyResearchReportSummary {
+  report_id: string
+  created_at: string
+  label: string
+  baseline: StrategyResearchBaselineBrief
+  config: {
+    horizon_sessions: number
+    thresholds: number[]
+    entry_price_basis: string
+    label_anchor: string
+    window_start: string
+    high_low_basis: string
+  }
+  sample_ledger: {
+    trade_rows: number
+    event_rows: number
+    duplicate_event_keys: number
+    candidate_universe: { available: boolean; reason: string }
+  }
+  summary: {
+    event_count: number
+    coverage_status: Record<string, number>
+    exit_reasons: Record<string, number>
+    stop_loss_count: number
+    stop_loss_rate: number | null
+    stop_loss_pnl_amount: number | null
+    total_pnl_amount: number | null
+    median_pnl_pct: number | null
+    by_threshold: StrategyResearchThresholdSummary[]
+  }
+  data_quality: {
+    latest_data_date: string | null
+    loaded_daily_partition: { date: string; signature: string | null } | null
+    baseline_data_generation: string | null
+    coverage_status: Record<string, number>
+    missing_symbol_count: number
+    missing_entry_count: number
+    invalid_entry_price_count: number
+    partial_window_count: number
+    notes: string[]
+  }
+}
+
+export interface StrategyResearchEventThreshold {
+  threshold: number
+  hit: boolean | null
+  first_target_date: string | null
+  days_to_target: number | null
+  pre_target_adverse_excursion: number | null
+  target_day_also_stop: boolean | null
+  actual_realized: boolean | null
+  tail_vs_exit: string
+}
+
+export interface StrategyResearchEvent {
+  event_id: string
   symbol: string
-  name: string
-  latest_close: number | null
-  amount: number | null
-  returns: Record<IndustryChainWindowKey, number | null>
-  missing_price: boolean
-  links: Array<IndustryChainStockLink & { node_name: string }>
+  entry_date: string
+  entry_price: number
+  entry_price_adjusted: number | null
+  exit_date: string | null
+  exit_reason: string | null
+  pnl_pct: number | null
+  pnl_amount: number | null
+  holding_days: number | null
+  open_at_end: boolean
+  entry_score: number | null
+  coverage_status: string
+  horizon_end_date: string | null
+  horizon_sessions_observed: number
+  max_favorable_excursion: number | null
+  max_adverse_excursion: number | null
+  thresholds: StrategyResearchEventThreshold[]
 }
 
-export interface IndustryChainAnalysis {
-  chain: {
-    id: string
-    name: string
-    category_id: string
-    category_name: string
+export interface StrategyResearchEventsPage {
+  items: StrategyResearchEvent[]
+  page: number
+  page_size: number
+  total: number
+  has_more: boolean
+  threshold: number | null
+  outcome: string
+}
+
+export interface StrategyResearchExperimentThreshold {
+  threshold: number
+  control_hit_count: number
+  variant_hit_count: number
+  both_hit_count: number
+  lost_tail_count: number
+  gained_tail_count: number
+  tail_retention_rate: number | null
+  control_stop_loss_count: number
+  variant_stop_loss_count: number
+  control_actual_realized_count: number
+  variant_actual_realized_count: number
+  control_median_pnl: number | null
+  variant_median_pnl: number | null
+  lost_tail_events: Array<Record<string, unknown>>
+  gained_tail_events: Array<Record<string, unknown>>
+}
+
+export interface StrategyResearchExperiment {
+  experiment_id: string
+  name: string
+  hypothesis: string
+  changed_decision: string
+  factor_id?: string | null
+  conclusion: string
+  notes: string
+  created_at: string
+  updated_at: string
+  control: Record<string, unknown>
+  variant: Record<string, unknown>
+  comparison: {
+    control_event_count: number
+    variant_event_count: number
+    common_event_count: number
+    control_only_count: number
+    variant_only_count: number
+    control_stats?: Record<string, number | null> | null
+    variant_stats?: Record<string, number | null> | null
+    control_exit_reasons: Record<string, number> | null
+    variant_exit_reasons: Record<string, number> | null
+    by_threshold: StrategyResearchExperimentThreshold[]
+    notes: string[]
   }
-  node: {
-    id: string
-    name: string
-    parent_id: string | null
-    path: Array<{ id: string; name: string }>
-  } | null
-  scope_node_ids: string[]
-  start: string
-  end: string
-  method: {
-    return_basis: string
-    aggregation: string
-    membership: string
-  }
-  link_count: number
-  stock_count: number
-  coverage: {
-    priced_count: number
-    missing_count: number
-    missing_symbols: string[]
-  }
-  windows: Record<IndustryChainWindowKey, IndustryChainAnalysisWindow>
-  relative: {
-    parent: {
-      node_id: string | null
-      name: string | null
-      windows: Record<IndustryChainWindowKey, number | null>
-    }
-    chain: {
-      windows: Record<IndustryChainWindowKey, number | null>
-    }
-  }
-  stocks: IndustryChainAnalysisStock[]
-  series: Array<{ date: string; return_pct: number; sample_count: number }>
+}
+
+export interface StrategyResearchFactor {
+  factor_id: string
+  factor_key: string
+  name: string
+  version: string | null
+  purpose: string
+  earliest_known_at: string
+  direction: string
+  missing_policy: string
+  hypothesis: string
+  status: string
+  notes: string
+  evidence?: string
+  created_at: string
+  updated_at: string
 }
 
 // ===== API surface =====
@@ -3245,19 +3367,100 @@ export const api = {
         expected_updated_at: expectedUpdatedAt ?? graph.updated_at,
       }),
     }),
-  industryChainAnalysis: (params: {
-    chainId: string
-    nodeId?: string | null
-    start?: string
-    end?: string
-  }) => {
-    const query = new URLSearchParams({ chain_id: params.chainId })
-    if (params.nodeId) query.set('node_id', params.nodeId)
-    if (params.start) query.set('start', params.start)
-    if (params.end) query.set('end', params.end)
-    return request<IndustryChainAnalysis>(`/api/custom/industry-chain/analysis?${query.toString()}`)
+  strategyResearchInbox: () =>
+    request<{ items: StrategyResearchInboxItem[] }>(
+      '/api/custom/strategy-research/inbox',
+    ),
+  strategyResearchReports: (limit = 50) =>
+    request<{ items: StrategyResearchReportSummary[] }>(
+      `/api/custom/strategy-research/reports?limit=${limit}`,
+    ),
+  strategyResearchReport: (reportId: string) =>
+    request<{ report: StrategyResearchReportSummary }>(
+      `/api/custom/strategy-research/reports/${encodeURIComponent(reportId)}`,
+    ),
+  strategyResearchCreateReport: (body: {
+    source:
+      | { kind: 'file'; file_name: string }
+      | { kind: 'saved'; saved_id: string }
+    horizon_sessions: number
+    thresholds: number[]
+    label?: string | null
+  }) =>
+    request<{ report: StrategyResearchReportSummary }>(
+      '/api/custom/strategy-research/reports',
+      {
+        method: 'POST',
+        timeoutMs: 300_000,
+        body: JSON.stringify(body),
+      },
+    ),
+  strategyResearchEvents: (
+    reportId: string,
+    params: {
+      threshold?: number
+      outcome?: string
+      q?: string
+      page?: number
+      page_size?: number
+    } = {},
+  ) => {
+    const query = new URLSearchParams()
+    if (params.threshold != null) query.set('threshold', String(params.threshold))
+    if (params.outcome) query.set('outcome', params.outcome)
+    if (params.q) query.set('q', params.q)
+    if (params.page != null) query.set('page', String(params.page))
+    if (params.page_size != null) query.set('page_size', String(params.page_size))
+    return request<StrategyResearchEventsPage>(
+      `/api/custom/strategy-research/reports/${encodeURIComponent(reportId)}/events?${query.toString()}`,
+    )
   },
-
+  strategyResearchExperiments: () =>
+    request<{ items: StrategyResearchExperiment[] }>(
+      '/api/custom/strategy-research/experiments',
+    ),
+  strategyResearchCreateExperiment: (body: {
+    name: string
+    hypothesis: string
+    changed_decision: string
+    control_report_id: string
+    variant_report_id: string
+    factor_id?: string | null
+    conclusion: string
+    notes?: string | null
+  }) =>
+    request<{ experiment: StrategyResearchExperiment }>(
+      '/api/custom/strategy-research/experiments',
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+  strategyResearchFactors: () =>
+    request<{ items: StrategyResearchFactor[] }>(
+      '/api/custom/strategy-research/factors',
+    ),
+  strategyResearchCreateFactor: (body: {
+    factor_key: string
+    name: string
+    purpose: string
+    earliest_known_at: string
+    direction: string
+    missing_policy: string
+    hypothesis: string
+    status: string
+    version?: string | null
+    notes?: string | null
+  }) =>
+    request<{ factor: StrategyResearchFactor }>(
+      '/api/custom/strategy-research/factors',
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+  strategyResearchUpdateFactor: (
+    factorId: string,
+    body: { status?: string; notes?: string; evidence?: string },
+  ) =>
+    request<{ factor: StrategyResearchFactor }>(
+      `/api/custom/strategy-research/factors/${encodeURIComponent(factorId)}`,
+      { method: 'PUT', body: JSON.stringify(body) },
+    ),
   // ===== Auth (访问认证) =====
   authStatus: () =>
     request<{ configured: boolean; authenticated: boolean }>('/api/auth/status'),
@@ -5294,7 +5497,7 @@ export const api = {
 
   /** 滚动样本外检验折预览: 运行前查看折数/窗口切分与告警 (不回测)。 */
   walkforwardPreview: (start: string, end: string, trainDays: number, testDays: number, stepDays: number) =>
-    request<{ n_folds: number; folds: { index: number; train_start: string; train_end: string; test_start: string; test_end: string }[]; warnings: string[] }>(
+    request<{ n_folds: number; window_basis: 'trading_days'; n_trading_days: number; folds: { index: number; train_start: string; train_end: string; test_start: string; test_end: string }[]; warnings: string[] }>(
       `/api/backtest/walkforward/preview?${new URLSearchParams({
         start, end,
         train_days: String(trainDays), test_days: String(testDays), step_days: String(stepDays),

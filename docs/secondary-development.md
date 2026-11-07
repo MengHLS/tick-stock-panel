@@ -24,6 +24,7 @@
 - 统一扩展数据定时拉取（已实现）：非 HTTP 采集器用稳定的 `builtin://...` 地址标识配置，并通过 `app.services.ext_pull.register_pull_handler(config_id, handler)` 接入既有 `PullScheduler`；调度、启停、状态和 `next_run` 必须复用该调度器，禁止扩展另建定时循环。
 - 只读行情与回测契约（已实现）：`MarketDataRead`、`EnrichedPanelRead`、`BacktestRead` 通过 `ExtensionContext` 注入，业务扩展不直接依赖具体 repository 或构造 `BacktestEngine`。
 - 请求期运行时契约（已实现）：`ExtensionRuntime` 通过 `app.extensions.get_extension_runtime` 注入，提供 `AlertPublisher`、`MonitorRuleSynchronizer`、`AnalysisRead` 和策略/筛选/行情公开读取面，业务扩展不直接访问 `app.state` 或具体 repository。
+- 策略研究扩展（已实现）：`backend/app/custom/strategy_research` 通过只读回测结果、`MarketDataRead` 和独立 JSON 存储生成 T74 右尾路径报告、配对实验与因子假设台账；研究产物位于 `data/user_data/research/strategy_research/`，不写回测结果或策略目录。
 - 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、参数与空值策略、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
 - 历史 ST 数据 Provider（已实现）：标准数据源可声明 `st_history` 数据集，设置页按 `st_history_data_provider` 独立路由；默认内置 `local_st_history` 读取本地规范数据。Provider 只返回 `symbol/flag_date/st_flag`，ST 宇宙过滤与涨跌停修正仍由核心完成。
 - 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。

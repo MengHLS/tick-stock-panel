@@ -23,13 +23,8 @@ import {
   searchGraph,
   nodeKey,
   stockKey,
+  visibleStockLinks,
 } from './layout'
-
-interface AnalysisTarget {
-  chainId: string
-  nodeId: string | null
-  name: string
-}
 
 export function IndustryChainPage() {
   const queryClient = useQueryClient()
@@ -37,7 +32,6 @@ export function IndustryChainPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [resetSignal, setResetSignal] = useState(0)
-  const [workspaceAnalysis, setWorkspaceAnalysis] = useState(false)
   const [stockListTarget, setStockListTarget] = useState<StockListTarget | null>(null)
   const [workspaceEditor, setWorkspaceEditor] = useState<StockDrawerTarget | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -67,12 +61,11 @@ export function IndustryChainPage() {
 
   useEffect(() => {
     if (!graph || !searchState.active || !searchState.firstMatch?.startsWith('node:')) return
-    const matched = graph.stock_links.find(link =>
+    const matched = visibleStockLinks(graph).find(link =>
       nodeKey(link.node_id) === searchState.firstMatch && searchState.matched.has(stockKey(link.id)),
     )
     const node = matched && graph.nodes.find(item => item.id === matched.node_id)
     if (!node) return
-    setWorkspaceAnalysis(false)
     setWorkspaceEditor(null)
     setStockListTarget({
       chainId: node.chain_id,
@@ -120,15 +113,7 @@ export function IndustryChainPage() {
     })
   }
 
-  const openAnalysis = (target: AnalysisTarget) => {
-    setWorkspaceEditor(null)
-    setSaveError(null)
-    setWorkspaceAnalysis(true)
-    setStockListTarget(target)
-  }
-
   const openStocks = (target: StockListTarget) => {
-    setWorkspaceAnalysis(false)
     setWorkspaceEditor(null)
     setSaveError(null)
     setStockListTarget(target)
@@ -138,7 +123,6 @@ export function IndustryChainPage() {
     if (!graph) return
     const node = graph.nodes.find(item => item.id === nodeId)
     if (!node) return
-    setWorkspaceAnalysis(false)
     setSaveError(null)
     setStockListTarget({ chainId: node.chain_id, nodeId, name: nodeName })
     setWorkspaceEditor({ mode: 'add', nodeId, nodeName })
@@ -147,7 +131,6 @@ export function IndustryChainPage() {
   const resetView = () => {
     if (graph) setExpanded(defaultExpandedKeys(graph))
     setSearch('')
-    setWorkspaceAnalysis(false)
     setStockListTarget(null)
     setWorkspaceEditor(null)
     setSaveError(null)
@@ -156,23 +139,13 @@ export function IndustryChainPage() {
 
   const refresh = () => {
     void graphQuery.refetch()
-    if (stockListTarget && workspaceAnalysis) {
-      void queryClient.invalidateQueries({
-        queryKey: QK.industryChainAnalysis(stockListTarget.chainId, stockListTarget.nodeId),
-      })
-    }
     if (stockListTarget) void quotesQuery.refetch()
   }
-
-  const subtitle = graph
-    ? `${graph.chains.length} 条产业链 · ${graph.nodes.length} 个环节 · ${graph.stock_links.length} 个股票关联 · 当前成员口径`
-    : '多级产业链思维导图 · 点击末级环节查看右侧股票列表'
 
   return (
     <div className="flex h-full min-h-[640px] flex-col overflow-hidden bg-base">
       <PageHeader
         title="产业链图谱"
-        subtitle={subtitle}
         right={
           <div className="flex items-center gap-1.5">
             <div className="relative">
@@ -202,7 +175,7 @@ export function IndustryChainPage() {
               onClick={refresh}
               disabled={graphQuery.isFetching}
               className="grid h-8 w-8 place-items-center rounded-lg border border-border bg-surface text-muted hover:text-foreground disabled:opacity-50"
-              title="刷新图谱与分析"
+              title="刷新图谱"
             >
               <RefreshCw className={cn('h-3.5 w-3.5', graphQuery.isFetching && 'animate-spin')} />
             </button>
@@ -253,7 +226,6 @@ export function IndustryChainPage() {
                 layout={layout}
                 search={searchState}
                 onToggle={toggle}
-                onAnalyze={openAnalysis}
                 onAddStock={openAddStock}
                 onOpenStocks={openStocks}
                 resetSignal={resetSignal}
@@ -282,11 +254,9 @@ export function IndustryChainPage() {
                   saving={saveMutation.isPending}
                   saveError={saveError}
                   initialEditor={workspaceEditor}
-                  initialAnalysis={workspaceAnalysis}
                   onClose={() => {
                     setStockListTarget(null)
                     setWorkspaceEditor(null)
-                    setWorkspaceAnalysis(false)
                     setSaveError(null)
                   }}
                   onSaveGraph={next => saveMutation.mutateAsync(next)}

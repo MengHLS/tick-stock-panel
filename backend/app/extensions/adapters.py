@@ -403,10 +403,20 @@ class FileMarketData:
         end: date,
         columns: list[str] | None = None,
     ) -> pl.DataFrame:
-        frames = [
-            self.read_dataset_partition("kline_daily", day, columns)
-            for day in self.dataset_partition_dates("kline_daily", start, end)
-        ]
+        # The runtime MarketDataRead adapter reads the enriched daily panel
+        # (adjusted OHLC plus raw_close). Keep the file-only adapter on the same
+        # contract so extension jobs do not silently switch to unadjusted bars.
+        dataset = "kline_daily_enriched"
+        frames: list[pl.DataFrame] = []
+        for day in self.dataset_partition_dates(dataset, start, end):
+            path = self.data_dir / dataset / f"date={day.isoformat()}" / "part.parquet"
+            if not path.is_file():
+                continue
+            selected = columns
+            if columns:
+                available = set(pl.scan_parquet(path).collect_schema().names())
+                selected = [name for name in columns if name in available]
+            frames.append(pl.read_parquet(path, columns=selected))
         if not frames:
             return pl.DataFrame()
         frame = pl.concat(frames, how="diagonal_relaxed")
@@ -453,7 +463,11 @@ class FileMarketData:
         return self.dataset_partition_dates(dataset, start, end)
 
     def latest_daily_date(self) -> date | None:
-        dates = self.dataset_partition_dates("kline_daily", date.min, date.max)
+        dates = self.dataset_partition_dates(
+            "kline_daily_enriched",
+            date.min,
+            date.max,
+        )
         return dates[-1] if dates else None
 
     def get_st_history(self) -> pl.DataFrame:

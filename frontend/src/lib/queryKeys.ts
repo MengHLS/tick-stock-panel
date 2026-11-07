@@ -95,6 +95,14 @@ export const QK = {
   themeAnalyzerMinute:   (id: string, date: string, symbolsKey: string, mainboardOnly = true, poolKey = '') =>
                            ['theme-analyzer', 'minute', id, date, symbolsKey, mainboardOnly, poolKey] as const,
 
+  // Strategy research
+  strategyResearchInbox:       ['strategy-research', 'inbox'] as const,
+  strategyResearchReports:     ['strategy-research', 'reports'] as const,
+  strategyResearchEvents:      (reportId: string, threshold: number | null, outcome: string, q: string, page: number, pageSize: number) =>
+                                ['strategy-research', 'events', reportId, threshold ?? 'all', outcome, q, page, pageSize] as const,
+  strategyResearchExperiments: ['strategy-research', 'experiments'] as const,
+  strategyResearchFactors:     ['strategy-research', 'factors'] as const,
+
   // Backtest
   backtestStatus:       ['backtest-status'] as const,
   backtestCandidates:   ['backtest-candidates'] as const,
@@ -198,8 +206,6 @@ export const QK = {
   industryChainRoot:    ['industry-chain'] as const,
   industryChainGraph:   ['industry-chain', 'graph'] as const,
   industryChainQuotes:  ['industry-chain-quotes'] as const,
-  industryChainAnalysis: (chainId: string, nodeId?: string | null) =>
-                          ['industry-chain', 'analysis', chainId, nodeId ?? ''] as const,
 
   // 市场环境(Regime) — 日级离线计算, 不进 SSE 刷新
   // 历史查询键 = 实际请求三元组 (影响结果的参数全部进键): 'all' 在 coverage

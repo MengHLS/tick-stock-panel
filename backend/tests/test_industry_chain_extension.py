@@ -25,30 +25,11 @@ from app.custom.industry_chain.models import (
     IndustryChainStockLink,
     validate_graph,
 )
-from app.custom.industry_chain.routes import build_router
-from app.custom.industry_chain.service import analyze_graph
+from app.custom.industry_chain.routes import _hidden_stock_symbols, build_router
 from app.custom.industry_chain.store import ConflictError, load_graph, save_graph
 from app.extensions.contracts import BACKEND_EXTENSION_API_VERSION
 from app.extensions.registry import BackendExtensionRegistrar
 from app.market_time import cn_today
-
-
-class FakeMarketData:
-    def __init__(self, frame: pl.DataFrame, latest: date) -> None:
-        self.frame = frame
-        self.latest = latest
-        self.calls: list[tuple] = []
-
-    def latest_daily_date(self) -> date:
-        return self.latest
-
-    def get_daily_batch(self, symbols, start, end, columns=None):
-        self.calls.append((symbols, start, end, columns))
-        return self.frame.filter(
-            pl.col("symbol").is_in(symbols)
-            & (pl.col("date") >= start)
-            & (pl.col("date") <= end)
-        )
 
 
 def _graph() -> dict:
@@ -87,69 +68,6 @@ def _link(
         "evidence_status": "pending",
         "sort_order": 10,
     }
-
-
-def _daily_frame() -> tuple[pl.DataFrame, date]:
-    start = date(2026, 10, 1)
-    rows = []
-    for index in range(30):
-        day = start + timedelta(days=index)
-        rows.append({"symbol": "000001.SZ", "date": day, "close": 100.0 + index, "amount": 1000.0 + index})
-        rows.append({"symbol": "000002.SZ", "date": day, "close": 200.0 - index, "amount": 2000.0 + index})
-    return pl.DataFrame(rows), start + timedelta(days=29)
-
-
-def test_analyze_recurses_dedupes_and_aggregates() -> None:
-    frame, latest = _daily_frame()
-    market = FakeMarketData(frame, latest)
-
-    result = analyze_graph(
-        _graph(),
-        chain_id="chain",
-        node_id="mid",
-        start=date(2026, 10, 1),
-        end=latest,
-        market_data=market,
-        name_for=lambda symbol: {"000001.SZ": "甲公司", "000002.SZ": "乙公司"}[symbol],
-    )
-
-    assert result["scope_node_ids"] == ["leaf-a", "leaf-b", "mid"]
-    assert result["link_count"] == 3
-    assert result["stock_count"] == 2
-    assert result["coverage"]["priced_count"] == 2
-    assert result["windows"]["d1"]["return_pct"] == pytest.approx(
-        ((1 / 128) + (-1 / 172)) / 2,
-        abs=1e-8,
-    )
-    assert result["windows"]["d1"]["up_count"] == 1
-    assert result["windows"]["d1"]["down_count"] == 1
-    assert [stock["symbol"] for stock in result["stocks"]] == ["000001.SZ", "000002.SZ"]
-    assert len(result["stocks"][0]["links"]) == 2
-    assert result["stocks"][0]["name"] == "甲公司"
-    assert market.calls[0][3] == ["symbol", "date", "close", "amount"]
-
-
-def test_leaf_scope_and_parent_relative_are_separate() -> None:
-    frame, latest = _daily_frame()
-    result = analyze_graph(
-        _graph(),
-        chain_id="chain",
-        node_id="leaf-a",
-        start=None,
-        end=latest,
-        market_data=FakeMarketData(frame, latest),
-        name_for=lambda symbol: symbol,
-    )
-
-    assert result["stock_count"] == 1
-    assert result["relative"]["parent"]["node_id"] == "mid"
-    assert result["relative"]["parent"]["windows"]["d1"] > 0
-    assert result["relative"]["chain"]["windows"]["d1"] > 0
-    assert result["node"]["path"] == [
-        {"id": "root", "name": "根节点"},
-        {"id": "mid", "name": "中间节点"},
-        {"id": "leaf-a", "name": "叶子 A"},
-    ]
 
 
 def test_graph_validation_rejects_bad_reason_dangling_and_duplicates() -> None:
@@ -738,7 +656,6 @@ class FakeQuoteService:
 
 
 def _client(tmp_path: Path) -> TestClient:
-    frame, latest = _daily_frame()
     quote_day = cn_today() - timedelta(days=1)
     quote_frame = pl.DataFrame([
         {"symbol": "300308.SZ", "close": 103.66, "prev_close": 100.0, "change_pct": 0.0366, "change_amount": 3.66},
@@ -751,14 +668,13 @@ def _client(tmp_path: Path) -> TestClient:
     app.include_router(build_router())
     app.state.extension_runtime = SimpleNamespace(
         data_dir=tmp_path,
-        market_data=FakeMarketData(frame, latest),
         analysis=FakeAnalysis(),
         quote_service=FakeQuoteService(quote_frame, quote_day),
     )
     return TestClient(app)
 
 
-def test_api_round_trip_and_analysis(tmp_path: Path) -> None:
+def test_api_round_trip(tmp_path: Path) -> None:
     client = _client(tmp_path)
     response = client.get("/api/custom/industry-chain/graph")
     assert response.status_code == 200
@@ -777,16 +693,31 @@ def test_api_round_trip_and_analysis(tmp_path: Path) -> None:
     assert response.status_code == 200, response.text
     assert response.json()["updated_at"]
 
-    response = client.get(
-        "/api/custom/industry-chain/analysis",
-        params={"chain_id": "optical-communication", "node_id": "oc-module"},
-    )
-    assert response.status_code == 200, response.text
-    payload = response.json()
-    assert payload["node"]["name"] == "光模块与光引擎"
-    assert payload["stock_count"] == 3
-    assert payload["method"]["membership"] == "current_graph"
-    assert all(stock["name"].startswith("名称-") for stock in payload["stocks"])
+
+def test_hidden_stock_symbols_excludes_bj_st_delisting_and_delisted() -> None:
+    class MarketData:
+        def get_instruments(self, asset_type: str = "stock") -> pl.DataFrame:
+            assert asset_type == "stock"
+            return pl.DataFrame({
+                "symbol": ["000001.SZ", "000002.SZ", "300001.SZ"],
+            })
+
+    runtime = SimpleNamespace(market_data=MarketData())
+    names = {
+        "000001.SZ": "平安银行",
+        "000002.SZ": "*ST示例",
+        "000003.SZ": "退市示例",
+        "000004.SZ": "已退市公司",
+        "300001.SZ": "正常公司",
+        "430001.BJ": "北交示例",
+    }
+
+    assert _hidden_stock_symbols(runtime, sorted(names), names) == [
+        "000002.SZ",
+        "000003.SZ",
+        "000004.SZ",
+        "430001.BJ",
+    ]
 
 
 def test_quotes_endpoint_returns_batch_day_change_and_omits_unknown_symbols(tmp_path: Path) -> None:
@@ -865,7 +796,7 @@ def test_api_refuses_future_graph_read_and_write_without_data_loss(tmp_path: Pat
     assert path.read_bytes() == original
 
 
-def test_api_rejects_bad_reason_and_missing_chain(tmp_path: Path) -> None:
+def test_api_rejects_bad_reason(tmp_path: Path) -> None:
     client = _client(tmp_path)
     graph = client.get("/api/custom/industry-chain/graph").json()
     graph["stock_links"][0]["reason_short"] = "短"
@@ -874,9 +805,3 @@ def test_api_rejects_bad_reason_and_missing_chain(tmp_path: Path) -> None:
         json={"graph": graph, "expected_updated_at": graph["updated_at"]},
     )
     assert response.status_code == 422
-
-    response = client.get(
-        "/api/custom/industry-chain/analysis",
-        params={"chain_id": "missing"},
-    )
-    assert response.status_code == 400

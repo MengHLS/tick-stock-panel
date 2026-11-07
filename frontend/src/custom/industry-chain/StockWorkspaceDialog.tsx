@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { ExternalLink, LineChart, Plus, Clock, X, BarChart3 } from 'lucide-react'
+import { ExternalLink, LineChart, Plus, Clock, X } from 'lucide-react'
 import type {
   IndustryChainGraph,
   IndustryChainQuotes,
   IndustryChainStockLink,
 } from '@/lib/api'
-import { api } from '@/lib/api'
 import { cn } from '@/lib/cn'
 import { fmtPct, priceColorClass } from '@/lib/format'
-import { QK } from '@/lib/queryKeys'
 import { useCapabilityMatrix, usePreferences } from '@/lib/useSharedQueries'
 import { useDialogBackdrop } from '@/lib/useDialogBackdrop'
 import { clearFocusSymbol, setFocusSymbol } from '@/lib/useQuoteStream'
@@ -17,7 +14,7 @@ import { StockDailyKChart, getDefaultRange } from '@/components/StockDailyKChart
 import { StockMultiDayIntradayChart } from '@/components/StockMultiDayIntradayChart'
 import { StockLinkDrawer, type StockDrawerTarget } from './StockLinkDrawer'
 import { StockListPanel, quoteMeta, type StockListTarget } from './StockListPanel'
-import { AnalysisPanel } from './AnalysisPanel'
+import { StockFinancialSnapshot } from './StockFinancialSnapshot'
 import {
   LINK_BASIS_LABELS,
   stockLinksForScope,
@@ -35,7 +32,6 @@ interface Props {
   saving: boolean
   saveError: string | null
   initialEditor?: StockDrawerTarget | null
-  initialAnalysis?: boolean
   onClose: () => void
   onSaveGraph: (next: IndustryChainGraph) => Promise<unknown>
   onDeleteGraph: (next: IndustryChainGraph) => Promise<unknown>
@@ -50,7 +46,6 @@ export function StockWorkspaceDialog({
   saving,
   saveError,
   initialEditor = null,
-  initialAnalysis = false,
   onClose,
   onSaveGraph,
   onDeleteGraph,
@@ -62,7 +57,6 @@ export function StockWorkspaceDialog({
   const [intradayDays, setIntradayDays] = useState<number>(1)
   const [intradayDates, setIntradayDates] = useState<string[]>([])
   const [editor, setEditor] = useState<StockDrawerTarget | null>(initialEditor)
-  const [analysisOpen, setAnalysisOpen] = useState(initialAnalysis)
   const [listCollapsed, setListCollapsed] = useState(false)
   const userSelectedRef = useRef(false)
   const backdrop = useDialogBackdrop(onClose)
@@ -70,15 +64,12 @@ export function StockWorkspaceDialog({
   const prefs = usePreferences()
   const minuteCapLoading = matrix.isLoading
   const hasMinuteCap = !!matrix.data?.capabilities.find(item => item.id === 'minute')?.usable
+  const hasFinancialCap = !!matrix.data?.capabilities.find(item => item.id === 'financial')?.usable
   const intradayRefetchMs = (prefs.data?.minute_intraday_refresh_interval ?? 6) * 1000
 
   useEffect(() => {
     if (initialEditor) setEditor(initialEditor)
   }, [initialEditor])
-
-  useEffect(() => {
-    setAnalysisOpen(initialAnalysis)
-  }, [initialAnalysis])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -116,7 +107,6 @@ export function StockWorkspaceDialog({
   const selectStock = (symbol: string) => {
     userSelectedRef.current = true
     setSelectedSymbol(symbol)
-    setAnalysisOpen(false)
   }
 
   const node = target.nodeId
@@ -146,6 +136,7 @@ export function StockWorkspaceDialog({
   const selectedLinks = selectedSymbol
     ? scopedLinks.filter(link => link.symbol === selectedSymbol)
     : []
+  const selectedThemeLinks = selectedLinks.filter(link => link.basis === 'theme_clue')
   const selectedName = selectedSymbol
     ? graph.stock_names?.[selectedSymbol] ?? selectedSymbol
     : null
@@ -156,16 +147,6 @@ export function StockWorkspaceDialog({
   const quoteDate = view === 'intraday'
     ? intradayDate ?? '分时日期加载中'
     : quotes?.as_of ?? '行情日期未知'
-  const analysisQuery = useQuery({
-    queryKey: QK.industryChainAnalysis(target.chainId, target.nodeId),
-    queryFn: () => api.industryChainAnalysis({
-      chainId: target.chainId,
-      nodeId: target.nodeId,
-    }),
-    enabled: analysisOpen,
-    staleTime: 60_000,
-  })
-
   const selectRange = (months: number) => {
     const end = new Date()
     const start = new Date()
@@ -228,11 +209,6 @@ export function StockWorkspaceDialog({
                 {node?.description ? node.kind === 'product' ? '产品' : node.kind === 'application' ? '应用' : '环节' : '节点'}
               </span>
             </div>
-            {node?.description && (
-              <p className="mt-1 max-w-3xl truncate text-[11px] text-secondary" title={node.description}>
-                {node.description}
-              </p>
-            )}
           </div>
           {!editor && (
             <button
@@ -286,27 +262,12 @@ export function StockWorkspaceDialog({
                   onSelect={selectStock}
                   onVisibleSymbolsChange={setVisibleSymbols}
                   onOpenLink={editLink}
-                  onAnalyze={() => setAnalysisOpen(true)}
                   onAddStock={addStock}
                 />
               </div>
 
               <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-                {analysisOpen ? (
-                  <AnalysisPanel
-                    embedded
-                    title={target.name}
-                    analysis={analysisQuery.data}
-                    loading={analysisQuery.isLoading}
-                    error={analysisQuery.isError
-                      ? (analysisQuery.error instanceof Error ? analysisQuery.error.message : String(analysisQuery.error))
-                      : null}
-                    canAddStock={!!target.nodeId}
-                    onAddStock={addStock}
-                    onClose={() => setAnalysisOpen(false)}
-                    onOpenLink={editLink}
-                  />
-                ) : selectedSymbol && selectedName ? (
+                {selectedSymbol && selectedName ? (
                   <>
                     <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-4 py-3">
                       <div className="min-w-0">
@@ -317,18 +278,19 @@ export function StockWorkspaceDialog({
                             {fmtPct(selectedQuote?.change_pct)}
                           </span>
                         </div>
+                        {selectedThemeLinks.length > 0 && (
+                          <p
+                            className="mt-1 truncate text-[10px] text-warning/90"
+                            title={selectedThemeLinks.map(link => link.reason_short).join(' · ')}
+                          >
+                            {selectedThemeLinks.map(link => link.reason_short).join(' · ')}
+                          </p>
+                        )}
                         <p className="mt-1 text-[10px] text-muted">
                           {view === 'intraday' ? '分时日期' : '行情日期'} {quoteDate}
                         </p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setAnalysisOpen(true)}
-                          className="inline-flex h-7 items-center gap-1 rounded border border-border px-2 text-[11px] text-muted hover:text-foreground"
-                        >
-                          <BarChart3 className="h-3 w-3" />行情分析
-                        </button>
                         <div role="tablist" aria-label="产业链股票图表视图" className="inline-flex items-center rounded border border-border bg-base p-0.5">
                           <button
                             type="button"
@@ -424,6 +386,10 @@ export function StockWorkspaceDialog({
                         />
                       )}
 
+                      {hasFinancialCap && (
+                        <StockFinancialSnapshot symbol={selectedSymbol} />
+                      )}
+
                       {selectedLinks.length > 0 && (
                         <details className="mt-3 rounded-lg border border-border bg-base/50 px-3 py-2 text-[10px]">
                           <summary className="cursor-pointer select-none text-[11px] font-medium text-secondary">
@@ -448,6 +414,7 @@ export function StockWorkspaceDialog({
                                   <button
                                     type="button"
                                     onClick={() => editLink(link)}
+                                    aria-label={`编辑${selectedName}关联：${graph.nodes.find(item => item.id === link.node_id)?.name ?? target.name}`}
                                     className="ml-auto text-[10px] text-accent hover:opacity-80"
                                   >
                                     编辑

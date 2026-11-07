@@ -1,17 +1,17 @@
-"""HTTP surface for the industry-chain graph and analysis."""
+"""HTTP surface for the industry-chain graph and quotes."""
 from __future__ import annotations
 
 import math
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.custom.industry_chain.models import IndustryChainGraphSave
-from app.custom.industry_chain.service import analyze_graph
 from app.custom.industry_chain.store import ConflictError, load_graph, save_graph
 from app.extensions import ExtensionRuntime, get_extension_runtime
 from app.market_time import cn_today
+from app.price_limits import is_risk_warning_name
 
 
 def build_router() -> APIRouter:
@@ -46,31 +46,6 @@ def build_router() -> APIRouter:
         except ValueError as exc:
             raise HTTPException(400, str(exc)) from exc
 
-    @router.get("/analysis")
-    def get_analysis(
-        runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
-        chain_id: str = Query(..., min_length=1),
-        node_id: str | None = None,
-        start: date | None = None,
-        end: date | None = None,
-    ) -> dict:
-        try:
-            graph = load_graph(runtime.data_dir)
-            names = runtime.analysis.names(
-                sorted({link["symbol"] for link in graph["stock_links"]})
-            )
-            return analyze_graph(
-                graph,
-                chain_id=chain_id,
-                node_id=node_id,
-                start=start,
-                end=end,
-                market_data=runtime.market_data,
-                name_for=lambda symbol: names.get(symbol),
-            )
-        except ValueError as exc:
-            raise HTTPException(400, str(exc)) from exc
-
     @router.get("/quotes")
     def get_quotes(
         runtime: Annotated[ExtensionRuntime, Depends(get_extension_runtime)],
@@ -78,8 +53,8 @@ def build_router() -> APIRouter:
         """Latest cached day change for every stock in the graph.
 
         This reads the same enriched snapshot used by the watchlist and stock
-        preview. It never calls a per-symbol history endpoint and never triggers
-        an on-demand industry analysis. ``change_pct`` stays a decimal ratio
+        preview. It never calls a per-symbol history endpoint. ``change_pct``
+        stays a decimal ratio
         (0.0366 means 3.66%), matching the enriched/watchlist contract.
         """
         try:
@@ -184,7 +159,53 @@ def _finite_number(value: object) -> float | None:
 
 def _with_stock_names(runtime: ExtensionRuntime, graph: dict) -> dict:
     symbols = sorted({link["symbol"] for link in graph["stock_links"]})
+    names = runtime.analysis.names(symbols) if symbols else {}
     return {
         **graph,
-        "stock_names": runtime.analysis.names(symbols) if symbols else {},
+        "stock_names": names,
+        "hidden_stock_symbols": _hidden_stock_symbols(runtime, symbols, names),
     }
+
+
+def _hidden_stock_symbols(
+    runtime: ExtensionRuntime,
+    symbols: list[str],
+    names: dict[str, str],
+) -> list[str]:
+    """Stocks that should never appear in the chain UI.
+
+    The instrument dimension is the current listing snapshot, so a graph symbol
+    missing from a non-empty snapshot is treated as delisted. Keep this
+    fail-open when the snapshot is unavailable: hiding every link on a data
+    outage would make the graph look empty.
+    """
+    hidden: set[str] = set()
+    for symbol in symbols:
+        name = names.get(symbol, "")
+        if (
+            symbol.upper().endswith(".BJ")
+            or is_risk_warning_name(name)
+            or "退" in name
+        ):
+            hidden.add(symbol)
+
+    market_data = getattr(runtime, "market_data", None)
+    if market_data is None or not symbols:
+        return sorted(hidden)
+    try:
+        instruments = market_data.get_instruments("stock")
+    except Exception:  # noqa: BLE001 - filter metadata must not break the graph
+        return sorted(hidden)
+    if (
+        instruments is None
+        or instruments.is_empty()
+        or "symbol" not in instruments.columns
+    ):
+        return sorted(hidden)
+    active = {
+        str(value)
+        for value in instruments["symbol"].to_list()
+        if value is not None
+    }
+    hidden.update(symbol for symbol in symbols if symbol not in active)
+    return sorted(hidden)

@@ -4,28 +4,14 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { IndustryChainGraph } from '@/lib/api'
-import { api } from '@/lib/api'
 import { clearFocusSymbol, setFocusSymbol } from '@/lib/useQuoteStream'
 import { StockWorkspaceDialog } from './StockWorkspaceDialog'
 
 const capability = vi.hoisted(() => ({ usable: true }))
 
-vi.mock('@/lib/api', () => ({
-  api: { industryChainAnalysis: vi.fn() },
-}))
-
 vi.mock('@/lib/useQuoteStream', () => ({
   setFocusSymbol: vi.fn(),
   clearFocusSymbol: vi.fn(),
-}))
-
-vi.mock('./AnalysisPanel', () => ({
-  AnalysisPanel: ({ onClose, error }: { onClose: () => void; error: string | null }) => (
-    <aside data-testid="analysis">
-      {error}
-      <button onClick={onClose} aria-label="关闭分析面板">返回股票行情</button>
-    </aside>
-  ),
 }))
 
 vi.mock('@/components/StockDailyKChart', () => ({
@@ -84,7 +70,6 @@ const quotes = {
 beforeEach(() => {
   capability.usable = true
   vi.clearAllMocks()
-  vi.mocked(api.industryChainAnalysis).mockRejectedValue(new Error('分析暂不可用'))
 })
 
 function renderDialog(targetNode = 'server', overrides: Partial<ComponentProps<typeof StockWorkspaceDialog>> = {}) {
@@ -110,7 +95,7 @@ function renderDialog(targetNode = 'server', overrides: Partial<ComponentProps<t
     </QueryClientProvider>,
   ))
   render()
-  return { host, root, render, queryClient }
+  return { host, root, render }
 }
 
 function click(host: HTMLElement, label: string) {
@@ -121,7 +106,6 @@ it('末级节点默认选中第一只股票，单击切股且日线/分时原位
   const { host, root } = renderDialog()
   try {
     expect(host.textContent).toContain('AI 服务器')
-    expect(host.textContent).toContain('训练与推理服务器')
     expect(host.querySelector('[data-testid="daily-chart"]')?.textContent).toBe('000977.SZ')
     expect(host.textContent).toContain('+3.66%')
 
@@ -215,27 +199,6 @@ it('分钟能力不可用时显示提示，日线仍可使用；关闭释放焦�
     act(() => root.unmount())
     expect(clearFocusSymbol).toHaveBeenCalled()
   } finally {
-    host.remove()
-  }
-})
-
-it('分析仅主动打开时查询，在原弹窗显示错误并可返回行情', async () => {
-  const { host, root } = renderDialog()
-  try {
-    expect(api.industryChainAnalysis).not.toHaveBeenCalled()
-    await act(async () => {
-      Array.from(host.querySelectorAll('button')).find(button => button.textContent === '行情分析')!.click()
-    })
-    expect(api.industryChainAnalysis).toHaveBeenCalledWith({ chainId: 'ai', nodeId: 'server' })
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 20))
-    })
-    expect(host.textContent).toContain('分析暂不可用')
-    expect(host.querySelectorAll('[role="dialog"]')).toHaveLength(1)
-    click(host, '关闭分析面板')
-    expect(host.querySelector('[data-testid="daily-chart"]')?.textContent).toBe('000977.SZ')
-  } finally {
-    act(() => root.unmount())
     host.remove()
   }
 })

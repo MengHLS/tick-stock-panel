@@ -28,31 +28,26 @@ vi.mock('@/lib/api', () => ({
 }))
 
 vi.mock('./GraphCanvas', () => ({
-  GraphCanvas: ({ onAnalyze, onOpenStocks }: {
-    onAnalyze: (target: { chainId: string; nodeId: string; name: string }) => void
+  GraphCanvas: ({ onOpenStocks }: {
     onOpenStocks: (target: { chainId: string; nodeId: string; name: string }) => void
   }) => (
-    <>
-      <button aria-label="打开股票" onClick={() => onOpenStocks({ chainId: 'ai', nodeId: 'server', name: 'AI 服务器' })} />
-      <button aria-label="打开分析" onClick={() => onAnalyze({ chainId: 'ai', nodeId: 'server', name: 'AI 服务器' })} />
-    </>
+    <button aria-label="打开股票" onClick={() => onOpenStocks({ chainId: 'ai', nodeId: 'server', name: 'AI 服务器' })} />
   ),
 }))
 
 vi.mock('./StockWorkspaceDialog', () => ({
-  StockWorkspaceDialog: ({ target, initialAnalysis, onClose }: {
+  StockWorkspaceDialog: ({ target, onClose }: {
     target: { name: string }
-    initialAnalysis: boolean
     onClose: () => void
   }) => (
-    <div data-testid="workspace" data-analysis={String(initialAnalysis)}>
+    <div data-testid="workspace">
       {target.name}
       <button aria-label="关闭统一弹窗" onClick={onClose} />
     </div>
   ),
 }))
 
-it('股票入口与分析入口复用同一弹窗，分析只在主动进入时开启', async () => {
+it('股票入口打开统一弹窗', async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
   vi.mocked(api.industryChainGraph).mockResolvedValue(graph)
   vi.mocked(api.industryChainQuotes).mockResolvedValue({
@@ -81,12 +76,11 @@ it('股票入口与分析入口复用同一弹窗，分析只在主动进入时�
       })
     }
     act(() => host.querySelector<HTMLButtonElement>('button[aria-label="打开股票"]')!.click())
-    expect(host.querySelector('[data-testid="workspace"]')?.getAttribute('data-analysis')).toBe('false')
+    expect(host.querySelectorAll('[data-testid="workspace"]')).toHaveLength(1)
+    expect(host.textContent).toContain('AI 服务器')
 
     act(() => host.querySelector<HTMLButtonElement>('button[aria-label="关闭统一弹窗"]')!.click())
-    act(() => host.querySelector<HTMLButtonElement>('button[aria-label="打开分析"]')!.click())
-    expect(host.querySelector('[data-testid="workspace"]')?.getAttribute('data-analysis')).toBe('true')
-    expect(host.querySelectorAll('[data-testid="workspace"]')).toHaveLength(1)
+    expect(host.querySelectorAll('[data-testid="workspace"]')).toHaveLength(0)
   } finally {
     act(() => root.unmount())
     host.remove()

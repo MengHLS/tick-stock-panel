@@ -8,7 +8,6 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import {
-  BarChart3,
   ChevronDown,
   ChevronRight,
   Maximize2,
@@ -31,7 +30,6 @@ interface Props {
   layout: GraphLayout
   search: GraphSearchState
   onToggle: (key: string) => void
-  onAnalyze: (target: { chainId: string; nodeId: string | null; name: string }) => void
   onAddStock: (nodeId: string, nodeName: string) => void
   onOpenStocks: (target: { chainId: string; nodeId: string | null; name: string }) => void
   resetSignal: number
@@ -41,7 +39,6 @@ export function GraphCanvas({
   layout,
   search,
   onToggle,
-  onAnalyze,
   onAddStock,
   onOpenStocks,
   resetSignal,
@@ -244,7 +241,6 @@ export function GraphCanvas({
             key={node.key}
             node={node}
             onToggle={toggleNode}
-            onAnalyze={onAnalyze}
             onAddStock={onAddStock}
             onOpenStocks={onOpenStocks}
           />
@@ -283,17 +279,15 @@ export function GraphCanvas({
 function GraphNodeCard({
   node,
   onToggle,
-  onAnalyze,
   onAddStock,
   onOpenStocks,
 }: {
   node: LayoutNode
   onToggle: (key: string) => void
-  onAnalyze: (target: { chainId: string; nodeId: string | null; name: string }) => void
   onAddStock: (nodeId: string, nodeName: string) => void
   onOpenStocks: (target: { chainId: string; nodeId: string | null; name: string }) => void
 }) {
-  const canAnalyze = node.type === 'chain' || (node.type === 'node' && !!node.chainId)
+  const canOpenStocks = node.type === 'chain' || (node.type === 'node' && !!node.chainId)
   const canAdd = node.type === 'node'
   const openStocks = () => {
     if (!node.chainId) return
@@ -308,7 +302,7 @@ function GraphNodeCard({
       onToggle(node.key)
       return
     }
-    if (canAnalyze) {
+    if (canOpenStocks) {
       openStocks()
       return
     }
@@ -348,19 +342,6 @@ function GraphNodeCard({
       </div>
 
       <div className="absolute right-1.5 top-1.5 flex items-center gap-1 opacity-60 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-        {canAnalyze && node.chainId && (
-          <NodeAction
-            title="进入分析"
-            label="分析"
-            onClick={() => onAnalyze({
-              chainId: node.chainId!,
-              nodeId: node.type === 'chain' ? null : node.id,
-              name: node.name,
-            })}
-          >
-            <BarChart3 className="h-3 w-3" />
-          </NodeAction>
-        )}
         {canAdd && (
           <NodeAction title="添加股票" onClick={() => onAddStock(node.id, node.name)}>
             <Plus className="h-3 w-3" />
@@ -369,7 +350,7 @@ function GraphNodeCard({
       </div>
 
       <div className="absolute bottom-1 right-1.5 flex items-center gap-1 text-[9px] text-muted">
-        {canAnalyze && node.stockCount > 0 && (
+        {canOpenStocks && node.stockCount > 0 && (
           <button
             type="button"
             aria-label={`查看${node.name}股票列表`}
@@ -377,12 +358,11 @@ function GraphNodeCard({
             className="inline-flex items-center gap-0.5 rounded bg-elevated px-1 py-0.5 text-secondary hover:text-accent"
           >
             <List className="h-2.5 w-2.5" />
-            股票 {node.stockCount}
+            股票
           </button>
         )}
         {node.hasChildren && (
           <span className="pointer-events-none inline-flex items-center gap-0.5 rounded bg-elevated/80 px-1 py-0.5 font-mono">
-            {node.childCount}
             {node.expanded
               ? <ChevronDown className="h-2.5 w-2.5" />
               : <ChevronRight className="h-2.5 w-2.5" />}
@@ -399,7 +379,9 @@ function StandardContent({ node }: { node: LayoutNode }) {
       <>
         <div className="font-mono text-[9px] tracking-[0.16em] text-amber-600 dark:text-amber-300">INDUSTRY MAP</div>
         <div className="mt-0.5 truncate text-[16px] font-semibold text-foreground">{node.name}</div>
-        <div className="mt-0.5 truncate text-[10px] text-muted">{node.subtitle}</div>
+        {node.subtitle && (
+          <div className="mt-0.5 truncate text-[10px] text-muted">{node.subtitle}</div>
+        )}
       </>
     )
   }
@@ -407,7 +389,9 @@ function StandardContent({ node }: { node: LayoutNode }) {
     return (
       <>
         <div className="truncate pr-10 text-[13px] font-semibold text-foreground">{node.name}</div>
-        <div className="mt-0.5 truncate text-[10px] text-muted">{node.subtitle}</div>
+        {node.subtitle && (
+          <div className="mt-0.5 truncate text-[10px] text-muted">{node.subtitle}</div>
+        )}
       </>
     )
   }
@@ -418,7 +402,9 @@ function StandardContent({ node }: { node: LayoutNode }) {
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500 dark:bg-amber-300" />
           <span className="truncate text-[13px] font-semibold text-foreground">{node.name}</span>
         </div>
-        <div className="mt-1 truncate pr-20 text-[10px] text-muted">{node.subtitle}</div>
+        {node.subtitle && (
+          <div className="mt-1 truncate pr-20 text-[10px] text-muted">{node.subtitle}</div>
+        )}
       </>
     )
   }
@@ -438,19 +424,19 @@ function StandardContent({ node }: { node: LayoutNode }) {
         </span>
         <span className="truncate text-[12px] font-medium text-foreground">{node.name}</span>
       </div>
-      <div className="mt-1 truncate pr-20 text-[10px] text-muted">{node.subtitle}</div>
+      {node.subtitle && (
+        <div className="mt-1 truncate pr-20 text-[10px] text-muted">{node.subtitle}</div>
+      )}
     </>
   )
 }
 
 function NodeAction({
   title,
-  label,
   onClick,
   children,
 }: {
   title: string
-  label?: string
   onClick: () => void
   children: React.ReactNode
 }) {
@@ -463,13 +449,9 @@ function NodeAction({
         event.stopPropagation()
         onClick()
       }}
-      className={cn(
-        'flex h-5 items-center justify-center gap-0.5 rounded border border-border bg-surface/90 px-1 text-secondary shadow-sm backdrop-blur transition-colors hover:border-accent/50 hover:bg-elevated hover:text-foreground',
-        label ? 'min-w-8 text-[8px]' : 'w-5',
-      )}
+      className="flex h-5 w-5 items-center justify-center rounded border border-border bg-surface/90 text-secondary shadow-sm backdrop-blur transition-colors hover:border-accent/50 hover:bg-elevated hover:text-foreground"
     >
       {children}
-      {label && <span>{label}</span>}
     </button>
   )
 }

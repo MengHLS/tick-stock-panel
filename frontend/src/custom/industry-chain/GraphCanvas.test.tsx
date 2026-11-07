@@ -62,7 +62,6 @@ function Harness({ resetSignal = 1, query = '' }: { resetSignal?: number; query?
         else next.add(key)
         return next
       })}
-      onAnalyze={vi.fn()}
       onAddStock={vi.fn()}
       onOpenStocks={vi.fn()}
     />
@@ -160,7 +159,6 @@ it('节点说明作为单行副标题，并通过 title 暴露全文', () => {
       search={search}
       resetSignal={1}
       onToggle={vi.fn()}
-      onAnalyze={vi.fn()}
       onAddStock={vi.fn()}
       onOpenStocks={vi.fn()}
     />,
@@ -189,7 +187,6 @@ it('末级环节打开右侧股票列表，不展开股票节点或改变视角'
       search={searchGraph(withStocks, '')}
       resetSignal={1}
       onToggle={toggle}
-      onAnalyze={vi.fn()}
       onAddStock={vi.fn()}
       onOpenStocks={openStocks}
     />,
@@ -213,7 +210,6 @@ it('无关联股票的末级节点同样打开统一股票弹窗', () => {
       search={searchGraph(graph, '')}
       resetSignal={1}
       onToggle={toggle}
-      onAnalyze={vi.fn()}
       onAddStock={vi.fn()}
       onOpenStocks={openStocks}
     />,

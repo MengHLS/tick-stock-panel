@@ -35,16 +35,15 @@ it('右侧列表去重股票，保留各处理由，支持筛选和编辑关联'
         target={{ chainId: 'ai', nodeId: 'root', name: '算力硬件' }}
         onClose={close}
         onOpenLink={openLink}
-        onAnalyze={vi.fn()}
         onAddStock={vi.fn()}
       />,
     ))
-    expect(host.textContent).toContain('2 只股票')
-    expect(host.textContent).toContain('3 条关联')
     expect(host.textContent).toContain('AI服务器与智算整机')
-    expect(host.textContent).toContain('提供算力硬件产品')
+    expect(host.textContent).not.toContain('提供算力硬件产品')
     expect(host.textContent).toContain('主营/产品')
     expect(host.textContent).toContain('题材线索')
+    act(() => host.querySelector<HTMLButtonElement>('button[aria-label="编辑浪潮信息关联：AI 服务器"]')!.click())
+    expect(openLink).toHaveBeenCalledWith(graph.stock_links[0])
     const input = host.querySelector<HTMLInputElement>('input[aria-label="筛选股票列表"]')!
     act(() => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, '603019')
@@ -52,8 +51,6 @@ it('右侧列表去重股票，保留各处理由，支持筛选和编辑关联'
     })
     expect(host.textContent).toContain('中科曙光')
     expect(host.textContent).not.toContain('浪潮信息')
-    act(() => host.querySelector<HTMLButtonElement>('button[aria-label="编辑中科曙光关联：AI 服务器"]')!.click())
-    expect(openLink).toHaveBeenCalledWith(graph.stock_links[2])
     act(() => host.querySelector<HTMLButtonElement>('button[aria-label="关闭股票列表"]')!.click())
     expect(close).toHaveBeenCalledOnce()
   } finally {
@@ -74,7 +71,6 @@ it('支持按参股、合作、传闻和核验状态筛选关联', () => {
         target={{ chainId: 'ai', nodeId: 'root', name: '算力硬件' }}
         onClose={vi.fn()}
         onOpenLink={vi.fn()}
-        onAnalyze={vi.fn()}
         onAddStock={vi.fn()}
       />,
     ))
@@ -85,14 +81,12 @@ it('支持按参股、合作、传闻和核验状态筛选关联', () => {
 
     click('筛选关联性质：参股')
     expect(host.textContent).toContain('浪潮信息')
-    expect(host.textContent).toContain('提供算力硬件产品')
+    expect(host.textContent).not.toContain('提供算力硬件产品')
     expect(host.textContent).not.toContain('中科曙光')
-    expect(host.textContent).toContain('1 只 / 1 条')
 
     click('筛选关联性质：传闻')
     expect(host.textContent).toContain('中科曙光')
     expect(host.textContent).not.toContain('浪潮信息')
-    expect(host.textContent).toContain('传闻')
 
     click('筛选关联性质：合作')
     expect(host.textContent).toContain('中科曙光')
@@ -101,7 +95,6 @@ it('支持按参股、合作、传闻和核验状态筛选关联', () => {
     click('仅看已核验关联')
     expect(host.textContent).toContain('浪潮信息')
     expect(host.textContent).not.toContain('中科曙光')
-    expect(host.textContent).toContain('1 只 / 1 条')
   } finally {
     act(() => root.unmount())
     host.remove()
@@ -133,7 +126,6 @@ it('题材线索的免责声明不会被误判为供货关联', () => {
         target={{ chainId: 'ai', nodeId: 'root', name: '算力硬件' }}
         onClose={vi.fn()}
         onOpenLink={vi.fn()}
-        onAnalyze={vi.fn()}
         onAddStock={vi.fn()}
       />,
     ))
@@ -221,7 +213,6 @@ it('展示每只股票的当日涨跌幅，缺失行情显示破折号', () => {
         }}
         onClose={vi.fn()}
         onOpenLink={vi.fn()}
-        onAnalyze={vi.fn()}
         onAddStock={vi.fn()}
       />,
     ))
@@ -268,7 +259,6 @@ it('跨交易日或刷新失败时标明行情状态并保留上一份数据', (
         quotesError="网络错误"
         onClose={vi.fn()}
         onOpenLink={vi.fn()}
-        onAnalyze={vi.fn()}
         onAddStock={vi.fn()}
       />,
     ))
@@ -308,7 +298,6 @@ it.each([
         }}
         onClose={vi.fn()}
         onOpenLink={vi.fn()}
-        onAnalyze={vi.fn()}
         onAddStock={vi.fn()}
       />,
     ))

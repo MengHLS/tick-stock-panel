@@ -4,7 +4,7 @@ import { ExternalLink, Loader2, Search, Trash2, X } from 'lucide-react'
 import { api, type IndustryChainGraph, type IndustryChainStockLink } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { cn } from '@/lib/cn'
-import { LINK_BASIS_LABELS, stockChainAssociations } from './layout'
+import { LINK_BASIS_LABELS, isExcludedStock, stockChainAssociations } from './layout'
 
 export interface StockDrawerTarget {
   mode: 'edit' | 'add'
@@ -61,8 +61,16 @@ export function StockLinkDrawer({
     queryFn: () => api.instrumentSearch(symbolQuery.trim(), 20, 'stock'),
     enabled: target.mode === 'add' && !symbol && symbolQuery.trim().length > 0,
   })
-  const results = searchQuery.data?.results ?? []
-  const typedSymbol = useMemo(() => normalizeSymbol(symbolQuery), [symbolQuery])
+  const results = useMemo(
+    () => (searchQuery.data?.results ?? []).filter(
+      item => !isExcludedStock(item.symbol, item.name),
+    ),
+    [searchQuery.data],
+  )
+  const typedSymbol = useMemo(() => {
+    const normalized = normalizeSymbol(symbolQuery)
+    return normalized && !isExcludedStock(normalized) ? normalized : null
+  }, [symbolQuery])
   const reasonLength = [...reason.trim()].length
   const reasonInvalid = reasonLength < 5 || reasonLength > 20
   const related = useMemo(
@@ -85,6 +93,10 @@ export function StockLinkDrawer({
     }
     if (!/^\d{6}\.(SH|SZ|BJ)$/.test(symbol)) {
       setLocalError('股票代码格式应为 000001.SZ')
+      return
+    }
+    if (isExcludedStock(symbol, stockName)) {
+      setLocalError('不展示退市、北交所和 ST 股票')
       return
     }
     if (reasonInvalid) {

@@ -116,7 +116,7 @@ describe('industry-chain layout', () => {
     expect(stockLinksForScope(GRAPH, 'optical', 'module').map(link => link.id)).toEqual(['l1', 'l2'])
   })
 
-  it('节点说明优先作为单行副标题，股票数量仍在节点底部展示', () => {
+  it('节点说明优先作为单行副标题，卡片不展示股票或方向数量', () => {
     const described: IndustryChainGraph = {
       ...GRAPH,
       nodes: GRAPH.nodes.map(node => node.id === 'datacom'
@@ -128,6 +128,8 @@ describe('industry-chain layout', () => {
 
     expect(node?.subtitle).toBe('数据中心和 AI 集群使用的 400G/800G 光模块。')
     expect(node?.stockCount).toBe(1)
+    expect(layout.byKey.get(chainKey('optical'))?.subtitle).toBe('')
+    expect(layout.byKey.get('root')?.subtitle).toBe('')
   })
 
   it('搜索股票代码自动展开祖先并保留其它链作为暗化上下文', () => {
@@ -162,5 +164,34 @@ describe('industry-chain layout', () => {
 
     const layout = buildLayout(GRAPH, defaultExpandedKeys(GRAPH), search)
     expect(layout.nodes.every(node => node.key === 'root' || node.dimmed)).toBe(true)
+  })
+
+  it('退市、北交所和 ST 股票不进入列表、搜索或节点计数', () => {
+    const hiddenGraph: IndustryChainGraph = {
+      ...GRAPH,
+      hidden_stock_symbols: ['300308.SZ'],
+    }
+
+    expect(stockLinksForScope(hiddenGraph, 'optical', 'module')).toEqual([])
+    expect(stockChainAssociations(hiddenGraph, '300308.SZ', 'datacom')).toEqual([])
+    expect(searchGraph(hiddenGraph, '300308').count).toBe(0)
+
+    const layout = buildLayout(
+      hiddenGraph,
+      new Set([
+        categoryKey('electronics'),
+        chainKey('optical'),
+        nodeKey('module'),
+        nodeKey('datacom'),
+      ]),
+      searchGraph(hiddenGraph, ''),
+    )
+    expect(layout.byKey.get(nodeKey('datacom'))?.stockCount).toBe(0)
+
+    const stGraph: IndustryChainGraph = {
+      ...GRAPH,
+      stock_names: { ...GRAPH.stock_names, '300308.SZ': '*ST旭创' },
+    }
+    expect(stockLinksForScope(stGraph, 'optical', 'module')).toEqual([])
   })
 })

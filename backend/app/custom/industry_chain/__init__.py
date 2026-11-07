@@ -1,4 +1,4 @@
-"""Industry-chain mind map and equal-weight chain analysis."""
+"""Industry-chain mind map and stock quotes."""
 from __future__ import annotations
 
 from app.extensions import BACKEND_EXTENSION_API_VERSION, BackendExtensionRegistrar

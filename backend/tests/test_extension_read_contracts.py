@@ -7,7 +7,10 @@ from types import SimpleNamespace
 import polars as pl
 from fastapi import FastAPI
 
-from app.extensions.adapters import repository_read_adapters
+from app.extensions.adapters import (
+    FileMarketData,
+    repository_read_adapters,
+)
 from app.extensions.loader import current_extension_context
 from app.extensions.runtime import build_extension_runtime, extension_runtime_from_app
 
@@ -114,6 +117,35 @@ def test_current_extension_context_injects_read_contracts() -> None:
     assert context.market_data is not None
     assert context.enriched_panel is not None
     assert context.backtest_read is not None
+
+
+def test_file_market_data_reads_enriched_daily_contract(tmp_path: Path) -> None:
+    day = date(2026, 11, 2)
+    part_dir = tmp_path / "kline_daily_enriched" / f"date={day.isoformat()}"
+    part_dir.mkdir(parents=True)
+    pl.DataFrame(
+        {
+            "symbol": ["000001.SZ"],
+            "date": [day],
+            "open": [10.0],
+            "high": [11.0],
+            "low": [9.5],
+            "close": [10.5],
+            "raw_close": [10.2],
+        }
+    ).write_parquet(part_dir / "part.parquet")
+
+    market_data = FileMarketData(tmp_path)
+    frame = market_data.get_daily_batch(
+        ["000001.SZ"],
+        day,
+        day,
+        columns=["symbol", "date", "close", "raw_close"],
+    )
+
+    assert frame.height == 1
+    assert frame["raw_close"].to_list() == [10.2]
+    assert market_data.latest_daily_date() == day
 
 
 def test_runtime_publishes_alerts_without_exposing_quote_service(monkeypatch) -> None:

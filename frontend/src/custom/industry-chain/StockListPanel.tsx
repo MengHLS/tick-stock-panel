@@ -7,7 +7,7 @@ import type {
 } from '@/lib/api'
 import { cn } from '@/lib/cn'
 import { fmtPct, priceColorClass } from '@/lib/format'
-import { LINK_BASIS_LABELS, stockLinksForScope } from './layout'
+import { stockLinksForScope } from './layout'
 
 type RelationFilter = 'all' | 'main_business' | 'supply' | 'theme_clue' | 'equity' | 'cooperation' | 'rumor'
 type RelationTag = 'equity' | 'cooperation' | 'rumor' | 'supply'
@@ -49,7 +49,6 @@ interface Props {
   onVisibleSymbolsChange?: (symbols: string[]) => void
   onClose?: () => void
   onOpenLink: (link: IndustryChainStockLink) => void
-  onAnalyze?: () => void
   onAddStock: () => void
 }
 
@@ -65,7 +64,6 @@ export function StockListPanel({
   onVisibleSymbolsChange,
   onClose,
   onOpenLink,
-  onAnalyze,
   onAddStock,
 }: Props) {
   const [filter, setFilter] = useState(target.filter ?? '')
@@ -100,7 +98,6 @@ export function StockListPanel({
     stock.symbol, stock.name,
     ...stock.links.flatMap(link => [link.reason_short, link.note, nodeNames.get(link.node_id) ?? '']),
   ].some(text => text.toLowerCase().replace(/\s+/g, '').includes(query)))
-  const filteredLinkCount = filtered.reduce((sum, stock) => sum + stock.links.length, 0)
   const hasChipFilter = relationFilter !== 'all' || verifiedOnly
   const visibleKey = filtered.map(stock => stock.symbol).join(',')
   const visibleCallback = useRef(onVisibleSymbolsChange)
@@ -120,40 +117,36 @@ export function StockListPanel({
           : 'absolute inset-y-0 right-0 z-20 w-full max-w-[440px] border-l border-border shadow-2xl',
       )}
     >
-      <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[10px] text-muted">
-            <List className="h-3 w-3" />
-            {embedded ? '关联股票' : '成分股票'}
-          </div>
-          {!embedded && (
+      {!embedded && (
+        <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-[10px] text-muted">
+              <List className="h-3 w-3" />
+              成分股票
+            </div>
             <h2 className="mt-0.5 truncate text-[16px] font-semibold text-foreground">{target.name}</h2>
+            <p
+              aria-live="polite"
+              className={cn(
+                'mt-1 text-[10px]',
+                quotes?.available && !quotes.is_today ? 'text-warning' : 'text-muted',
+              )}
+            >
+              {quoteMeta(quotes, quotesLoading, quotesError)}
+            </p>
+          </div>
+          {onClose && (
+            <button
+              type="button"
+              aria-label="关闭股票列表"
+              onClick={onClose}
+              className="grid h-7 w-7 place-items-center rounded text-muted hover:bg-elevated hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
           )}
-          <p className="mt-1 text-[10px] text-muted">
-            {stocks.length} 只股票 · {links.length} 条关联
-            {hasChipFilter && ` · 筛选后 ${filtered.length} 只 / ${filteredLinkCount} 条`}
-          </p>
-          <p
-            aria-live="polite"
-            className={cn(
-              'mt-1 text-[10px]',
-              quotes?.available && !quotes.is_today ? 'text-warning' : 'text-muted',
-            )}
-          >
-            {quoteMeta(quotes, quotesLoading, quotesError)}
-          </p>
         </div>
-        {!embedded && onClose && (
-          <button
-            type="button"
-            aria-label="关闭股票列表"
-            onClick={onClose}
-            className="grid h-7 w-7 place-items-center rounded text-muted hover:bg-elevated hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+      )}
 
       <div className="space-y-2 border-b border-border px-4 py-3">
         <div className="relative">
@@ -209,20 +202,11 @@ export function StockListPanel({
               清除筛选
             </button>
           )}
-          {onAnalyze && (
-            <button
-              type="button"
-              onClick={onAnalyze}
-              className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted hover:text-foreground"
-            >
-              行情分析
-            </button>
-          )}
           {target.nodeId && (
             <button
               type="button"
               onClick={onAddStock}
-              className="inline-flex items-center gap-1 text-[11px] text-accent hover:opacity-80"
+              className="ml-auto inline-flex items-center gap-1 text-[11px] text-accent hover:opacity-80"
             >
               <Plus className="h-3 w-3" />
               添加股票
@@ -243,12 +227,13 @@ export function StockListPanel({
         )}
         {filtered.map(stock => {
           const selected = selectedSymbol === stock.symbol
+          const cardLinks = stock.links.filter(link => link.basis !== 'theme_clue')
           return (
           <div
             key={stock.symbol}
             onClick={() => onSelect?.(stock.symbol)}
             className={cn(
-              'cursor-pointer rounded-xl border bg-base/60 p-3 transition-colors',
+              'cursor-pointer rounded-xl border bg-base/60 p-2.5 transition-colors',
               selected ? 'border-accent/60 bg-accent/[0.06]' : 'border-border',
             )}
           >
@@ -275,8 +260,9 @@ export function StockListPanel({
                 </span>
               </span>
             </div>
+            {cardLinks.length > 0 && (
             <div className="mt-2 space-y-1">
-              {stock.links.map(link => {
+              {cardLinks.map(link => {
                 const tags = relationTags(link)
                 return (
                   <div
@@ -304,17 +290,20 @@ export function StockListPanel({
                             {RELATION_TAG_LABELS[tag]}
                           </span>
                         ))}
+                        <span
+                          className={cn(
+                            'rounded-full px-1.5 py-0.5 text-[8px]',
+                            link.evidence_status === 'verified'
+                              ? 'bg-accent/10 text-accent'
+                              : 'bg-warning/10 text-warning',
+                          )}
+                        >
+                          {link.evidence_status === 'verified' ? '已核验' : '待核验'}
+                        </span>
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center justify-between gap-2 text-[10px]">
-                      <span className="truncate text-muted">{nodeNames.get(link.node_id)}</span>
-                      <span className="shrink-0 text-muted">{LINK_BASIS_LABELS[link.basis]}</span>
-                      <span className={cn(
-                        'shrink-0',
-                        link.evidence_status === 'verified' ? 'text-accent' : 'text-warning',
-                      )}>
-                        {link.evidence_status === 'verified' ? '已核验' : '待核验'}
-                      </span>
+                    <div className="mt-1 truncate text-[10px] text-muted">
+                      {nodeNames.get(link.node_id)}
                     </div>
                     </button>
                     <button
@@ -332,6 +321,7 @@ export function StockListPanel({
                 )
               })}
             </div>
+            )}
           </div>
           )
         })}
