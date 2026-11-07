@@ -1,0 +1,2237 @@
+{
+ "meta": {
+  "generated_at": "2026-11-07T18:02:41+0800",
+  "generator": "research/e3-data-availability-20261107/probe_b2_fixtures.py",
+  "purpose": "E3 in_universe / B2 实现与审核对账夹具",
+  "project": "C:\\work\\sourcecode\\tick-stock-panel",
+  "data_root": "D:\\TSP\\data",
+  "duckdb_version": "1.5.3",
+  "eval_window": [
+   "2019-07-01",
+   "2026-10-30"
+  ],
+  "panel": "60*/00* on kline_daily_enriched",
+  "trading_axis": "distinct date from kline_daily (2018-01-08..2026-11-06, 2141 days)",
+  "doc_baseline": "docs/factors/E3_DATA_AVAILABILITY_20261107.md (17:27 snapshot)",
+  "read_only": true
+ },
+ "st_unknown_window": {
+  "sql": [
+   "with d as (select date from axis where date between date '2026-10-20' and date '2026-11-06'), cur as ( select d.date, s.symbol, s.st_flag, row_number() over (partition by d.date, s.symbol order by s.flag_date desc) rn from d left join sth s on s.flag_date <= d.date ), cur_eff as (select date, symbol, st_flag from cur where rn = 1), pnl as (select distinct symbol from bars), bpd as (select date, count(*) n_bars from bars where date between date '2026-10-20' and date '2026-11-06' group by 1), ev as (select flag_date, count(*) filter (where st_flag) n_true, count(*) filter (where not st_flag) n_false from sth where flag_date between date '2026-10-20' and date '2026-11-06' group by 1), a_all as (select date, count(*) filter (where st_flag) n_true_all, count(*) filter (where st_flag is null) n_null_all from cur_eff group by 1), a_pnl as (select a.date, count(*) filter (where a.st_flag) n_true_pnl from cur_eff a join pnl using (symbol) group by 1) select d.date, coalesce(p.n_true_pnl, 0) as st_true_count_panel, coalesce(x.n_true_all, 0) as st_true_count_all_symbols, coalesce(x.n_null_all, 0) as st_null_all_symbols, coalesce(b.n_bars, 0) as bar_rows, coalesce(e.n_true, 0) as st_events_true, coalesce(e.n_false, 0) as st_events_false from d left join a_all x using (date) left join a_pnl p using (date) left join bpd b using (date) left join ev e on e.flag_date = d.date order by d.date",
+   "select count(*) n_days, count(*) filter (where st_events_true = 0 and st_events_false = 0) n_days_no_event, sum(bar_rows) sum_bar_rows, min(st_true_count_panel) min_st_true_panel, max(st_true_count_panel) max_st_true_panel, (select count(*) from sth where flag_date between date '2026-10-20' and date '2026-11-06' and st_flag) win_true_events, (select count(*) from sth where flag_date between date '2026-10-20' and date '2026-11-06' and not st_flag) win_false_events, (select count(*) from sth where flag_date = date '2026-10-20' and not st_flag) bulk_false_on_1020 from (with d as (select date from axis where date between date '2026-10-20' and date '2026-11-06'), cur as ( select d.date, s.symbol, s.st_flag, row_number() over (partition by d.date, s.symbol order by s.flag_date desc) rn from d left join sth s on s.flag_date <= d.date ), cur_eff as (select date, symbol, st_flag from cur where rn = 1), pnl as (select distinct symbol from bars), bpd as (select date, count(*) n_bars from bars where date between date '2026-10-20' and date '2026-11-06' group by 1), ev as (select flag_date, count(*) filter (where st_flag) n_true, count(*) filter (where not st_flag) n_false from sth where flag_date between date '2026-10-20' and date '2026-11-06' group by 1), a_all as (select date, count(*) filter (where st_flag) n_true_all, count(*) filter (where st_flag is null) n_null_all from cur_eff group by 1), a_pnl as (select a.date, count(*) filter (where a.st_flag) n_true_pnl from cur_eff a join pnl using (symbol) group by 1) select d.date, coalesce(p.n_true_pnl, 0) as st_true_count_panel, coalesce(x.n_true_all, 0) as st_true_count_all_symbols, coalesce(x.n_null_all, 0) as st_null_all_symbols, coalesce(b.n_bars, 0) as bar_rows, coalesce(e.n_true, 0) as st_events_true, coalesce(e.n_false, 0) as st_events_false from d left join a_all x using (date) left join a_pnl p using (date) left join bpd b using (date) left join ev e on e.flag_date = d.date order by d.date) t"
+  ],
+  "result": {
+   "rows": [
+    {
+     "date": "2026-10-20T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3191,
+     "st_events_true": 0,
+     "st_events_false": 198
+    },
+    {
+     "date": "2026-10-21T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3190,
+     "st_events_true": 0,
+     "st_events_false": 1
+    },
+    {
+     "date": "2026-10-22T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3191,
+     "st_events_true": 0,
+     "st_events_false": 1
+    },
+    {
+     "date": "2026-10-23T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3192,
+     "st_events_true": 0,
+     "st_events_false": 1
+    },
+    {
+     "date": "2026-10-26T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3188,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-10-27T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3188,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-10-28T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3189,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-10-29T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3189,
+     "st_events_true": 0,
+     "st_events_false": 1
+    },
+    {
+     "date": "2026-10-30T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3189,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-11-02T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3189,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-11-03T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3188,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-11-04T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3190,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-11-05T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3190,
+     "st_events_true": 0,
+     "st_events_false": 0
+    },
+    {
+     "date": "2026-11-06T00:00:00.000",
+     "st_true_count_panel": 20,
+     "st_true_count_all_symbols": 20,
+     "st_null_all_symbols": 0,
+     "bar_rows": 3190,
+     "st_events_true": 0,
+     "st_events_false": 0
+    }
+   ],
+   "totals": {
+    "n_days": 14,
+    "n_days_no_event": 9,
+    "sum_bar_rows": 44654.0,
+    "min_st_true_panel": 20,
+    "max_st_true_panel": 20,
+    "win_true_events": 0,
+    "win_false_events": 202,
+    "bulk_false_on_1020": 198
+   }
+  },
+  "notes": [
+   "口径：st_true_count_panel = 面板 60*/00* 内、as-of（flag_date<=当日最后一条）st_flag=True 的家数；st_true_count_all_symbols 是 st_history 全表 as-of 家数（文档 218/20 用此口径）。",
+   "st_events_true / st_events_false = st_history 中 flag_date 恰好等于当日的行数，按 st_flag 分列；两者皆 0 表示当日无任何 ST 状态变更事件。",
+   "2026-10-20 起 st_true_count_panel 由 218 骤降，因为当日一次性写入 198 行 st_flag=False（见 totals.bulk_false_on_1020）。",
+   "契约 8 日窗口 = 2026-10-20..2026-10-29；本段延伸到 2026-11-06（数据末交易日），供 B2 覆盖全不可判定段。"
+  ]
+ },
+ "delist_proxy": {
+  "sql": [
+   "with idx as (select date, row_number() over (order by date) i from axis), lb as (select symbol, max(date) last_bar from bars group by 1 having max(date) < (select max(date) from axis)), j as (select lb.symbol, lb.last_bar, x.i last_i, (select max(i) from idx) max_i from lb join idx x on x.date = lb.last_bar) select symbol, last_bar, (max_i - last_i) as missing_trading_days, (last_bar > date '2026-10-30') as last_bar_after_eval_end, case when (max_i - last_i) < 5 then '<5' when (max_i - last_i) < 20 then '5-19' when (max_i - last_i) < 60 then '20-59' when (max_i - last_i) < 120 then '60-119' when (max_i - last_i) < 250 then '120-249' else '>=250' end as bucket from j order by last_bar, symbol",
+   "with idx as (select date, row_number() over (order by date) i from axis), lb as (select symbol, max(date) last_bar from bars group by 1 having max(date) < (select max(date) from axis)), j as (select lb.symbol, lb.last_bar, x.i last_i, (select max(i) from idx) max_i from lb join idx x on x.date = lb.last_bar) select count(*) n_symbols, count(distinct symbol) n_symbols_d, count(*) filter (where max_i - last_i >= 250) n_ge250, count(*) filter (where max_i - last_i < 60) n_lt60, count(*) filter (where last_bar <= date '2026-10-30') n_last_bar_within_eval, count(*) filter (where last_bar > date '2026-10-30') n_last_bar_after_eval, min(last_bar) first_last_bar, max(last_bar) last_last_bar from j",
+   "with lb as (select symbol, max(date) last_bar from bars group by 1) select year(last_bar) y, count(*) n_symbols from lb where last_bar < (select max(date) from axis) group by 1 order by 1",
+   "with idx as (select date, row_number() over (order by date) i from axis where date between date '2019-07-01' and date '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) grp from gi), runs as (select symbol, grp, count(*) len, min(date) start_date, max(date) end_date from r group by 1,2 having count(*) > 250), later as (select rs.*, (select count(*) from bars b where b.symbol = rs.symbol and b.date > rs.end_date) bars_after from runs rs) select symbol, len as gap_trading_days, start_date, end_date, bars_after, (bars_after > 0) as resumed from later order by len desc"
+  ],
+  "result": {
+   "stats": {
+    "n_symbols": 195,
+    "n_symbols_d": 195,
+    "n_ge250": 171,
+    "n_lt60": 8,
+    "n_last_bar_within_eval": 194,
+    "n_last_bar_after_eval": 1,
+    "first_last_bar": "2019-10-31T00:00:00.000",
+    "last_last_bar": "2026-11-02T00:00:00.000"
+   },
+   "by_last_bar_year": [
+    {
+     "y": 2019,
+     "n_symbols": 5
+    },
+    {
+     "y": 2020,
+     "n_symbols": 12
+    },
+    {
+     "y": 2021,
+     "n_symbols": 18
+    },
+    {
+     "y": 2022,
+     "n_symbols": 34
+    },
+    {
+     "y": 2023,
+     "n_symbols": 37
+    },
+    {
+     "y": 2024,
+     "n_symbols": 43
+    },
+    {
+     "y": 2025,
+     "n_symbols": 24
+    },
+    {
+     "y": 2026,
+     "n_symbols": 22
+    }
+   ],
+   "disappeared": [
+    {
+     "symbol": "002018.SZ",
+     "last_bar": "2019-10-31T00:00:00.000",
+     "missing_trading_days": 1701,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002680.SZ",
+     "last_bar": "2019-11-26T00:00:00.000",
+     "missing_trading_days": 1683,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002143.SZ",
+     "last_bar": "2019-11-28T00:00:00.000",
+     "missing_trading_days": 1681,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600747.SH",
+     "last_bar": "2019-12-06T00:00:00.000",
+     "missing_trading_days": 1675,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000043.SZ",
+     "last_bar": "2019-12-13T00:00:00.000",
+     "missing_trading_days": 1670,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000018.SZ",
+     "last_bar": "2020-01-06T00:00:00.000",
+     "missing_trading_days": 1655,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600240.SH",
+     "last_bar": "2020-01-23T00:00:00.000",
+     "missing_trading_days": 1642,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600485.SH",
+     "last_bar": "2020-04-20T00:00:00.000",
+     "missing_trading_days": 1587,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600677.SH",
+     "last_bar": "2020-04-29T00:00:00.000",
+     "missing_trading_days": 1580,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600074.SH",
+     "last_bar": "2020-05-26T00:00:00.000",
+     "missing_trading_days": 1564,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "601558.SH",
+     "last_bar": "2020-06-23T00:00:00.000",
+     "missing_trading_days": 1544,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002604.SZ",
+     "last_bar": "2020-07-14T00:00:00.000",
+     "missing_trading_days": 1531,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002509.SZ",
+     "last_bar": "2020-07-17T00:00:00.000",
+     "missing_trading_days": 1528,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600175.SH",
+     "last_bar": "2020-08-07T00:00:00.000",
+     "missing_trading_days": 1513,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002220.SZ",
+     "last_bar": "2020-08-10T00:00:00.000",
+     "missing_trading_days": 1512,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600069.SH",
+     "last_bar": "2020-08-20T00:00:00.000",
+     "missing_trading_days": 1504,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000939.SZ",
+     "last_bar": "2020-12-16T00:00:00.000",
+     "missing_trading_days": 1426,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600317.SH",
+     "last_bar": "2021-01-14T00:00:00.000",
+     "missing_trading_days": 1406,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600978.SH",
+     "last_bar": "2021-02-22T00:00:00.000",
+     "missing_trading_days": 1384,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600247.SH",
+     "last_bar": "2021-02-24T00:00:00.000",
+     "missing_trading_days": 1382,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600687.SH",
+     "last_bar": "2021-02-24T00:00:00.000",
+     "missing_trading_days": 1382,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600086.SH",
+     "last_bar": "2021-03-10T00:00:00.000",
+     "missing_trading_days": 1372,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000662.SZ",
+     "last_bar": "2021-04-09T00:00:00.000",
+     "missing_trading_days": 1351,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600701.SH",
+     "last_bar": "2021-04-26T00:00:00.000",
+     "missing_trading_days": 1340,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600891.SH",
+     "last_bar": "2021-04-30T00:00:00.000",
+     "missing_trading_days": 1336,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002071.SZ",
+     "last_bar": "2021-05-06T00:00:00.000",
+     "missing_trading_days": 1335,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002450.SZ",
+     "last_bar": "2021-05-28T00:00:00.000",
+     "missing_trading_days": 1319,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002711.SZ",
+     "last_bar": "2021-07-14T00:00:00.000",
+     "missing_trading_days": 1287,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600614.SH",
+     "last_bar": "2021-07-14T00:00:00.000",
+     "missing_trading_days": 1287,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600634.SH",
+     "last_bar": "2021-07-14T00:00:00.000",
+     "missing_trading_days": 1287,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000760.SZ",
+     "last_bar": "2021-07-22T00:00:00.000",
+     "missing_trading_days": 1281,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002359.SZ",
+     "last_bar": "2021-07-22T00:00:00.000",
+     "missing_trading_days": 1281,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600068.SH",
+     "last_bar": "2021-09-01T00:00:00.000",
+     "missing_trading_days": 1252,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600723.SH",
+     "last_bar": "2021-09-15T00:00:00.000",
+     "missing_trading_days": 1242,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000780.SZ",
+     "last_bar": "2021-12-16T00:00:00.000",
+     "missing_trading_days": 1183,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002619.SZ",
+     "last_bar": "2022-03-31T00:00:00.000",
+     "missing_trading_days": 1114,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600145.SH",
+     "last_bar": "2022-04-21T00:00:00.000",
+     "missing_trading_days": 1101,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603157.SH",
+     "last_bar": "2022-05-17T00:00:00.000",
+     "missing_trading_days": 1086,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603996.SH",
+     "last_bar": "2022-05-17T00:00:00.000",
+     "missing_trading_days": 1086,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000835.SZ",
+     "last_bar": "2022-05-20T00:00:00.000",
+     "missing_trading_days": 1083,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000585.SZ",
+     "last_bar": "2022-05-23T00:00:00.000",
+     "missing_trading_days": 1082,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600291.SH",
+     "last_bar": "2022-06-07T00:00:00.000",
+     "missing_trading_days": 1072,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600695.SH",
+     "last_bar": "2022-06-07T00:00:00.000",
+     "missing_trading_days": 1072,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600091.SH",
+     "last_bar": "2022-06-15T00:00:00.000",
+     "missing_trading_days": 1066,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600209.SH",
+     "last_bar": "2022-06-15T00:00:00.000",
+     "missing_trading_days": 1066,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600275.SH",
+     "last_bar": "2022-06-15T00:00:00.000",
+     "missing_trading_days": 1066,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600652.SH",
+     "last_bar": "2022-06-15T00:00:00.000",
+     "missing_trading_days": 1066,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600856.SH",
+     "last_bar": "2022-06-15T00:00:00.000",
+     "missing_trading_days": 1066,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600890.SH",
+     "last_bar": "2022-06-15T00:00:00.000",
+     "missing_trading_days": 1066,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000687.SZ",
+     "last_bar": "2022-06-16T00:00:00.000",
+     "missing_trading_days": 1065,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002260.SZ",
+     "last_bar": "2022-06-16T00:00:00.000",
+     "missing_trading_days": 1065,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600093.SH",
+     "last_bar": "2022-06-16T00:00:00.000",
+     "missing_trading_days": 1065,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002473.SZ",
+     "last_bar": "2022-06-21T00:00:00.000",
+     "missing_trading_days": 1062,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002618.SZ",
+     "last_bar": "2022-06-21T00:00:00.000",
+     "missing_trading_days": 1062,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002147.SZ",
+     "last_bar": "2022-06-22T00:00:00.000",
+     "missing_trading_days": 1061,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002770.SZ",
+     "last_bar": "2022-06-22T00:00:00.000",
+     "missing_trading_days": 1061,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600146.SH",
+     "last_bar": "2022-06-23T00:00:00.000",
+     "missing_trading_days": 1060,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600870.SH",
+     "last_bar": "2022-06-23T00:00:00.000",
+     "missing_trading_days": 1060,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000502.SZ",
+     "last_bar": "2022-06-24T00:00:00.000",
+     "missing_trading_days": 1059,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002447.SZ",
+     "last_bar": "2022-06-24T00:00:00.000",
+     "missing_trading_days": 1059,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002684.SZ",
+     "last_bar": "2022-06-24T00:00:00.000",
+     "missing_trading_days": 1059,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000611.SZ",
+     "last_bar": "2022-06-27T00:00:00.000",
+     "missing_trading_days": 1058,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002464.SZ",
+     "last_bar": "2022-06-27T00:00:00.000",
+     "missing_trading_days": 1058,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000613.SZ",
+     "last_bar": "2022-06-28T00:00:00.000",
+     "missing_trading_days": 1057,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600090.SH",
+     "last_bar": "2022-06-30T00:00:00.000",
+     "missing_trading_days": 1055,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600385.SH",
+     "last_bar": "2022-06-30T00:00:00.000",
+     "missing_trading_days": 1055,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000673.SZ",
+     "last_bar": "2022-07-01T00:00:00.000",
+     "missing_trading_days": 1054,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600555.SH",
+     "last_bar": "2022-07-06T00:00:00.000",
+     "missing_trading_days": 1051,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600896.SH",
+     "last_bar": "2022-07-18T00:00:00.000",
+     "missing_trading_days": 1043,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000587.SZ",
+     "last_bar": "2023-02-02T00:00:00.000",
+     "missing_trading_days": 912,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600260.SH",
+     "last_bar": "2023-02-02T00:00:00.000",
+     "missing_trading_days": 912,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002013.SZ",
+     "last_bar": "2023-02-07T00:00:00.000",
+     "missing_trading_days": 909,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600139.SH",
+     "last_bar": "2023-02-27T00:00:00.000",
+     "missing_trading_days": 895,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600311.SH",
+     "last_bar": "2023-03-02T00:00:00.000",
+     "missing_trading_days": 892,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002499.SZ",
+     "last_bar": "2023-04-17T00:00:00.000",
+     "missing_trading_days": 861,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000150.SZ",
+     "last_bar": "2023-04-27T00:00:00.000",
+     "missing_trading_days": 853,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600466.SH",
+     "last_bar": "2023-05-09T00:00:00.000",
+     "missing_trading_days": 848,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000540.SZ",
+     "last_bar": "2023-05-18T00:00:00.000",
+     "missing_trading_days": 841,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002503.SZ",
+     "last_bar": "2023-05-22T00:00:00.000",
+     "missing_trading_days": 839,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "601258.SH",
+     "last_bar": "2023-05-24T00:00:00.000",
+     "missing_trading_days": 837,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000667.SZ",
+     "last_bar": "2023-05-25T00:00:00.000",
+     "missing_trading_days": 836,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600122.SH",
+     "last_bar": "2023-05-26T00:00:00.000",
+     "missing_trading_days": 835,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000918.SZ",
+     "last_bar": "2023-05-31T00:00:00.000",
+     "missing_trading_days": 832,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000732.SZ",
+     "last_bar": "2023-06-02T00:00:00.000",
+     "missing_trading_days": 830,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600393.SH",
+     "last_bar": "2023-06-08T00:00:00.000",
+     "missing_trading_days": 826,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000671.SZ",
+     "last_bar": "2023-06-09T00:00:00.000",
+     "missing_trading_days": 825,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002113.SZ",
+     "last_bar": "2023-06-12T00:00:00.000",
+     "missing_trading_days": 824,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002504.SZ",
+     "last_bar": "2023-06-12T00:00:00.000",
+     "missing_trading_days": 824,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000616.SZ",
+     "last_bar": "2023-06-13T00:00:00.000",
+     "missing_trading_days": 823,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600077.SH",
+     "last_bar": "2023-06-13T00:00:00.000",
+     "missing_trading_days": 823,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002118.SZ",
+     "last_bar": "2023-06-15T00:00:00.000",
+     "missing_trading_days": 821,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600532.SH",
+     "last_bar": "2023-06-19T00:00:00.000",
+     "missing_trading_days": 819,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600781.SH",
+     "last_bar": "2023-06-19T00:00:00.000",
+     "missing_trading_days": 819,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600242.SH",
+     "last_bar": "2023-06-20T00:00:00.000",
+     "missing_trading_days": 818,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600767.SH",
+     "last_bar": "2023-06-20T00:00:00.000",
+     "missing_trading_days": 818,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002781.SZ",
+     "last_bar": "2023-07-04T00:00:00.000",
+     "missing_trading_days": 810,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000606.SZ",
+     "last_bar": "2023-07-05T00:00:00.000",
+     "missing_trading_days": 809,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000806.SZ",
+     "last_bar": "2023-07-05T00:00:00.000",
+     "missing_trading_days": 809,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002417.SZ",
+     "last_bar": "2023-07-07T00:00:00.000",
+     "missing_trading_days": 807,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000038.SZ",
+     "last_bar": "2023-07-11T00:00:00.000",
+     "missing_trading_days": 805,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002411.SZ",
+     "last_bar": "2023-07-11T00:00:00.000",
+     "missing_trading_days": 805,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002751.SZ",
+     "last_bar": "2023-07-12T00:00:00.000",
+     "missing_trading_days": 804,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000666.SZ",
+     "last_bar": "2023-08-31T00:00:00.000",
+     "missing_trading_days": 768,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600290.SH",
+     "last_bar": "2023-12-25T00:00:00.000",
+     "missing_trading_days": 692,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002776.SZ",
+     "last_bar": "2023-12-26T00:00:00.000",
+     "missing_trading_days": 691,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000046.SZ",
+     "last_bar": "2023-12-27T00:00:00.000",
+     "missing_trading_days": 690,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002002.SZ",
+     "last_bar": "2024-01-18T00:00:00.000",
+     "missing_trading_days": 675,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002740.SZ",
+     "last_bar": "2024-01-19T00:00:00.000",
+     "missing_trading_days": 674,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000005.SZ",
+     "last_bar": "2024-03-05T00:00:00.000",
+     "missing_trading_days": 648,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603555.SH",
+     "last_bar": "2024-03-07T00:00:00.000",
+     "missing_trading_days": 646,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002089.SZ",
+     "last_bar": "2024-04-17T00:00:00.000",
+     "missing_trading_days": 619,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603603.SH",
+     "last_bar": "2024-04-18T00:00:00.000",
+     "missing_trading_days": 618,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000416.SZ",
+     "last_bar": "2024-04-24T00:00:00.000",
+     "missing_trading_days": 614,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002699.SZ",
+     "last_bar": "2024-04-25T00:00:00.000",
+     "missing_trading_days": 613,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000961.SZ",
+     "last_bar": "2024-05-08T00:00:00.000",
+     "missing_trading_days": 607,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600823.SH",
+     "last_bar": "2024-05-15T00:00:00.000",
+     "missing_trading_days": 602,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600321.SH",
+     "last_bar": "2024-05-30T00:00:00.000",
+     "missing_trading_days": 591,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000971.SZ",
+     "last_bar": "2024-06-04T00:00:00.000",
+     "missing_trading_days": 588,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002621.SZ",
+     "last_bar": "2024-06-13T00:00:00.000",
+     "missing_trading_days": 582,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600220.SH",
+     "last_bar": "2024-06-13T00:00:00.000",
+     "missing_trading_days": 582,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000836.SZ",
+     "last_bar": "2024-06-17T00:00:00.000",
+     "missing_trading_days": 580,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600836.SH",
+     "last_bar": "2024-06-17T00:00:00.000",
+     "missing_trading_days": 580,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002610.SZ",
+     "last_bar": "2024-06-18T00:00:00.000",
+     "missing_trading_days": 579,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600306.SH",
+     "last_bar": "2024-06-19T00:00:00.000",
+     "missing_trading_days": 578,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000982.SZ",
+     "last_bar": "2024-06-21T00:00:00.000",
+     "missing_trading_days": 576,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600277.SH",
+     "last_bar": "2024-06-21T00:00:00.000",
+     "missing_trading_days": 576,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600565.SH",
+     "last_bar": "2024-06-21T00:00:00.000",
+     "missing_trading_days": 576,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002280.SZ",
+     "last_bar": "2024-06-26T00:00:00.000",
+     "missing_trading_days": 573,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002288.SZ",
+     "last_bar": "2024-06-26T00:00:00.000",
+     "missing_trading_days": 573,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600647.SH",
+     "last_bar": "2024-06-26T00:00:00.000",
+     "missing_trading_days": 573,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600766.SH",
+     "last_bar": "2024-06-26T00:00:00.000",
+     "missing_trading_days": 573,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603133.SH",
+     "last_bar": "2024-06-26T00:00:00.000",
+     "missing_trading_days": 573,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000996.SZ",
+     "last_bar": "2024-06-27T00:00:00.000",
+     "missing_trading_days": 572,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002087.SZ",
+     "last_bar": "2024-06-27T00:00:00.000",
+     "missing_trading_days": 572,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002665.SZ",
+     "last_bar": "2024-06-27T00:00:00.000",
+     "missing_trading_days": 572,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002325.SZ",
+     "last_bar": "2024-06-28T00:00:00.000",
+     "missing_trading_days": 571,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002435.SZ",
+     "last_bar": "2024-07-01T00:00:00.000",
+     "missing_trading_days": 570,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002341.SZ",
+     "last_bar": "2024-07-02T00:00:00.000",
+     "missing_trading_days": 569,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002505.SZ",
+     "last_bar": "2024-07-02T00:00:00.000",
+     "missing_trading_days": 569,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002433.SZ",
+     "last_bar": "2024-07-04T00:00:00.000",
+     "missing_trading_days": 567,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002502.SZ",
+     "last_bar": "2024-07-16T00:00:00.000",
+     "missing_trading_days": 559,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600297.SH",
+     "last_bar": "2024-07-17T00:00:00.000",
+     "missing_trading_days": 558,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600112.SH",
+     "last_bar": "2024-07-19T00:00:00.000",
+     "missing_trading_days": 556,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000023.SZ",
+     "last_bar": "2024-07-24T00:00:00.000",
+     "missing_trading_days": 553,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000976.SZ",
+     "last_bar": "2024-07-25T00:00:00.000",
+     "missing_trading_days": 552,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000861.SZ",
+     "last_bar": "2024-08-05T00:00:00.000",
+     "missing_trading_days": 545,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000413.SZ",
+     "last_bar": "2024-08-14T00:00:00.000",
+     "missing_trading_days": 538,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600213.SH",
+     "last_bar": "2024-08-15T00:00:00.000",
+     "missing_trading_days": 537,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002308.SZ",
+     "last_bar": "2024-08-22T00:00:00.000",
+     "missing_trading_days": 532,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600898.SH",
+     "last_bar": "2025-01-10T00:00:00.000",
+     "missing_trading_days": 439,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600083.SH",
+     "last_bar": "2025-01-16T00:00:00.000",
+     "missing_trading_days": 435,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600837.SH",
+     "last_bar": "2025-02-05T00:00:00.000",
+     "missing_trading_days": 427,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603963.SH",
+     "last_bar": "2025-02-07T00:00:00.000",
+     "missing_trading_days": 425,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600225.SH",
+     "last_bar": "2025-02-27T00:00:00.000",
+     "missing_trading_days": 411,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "601028.SH",
+     "last_bar": "2025-03-26T00:00:00.000",
+     "missing_trading_days": 392,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000040.SZ",
+     "last_bar": "2025-03-31T00:00:00.000",
+     "missing_trading_days": 389,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600705.SH",
+     "last_bar": "2025-04-02T00:00:00.000",
+     "missing_trading_days": 387,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600070.SH",
+     "last_bar": "2025-04-10T00:00:00.000",
+     "missing_trading_days": 382,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600811.SH",
+     "last_bar": "2025-04-14T00:00:00.000",
+     "missing_trading_days": 380,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002750.SZ",
+     "last_bar": "2025-06-26T00:00:00.000",
+     "missing_trading_days": 331,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600804.SH",
+     "last_bar": "2025-06-30T00:00:00.000",
+     "missing_trading_days": 329,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603003.SH",
+     "last_bar": "2025-06-30T00:00:00.000",
+     "missing_trading_days": 329,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "002336.SZ",
+     "last_bar": "2025-07-03T00:00:00.000",
+     "missing_trading_days": 326,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600387.SH",
+     "last_bar": "2025-07-04T00:00:00.000",
+     "missing_trading_days": 325,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000584.SZ",
+     "last_bar": "2025-07-10T00:00:00.000",
+     "missing_trading_days": 321,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600462.SH",
+     "last_bar": "2025-07-14T00:00:00.000",
+     "missing_trading_days": 319,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000622.SZ",
+     "last_bar": "2025-07-15T00:00:00.000",
+     "missing_trading_days": 318,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "600190.SH",
+     "last_bar": "2025-07-18T00:00:00.000",
+     "missing_trading_days": 315,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "601989.SH",
+     "last_bar": "2025-08-12T00:00:00.000",
+     "missing_trading_days": 298,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000627.SZ",
+     "last_bar": "2025-08-13T00:00:00.000",
+     "missing_trading_days": 297,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "000851.SZ",
+     "last_bar": "2025-09-26T00:00:00.000",
+     "missing_trading_days": 265,
+     "last_bar_after_eval_end": false,
+     "bucket": ">=250"
+    },
+    {
+     "symbol": "603388.SH",
+     "last_bar": "2025-11-10T00:00:00.000",
+     "missing_trading_days": 240,
+     "last_bar_after_eval_end": false,
+     "bucket": "120-249"
+    },
+    {
+     "symbol": "600200.SH",
+     "last_bar": "2025-12-29T00:00:00.000",
+     "missing_trading_days": 205,
+     "last_bar_after_eval_end": false,
+     "bucket": "120-249"
+    },
+    {
+     "symbol": "603056.SH",
+     "last_bar": "2026-01-20T00:00:00.000",
+     "missing_trading_days": 191,
+     "last_bar_after_eval_end": false,
+     "bucket": "120-249"
+    },
+    {
+     "symbol": "002231.SZ",
+     "last_bar": "2026-01-29T00:00:00.000",
+     "missing_trading_days": 184,
+     "last_bar_after_eval_end": false,
+     "bucket": "120-249"
+    },
+    {
+     "symbol": "600355.SH",
+     "last_bar": "2026-04-03T00:00:00.000",
+     "missing_trading_days": 144,
+     "last_bar_after_eval_end": false,
+     "bucket": "120-249"
+    },
+    {
+     "symbol": "000638.SZ",
+     "last_bar": "2026-04-13T00:00:00.000",
+     "missing_trading_days": 139,
+     "last_bar_after_eval_end": false,
+     "bucket": "120-249"
+    },
+    {
+     "symbol": "600421.SH",
+     "last_bar": "2026-06-22T00:00:00.000",
+     "missing_trading_days": 93,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "600599.SH",
+     "last_bar": "2026-06-22T00:00:00.000",
+     "missing_trading_days": 93,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "600636.SH",
+     "last_bar": "2026-06-22T00:00:00.000",
+     "missing_trading_days": 93,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "600696.SH",
+     "last_bar": "2026-06-22T00:00:00.000",
+     "missing_trading_days": 93,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "600193.SH",
+     "last_bar": "2026-06-29T00:00:00.000",
+     "missing_trading_days": 88,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "600608.SH",
+     "last_bar": "2026-06-29T00:00:00.000",
+     "missing_trading_days": 88,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "605081.SH",
+     "last_bar": "2026-06-29T00:00:00.000",
+     "missing_trading_days": 88,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "000004.SZ",
+     "last_bar": "2026-07-13T00:00:00.000",
+     "missing_trading_days": 78,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "002808.SZ",
+     "last_bar": "2026-07-13T00:00:00.000",
+     "missing_trading_days": 78,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "002898.SZ",
+     "last_bar": "2026-07-16T00:00:00.000",
+     "missing_trading_days": 75,
+     "last_bar_after_eval_end": false,
+     "bucket": "60-119"
+    },
+    {
+     "symbol": "000016.SZ",
+     "last_bar": "2026-09-03T00:00:00.000",
+     "missing_trading_days": 40,
+     "last_bar_after_eval_end": false,
+     "bucket": "20-59"
+    },
+    {
+     "symbol": "601059.SH",
+     "last_bar": "2026-09-14T00:00:00.000",
+     "missing_trading_days": 33,
+     "last_bar_after_eval_end": false,
+     "bucket": "20-59"
+    },
+    {
+     "symbol": "601198.SH",
+     "last_bar": "2026-09-14T00:00:00.000",
+     "missing_trading_days": 33,
+     "last_bar_after_eval_end": false,
+     "bucket": "20-59"
+    },
+    {
+     "symbol": "002717.SZ",
+     "last_bar": "2026-10-12T00:00:00.000",
+     "missing_trading_days": 19,
+     "last_bar_after_eval_end": false,
+     "bucket": "5-19"
+    },
+    {
+     "symbol": "002731.SZ",
+     "last_bar": "2026-10-23T00:00:00.000",
+     "missing_trading_days": 10,
+     "last_bar_after_eval_end": false,
+     "bucket": "5-19"
+    },
+    {
+     "symbol": "000831.SZ",
+     "last_bar": "2026-10-30T00:00:00.000",
+     "missing_trading_days": 5,
+     "last_bar_after_eval_end": false,
+     "bucket": "5-19"
+    },
+    {
+     "symbol": "002129.SZ",
+     "last_bar": "2026-10-30T00:00:00.000",
+     "missing_trading_days": 5,
+     "last_bar_after_eval_end": false,
+     "bucket": "5-19"
+    },
+    {
+     "symbol": "002623.SZ",
+     "last_bar": "2026-11-02T00:00:00.000",
+     "missing_trading_days": 4,
+     "last_bar_after_eval_end": true,
+     "bucket": "<5"
+    }
+   ],
+   "resume_after_gt250": {
+    "stats": {
+     "n_segments": 4,
+     "n_symbols": 4,
+     "sum_symbol_days": 1418.0,
+     "max_len": 589
+    },
+    "segments": [
+     {
+      "symbol": "000670.SZ",
+      "gap_trading_days": 589,
+      "start_date": "2020-03-20T00:00:00.000",
+      "end_date": "2022-08-19T00:00:00.000",
+      "bars_after": 998,
+      "resumed": true
+     },
+     {
+      "symbol": "000792.SZ",
+      "gap_trading_days": 311,
+      "start_date": "2020-04-30T00:00:00.000",
+      "end_date": "2021-08-09T00:00:00.000",
+      "bars_after": 1269,
+      "resumed": true
+     },
+     {
+      "symbol": "002711.SZ",
+      "gap_trading_days": 263,
+      "start_date": "2020-04-30T00:00:00.000",
+      "end_date": "2021-06-01T00:00:00.000",
+      "bars_after": 30,
+      "resumed": true
+     },
+     {
+      "symbol": "600891.SH",
+      "gap_trading_days": 255,
+      "start_date": "2020-03-03T00:00:00.000",
+      "end_date": "2021-03-18T00:00:00.000",
+      "bars_after": 30,
+      "resumed": true
+     }
+    ]
+   },
+   "disappeared_and_resumed_overlap": [
+    "002711.SZ",
+    "600891.SH"
+   ]
+  },
+  "notes": [
+   "disappeared = 面板内最后有 bar 日早于交易日轴末日（2026-11-06）的标的；missing_trading_days = 该日到最后交易日的交易日数，即此前连续无 bar 的交易日数。",
+   "stats.n_last_bar_within_eval = 最后有 bar 日在评估窗内（<=2026-10-30）的只数 = 194；n_last_bar_after_eval = 1 只（最后 bar 2026-11-02，晚于评估窗）= 194+1 = 195。17:27 文档「窗内消失 195 只」按数据末端（2026-11-06）口径，与本次 195 一致；若按评估窗末端 2026-10-30 严格算为 194。",
+   ">=250 档不能当退市：resume_after_gt250.segments 里的标的在长缺口后都复牌（bars_after>0），会被误判为已退市。",
+   "disappeared_and_resumed_overlap 中的标的（002711.SZ bars_after=30、600891.SH bars_after=30）既在 195 只消失清单里，又有 >250 交易日的中途缺口：它们的复牌只持续 30 根 bar 就再次消失。对这两只，「无行情时长」既不能解释早期缺口（实际是停牌），也无法单独确定末期是否退市 → 末期状态应为 null。",
+   "库内无退市日/退市类型字段（instruments 13 列按名匹配 delist/status 为 0），本段只是事后代理，不构成时点正确的退市判定。"
+  ]
+ },
+ "listing_date_parse": {
+  "sql": [
+   "with p as ( select i.symbol, i.listing_date as raw_listing_date, try_cast(substr(i.listing_date, 1, 10) as date) as parsed_listing_date from inst i where i.symbol like '60%' or i.symbol like '00%' ), ob as ( select b.symbol, count(*) filter (where b.date <= date '2026-10-30') as observed_bars_at_window_end, min(b.date) as first_bar from bars b group by 1 ), j as ( select p.symbol, p.raw_listing_date, p.parsed_listing_date, ob.first_bar, ob.observed_bars_at_window_end, (select count(*) from axis a where a.date > p.parsed_listing_date and a.date <= date '2026-10-30') as trading_days_listed_to_window_end from p join ob using (symbol) ), pick as ( (select symbol, 1 as grp from j order by parsed_listing_date desc nulls last, symbol limit 5) union all (select symbol, 2 as grp from j where parsed_listing_date < date '2018-01-08' order by parsed_listing_date asc nulls first, symbol limit 5) union all (select '603056.SH' as symbol, 3 as grp) union all (select symbol, 4 as grp from j where observed_bars_at_window_end between 110 and 130 and parsed_listing_date >= date '2018-01-08' order by observed_bars_at_window_end, symbol limit 9) union all (select symbol, 5 as grp from j where parsed_listing_date >= date '2018-01-08' and parsed_listing_date < date '2019-07-01' and symbol <> '603056.SH' order by parsed_listing_date, symbol limit 5) ), pick2 as (select symbol, min(grp) as grp from pick group by 1) select j.*, (j.observed_bars_at_window_end >= 120) as ge_120_observed_bars, (j.trading_days_listed_to_window_end >= 120) as ge_120_calendar_trading_days, (j.parsed_listing_date < date '2018-01-08') as listed_before_panel_start, (j.first_bar > j.parsed_listing_date) as first_bar_lags_listing, case pick2.grp when 1 then 'newest_listing' when 2 then 'oldest_pre_panel' when 3 then 'first_bar_lag_example' when 4 then 'observed_bars_near_120' else 'listed_between_panel_and_eval' end as sample_class from j join pick2 using (symbol) order by pick2.grp, j.parsed_listing_date desc nulls last, j.symbol",
+   "select count(*) n_inst_rows, count(listing_date) n_listing_nonnull, count(*) filter (where try_cast(substr(listing_date,1,10) as date) is null) n_parse_fail, min(listing_date) raw_min, max(listing_date) raw_max from inst",
+   "with allbar as (select distinct symbol from read_parquet('D:\\TSP\\data\\kline_daily\\date=*\\*.parquet')) select (select count(*) from allbar where symbol like '%.BJ') n_bj_with_bars, (select count(*) from inst where symbol like '%.BJ') n_bj_instruments_rows, (select count(distinct symbol) from bars) n_panel_symbols, (select count(*) from (select distinct b.symbol from bars b left join inst i using (symbol) where i.listing_date is null)) n_panel_no_listing_date",
+   "with j as ( select b.symbol, b.date, count(*) over (partition by b.symbol order by b.date rows between unbounded preceding and current row) ob from bars b ) select count(*) n_symbol_days, count(*) filter (where ob >= 120) n_ge120, round(100.0 * count(*) filter (where ob >= 120) / count(*), 3) pct_ge120 from j where date between date '2019-07-01' and date '2026-10-30'"
+  ],
+  "result": {
+   "sample_rows": [
+    {
+     "symbol": "001381.SZ",
+     "raw_listing_date": "2026-11-03",
+     "parsed_listing_date": "2026-11-03T00:00:00.000",
+     "first_bar": "2026-11-03T00:00:00.000",
+     "observed_bars_at_window_end": 0,
+     "trading_days_listed_to_window_end": 0,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "newest_listing"
+    },
+    {
+     "symbol": "001246.SZ",
+     "raw_listing_date": "2026-09-30",
+     "parsed_listing_date": "2026-09-30T00:00:00.000",
+     "first_bar": "2026-09-30T00:00:00.000",
+     "observed_bars_at_window_end": 18,
+     "trading_days_listed_to_window_end": 17,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "newest_listing"
+    },
+    {
+     "symbol": "601091.SH",
+     "raw_listing_date": "2026-09-17",
+     "parsed_listing_date": "2026-09-17T00:00:00.000",
+     "first_bar": "2026-09-17T00:00:00.000",
+     "observed_bars_at_window_end": 26,
+     "trading_days_listed_to_window_end": 25,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "newest_listing"
+    },
+    {
+     "symbol": "603448.SH",
+     "raw_listing_date": "2026-09-07",
+     "parsed_listing_date": "2026-09-07T00:00:00.000",
+     "first_bar": "2026-09-07T00:00:00.000",
+     "observed_bars_at_window_end": 34,
+     "trading_days_listed_to_window_end": 33,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "newest_listing"
+    },
+    {
+     "symbol": "601123.SH",
+     "raw_listing_date": "2026-09-01",
+     "parsed_listing_date": "2026-09-01T00:00:00.000",
+     "first_bar": "2026-09-01T00:00:00.000",
+     "observed_bars_at_window_end": 38,
+     "trading_days_listed_to_window_end": 37,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "newest_listing"
+    },
+    {
+     "symbol": "600601.SH",
+     "raw_listing_date": "1990-12-19",
+     "parsed_listing_date": "1990-12-19T00:00:00.000",
+     "first_bar": "2018-01-08T00:00:00.000",
+     "observed_bars_at_window_end": 2132,
+     "trading_days_listed_to_window_end": 2136,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": true,
+     "first_bar_lags_listing": true,
+     "sample_class": "oldest_pre_panel"
+    },
+    {
+     "symbol": "600602.SH",
+     "raw_listing_date": "1990-12-19",
+     "parsed_listing_date": "1990-12-19T00:00:00.000",
+     "first_bar": "2018-01-08T00:00:00.000",
+     "observed_bars_at_window_end": 2136,
+     "trading_days_listed_to_window_end": 2136,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": true,
+     "first_bar_lags_listing": true,
+     "sample_class": "oldest_pre_panel"
+    },
+    {
+     "symbol": "600651.SH",
+     "raw_listing_date": "1990-12-19",
+     "parsed_listing_date": "1990-12-19T00:00:00.000",
+     "first_bar": "2018-01-08T00:00:00.000",
+     "observed_bars_at_window_end": 2120,
+     "trading_days_listed_to_window_end": 2136,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": true,
+     "first_bar_lags_listing": true,
+     "sample_class": "oldest_pre_panel"
+    },
+    {
+     "symbol": "000005.SZ",
+     "raw_listing_date": "1990-12-10",
+     "parsed_listing_date": "1990-12-10T00:00:00.000",
+     "first_bar": "2018-12-03T00:00:00.000",
+     "observed_bars_at_window_end": 1273,
+     "trading_days_listed_to_window_end": 2136,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": true,
+     "first_bar_lags_listing": true,
+     "sample_class": "oldest_pre_panel"
+    },
+    {
+     "symbol": "000004.SZ",
+     "raw_listing_date": "1990-12-01",
+     "parsed_listing_date": "1990-12-01T00:00:00.000",
+     "first_bar": "2019-10-29T00:00:00.000",
+     "observed_bars_at_window_end": 1586,
+     "trading_days_listed_to_window_end": 2136,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": true,
+     "first_bar_lags_listing": true,
+     "sample_class": "oldest_pre_panel"
+    },
+    {
+     "symbol": "603056.SH",
+     "raw_listing_date": "2018-01-16",
+     "parsed_listing_date": "2018-01-16T00:00:00.000",
+     "first_bar": "2019-10-29T00:00:00.000",
+     "observed_bars_at_window_end": 1500,
+     "trading_days_listed_to_window_end": 2129,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": true,
+     "sample_class": "first_bar_lag_example"
+    },
+    {
+     "symbol": "001365.SZ",
+     "raw_listing_date": "2026-05-18",
+     "parsed_listing_date": "2026-05-18T00:00:00.000",
+     "first_bar": "2026-05-18T00:00:00.000",
+     "observed_bars_at_window_end": 113,
+     "trading_days_listed_to_window_end": 112,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "observed_bars_near_120"
+    },
+    {
+     "symbol": "001393.SZ",
+     "raw_listing_date": "2026-05-15",
+     "parsed_listing_date": "2026-05-15T00:00:00.000",
+     "first_bar": "2026-05-15T00:00:00.000",
+     "observed_bars_at_window_end": 114,
+     "trading_days_listed_to_window_end": 113,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "observed_bars_near_120"
+    },
+    {
+     "symbol": "603407.SH",
+     "raw_listing_date": "2026-05-11",
+     "parsed_listing_date": "2026-05-11T00:00:00.000",
+     "first_bar": "2026-05-11T00:00:00.000",
+     "observed_bars_at_window_end": 118,
+     "trading_days_listed_to_window_end": 117,
+     "ge_120_observed_bars": false,
+     "ge_120_calendar_trading_days": false,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "observed_bars_near_120"
+    },
+    {
+     "symbol": "001312.SZ",
+     "raw_listing_date": "2026-04-21",
+     "parsed_listing_date": "2026-04-21T00:00:00.000",
+     "first_bar": "2026-04-21T00:00:00.000",
+     "observed_bars_at_window_end": 129,
+     "trading_days_listed_to_window_end": 128,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "observed_bars_near_120"
+    },
+    {
+     "symbol": "601838.SH",
+     "raw_listing_date": "2018-01-31",
+     "parsed_listing_date": "2018-01-31T00:00:00.000",
+     "first_bar": "2018-01-31T00:00:00.000",
+     "observed_bars_at_window_end": 2119,
+     "trading_days_listed_to_window_end": 2118,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "listed_between_panel_and_eval"
+    },
+    {
+     "symbol": "603356.SH",
+     "raw_listing_date": "2018-01-24",
+     "parsed_listing_date": "2018-01-24T00:00:00.000",
+     "first_bar": "2018-01-24T00:00:00.000",
+     "observed_bars_at_window_end": 2114,
+     "trading_days_listed_to_window_end": 2123,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "listed_between_panel_and_eval"
+    },
+    {
+     "symbol": "603895.SH",
+     "raw_listing_date": "2018-01-22",
+     "parsed_listing_date": "2018-01-22T00:00:00.000",
+     "first_bar": "2018-01-22T00:00:00.000",
+     "observed_bars_at_window_end": 2126,
+     "trading_days_listed_to_window_end": 2125,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "listed_between_panel_and_eval"
+    },
+    {
+     "symbol": "601828.SH",
+     "raw_listing_date": "2018-01-17",
+     "parsed_listing_date": "2018-01-17T00:00:00.000",
+     "first_bar": "2018-01-17T00:00:00.000",
+     "observed_bars_at_window_end": 2123,
+     "trading_days_listed_to_window_end": 2128,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "listed_between_panel_and_eval"
+    },
+    {
+     "symbol": "002925.SZ",
+     "raw_listing_date": "2018-01-15",
+     "parsed_listing_date": "2018-01-15T00:00:00.000",
+     "first_bar": "2018-01-15T00:00:00.000",
+     "observed_bars_at_window_end": 2129,
+     "trading_days_listed_to_window_end": 2130,
+     "ge_120_observed_bars": true,
+     "ge_120_calendar_trading_days": true,
+     "listed_before_panel_start": false,
+     "first_bar_lags_listing": false,
+     "sample_class": "listed_between_panel_and_eval"
+    }
+   ],
+   "parse_coverage": {
+    "n_inst_rows": 5536,
+    "n_listing_nonnull": 5533,
+    "n_parse_fail": 3,
+    "raw_min": "1990-12-01",
+    "raw_max": "2026-11-03"
+   },
+   "bj_and_missing": {
+    "n_bj_with_bars": 355,
+    "n_bj_instruments_rows": 0,
+    "n_panel_symbols": 3385,
+    "n_panel_no_listing_date": 0
+   },
+   "observed_bars_ge120": {
+    "n_symbol_days": 5510001,
+    "n_ge120": 5428988,
+    "pct_ge120": 98.53
+   }
+  },
+  "notes": [
+   "listing_date 在维表里是 VARCHAR('YYYY-MM-DD')，必须先解析；解析失败行数见 parse_coverage.n_parse_fail。",
+   "sample_rows 按五类分层抽样共 20 行无重复：newest_listing（最近上市 5）/ oldest_pre_panel（上市日早于面板起点 2018-01-08，5）/ first_bar_lag_example（603056.SH，首根晚 651 天）/ observed_bars_near_120（observed_bars 110..130且上市晚于面板起点，4）/ listed_between_panel_and_eval（上市在 2018-01-08..2019-07-01 之间，5）。",
+   "listed_before_panel_start=true 的标的，库内 bar 被面板起点 2018-01-08 截断，observed_bars 会系统偏小；首根 bar 不等于上市日。",
+   ".BJ（北交所）标的：bj_and_missing.n_bj_with_bars 有 K 线，但 n_bj_instruments_rows=0，维表无行 → 无 listing_date，无法算上市天数；它们不在 60/00 面板内。"
+  ]
+ },
+ "suspend_gap": {
+  "sql": [
+   "select count(*) n_missing_symbol_days, count(distinct symbol) n_symbols, (select count(*) from bars where date between date '2019-07-01' and date '2026-10-30') n_rows_eval, (select count(*) from gap) n_gap from gap",
+   "with yb as (select year(date) y, count(*) n_rows from bars group by 1), yg as (select year(date) y, count(*) n_missing, count(distinct symbol) n_symbols from gap group by 1) select yg.y as year, yg.n_missing, yg.n_symbols, yb.n_rows, round(100.0 * yg.n_missing / yb.n_rows, 3) pct_of_year_rows from yg join yb using (y) order by 1",
+   "with idx as (select date, row_number() over (order by date) i from axis where date between date '2019-07-01' and date '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) grp from gi), runs as (select symbol, grp, count(*) len from r group by 1,2) select case when len = 1 then '1' when len <= 5 then '2-5' when len <= 20 then '6-20' when len <= 60 then '21-60' when len <= 120 then '61-120' when len <= 250 then '121-250' else '>250' end as bucket, count(*) n_runs, sum(len) n_symbol_days, max(len) max_len from runs group by 1 order by min(len)",
+   "with d as (select date, count(*) n_bars from bars where date between date '2019-07-01' and date '2026-10-30' group by 1), g as (select date, count(*) n_gap from gap group by 1), ratio as (select d.date, coalesce(g.n_gap, 0) n_gap, d.n_bars, 1.0 * coalesce(g.n_gap, 0) / (d.n_bars + coalesce(g.n_gap, 0)) miss_ratio from d left join g using (date)), hole as (select date from ratio where miss_ratio > 0.01) select (select count(*) from hole) n_hole_dates, (select count(*) from gap g join hole h using (date)) n_gap_on_hole, round(100.0 * (select count(*) from gap g join hole h using (date)) / (select count(*) from gap), 1) pct_gap_on_hole, (select max(miss_ratio) from ratio) max_daily_miss_ratio, (select count(*) from gap g anti join hole h using (date)) n_gap_attributable_to_suspension",
+   "with d as (select date, count(*) n_bars from bars where date between date '2019-07-01' and date '2026-10-30' group by 1), g as (select date, count(*) n_gap from gap group by 1), ratio as (select d.date, coalesce(g.n_gap, 0) n_gap, d.n_bars, 1.0 * coalesce(g.n_gap, 0) / (d.n_bars + coalesce(g.n_gap, 0)) miss_ratio from d left join g using (date)) select date, n_bars, n_gap, round(miss_ratio, 5) miss_ratio from ratio where miss_ratio > 0.01 order by date",
+   "select count(*) n_rows, count(*) filter (where volume = 0) n_volume_zero, count(*) filter (where amount = 0) n_amount_zero, count(*) filter (where volume is null) n_volume_null from bars where date between date '2019-07-01' and date '2026-10-30'"
+  ],
+  "result": {
+   "totals": {
+    "n_missing_symbol_days": 13881,
+    "n_symbols": 1218,
+    "n_rows_eval": 5510001,
+    "n_gap": 13881
+   },
+   "by_year": [
+    {
+     "year": 2019,
+     "n_missing": 642,
+     "n_symbols": 150,
+     "n_rows": 665688,
+     "pct_of_year_rows": 0.096
+    },
+    {
+     "year": 2020,
+     "n_missing": 3072,
+     "n_symbols": 388,
+     "n_rows": 712127,
+     "pct_of_year_rows": 0.431
+    },
+    {
+     "year": 2021,
+     "n_missing": 2479,
+     "n_symbols": 377,
+     "n_rows": 747893,
+     "pct_of_year_rows": 0.331
+    },
+    {
+     "year": 2022,
+     "n_missing": 2206,
+     "n_symbols": 305,
+     "n_rows": 760083,
+     "pct_of_year_rows": 0.29
+    },
+    {
+     "year": 2023,
+     "n_missing": 1089,
+     "n_symbols": 209,
+     "n_rows": 769678,
+     "pct_of_year_rows": 0.141
+    },
+    {
+     "year": 2024,
+     "n_missing": 1374,
+     "n_symbols": 224,
+     "n_rows": 769001,
+     "pct_of_year_rows": 0.179
+    },
+    {
+     "year": 2025,
+     "n_missing": 1759,
+     "n_symbols": 312,
+     "n_rows": 770721,
+     "pct_of_year_rows": 0.228
+    },
+    {
+     "year": 2026,
+     "n_missing": 1260,
+     "n_symbols": 269,
+     "n_rows": 646943,
+     "pct_of_year_rows": 0.195
+    }
+   ],
+   "gap_runs": [
+    {
+     "bucket": "1",
+     "n_runs": 1423,
+     "n_symbol_days": 1423.0,
+     "max_len": 1
+    },
+    {
+     "bucket": "2-5",
+     "n_runs": 537,
+     "n_symbol_days": 2094.0,
+     "max_len": 5
+    },
+    {
+     "bucket": "6-20",
+     "n_runs": 535,
+     "n_symbol_days": 5371.0,
+     "max_len": 20
+    },
+    {
+     "bucket": "21-60",
+     "n_runs": 78,
+     "n_symbol_days": 2531.0,
+     "max_len": 45
+    },
+    {
+     "bucket": "121-250",
+     "n_runs": 5,
+     "n_symbol_days": 1044.0,
+     "max_len": 247
+    },
+    {
+     "bucket": ">250",
+     "n_runs": 4,
+     "n_symbol_days": 1418.0,
+     "max_len": 589
+    }
+   ],
+   "hole_summary": {
+    "n_hole_dates": 27,
+    "n_gap_on_hole": 1113,
+    "pct_gap_on_hole": 8.0,
+    "max_daily_miss_ratio": 0.0231598985,
+    "n_gap_attributable_to_suspension": 12768
+   },
+   "hole_dates": [
+    {
+     "date": "2020-04-29T00:00:00.000",
+     "n_bars": 2883,
+     "n_gap": 33,
+     "miss_ratio": 0.01132
+    },
+    {
+     "date": "2020-04-30T00:00:00.000",
+     "n_bars": 2870,
+     "n_gap": 46,
+     "miss_ratio": 0.01578
+    },
+    {
+     "date": "2021-04-30T00:00:00.000",
+     "n_bars": 3029,
+     "n_gap": 41,
+     "miss_ratio": 0.01336
+    },
+    {
+     "date": "2022-05-05T00:00:00.000",
+     "n_bars": 3079,
+     "n_gap": 73,
+     "miss_ratio": 0.02316
+    },
+    {
+     "date": "2022-05-06T00:00:00.000",
+     "n_bars": 3110,
+     "n_gap": 43,
+     "miss_ratio": 0.01364
+    },
+    {
+     "date": "2022-05-09T00:00:00.000",
+     "n_bars": 3108,
+     "n_gap": 45,
+     "miss_ratio": 0.01427
+    },
+    {
+     "date": "2022-05-10T00:00:00.000",
+     "n_bars": 3111,
+     "n_gap": 42,
+     "miss_ratio": 0.01332
+    },
+    {
+     "date": "2022-05-11T00:00:00.000",
+     "n_bars": 3111,
+     "n_gap": 42,
+     "miss_ratio": 0.01332
+    },
+    {
+     "date": "2022-05-12T00:00:00.000",
+     "n_bars": 3111,
+     "n_gap": 44,
+     "miss_ratio": 0.01395
+    },
+    {
+     "date": "2022-05-13T00:00:00.000",
+     "n_bars": 3113,
+     "n_gap": 42,
+     "miss_ratio": 0.01331
+    },
+    {
+     "date": "2022-05-16T00:00:00.000",
+     "n_bars": 3113,
+     "n_gap": 42,
+     "miss_ratio": 0.01331
+    },
+    {
+     "date": "2022-05-17T00:00:00.000",
+     "n_bars": 3115,
+     "n_gap": 40,
+     "miss_ratio": 0.01268
+    },
+    {
+     "date": "2022-05-18T00:00:00.000",
+     "n_bars": 3112,
+     "n_gap": 41,
+     "miss_ratio": 0.013
+    },
+    {
+     "date": "2022-05-19T00:00:00.000",
+     "n_bars": 3112,
+     "n_gap": 41,
+     "miss_ratio": 0.013
+    },
+    {
+     "date": "2022-05-20T00:00:00.000",
+     "n_bars": 3116,
+     "n_gap": 39,
+     "miss_ratio": 0.01236
+    },
+    {
+     "date": "2022-05-23T00:00:00.000",
+     "n_bars": 3114,
+     "n_gap": 40,
+     "miss_ratio": 0.01268
+    },
+    {
+     "date": "2022-05-24T00:00:00.000",
+     "n_bars": 3113,
+     "n_gap": 40,
+     "miss_ratio": 0.01269
+    },
+    {
+     "date": "2022-05-25T00:00:00.000",
+     "n_bars": 3117,
+     "n_gap": 36,
+     "miss_ratio": 0.01142
+    },
+    {
+     "date": "2022-05-26T00:00:00.000",
+     "n_bars": 3121,
+     "n_gap": 32,
+     "miss_ratio": 0.01015
+    },
+    {
+     "date": "2022-05-27T00:00:00.000",
+     "n_bars": 3118,
+     "n_gap": 35,
+     "miss_ratio": 0.0111
+    },
+    {
+     "date": "2022-05-30T00:00:00.000",
+     "n_bars": 3121,
+     "n_gap": 32,
+     "miss_ratio": 0.01015
+    },
+    {
+     "date": "2023-05-04T00:00:00.000",
+     "n_bars": 3142,
+     "n_gap": 56,
+     "miss_ratio": 0.01751
+    },
+    {
+     "date": "2024-04-30T00:00:00.000",
+     "n_bars": 3145,
+     "n_gap": 52,
+     "miss_ratio": 0.01627
+    },
+    {
+     "date": "2025-04-29T00:00:00.000",
+     "n_bars": 3145,
+     "n_gap": 33,
+     "miss_ratio": 0.01038
+    },
+    {
+     "date": "2025-04-30T00:00:00.000",
+     "n_bars": 3146,
+     "n_gap": 32,
+     "miss_ratio": 0.01007
+    },
+    {
+     "date": "2026-04-29T00:00:00.000",
+     "n_bars": 3158,
+     "n_gap": 36,
+     "miss_ratio": 0.01127
+    },
+    {
+     "date": "2026-04-30T00:00:00.000",
+     "n_bars": 3159,
+     "n_gap": 35,
+     "miss_ratio": 0.01096
+    }
+   ],
+   "volume_zero": {
+    "n_rows": 5510001,
+    "n_volume_zero": 0,
+    "n_amount_zero": 0,
+    "n_volume_null": 0
+   }
+  },
+  "notes": [
+   "停牌口径 = 当日无 bar 行（symbol 存续区间内的交易日缺行）。volume=0 在全库 0 行，不能用 volume=0 判停牌。",
+   "采集洞判据：当日 缺行数/(有行+缺行) > 1%。落在这些日期上的缺行属采集缺陷，归因层应给 null，不能算「停牌第 N 日」。",
+   "hole_summary.n_gap_attributable_to_suspension = 13,881 - 1,113 = 12,768 格，这是「可能属停牌或退市」的格数上限（仍含长停/退市不可分辨部分）。",
+   "gap_runs 给出缺口长度分布；121-250 档 5 段与 >250 档 4 段不可与退市区分，B2 不得据其判退市。"
+  ]
+ }
+}

@@ -1,0 +1,1029 @@
+{
+ "generated_at": "2026-11-07T17:27:23",
+ "script": "research/e3-data-availability-20261107/probe5.py",
+ "data_roots": {
+  "bars": "D:\\TSP\\data\\kline_daily_enriched\\date=*\\*.parquet",
+  "axis": "D:\\TSP\\data\\kline_daily\\date=*\\*.parquet",
+  "instruments": "D:\\TSP\\data\\instruments\\instruments.parquet",
+  "st_history": "D:\\TSP\\data\\st_history\\part.parquet"
+ },
+ "eval_window": [
+  "2019-07-01",
+  "2026-10-30"
+ ],
+ "panel": "(symbol like '60%' or symbol like '00%')",
+ "env": {
+  "python": "3.11.15",
+  "duckdb": "1.5.3",
+  "polars": "1.44.1"
+ },
+ "sections": {
+  "M1_axis": {
+   "sql": "select count(*) n_trading_days, min(date) first_day, max(date) last_day, count(*) filter (where date between '2019-07-01' and '2026-10-30') n_eval_days from axis",
+   "note": "交易日轴 = kline_daily 全部 distinct date，不读 app/services/data_integrity.py 的近似日历",
+   "seconds": 5.16,
+   "rows": 1,
+   "result": [
+    {
+     "n_trading_days": 2141,
+     "first_day": "2018-01-08T00:00:00.000",
+     "last_day": "2026-11-06T00:00:00.000",
+     "n_eval_days": 1779
+    }
+   ]
+  },
+  "M2_panel": {
+   "sql": "select count(*) n_rows, count(distinct symbol) n_symbols, min(date) first_bar, max(date) last_bar, count(*) filter (where date between '2019-07-01' and '2026-10-30') n_eval_rows from bars",
+   "note": "面板 = 60*/00*（E3 默认板块），源 kline_daily_enriched",
+   "seconds": 1.28,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 6438822,
+     "n_symbols": 3385,
+     "first_bar": "2018-01-08T00:00:00.000",
+     "last_bar": "2026-11-06T00:00:00.000",
+     "n_eval_rows": 5510001
+    }
+   ]
+  },
+  "M3_schema_enriched": {
+   "sql": "select column_name, column_type from (describe select * from read_parquet('D:\\TSP\\data\\kline_daily_enriched\\date=*\\*.parquet'))",
+   "note": "enriched 实际列集：无 limit_up_price / price_limit_pct 列，涨跌停必须现算",
+   "seconds": 0.69,
+   "rows": 15,
+   "result": [
+    {
+     "column_name": "symbol",
+     "column_type": "VARCHAR"
+    },
+    {
+     "column_name": "date",
+     "column_type": "DATE"
+    },
+    {
+     "column_name": "open",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "high",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "low",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "close",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "volume",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "amount",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "raw_close",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "raw_high",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "raw_low",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "turnover_rate",
+     "column_type": "DOUBLE"
+    },
+    {
+     "column_name": "consecutive_limit_ups",
+     "column_type": "UINTEGER"
+    },
+    {
+     "column_name": "consecutive_limit_downs",
+     "column_type": "UINTEGER"
+    },
+    {
+     "column_name": "quote_ts",
+     "column_type": "BIGINT"
+    }
+   ]
+  },
+  "F1_1_zero_volume": {
+   "sql": "select case when date between '2019-07-01' and '2026-10-30' then 'eval' else 'warmup' end win, count(*) n_rows, count(*) filter (where volume = 0) n_volume_zero, count(*) filter (where volume is null) n_volume_null, count(*) filter (where amount = 0) n_amount_zero, count(*) filter (where raw_close is null) n_raw_close_null from bars group by 1 order by 1",
+   "note": "口径A：停牌=volume=0",
+   "seconds": 1.49,
+   "rows": 2,
+   "result": [
+    {
+     "win": "eval",
+     "n_rows": 5510001,
+     "n_volume_zero": 0,
+     "n_volume_null": 0,
+     "n_amount_zero": 0,
+     "n_raw_close_null": 0
+    },
+    {
+     "win": "warmup",
+     "n_rows": 928821,
+     "n_volume_zero": 0,
+     "n_volume_null": 0,
+     "n_amount_zero": 0,
+     "n_raw_close_null": 0
+    }
+   ]
+  },
+  "F1_2_gap_total": {
+   "sql": "select count(*) n_missing_symbol_days, count(distinct symbol) n_symbols, (select count(*) from bars where date between '2019-07-01' and '2026-10-30') n_rows_eval, round(100.0 * count(*) / ( (select count(*) from bars where date between '2019-07-01' and '2026-10-30') + count(*)), 3) pct_of_cells from gap",
+   "note": "口径B：停牌=当日无 bar 行（symbol 存续区间内的 axis 日缺行）；分母=有行+缺行",
+   "seconds": 6.57,
+   "rows": 1,
+   "result": [
+    {
+     "n_missing_symbol_days": 13881,
+     "n_symbols": 1218,
+     "n_rows_eval": 5510001,
+     "pct_of_cells": 0.251
+    }
+   ]
+  },
+  "F1_3_gap_by_year": {
+   "sql": "with yb as (select year(date) y, count(*) n_rows from bars group by 1), yg as (select year(date) y, count(*) n_missing, count(distinct symbol) n_symbols from gap group by 1) select yg.y, yg.n_missing, yg.n_symbols, yb.n_rows, round(100.0*yg.n_missing/yb.n_rows, 3) pct_of_year_rows from yg join yb using (y) order by 1",
+   "note": "缺行按年，与同年行数比，用于判断采集洞年份",
+   "seconds": 5.7,
+   "rows": 8,
+   "result": [
+    {
+     "y": 2019,
+     "n_missing": 642,
+     "n_symbols": 150,
+     "n_rows": 665688,
+     "pct_of_year_rows": 0.096
+    },
+    {
+     "y": 2020,
+     "n_missing": 3072,
+     "n_symbols": 388,
+     "n_rows": 712127,
+     "pct_of_year_rows": 0.431
+    },
+    {
+     "y": 2021,
+     "n_missing": 2479,
+     "n_symbols": 377,
+     "n_rows": 747893,
+     "pct_of_year_rows": 0.331
+    },
+    {
+     "y": 2022,
+     "n_missing": 2206,
+     "n_symbols": 305,
+     "n_rows": 760083,
+     "pct_of_year_rows": 0.29
+    },
+    {
+     "y": 2023,
+     "n_missing": 1089,
+     "n_symbols": 209,
+     "n_rows": 769678,
+     "pct_of_year_rows": 0.141
+    },
+    {
+     "y": 2024,
+     "n_missing": 1374,
+     "n_symbols": 224,
+     "n_rows": 769001,
+     "pct_of_year_rows": 0.179
+    },
+    {
+     "y": 2025,
+     "n_missing": 1759,
+     "n_symbols": 312,
+     "n_rows": 770721,
+     "pct_of_year_rows": 0.228
+    },
+    {
+     "y": 2026,
+     "n_missing": 1260,
+     "n_symbols": 269,
+     "n_rows": 646943,
+     "pct_of_year_rows": 0.195
+    }
+   ]
+  },
+  "F1_4_gap_runs": {
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis where date between '2019-07-01' and '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) grp from gi), runs as (select symbol, grp, count(*) len from r group by 1,2) select case when len = 1 then '1' when len <= 5 then '2-5' when len <= 20 then '6-20' when len <= 60 then '21-60' when len <= 120 then '61-120' when len <= 250 then '121-250' else '>250' end bucket, count(*) n_runs, sum(len) n_symbol_days, max(len) max_len from runs group by 1 order by min(len)",
+   "note": "缺口长度分布：>250 段即「长停或退市」的不可分辨区",
+   "seconds": 6.1,
+   "rows": 6,
+   "result": [
+    {
+     "bucket": "1",
+     "n_runs": 1423,
+     "n_symbol_days": 1423.0,
+     "max_len": 1
+    },
+    {
+     "bucket": "2-5",
+     "n_runs": 537,
+     "n_symbol_days": 2094.0,
+     "max_len": 5
+    },
+    {
+     "bucket": "6-20",
+     "n_runs": 535,
+     "n_symbol_days": 5371.0,
+     "max_len": 20
+    },
+    {
+     "bucket": "21-60",
+     "n_runs": 78,
+     "n_symbol_days": 2531.0,
+     "max_len": 45
+    },
+    {
+     "bucket": "121-250",
+     "n_runs": 5,
+     "n_symbol_days": 1044.0,
+     "max_len": 247
+    },
+    {
+     "bucket": ">250",
+     "n_runs": 4,
+     "n_symbol_days": 1418.0,
+     "max_len": 589
+    }
+   ]
+  },
+  "F1_5_hole_dates": {
+   "sql": "with d as (select date, count(*) n_bars from bars where date between '2019-07-01' and '2026-10-30' group by 1), g as (select date, count(*) n_gap from gap group by 1), ratio as (select d.date, coalesce(g.n_gap,0) n_gap, d.n_bars, 1.0 * coalesce(g.n_gap,0) / (d.n_bars + coalesce(g.n_gap,0)) miss_ratio from d left join g using (date)), hole as (select date from ratio where miss_ratio > 0.01) select (select count(*) from hole) n_hole_dates, (select count(*) from ratio where miss_ratio > 0.01) n_hole_days, (select count(*) from gap g join hole h on h.date = g.date) n_gap_on_hole, round(100.0 * (select count(*) from gap g join hole h on h.date = g.date) / (select count(*) from gap), 1) pct_gap_on_hole, (select max(miss_ratio) from ratio) max_daily_miss_ratio",
+   "note": "采集洞判据：当日「缺行 /(有行+缺行) > 1%」；落在洞日上的缺行是采集缺陷，不能当停牌",
+   "seconds": 20.15,
+   "rows": 1,
+   "result": [
+    {
+     "n_hole_dates": 27,
+     "n_hole_days": 27,
+     "n_gap_on_hole": 1113,
+     "pct_gap_on_hole": 8.0,
+     "max_daily_miss_ratio": 0.0231598985
+    }
+   ]
+  },
+  "F2_load": {
+   "note": "polars 载入+算限价 5.6s",
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 5510001
+    }
+   ]
+  },
+  "F2_1_null_limit_up": {
+   "note": "= 每只首根 bar（无昨收）+ 无涨跌幅限制日（新股/复牌）",
+   "rows": 1,
+   "result": [
+    {
+     "id": "limit_up_price 为 null 的标的日",
+     "n": 3932
+    }
+   ]
+  },
+  "F2_2_null_pct": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "price_limit_pct 为 null 的标的日",
+     "n": 0
+    }
+   ]
+  },
+  "F2_3_up": {
+   "note": "raw_close >= limit_up_price",
+   "rows": 1,
+   "result": [
+    {
+     "id": "判为涨停的标的日",
+     "n": 114461
+    }
+   ]
+  },
+  "F2_4_dn": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "判为跌停的标的日",
+     "n": 46606
+    }
+   ]
+  },
+  "F2_5_up_flat": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "涨停且 raw_high==raw_low（一字板，确定不可成交）",
+     "n": 11513
+    }
+   ]
+  },
+  "F2_6_up_notflat": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "涨停但日内有价格变动（不可成交性需分钟线）",
+     "n": 102948
+    }
+   ]
+  },
+  "F2_7_flat_notlimit": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "全日一价但非涨跌停（停牌/冻结形态）",
+     "n": 92
+    }
+   ]
+  },
+  "F2_8_beyond_up": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "raw_high 超涨停价 0.006 以上（口径异常）",
+     "n": 20
+    }
+   ]
+  },
+  "F2_9_pct_crosstab": {
+   "note": "price_limit_pct × st_flag × 2026-07-06 之后；ST 档位是否真的 5%",
+   "rows": 4,
+   "result": [
+    {
+     "st_flag": false,
+     "price_limit_pct": 0.1,
+     "after_2026_07_06": false,
+     "n_rows": 5035778
+    },
+    {
+     "st_flag": false,
+     "price_limit_pct": 0.1,
+     "after_2026_07_06": true,
+     "n_rows": 241794
+    },
+    {
+     "st_flag": true,
+     "price_limit_pct": 0.05,
+     "after_2026_07_06": false,
+     "n_rows": 222293
+    },
+    {
+     "st_flag": true,
+     "price_limit_pct": 0.1,
+     "after_2026_07_06": true,
+     "n_rows": 10136
+    }
+   ]
+  },
+  "F2_13_up_next_open_at_limit_clean": {
+   "note": "干净行 92988，剔除除权行 21473",
+   "rows": 1,
+   "result": [
+    {
+     "id": "涨停日次日开盘即涨停（已剔除次日除权行）",
+     "n": 7894
+    }
+   ]
+  },
+  "F2_10_limit_rows": {
+   "note": "",
+   "rows": 1,
+   "result": [
+    {
+     "id": "涨跌停总标的日",
+     "n": 161067
+    }
+   ]
+  },
+  "F2_12_up_next_open_at_limit": {
+   "note": "raw_open 不在 enriched 里，用前复权 open 近似",
+   "rows": 1,
+   "result": [
+    {
+     "id": "涨停日次日开盘价即达涨停价（T+1 开盘买不到，含除权日）",
+     "n": 7916
+    }
+   ]
+  },
+  "F3_1_no_delist_column": {
+   "sql": "select count(*) filter (where lower(column_name) like '%delist%') n_delist_cols, count(*) filter (where lower(column_name) in ('status','is_active','list_status')) n_status_cols, string_agg(column_name, ',') filter (where true) all_cols from (describe select * from inst)",
+   "note": "instruments 13 列里按名字找退市/状态列",
+   "seconds": 0.0,
+   "rows": 1,
+   "result": [
+    {
+     "n_delist_cols": 0,
+     "n_status_cols": 0,
+     "all_cols": "symbol,name,code,exchange,region,type,listing_date,total_shares,float_shares,tick_size,limit_up,limit_down,as_of"
+    }
+   ]
+  },
+  "F3_2_limit_cols_empty": {
+   "sql": "select count(*) n_rows, count(limit_up) n_limit_up_nonnull, count(limit_down) n_limit_down_nonnull, min(as_of) as_of_min, max(as_of) as_of_max from inst",
+   "note": "instruments.limit_up/limit_down 是否可用于涨跌停（应为全空 + 单期快照）",
+   "seconds": 0.0,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 5536,
+     "n_limit_up_nonnull": 0,
+     "n_limit_down_nonnull": 0,
+     "as_of_min": "2026-11-05T00:00:00.000",
+     "as_of_max": "2026-11-05T00:00:00.000"
+    }
+   ]
+  },
+  "F3_3_last_bar_year": {
+   "sql": "with lb as (select symbol, max(date) last_bar from bars group by 1) select year(last_bar) y, count(*) n_symbols from lb where last_bar < (select max(date) from bars) group by 1 order by 1",
+   "note": "无退市字段时的唯一代理：最后一根 bar 所在年（事后信息）",
+   "seconds": 2.42,
+   "rows": 8,
+   "result": [
+    {
+     "y": 2019,
+     "n_symbols": 5
+    },
+    {
+     "y": 2020,
+     "n_symbols": 12
+    },
+    {
+     "y": 2021,
+     "n_symbols": 18
+    },
+    {
+     "y": 2022,
+     "n_symbols": 34
+    },
+    {
+     "y": 2023,
+     "n_symbols": 37
+    },
+    {
+     "y": 2024,
+     "n_symbols": 43
+    },
+    {
+     "y": 2025,
+     "n_symbols": 24
+    },
+    {
+     "y": 2026,
+     "n_symbols": 22
+    }
+   ]
+  },
+  "F3_4_gone_buckets": {
+   "sql": "with lb as (select symbol, max(date) last_bar from bars group by 1), cal as (select date, row_number() over (order by date) di from axis), j as (select lb.symbol, (select max(di) from cal) - c.di missing_days from lb join cal c on c.date = lb.last_bar where lb.last_bar < (select max(date) from bars)) select case when missing_days < 5 then '<5' when missing_days < 20 then '5-19' when missing_days < 60 then '20-59' when missing_days < 120 then '60-119' when missing_days < 250 then '120-249' else '>=250' end bucket, count(*) n_symbols from j group by 1 order by min(missing_days)",
+   "note": "「已消失」按缺失交易日数分档；<60 日无法区分停牌与退市",
+   "seconds": 6.73,
+   "rows": 6,
+   "result": [
+    {
+     "bucket": "<5",
+     "n_symbols": 1
+    },
+    {
+     "bucket": "5-19",
+     "n_symbols": 4
+    },
+    {
+     "bucket": "20-59",
+     "n_symbols": 3
+    },
+    {
+     "bucket": "60-119",
+     "n_symbols": 10
+    },
+    {
+     "bucket": "120-249",
+     "n_symbols": 6
+    },
+    {
+     "bucket": ">=250",
+     "n_symbols": 171
+    }
+   ]
+  },
+  "F3_5_instruments_no_bar": {
+   "sql": "with allbar as (select distinct symbol from read_parquet('D:\\TSP\\data\\kline_daily\\date=*\\*.parquet')) select count(*) n_ins_no_bar, count(*) filter (where symbol like '60%' or symbol like '00%') n_panel from inst anti join allbar using (symbol)",
+   "note": "维表里有、K 线里一根都没有（多为退市壳）",
+   "seconds": 5.99,
+   "rows": 1,
+   "result": [
+    {
+     "n_ins_no_bar": 78,
+     "n_panel": 75
+    }
+   ]
+  },
+  "F3_6_bj_no_instruments": {
+   "sql": "with allbar as (select distinct symbol from read_parquet('D:\\TSP\\data\\kline_daily\\date=*\\*.parquet')) select (select count(*) from allbar where symbol like '%.BJ') n_bj_bars, (select count(*) from inst where symbol like '%.BJ') n_bj_inst, (select count(*) from allbar) n_symbols_all_boards",
+   "note": "北交所有 K 线无维表行 → 上市日/退市日均不可得",
+   "seconds": 5.49,
+   "rows": 1,
+   "result": [
+    {
+     "n_bj_bars": 355,
+     "n_bj_inst": 0,
+     "n_symbols_all_boards": 5813
+    }
+   ]
+  },
+  "F3_7_resume_after_gap": {
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis where date between '2019-07-01' and '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) grp from gi), runs as (select symbol, grp, count(*) len, min(date) s, max(date) e from r group by symbol, grp having count(*) > 250) select count(*) n_runs_gt250, count(distinct symbol) n_symbols, max(len) max_len from runs",
+   "note": ">250 交易日缺口里后来是否复牌（证伪「无行情=退市」的充分性）",
+   "seconds": 6.13,
+   "rows": 1,
+   "result": [
+    {
+     "n_runs_gt250": 4,
+     "n_symbols": 4,
+     "max_len": 589
+    }
+   ]
+  },
+  "F3_8_resume_samples": {
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis where date between '2019-07-01' and '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) grp from gi), runs as (select symbol, grp, count(*) len, min(date) s, max(date) e from r group by symbol, grp having count(*) > 250) select symbol, len, s, e from runs order by len desc limit 10",
+   "note": "最长的几段缺口（这些标的后来都复牌了，因此「长期无行情」不等于退市）",
+   "seconds": 6.04,
+   "rows": 4,
+   "result": [
+    {
+     "symbol": "000670.SZ",
+     "len": 589,
+     "s": "2020-03-20T00:00:00.000",
+     "e": "2022-08-19T00:00:00.000"
+    },
+    {
+     "symbol": "000792.SZ",
+     "len": 311,
+     "s": "2020-04-30T00:00:00.000",
+     "e": "2021-08-09T00:00:00.000"
+    },
+    {
+     "symbol": "002711.SZ",
+     "len": 263,
+     "s": "2020-04-30T00:00:00.000",
+     "e": "2021-06-01T00:00:00.000"
+    },
+    {
+     "symbol": "600891.SH",
+     "len": 255,
+     "s": "2020-03-03T00:00:00.000",
+     "e": "2021-03-18T00:00:00.000"
+    }
+   ]
+  },
+  "F3_9_name_tui_still_trading": {
+   "sql": "with lb as (select symbol, max(date) last_bar from read_parquet('D:\\TSP\\data\\kline_daily\\date=*\\*.parquet') group by 1) select count(*) n_name_has_tui, count(*) filter (where lb.symbol is not null) n_has_bar, count(*) filter (where lb.last_bar >= date '2026-10-30') n_trading_at_tail from inst i left join lb using (symbol) where i.name like '%退%'",
+   "note": "现名含「退」的证券是否仍在数据末端交易（名字不是历史状态，不能当日判据）",
+   "seconds": 5.48,
+   "rows": 1,
+   "result": [
+    {
+     "n_name_has_tui": 155,
+     "n_has_bar": 140,
+     "n_trading_at_tail": 0
+    }
+   ]
+  },
+  "F4_1_listing_coverage": {
+   "sql": "select count(*) n_inst, count(listing_date) n_listing_nonnull, count(*) filter (where symbol like '60%' or symbol like '00%') n_panel, count(listing_date) filter (where symbol like '60%' or symbol like '00%') n_panel_nonnull, min(listing_date) ld_min, max(listing_date) ld_max from inst",
+   "note": "listing_date 是 VARCHAR；60/00 域非空率",
+   "seconds": 0.0,
+   "rows": 1,
+   "result": [
+    {
+     "n_inst": 5536,
+     "n_listing_nonnull": 5533,
+     "n_panel": 3460,
+     "n_panel_nonnull": 3458,
+     "ld_min": "1990-12-01",
+     "ld_max": "2026-11-03"
+    }
+   ]
+  },
+  "F4_1b_listing_panel_with_bars": {
+   "sql": "with ps as (select distinct symbol from bars) select count(*) n_panel_with_bar, count(i.listing_date) n_listing_nonnull from ps left join inst i using (symbol)",
+   "note": "有 K 线的 60/00 标的的 listing_date 非空率（E3 实际用到的那部分）",
+   "seconds": 1.61,
+   "rows": 1,
+   "result": [
+    {
+     "n_panel_with_bar": 3385,
+     "n_listing_nonnull": 3385
+    }
+   ]
+  },
+  "F4_2_first_bar_eq_listing": {
+   "sql": "with ps as (select symbol, min(date) fb from bars group by 1) select case when cast(substr(i.listing_date,1,10) as date) >= date '2018-01-08' then 'listed_after_panel_start' else 'listed_before_panel_start' end grp, count(*) n_symbols, count(*) filter (where ps.fb = cast(substr(i.listing_date,1,10) as date)) n_first_bar_eq_listing from ps join inst i using (symbol) where (symbol like '60%' or symbol like '00%') group by 1",
+   "note": "首根 bar 是否等于上市日：决定「bar 序号能否当上市天数」",
+   "seconds": 1.6,
+   "rows": 2,
+   "result": [
+    {
+     "grp": "listed_before_panel_start",
+     "n_symbols": 2750,
+     "n_first_bar_eq_listing": 0
+    },
+    {
+     "grp": "listed_after_panel_start",
+     "n_symbols": 635,
+     "n_first_bar_eq_listing": 634
+    }
+   ]
+  },
+  "F4_3_ob120_deviation": {
+   "sql": "with j as ( select b.symbol, b.date, count(*) over (partition by b.symbol order by b.date rows between unbounded preceding and current row) ob, cast(substr(i.listing_date,1,10) as date) ld from bars b join inst i using (symbol) ), e as (select * from j where date between '2019-07-01' and '2026-10-30') select count(*) n_symbol_days, count(*) filter (where ob >= 120) n_ob120, count(*) filter (where ob < 120 and date_diff('day', ld, date) >= 120) n_naive_calendar_would_include, count(*) filter (where ob >= 120 and date_diff('day', ld, date) < 120) n_ob120_but_calendar_lt120, count(*) filter (where ld is null) n_listing_null from e",
+   "note": "observed_bars（自首根 bar 累计）>=120 与「自然日差>=120」的偏差标的日数；ob 从每只首根 bar 起算",
+   "seconds": 2.76,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbol_days": 5510001,
+     "n_ob120": 5428988,
+     "n_naive_calendar_would_include": 38627,
+     "n_ob120_but_calendar_lt120": 0,
+     "n_listing_null": 0
+    }
+   ]
+  },
+  "F4_5_first_bar_lag": {
+   "sql": "with ps as (select symbol, min(date) fb from bars group by 1) select count(*) n_listed_after_panel_start, count(*) filter (where ps.fb > cast(substr(i.listing_date,1,10) as date)) n_first_bar_later_than_listing, max(date_diff('day', cast(substr(i.listing_date,1,10) as date), ps.fb)) max_lag_days from ps join inst i using (symbol) where (symbol like '60%' or symbol like '00%') and cast(substr(i.listing_date,1,10) as date) >= date '2018-01-08'",
+   "note": "只看数据起点之后上市的标的：首根 bar 是否晚于上市日（2018 年前上市的会被面板起点截断，不计入）",
+   "seconds": 1.65,
+   "rows": 1,
+   "result": [
+    {
+     "n_listed_after_panel_start": 635,
+     "n_first_bar_later_than_listing": 1,
+     "max_lag_days": 651
+    }
+   ]
+  },
+  "F4_4_warmup_effect": {
+   "sql": "with ps as (select symbol, min(date) fb from bars group by 1) select count(*) filter (where fb > date '2019-07-01') n_listed_inside_eval, count(*) filter (where cast(substr(i.listing_date,1,10) as date) > date '2019-07-01') n_listing_inside_eval from ps join inst i using (symbol) where (symbol like '60%' or symbol like '00%')",
+   "note": "评估窗内新上市标的数：其 observed_bars 自动 <120，需要 listing_date 才能区分「新股」与「缺数据」",
+   "seconds": 1.69,
+   "rows": 1,
+   "result": [
+    {
+     "n_listed_inside_eval": 676,
+     "n_listing_inside_eval": 521
+    }
+   ]
+  },
+  "F5_1_st_shape": {
+   "sql": "select count(*) n_rows, count(distinct symbol) n_symbols, min(flag_date) first_flag, max(flag_date) last_flag, count(*) filter (where st_flag) n_true, count(*) filter (where not st_flag) n_false from sth",
+   "note": "D:/TSP/data/st_history/part.parquet：symbol/flag_date(生效日)/st_flag",
+   "seconds": 0.0,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 7758,
+     "n_symbols": 5817,
+     "first_flag": "2019-01-01T00:00:00.000",
+     "last_flag": "2026-10-29T00:00:00.000",
+     "n_true": 986,
+     "n_false": 6772
+    }
+   ]
+  },
+  "F5_2_st_episodes_by_year": {
+   "sql": "select year(flag_date) y, count(*) n_flags, count(distinct symbol) n_symbols, count(*) filter (where st_flag) n_enter, count(*) filter (where not st_flag) n_exit from sth group by 1 order by 1",
+   "note": "每年 ST 进出事件数；2026 年是否异常少",
+   "seconds": 0.0,
+   "rows": 8,
+   "result": [
+    {
+     "y": 2019,
+     "n_flags": 3964,
+     "n_symbols": 3772,
+     "n_enter": 170,
+     "n_exit": 3794
+    },
+    {
+     "y": 2020,
+     "n_flags": 560,
+     "n_symbols": 558,
+     "n_enter": 102,
+     "n_exit": 458
+    },
+    {
+     "y": 2021,
+     "n_flags": 704,
+     "n_symbols": 703,
+     "n_enter": 73,
+     "n_exit": 631
+    },
+    {
+     "y": 2022,
+     "n_flags": 585,
+     "n_symbols": 583,
+     "n_enter": 55,
+     "n_exit": 530
+    },
+    {
+     "y": 2023,
+     "n_flags": 452,
+     "n_symbols": 444,
+     "n_enter": 62,
+     "n_exit": 390
+    },
+    {
+     "y": 2024,
+     "n_flags": 256,
+     "n_symbols": 249,
+     "n_enter": 92,
+     "n_exit": 164
+    },
+    {
+     "y": 2025,
+     "n_flags": 309,
+     "n_symbols": 303,
+     "n_enter": 119,
+     "n_exit": 190
+    },
+    {
+     "y": 2026,
+     "n_flags": 928,
+     "n_symbols": 422,
+     "n_enter": 313,
+     "n_exit": 615
+    }
+   ]
+  },
+  "F5_3_st_asof_window": {
+   "sql": "with d as (select date from axis where date between date '2026-10-12' and date '2026-11-06'), latest as ( select d.date, s.symbol, s.st_flag, row_number() over (partition by d.date, s.symbol order by s.flag_date desc) rn from d left join sth s on s.flag_date <= d.date ), cur as (select date, symbol, st_flag from latest where rn = 1), bars_per_day as (select date, count(*) n_active from bars where date between date '2026-10-12' and date '2026-11-06' group by 1) select d.date, coalesce(b.n_active,0) n_bars_panel, count(*) filter (where cur.st_flag) n_st_true, count(*) filter (where cur.st_flag is null) n_st_null, count(*) filter (where cur.st_flag is false) n_st_false from d left join cur on cur.date = d.date left join bars_per_day b on b.date = d.date group by 1,2 order by 1",
+   "note": "as-of 口径逐日 ST 家数（含 2026-10-20..10-29 八日窗口）",
+   "seconds": 2.24,
+   "rows": 20,
+   "result": [
+    {
+     "date": "2026-10-12T00:00:00.000",
+     "n_bars_panel": 3188,
+     "n_st_true": 218,
+     "n_st_null": 0,
+     "n_st_false": 5591
+    },
+    {
+     "date": "2026-10-13T00:00:00.000",
+     "n_bars_panel": 3187,
+     "n_st_true": 218,
+     "n_st_null": 0,
+     "n_st_false": 5592
+    },
+    {
+     "date": "2026-10-14T00:00:00.000",
+     "n_bars_panel": 3189,
+     "n_st_true": 218,
+     "n_st_null": 0,
+     "n_st_false": 5592
+    },
+    {
+     "date": "2026-10-15T00:00:00.000",
+     "n_bars_panel": 3189,
+     "n_st_true": 218,
+     "n_st_null": 0,
+     "n_st_false": 5594
+    },
+    {
+     "date": "2026-10-16T00:00:00.000",
+     "n_bars_panel": 3190,
+     "n_st_true": 218,
+     "n_st_null": 0,
+     "n_st_false": 5595
+    },
+    {
+     "date": "2026-10-19T00:00:00.000",
+     "n_bars_panel": 3187,
+     "n_st_true": 218,
+     "n_st_null": 0,
+     "n_st_false": 5595
+    },
+    {
+     "date": "2026-10-20T00:00:00.000",
+     "n_bars_panel": 3191,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5793
+    },
+    {
+     "date": "2026-10-21T00:00:00.000",
+     "n_bars_panel": 3190,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5794
+    },
+    {
+     "date": "2026-10-22T00:00:00.000",
+     "n_bars_panel": 3191,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5795
+    },
+    {
+     "date": "2026-10-23T00:00:00.000",
+     "n_bars_panel": 3192,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5796
+    },
+    {
+     "date": "2026-10-26T00:00:00.000",
+     "n_bars_panel": 3188,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5796
+    },
+    {
+     "date": "2026-10-27T00:00:00.000",
+     "n_bars_panel": 3188,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5796
+    },
+    {
+     "date": "2026-10-28T00:00:00.000",
+     "n_bars_panel": 3189,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5796
+    },
+    {
+     "date": "2026-10-29T00:00:00.000",
+     "n_bars_panel": 3189,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    },
+    {
+     "date": "2026-10-30T00:00:00.000",
+     "n_bars_panel": 3189,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    },
+    {
+     "date": "2026-11-02T00:00:00.000",
+     "n_bars_panel": 3189,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    },
+    {
+     "date": "2026-11-03T00:00:00.000",
+     "n_bars_panel": 3188,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    },
+    {
+     "date": "2026-11-04T00:00:00.000",
+     "n_bars_panel": 3190,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    },
+    {
+     "date": "2026-11-05T00:00:00.000",
+     "n_bars_panel": 3190,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    },
+    {
+     "date": "2026-11-06T00:00:00.000",
+     "n_bars_panel": 3190,
+     "n_st_true": 20,
+     "n_st_null": 0,
+     "n_st_false": 5797
+    }
+   ]
+  },
+  "F5_4_st_window_8d": {
+   "sql": "with d as (select date from axis where date between '2026-10-20' and '2026-10-29'), cur as ( select d.date, count(*) filter (where s.st_flag) n_st_true, count(*) n_symbols from d left join sth s on s.flag_date = d.date group by 1 ) select (select count(*) from d) n_days, (select count(*) from sth where flag_date between '2026-10-20' and '2026-10-29') n_st_flags_in_window, (select count(*) from sth where flag_date <= '2026-10-29' and st_flag) n_st_true_cum",
+   "note": "窗口内是否有任何 ST 状态变更事件（=0 说明该段无法反映真实 ST 变动）",
+   "seconds": 0.99,
+   "rows": 1,
+   "result": [
+    {
+     "n_days": 8,
+     "n_st_flags_in_window": 202,
+     "n_st_true_cum": 986
+    }
+   ]
+  },
+  "F5_5_st_coverage": {
+   "sql": "with ps as (select distinct symbol from bars where (symbol like '60%' or symbol like '00%')), sts as (select distinct symbol from sth) select (select count(*) from ps) n_panel_symbols, (select count(*) from ps join sts using (symbol)) n_panel_symbols_in_st, (select count(*) from sts) n_st_symbols, (select min(flag_date) from sth) st_first_flag, (select max(flag_date) from sth) st_last_flag",
+   "note": "面板标的中有 ST 历史行的比例（无行=从未 ST，非缺失）",
+   "seconds": 1.31,
+   "rows": 1,
+   "result": [
+    {
+     "n_panel_symbols": 3385,
+     "n_panel_symbols_in_st": 3384,
+     "n_st_symbols": 5817,
+     "st_first_flag": "2019-01-01T00:00:00.000",
+     "st_last_flag": "2026-10-29T00:00:00.000"
+    }
+   ]
+  },
+  "F5_7_st_window_events": {
+   "sql": "select flag_date, st_flag, count(*) n_rows, count(distinct symbol) n_symbols from sth where flag_date between date '2026-10-15' and date '2026-10-30' group by 1,2 order by 1,2",
+   "note": "2026-10-20 前后 ST 状态变更事件：一次性把大批准 ST 置 False（=末端截断）",
+   "seconds": 0.0,
+   "rows": 7,
+   "result": [
+    {
+     "flag_date": "2026-10-15T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 2,
+     "n_symbols": 2
+    },
+    {
+     "flag_date": "2026-10-16T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 1,
+     "n_symbols": 1
+    },
+    {
+     "flag_date": "2026-10-20T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 198,
+     "n_symbols": 198
+    },
+    {
+     "flag_date": "2026-10-21T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 1,
+     "n_symbols": 1
+    },
+    {
+     "flag_date": "2026-10-22T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 1,
+     "n_symbols": 1
+    },
+    {
+     "flag_date": "2026-10-23T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 1,
+     "n_symbols": 1
+    },
+    {
+     "flag_date": "2026-10-29T00:00:00.000",
+     "st_flag": false,
+     "n_rows": 1,
+     "n_symbols": 1
+    }
+   ]
+  },
+  "F5_8_st_dropped_by_truncation": {
+   "sql": "with before as ( select count(*) n from ( select symbol, arg_max(st_flag, flag_date) f from sth where flag_date <= date '2026-10-19' group by 1) where f ), after as ( select count(*) n from ( select symbol, arg_max(st_flag, flag_date) f from sth where flag_date <= date '2026-10-29' group by 1) where f ) select (select n from before) n_st_true_on_1019, (select n from after) n_st_true_on_1029, (select n from before) - (select n from after) n_dropped",
+   "note": "截断造成的 ST=True 家数下降（可用于估偏差量级）",
+   "seconds": 0.01,
+   "rows": 1,
+   "result": [
+    {
+     "n_st_true_on_1019": 218,
+     "n_st_true_on_1029": 20,
+     "n_dropped": 198
+    }
+   ]
+  },
+  "F5_6_st_pre2019": {
+   "sql": "select min(flag_date) first_flag, (select count(*) from sth where flag_date < date '2019-01-01') n_pre_2019 from sth",
+   "note": "2019 年前的 ST 记录：0 条 → 2019-07-01 之前必须给 null",
+   "seconds": 0.0,
+   "rows": 1,
+   "result": [
+    {
+     "first_flag": "2019-01-01T00:00:00.000",
+     "n_pre_2019": 0
+    }
+   ]
+  }
+ }
+}

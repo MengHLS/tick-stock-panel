@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "doc": "docs/factors/XS_RANK_POOL_SPEC_20261107.md",
+    "author": "因子研究员",
+    "generated": "2026-11-07T14:35+08:00",
+    "authority": "docs/research/caliber-decisions-20261107.md §7 决定四（v1.1，生效 2026-11-07 14:30）",
+    "scope_note": "ranking universe = 主板 60/00 only (research common.py:98-101); NOT 全市场",
+    "n_trials_delta": 0
+  },
+  "ids": {
+    "xs_rank_pool": {
+      "semantics": "pool_percentile",
+      "scope": "in_universe == True AND x is not null (numerator and denominator are the same sample)",
+      "denominator": "count(x) over date restricted to in_universe & x not null; MUST NOT be in_universe.sum()",
+      "strategy_usable": true,
+      "replaced_by": null,
+      "signature": "xs_rank_pool(x, mask)  # mask required, no default",
+      "formula": "rank_average(x over date where mask & x not null) / count(x over date where mask & x not null)",
+      "value_range": [
+        0.0,
+        1.0
+      ],
+      "value_range_note": "(0,1]; daily max == 1 when pool non-null count >= 1",
+      "price_basis": "inherits x (x=momentum_5d -> 前复权 close)",
+      "includes_today": true,
+      "shift": null,
+      "window": 0,
+      "warmup_bars_required": "max(warmup(x), warmup(in_universe)=121)",
+      "data_columns": [
+        "x deps",
+        "st_flag",
+        "raw_close",
+        "prior_amount_20",
+        "volume",
+        "observed_bars"
+      ],
+      "null_policy": "keep",
+      "financial_pit": false,
+      "tie_rule": "average",
+      "registered": false,
+      "acceptance": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ]
+    },
+    "xs_rank_market": {
+      "semantics": "market_percentile",
+      "scope": "all rows in panel with x not null (main board 60/00, ~3077-3095 symbols)",
+      "denominator": "count(x) over date (all-sample non-null count)",
+      "strategy_usable": false,
+      "replaced_by": "xs_rank_pool",
+      "signature": "xs_rank_market(x)  # no mask argument",
+      "formula": "rank_average(x over date) / count(x over date)",
+      "numeric_alias_of": "rank",
+      "dedup_note": "counts as ONE factor together with rank; do not double count",
+      "value_range": [
+        0.0,
+        1.0
+      ],
+      "registered": false,
+      "acceptance": [
+        "B1",
+        "B2",
+        "B3"
+      ]
+    },
+    "xs_rank_pct": {
+      "semantics": "global_rank_over_pool_count",
+      "scope": "MIXED: numerator all-sample, denominator in-pool (not the same sample) — defect form, not design",
+      "denominator": "in_universe.sum() over date (pool count including members whose x is null; ~1429/1430)",
+      "strategy_usable": false,
+      "replaced_by": "xs_rank_pool",
+      "signature": "xs_rank_pct(x, mask)",
+      "formula": "rank_average(x over date, all non-null) / in_universe.sum() over date",
+      "upper_bound_measured": {
+        "week_end": 2.166,
+        "month_end": 2.152
+      },
+      "can_exceed_one": true,
+      "registered": false,
+      "acceptance": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "purpose": [
+        "difference proof",
+        "historical reproduction only"
+      ]
+    }
+  },
+  "dead_columns": {
+    "rk_ret60": {
+      "registered": false,
+      "refs": 0,
+      "evidence": "research/strategy-search-20261107/scripts/common.py:193-194 (definition only)"
+    },
+    "rk_near_high": {
+      "registered": false,
+      "refs": 0,
+      "evidence": "common.py:193-194; S08 uses dist_52w_high raw value"
+    }
+  },
+  "acceptance": {
+    "A1": "daily max(xs_rank_pool)==1 and min>0; ANY rk>1 fails",
+    "A2": "single-day identity count(rk<=t) == reference count(rank<=t*P), tolerance 0; log P, count, t*P daily",
+    "A3": "regression: unmasked rank(x) bitwise unchanged; 20 of 93 ledger factors column-hash unchanged",
+    "A4": "daily pool size equals research (mean 1429, diff 0) — blocked until E3 passes",
+    "A5": "denominator counts only in-pool non-null: pool=3 with 1 null x -> {0.5,1.0}; {0.333,0.667} fails",
+    "A6": "empty pool day -> all null",
+    "A7": "pipeline vs matrix path diff <= 1e-12",
+    "A8": "tie rule average: 4 equal values -> all 0.625",
+    "B1": "bitwise equal to rank(x)",
+    "B2": "value range (0,1], daily max 1",
+    "B3": "zero strategy references",
+    "C1": "reproduce research rk_* (jaccard>=0.99, 49.7/55.5/92.8/14.7 +-1)",
+    "C2": "must be able to produce rk>1",
+    "C3": "zero strategy references",
+    "thresholds_tested": [
+      0.05,
+      0.1,
+      0.3
+    ]
+  },
+  "strategy_map": {
+    "S06": {
+      "entry": "xs_rank_pool(x=momentum_5d, mask=in_universe)",
+      "threshold": "<=0.05",
+      "sort": "-momentum_5d",
+      "rebalance": "week_end",
+      "blockers": [
+        "E3",
+        "E4"
+      ],
+      "expected_picks": 71.45,
+      "P": 1428.9494680851064,
+      "old_research_picks": 49.71808510638298,
+      "old_actual_quantile_pct": 3.4793
+    },
+    "S07": {
+      "entry": "xs_rank_pool(x=vol60, mask=in_universe)",
+      "threshold": "<=0.10",
+      "sort": "-vol60",
+      "rebalance": "month_end",
+      "blockers": [
+        "E3",
+        "E4",
+        "F1_vol60"
+      ],
+      "expected_picks": 142.97,
+      "P": 1429.7386363636363,
+      "old_research_picks": 55.48863636363637,
+      "old_actual_quantile_pct": 3.881
+    },
+    "S10": {
+      "entry": "xs_rank_pool(x=momentum_20d, mask=in_universe)",
+      "threshold": "<=0.10",
+      "sort": "-momentum_20d",
+      "rebalance": "month_end",
+      "blockers": [
+        "E3",
+        "E4"
+      ],
+      "expected_picks": 142.97,
+      "P": 1429.7386363636363,
+      "old_research_picks": 92.75,
+      "old_actual_quantile_pct": 6.4872
+    },
+    "S11": {
+      "entry": "xs_rank_pool(x=vol60, mask=in_universe)<=0.30 AND xs_rank_pool(x=momentum_20d, mask=in_universe)<=0.30 (intersection)",
+      "threshold": "0.30/0.30",
+      "sort": "-(rk_vol60+rk_ret20)",
+      "rebalance": "month_end",
+      "blockers": [
+        "E3",
+        "E4",
+        "F1_vol60"
+      ],
+      "expected_picks_per_leg": 428.92,
+      "intersection_note": "intersection size not derivable from t*P; measure only",
+      "old_research_picks": 14.693181818181818,
+      "old_actual_quantile_pct": 1.03,
+      "forbidden_variant": "top-30% of composite rank (different strategy, needs own id and N)"
+    },
+    "S12": {
+      "entry": "xs_rank_pool(x=vol60, mask=in_universe)<=0.10 AND market_breadth>=0.5",
+      "threshold": "0.10/0.5",
+      "sort": "-vol60",
+      "rebalance": "month_end",
+      "blockers": [
+        "E3",
+        "E4",
+        "F1_vol60",
+        "E1"
+      ],
+      "expected_picks": 142.97,
+      "P": 1429.7386363636363,
+      "old_research_picks": 55.48863636363637
+    }
+  },
+  "contract_conflicts": [
+    {
+      "id": "C1",
+      "where": "FACTOR_ENGINE_CONTRACTS §3.1 last para",
+      "conflict": "no switch authorized",
+      "resolve": "decision 4 authorizes switch; implement xs_rank_pool first + A3"
+    },
+    {
+      "id": "C2",
+      "where": "§3.2 edge table",
+      "conflict": "pool member with null x still counted in denominator",
+      "resolve": "applies to xs_rank_pct only; xs_rank_pool must exclude it (A5)"
+    },
+    {
+      "id": "C3",
+      "where": "§3.3-1",
+      "conflict": "forbids 'null-outside-pool + rank' as pool percentile",
+      "resolve": "that IS xs_rank_pool's definition now; narrow the ban to impersonating xs_rank_pct"
+    },
+    {
+      "id": "C4",
+      "where": "§3.6",
+      "conflict": "xs_rank_in_pool registered but not implemented",
+      "resolve": "retire alias name; implement xs_rank_pool"
+    },
+    {
+      "id": "C5",
+      "where": "§3.4 R1-R5",
+      "conflict": "acceptance reproduces the WRONG research caliber",
+      "resolve": "R1-R5 move under xs_rank_pct; xs_rank_pool uses A1-A8"
+    }
+  ],
+  "unverified": [
+    "P == in_universe.sum() not verified (differs when pool x is null)",
+    "xs_rank_market == rank bitwise equality inferred from formula, not measured",
+    "polars count() ignores null: documented, not measured in this project",
+    "tie straddling t*P boundary: count vs t*P can differ by up to (tie group size - 1)",
+    "no backtest run, no code change, no registration, no commit"
+  ]
+}

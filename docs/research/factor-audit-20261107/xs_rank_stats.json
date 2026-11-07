@@ -1,0 +1,81 @@
+{
+ "meta": {
+  "rows": 5510001,
+  "symbols": 3384,
+  "date_min": "2019-07-01",
+  "date_max": "2026-10-30",
+  "eval_start": "2019-07-01",
+  "eval_end": "2026-10-30",
+  "universe": {
+   "min_price_raw": 3.0,
+   "min_prior_amount20": 100000000.0,
+   "min_observed_bars": 120
+  },
+  "thresh_source": "research/strategy-search-20261107/scripts/common.py#build_signals",
+  "seconds": 15.9
+ },
+ "xs_rank": {
+  "S06_ret5_le_0.05": {
+   "rebuild_dates": 376,
+   "thr": 0.05,
+   "mean_sel_research": 49.71808510638298,
+   "mean_sel_system": 154.30585106382978,
+   "mean_jaccard": 0.3194541757462763,
+   "median_jaccard": 0.30714927480426135,
+   "mean_recall_of_research": 1.0,
+   "mean_universe_size": 1428.9494680851064,
+   "mean_system_denominator": 3095.351063829787
+  },
+  "S07_vol60_le_0.10": {
+   "rebuild_dates": 88,
+   "thr": 0.1,
+   "mean_sel_research": 55.48863636363637,
+   "mean_sel_system": 307.21590909090907,
+   "mean_jaccard": 0.17781168919621823,
+   "median_jaccard": 0.1164565693877324,
+   "mean_recall_of_research": 1.0,
+   "mean_universe_size": 1429.7386363636363,
+   "mean_system_denominator": 3076.5454545454545
+  },
+  "S10_ret20_le_0.10": {
+   "rebuild_dates": 88,
+   "thr": 0.1,
+   "mean_sel_research": 92.75,
+   "mean_sel_system": 308.75,
+   "mean_jaccard": 0.29766231978657604,
+   "median_jaccard": 0.2830188679245283,
+   "mean_recall_of_research": 1.0,
+   "mean_universe_size": 1429.7386363636363,
+   "mean_system_denominator": 3091.6704545454545
+  },
+  "S11_both_le_0.30": {
+   "rebuild_dates": 88,
+   "mean_sel_research": 14.693181818181818,
+   "mean_sel_system": 207.2159090909091,
+   "mean_jaccard": 0.0488506658364597
+  }
+ },
+ "market_breadth": {
+  "n_days": 1779,
+  "mean_research": 0.5407417151801761,
+  "mean_unmasked": 0.4642690197133011,
+  "corr_pearson": 0.9423894231882387,
+  "corr_spearman": 0.9310661985347978,
+  "mean_abs_diff": 0.08521518235733591,
+  "p95_abs_diff": 0.20315786712828177,
+  "max_abs_diff": 0.280241935483871,
+  "share_days_threshold_flip": 0.1911186059584036,
+  "month_ends": 88,
+  "share_month_ends_research_ge_0p5": 0.5340909090909091,
+  "share_month_ends_unmasked_ge_0p5": 0.3409090909090909,
+  "month_end_flip_share": 0.23863636363636365
+ },
+ "vol60_substitution": {
+  "note": "research vol60(60日收益标准差) 的低波十分位 vs 系统 annual_vol_20d(20日年化) 的低波十分位",
+  "rebuild_dates": 88,
+  "mean_sel_research": 55.48863636363637,
+  "mean_sel_system": 308.7386363636364,
+  "mean_jaccard": 0.13562032294756768,
+  "median_jaccard": 0.09430785845880185
+ }
+}

@@ -1,0 +1,431 @@
+{
+ "meta": {
+  "generated_at": "2026-11-07T16:25:05",
+  "script": "docs/factors/evidence/scripts/f_class_rank_parity.py",
+  "repo": "C:\\work\\sourcecode\\tick-stock-panel",
+  "data_dir": "D:\\TSP\\data",
+  "contract_basis": "FACTOR_ENGINE_CONTRACTS_20261107.md 7.6 F-A3",
+  "tolerance": 1e-12,
+  "sampling": {
+   "days": 250,
+   "symbols": 20,
+   "window_rule": "panel last 250 trading days (inclusive)",
+   "symbol_rule": "in_universe symbols on last trading day, sorted asc, evenly spaced -> 20 (deterministic)"
+  },
+  "rank_rule": "average rank, ascending; each side ranked independently then compared",
+  "system_path": "app.factors.dsl.compile_formula(...).frame_transform(...)",
+  "research_path": "research/strategy-search-20261107/scripts/common.py add_indicators (read-only import)",
+  "polars_version": "1.44.1",
+  "python": "3.11.15",
+  "git_head": "65c6e42f1fcd6362e72699afb118bdbcb247b3d3",
+  "elapsed_seconds": 16.8
+ },
+ "sample": {
+  "window_start": "2025-10-21",
+  "window_end": "2026-10-30",
+  "n_trading_days": 250,
+  "symbols": [
+   "000001.SZ",
+   "000612.SZ",
+   "000895.SZ",
+   "002001.SZ",
+   "002170.SZ",
+   "002315.SZ",
+   "002475.SZ",
+   "002679.SZ",
+   "002878.SZ",
+   "600009.SH",
+   "600206.SH",
+   "600410.SH",
+   "600630.SH",
+   "600860.SH",
+   "601139.SH",
+   "601877.SH",
+   "603155.SH",
+   "603418.SH",
+   "603863.SH",
+   "605589.SH"
+  ],
+  "n_symbols": 20,
+  "universe_size_on_last_date": 1723,
+  "n_rows_sample": 5000
+ },
+ "pairs": {
+  "vol60": {
+   "pair": "vol60 <-> uf_vol60",
+   "research_name": "vol60",
+   "canonical_id": "uf_vol60",
+   "research_column": "vol60",
+   "formula": "ts_std(close / ts_delay(close, 1) - 1, 60)",
+   "value_parity_sample": {
+    "n": 4954,
+    "max_abs_diff": 2.7755575615628914e-17,
+    "mean_abs_diff": 5.9169337778195594e-18,
+    "n_nonzero": 3825,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3183,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 3183,
+    "n_distinct_rank_res": 3183,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1723,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1723,
+    "n_distinct_rank_res": 1723,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "prior_high_20": {
+   "pair": "prior_high_20 <-> uf_prior_high_20",
+   "research_name": "prior_high_20",
+   "canonical_id": "uf_prior_high_20",
+   "research_column": "prior_high20",
+   "formula": "ts_max(ts_delay(high, 1), 20)",
+   "value_parity_sample": {
+    "n": 4994,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3188,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 2085,
+    "n_distinct_rank_res": 2085,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1723,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1395,
+    "n_distinct_rank_res": 1395,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "prior_high_55": {
+   "pair": "prior_high_55 <-> uf_prior_high_55",
+   "research_name": "prior_high_55",
+   "canonical_id": "uf_prior_high_55",
+   "research_column": "prior_high55",
+   "formula": "ts_max(ts_delay(high, 1), 55)",
+   "value_parity_sample": {
+    "n": 4959,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3185,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 2215,
+    "n_distinct_rank_res": 2215,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1723,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1455,
+    "n_distinct_rank_res": 1455,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "prior_high_250": {
+   "pair": "prior_high_250 <-> uf_prior_high_250",
+   "research_name": "prior_high_250",
+   "canonical_id": "uf_prior_high_250",
+   "research_column": "prior_high250",
+   "formula": "ts_max(ts_delay(high, 1), 250)",
+   "value_parity_sample": {
+    "n": 4764,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3155,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 2891,
+    "n_distinct_rank_res": 2891,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1716,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1649,
+    "n_distinct_rank_res": 1649,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "prior_low_10": {
+   "pair": "prior_low_10 <-> uf_prior_low_10",
+   "research_name": "prior_low_10",
+   "canonical_id": "uf_prior_low_10",
+   "research_column": "prior_low10",
+   "formula": "ts_min(ts_delay(low, 1), 10)",
+   "value_parity_sample": {
+    "n": 5000,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3189,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1844,
+    "n_distinct_rank_res": 1844,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1723,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1283,
+    "n_distinct_rank_res": 1283,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "prior_vol_20": {
+   "pair": "prior_vol_20 <-> uf_prior_vol_20",
+   "research_name": "prior_vol_20",
+   "canonical_id": "uf_prior_vol_20",
+   "research_column": "prior_vol20",
+   "formula": "ts_mean(ts_delay(volume, 1), 20)",
+   "value_parity_sample": {
+    "n": 4994,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3188,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 3188,
+    "n_distinct_rank_res": 3188,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1723,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1723,
+    "n_distinct_rank_res": 1723,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "ma120": {
+   "pair": "ma120 <-> uf_ma120",
+   "research_name": "ma120",
+   "canonical_id": "uf_ma120",
+   "research_column": "ma120",
+   "formula": "ts_mean(close, 120)",
+   "value_parity_sample": {
+    "n": 4895,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3176,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 3175,
+    "n_distinct_rank_res": 3175,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1723,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1722,
+    "n_distinct_rank_res": 1722,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  },
+  "ma200": {
+   "pair": "ma200 <-> uf_ma200",
+   "research_name": "ma200",
+   "canonical_id": "uf_ma200",
+   "research_column": "ma200",
+   "formula": "ts_mean(close, 200)",
+   "value_parity_sample": {
+    "n": 4815,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "n_nonzero": 0,
+    "pass_1e12": true
+   },
+   "rank_last_day_full_market": {
+    "n": 3167,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 3166,
+    "n_distinct_rank_res": 3166,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_in_universe": {
+    "n": 1721,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 1721,
+    "n_distinct_rank_res": 1721,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_last_day_20_symbols": {
+    "n": 20,
+    "rank_change_max": 0.0,
+    "n_swapped": 0,
+    "n_distinct_rank_sys": 20,
+    "n_distinct_rank_res": 20,
+    "tie_structure_changed": false,
+    "worst_swaps": []
+   },
+   "rank_over_window": {
+    "days": 250,
+    "rank_change_max_over_window": 0.0,
+    "n_days_with_any_swap": 0,
+    "n_days_total_swaps": 0
+   }
+  }
+ }
+}
