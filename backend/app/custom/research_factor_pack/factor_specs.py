@@ -64,6 +64,22 @@ _DEFINITIONS: tuple[tuple[str, str, str, str, bool], ...] = (
 )
 
 
+# 口径别名 (契约 §7.15.1 第 1–8 行的 `alias` 列 → `canonical_id` 列, 逐行照抄):
+# 研究原名是 alias, canonical 是 store 侧的 `uf_*` 定义。第 9–14 行是 pack 单侧件,
+# 不在本表里 (alias_of 必须为 None, F-A42-5)。表是权威、定义是投影: 改别名要同时改
+# §7.15.1 与本表, 任一未动即 FS06 (§7.16.5)。
+_ALIAS_OF: dict[str, str] = {
+    "vol60": "uf_vol60",
+    "ma120": "uf_ma120",
+    "ma200": "uf_ma200",
+    "prior_high_20": "uf_prior_high_20",
+    "prior_high_55": "uf_prior_high_55",
+    "prior_high_250": "uf_prior_high_250",
+    "prior_low_10": "uf_prior_low_10",
+    "prior_vol_20": "uf_prior_vol_20",
+}
+
+
 def _spec(factor_id: str, label: str, formula: str, unit: str, scale_free: bool) -> FactorSpec:
     compiled = compile_formula(formula)
     if not compiled.ok:
@@ -86,6 +102,9 @@ def _spec(factor_id: str, label: str, formula: str, unit: str, scale_free: bool)
         direction="none",  # 未经检验, 不预填方向 (契约 §7.2)
         stability=STABILITY,
         tags=TAGS,
+        # §7.16.5: strategy_usable 只有 alias_of 非空才为 False, 不按 kind 推导。
+        alias_of=_ALIAS_OF.get(factor_id),
+        strategy_usable=factor_id not in _ALIAS_OF,
     )
 
 

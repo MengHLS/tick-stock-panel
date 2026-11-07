@@ -55,6 +55,17 @@ class FactorSpec:
     lang: str = "dsl"
     # composite 专用: ((成员 id, 权重), ...); 其余类型为空
     components: tuple[tuple[str, float], ...] = ()
+    # 口径载体 (契约 §7.16.2 / F-A42-1 的第 22 字段): alias 侧的 canonical 目标;
+    # None = 非 alias。取值只从 §7.15.1 派生 (pack / store 定义写入), 代码里不写死
+    # 任何 id 名单; 传递解析见 gate.resolve_alias (上限 4 跳、环检测)。
+    alias_of: str | None = None
+    # 准入载体 (契约 §7.16.5 / F-A42-1 的第 23 字段): 缺省 True, 只有 alias_of 非空
+    # 才为 False。它只作交叉校验 —— FS03 由 alias_of 判定, 不因本字段取值错而放行。
+    strategy_usable: bool = True
+
+    def is_alias(self) -> bool:
+        """是否口径别名 (契约 §7.16.2 C2): 等价于 `alias_of is not None`。"""
+        return self.alias_of is not None
 
     def column_view(self) -> dict:
         """历史 FACTOR_COLUMNS 条目视图 (键与顺序兼容)。"""
@@ -340,6 +351,15 @@ for _spec in _CATALOG:
 
 def get_factor(fid: str) -> FactorSpec | None:
     _ensure_factor_providers()
+    return _active_registry().get(fid)
+
+
+def peek_factor(fid: str) -> FactorSpec | None:
+    """只查当前注册表, **不触发** provider 发现与扩展列同步。
+
+    供发现流程本身使用 (B0b-3 的重试收敛判断): 在 `ensure_factor_providers` 内部
+    调 `get_factor` 会重入发现流程, 旗标未置位时即无限递归。
+    """
     return _active_registry().get(fid)
 
 

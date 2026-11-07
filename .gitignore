@@ -119,3 +119,15 @@ relicensing/
 backend/.tmp-review/
 backend/.venv-wsl-recovery/
 mcp-results/
+
+# 研究产物的大二进制 (2026-11-07 入库收敛): 只留脚本 / 报告 / JSON 证据。
+# 口径 = 单文件 MB 级以上、可由脚本 + 数据目录重生成的中间件; 逐个量级:
+#   panel_input.arrow 242.6 MB、bars_feat.parquet 165.5 MB、path_position_days.parquet 3.3 MB、
+#   ledger.sqlite 0.9 MB ×4 —— 合计 415.1 MB, 占 research/ 463 MB 的九成以上。
+# 已入库的历史件 (.npy / path_position_days.parquet) 不在此列做反向剔除, 见交付说明。
+research/**/*.arrow
+research/**/*.parquet
+research/**/*.sqlite
+research/**/*.sqlite3
+research/**/*.db
+research/**/*.pkl

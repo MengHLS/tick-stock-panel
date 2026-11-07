@@ -106,6 +106,22 @@ _PROVIDERS: dict[str, FactorProvider] = {}
 _FACTOR_OWNERS: dict[str, str] = {}
 _PROVIDERS_READY = False
 
+#: 发现/装载的可查记录 (B0b-3): 计数、最后错误、包名。health 据此区分
+#: 「未安装」(missing_package / packages_scanned == 0) 与「装载失败」(failed_*)。
+_DISCOVERY: dict[str, Any] = {
+    "attempts": 0,
+    "failures": 0,
+    "packages_scanned": 0,
+    "modules_loaded": 0,
+    "providers_registered": 0,
+    "failed_modules": [],
+    "failed_providers": [],
+    "last_error": None,
+    "last_failed": None,
+    "missing_package": None,
+}
+_LOGGED_ERRORS: set[str] = set()
+
 
 def register_factor_provider(provider: FactorProvider) -> None:
     """Register one provider and its FactorSpec metadata atomically."""
@@ -161,9 +177,14 @@ def register_factor_provider(provider: FactorProvider) -> None:
                 f"factor {factor_id} already owned by provider {owner}"
             )
 
-    from app.factors.registry import register_factor
+    from app.factors.registry import peek_factor, register_factor
 
     for spec in provider.factor_specs:
+        # 上一次注册在本 provider 中途抛错时, 已注册的 spec 会留在注册表里; 直接用
+        # register_factor 会因「版本未提升」永远注册不上 (清旗也修不回来的那半条路径)。
+        # 同内容就跳过, 内容变了才真注册 —— 让重试可收敛。
+        if peek_factor(spec.id) == spec:
+            continue
         register_factor(spec)
     _PROVIDERS[provider_id] = provider
     _FACTOR_OWNERS.update({factor_id: provider_id for factor_id in factor_ids})
@@ -181,20 +202,61 @@ def unregister_factor_provider(provider_id: str) -> None:
         unregister_factor(factor_id)
 
 
+def _note_failure(kind: str, name: str, exc: BaseException) -> None:
+    """记录一次装载失败 (计数 + 最后错误 + 包名), 同一条错误只告警一次。"""
+    message = f"{type(exc).__name__}: {exc}"
+    _DISCOVERY["last_error"] = message
+    _DISCOVERY["last_failed"] = name
+    bucket = _DISCOVERY["failed_modules" if kind == "module" else "failed_providers"]
+    bucket.append({"name": name, "error": message})
+    key = f"{kind}:{name}:{message}"
+    if key not in _LOGGED_ERRORS:
+        _LOGGED_ERRORS.add(key)
+        logger.warning("factor provider %s load failed %s: %s", kind, name, exc)
+
+
 def ensure_factor_providers() -> None:
-    """Discover optional ``factor_provider`` modules under app.custom."""
+    """Discover optional ``factor_provider`` modules under app.custom.
+
+    B0b-3 契约 (旧实现的静默吞异常已修):
+
+    * ``_PROVIDERS_READY`` 只在**发现循环全部成功**后置位; 任一步失败即保持/复位为
+      False, 下一次调用重新尝试 (旧实现先置 True 再发现: 一次瞬时 import 失败 =
+      进程内永久缺失, 且不可重试)。
+    * 失败不打断其它 provider (一个坏包不影响其余), 但全部失败都留可查记录:
+      计数 (``attempts`` / ``failures``)、最后错误 (``last_error``)、包名
+      (``failed_modules`` / ``failed_providers``) —— 见 ``factor_provider_status()``。
+    * 「未安装」与「装载失败」可区分: 前者 ``missing_package`` 非空或
+      ``packages_scanned == 0``, 后者 ``failed_*`` 非空。
+    """
     global _PROVIDERS_READY
     if _PROVIDERS_READY:
         return
-    _PROVIDERS_READY = True
+
+    _DISCOVERY["attempts"] += 1
+    _DISCOVERY["packages_scanned"] = 0
+    _DISCOVERY["modules_loaded"] = 0
+    _DISCOVERY["failed_modules"] = []
+    _DISCOVERY["failed_providers"] = []
+    _DISCOVERY["last_error"] = None
+    _DISCOVERY["last_failed"] = None
+
     try:
         package = importlib.import_module("app.custom")
-    except ModuleNotFoundError:
+    except ModuleNotFoundError as exc:
+        # 未安装: app.custom 包不存在。旗标保持 False, 下次调用重试 (装回来即可生效)。
+        _DISCOVERY["missing_package"] = str(exc)
+        _DISCOVERY["failures"] += 1
+        _DISCOVERY["last_error"] = f"{type(exc).__name__}: {exc}"
+        _DISCOVERY["last_failed"] = "app.custom"
         return
+    _DISCOVERY["missing_package"] = None
+
     discovered: list[FactorProvider] = []
     for item in pkgutil.iter_modules(package.__path__, f"{package.__name__}."):
         if not item.ispkg:
             continue
+        _DISCOVERY["packages_scanned"] += 1
         module_name = f"{item.name}.factor_provider"
         try:
             spec = importlib.util.find_spec(module_name)
@@ -204,10 +266,12 @@ def ensure_factor_providers() -> None:
             providers = getattr(module, "FACTOR_PROVIDERS", ())
             if not isinstance(providers, (tuple, list)):
                 raise TypeError("FACTOR_PROVIDERS must be a tuple or list")
+            _DISCOVERY["modules_loaded"] += 1
             for provider in providers:
                 discovered.append(provider)
         except Exception as exc:  # noqa: BLE001 - isolate one optional provider
-            logger.warning("factor provider load failed %s: %s", module_name, exc)
+            _note_failure("module", module_name, exc)
+
     for provider in sorted(
         discovered,
         key=lambda item: (item.kind != "frame", item.provider_id),
@@ -215,11 +279,49 @@ def ensure_factor_providers() -> None:
         try:
             register_factor_provider(provider)
         except Exception as exc:  # noqa: BLE001 - isolate one optional provider
-            logger.warning(
-                "factor provider registration failed %s: %s",
-                provider.provider_id,
-                exc,
-            )
+            _note_failure("provider", str(getattr(provider, "provider_id", "?")), exc)
+
+    if _DISCOVERY["failed_modules"] or _DISCOVERY["failed_providers"]:
+        _DISCOVERY["failures"] += 1
+        _PROVIDERS_READY = False
+        return
+    _DISCOVERY["providers_registered"] = len(_PROVIDERS)
+    _PROVIDERS_READY = True
+
+
+def factor_provider_status() -> dict[str, Any]:
+    """因子 Provider 发现/装载的可查状态 (health 用; 只读, 不触发发现)。
+
+    ``state`` 四态: ``pending`` (从未尝试) / ``not_installed`` (无 app.custom 或
+    一个 provider 包都没有) / ``load_failed`` (有失败记录) / ``loaded``。
+    """
+    failed_modules = list(_DISCOVERY["failed_modules"])
+    failed_providers = list(_DISCOVERY["failed_providers"])
+    if _DISCOVERY["attempts"] == 0:
+        state = "pending"
+    elif _DISCOVERY["missing_package"] or (
+        _DISCOVERY["packages_scanned"] == 0 and not _PROVIDERS_READY
+    ):
+        state = "not_installed"
+    elif failed_modules or failed_providers or not _PROVIDERS_READY:
+        state = "load_failed"
+    else:
+        state = "loaded"
+    return {
+        "state": state,
+        "ready": _PROVIDERS_READY,
+        "attempts": _DISCOVERY["attempts"],
+        "failures": _DISCOVERY["failures"],
+        "packages_scanned": _DISCOVERY["packages_scanned"],
+        "modules_loaded": _DISCOVERY["modules_loaded"],
+        "providers": sorted(_PROVIDERS),
+        "factor_count": len(_FACTOR_OWNERS),
+        "failed_modules": failed_modules,
+        "failed_providers": failed_providers,
+        "last_error": _DISCOVERY["last_error"],
+        "last_failed": _DISCOVERY["last_failed"],
+        "missing_package": _DISCOVERY["missing_package"],
+    }
 
 
 def factor_provider_for(factor_id: str) -> FactorProvider | None:

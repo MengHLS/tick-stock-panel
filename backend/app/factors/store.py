@@ -49,6 +49,27 @@ def _now() -> str:
     return datetime.now().isoformat(timespec="seconds")
 
 
+def _admission_fields(definition: dict) -> tuple[str | None, bool]:
+    """定义 → (alias_of, strategy_usable); 契约 §7.16.2 / §7.16.5 的读取口径。
+
+    * `alias_of`: 非空字符串才算 alias, 空串 / null / 缺省一律 None (= 非 alias)。
+    * `strategy_usable`: 盘上显式给值就按布尔读 (bool("false") 是 True, 所以只认
+      真布尔与 0/1), 缺省时 **alias → False, 其余 → True** (§7.16.5: 只有 alias_of
+      非空才置 False; 不按 kind / stability 推导)。
+    * 显式写成「alias 却 strategy_usable=true」不在读取层悄悄改写 —— 那是定义自相
+      矛盾, 留给闸门按 §7.16.2 C3 交叉校验 (FS03 仍按 alias_of 判, 不因取值错而放行)。
+    """
+    raw_alias = definition.get("alias_of")
+    alias_of = str(raw_alias).strip() if raw_alias not in (None, "") else None
+    alias_of = alias_of or None
+    if "strategy_usable" in definition and definition["strategy_usable"] is not None:
+        raw_usable = definition["strategy_usable"]
+        strategy_usable = bool(raw_usable) if isinstance(raw_usable, (bool, int)) else bool(str(raw_usable).strip().lower() not in ("", "0", "false", "no"))
+    else:
+        strategy_usable = alias_of is None
+    return alias_of, strategy_usable
+
+
 def to_spec(definition: dict) -> FactorSpec:
     """定义 → FactorSpec; 校验失败抛 ValueError (调用方 fail-closed)。
 
@@ -66,6 +87,7 @@ def to_spec(definition: dict) -> FactorSpec:
     status = str(definition.get("status", "draft"))
     if status not in STATUSES:
         raise ValueError(f"status 必须是 {sorted(STATUSES)} 之一")
+    alias_of, strategy_usable = _admission_fields(definition)
 
     if kind == "custom":
         formula = str(definition.get("formula", ""))
@@ -92,6 +114,8 @@ def to_spec(definition: dict) -> FactorSpec:
                 warmup_bars=max(declared_warmup, compiled.warmup_bars),
                 direction=str(definition.get("direction", "none")),  # type: ignore[arg-type]
                 stability="stable" if status == "active" else "experimental",
+                alias_of=alias_of,
+                strategy_usable=strategy_usable,
             )
         compiled = compile_formula(formula)
         if not compiled.ok:
@@ -108,6 +132,8 @@ def to_spec(definition: dict) -> FactorSpec:
             warmup_bars=compiled.warmup_bars,
             direction=str(definition.get("direction", "none")),  # type: ignore[arg-type]
             stability="stable" if status == "active" else "experimental",
+            alias_of=alias_of,
+            strategy_usable=strategy_usable,
         )
 
     if kind != "composite":
@@ -163,6 +189,8 @@ def to_spec(definition: dict) -> FactorSpec:
         direction=str(definition.get("direction", "none")),  # type: ignore[arg-type]
         components=tuple(components),
         stability="stable" if status == "active" else "experimental",
+        alias_of=alias_of,
+        strategy_usable=strategy_usable,
     )
 
 

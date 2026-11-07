@@ -362,14 +362,20 @@ def test_python_factor_is_fs05_in_production_only() -> None:
 # ---------------------------------------------------------------- 其他契约条款
 
 def test_dual_id_in_one_call_is_not_silently_allowed() -> None:
+    """§7.16.6 / B0b-1: FS04 由 NotImplementedError 改成真闸门码（GateError）。"""
     source = _source(
         vol60={"alias_of": "uf_vol60", "strategy_usable": False},
         uf_vol60={},
     )
     for mode in ("production", "research"):
-        with pytest.raises(NotImplementedError):
-            _report(["vol60", "uf_vol60"], mode, source)
+        with pytest.raises(gate.GateError) as excinfo:
+            gate.assert_factors_usable(["vol60", "uf_vol60"], mode, facts=source)
+        assert excinfo.value.code == "FS04"
     assert _report(["vol60", "uf_vol60"], "diagnostic", source).ok is True
+
+    # shadow=True 只报告不打断: FS03 仍在 blocked 里 (GateReport 无 FS04 槽位)。
+    shadow_report = _report(["vol60", "uf_vol60"], "production", source)
+    assert ("vol60", "active", "FS03") in shadow_report.blocked
 
 
 def test_mode_none_does_not_judge_anything() -> None:
@@ -451,7 +457,9 @@ def test_live_config_ids_are_all_known_and_never_blocked_as_columns() -> None:
     production = _report(ids, "production", source)
     blocked_ids = {item[0] for item in production.blocked}
     for factor_id in blocked_ids:
-        assert facts[factor_id].kind in gate.GATED_KINDS
+        # §7.8.3 黑名单语义: 被拦的必然是「不在豁免集」的 kind（B0b-1 由
+        # 白名单 {custom, composite} 改为 EXEMPT_KINDS = {base, virtual}）。
+        assert facts[factor_id].kind not in gate.EXEMPT_KINDS
         assert facts[factor_id].status != "active"
 
     research = _report(ids, "research", source, allow_non_active=True)
@@ -461,3 +469,153 @@ def test_live_config_ids_are_all_known_and_never_blocked_as_columns() -> None:
     diagnostic = _report(ids, "diagnostic", source)
     assert diagnostic.ok is True
     assert set(diagnostic.non_active) == blocked_ids
+
+
+# ------------------------------------------------- B0b-1 载体: 字段 / 黑名单 / FS04
+def test_factor_spec_has_the_two_admission_fields_as_22nd_and_23rd() -> None:
+    """F-A42-1: 第 22/23 字段，既有 21 个字段名一个不改。"""
+    from app.factors.registry import FactorSpec
+
+    fields = [item.name for item in dataclasses.fields(FactorSpec)]
+    assert len(fields) == 23
+    assert fields[-2:] == ["alias_of", "strategy_usable"]
+    spec = FactorSpec(id="x", label="x", group="g", formula_text="close")
+    assert spec.alias_of is None
+    assert spec.strategy_usable is True
+    assert spec.is_alias() is False
+
+
+def test_store_reads_alias_of_and_strategy_usable_from_disk_json() -> None:
+    """§7.16.5: 定义 JSON 的两键由 store 读入 spec（alias → strategy_usable False）。"""
+    from app.factors import store
+
+    alias_spec = store.to_spec({
+        "id": "uf_alias_probe",
+        "kind": "custom",
+        "label": "别名探针",
+        "formula": "close",
+        "status": "draft",
+        "version": 1,
+        "alias_of": "uf_target_probe",
+    })
+    assert alias_spec.alias_of == "uf_target_probe"
+    assert alias_spec.strategy_usable is False
+
+    plain = store.to_spec({
+        "id": "uf_plain_probe",
+        "kind": "custom",
+        "label": "普通探针",
+        "formula": "close",
+        "status": "draft",
+        "version": 1,
+    })
+    assert plain.alias_of is None
+    assert plain.strategy_usable is True
+
+    # 显式错配（alias 却写 strategy_usable=true）不在读取层改写: 留给闸门交叉校验。
+    mismatch = store.to_spec({
+        "id": "uf_mismatch_probe",
+        "kind": "custom",
+        "label": "错配探针",
+        "formula": "close",
+        "status": "draft",
+        "version": 1,
+        "alias_of": "uf_target_probe",
+        "strategy_usable": True,
+    })
+    assert mismatch.alias_of == "uf_target_probe"
+    assert mismatch.strategy_usable is True
+
+
+def test_gate_uses_a_blacklist_so_unknown_kinds_are_gated() -> None:
+    """§7.8.3 裁定 B: 闸门按可复算性分类，不按 kind —— 新 kind 默认受约束。"""
+    alias_facts = {"alias_of": "uf_vol60", "strategy_usable": False}
+    for kind in ("custom", "composite", "python", "frame", "sidecar", "未知-kind"):
+        source = _source(probe=dict(alias_facts, kind=kind), uf_vol60={})
+        report = _report(["probe"], "production", source)
+        assert report.blocked == (("probe", "active", "FS03"),), kind
+
+    # 豁免集只有 base / virtual: 同一 alias 事实在这两个 kind 下不出码。
+    for kind in ("base", "virtual"):
+        source = _source(probe=dict(alias_facts, kind=kind), uf_vol60={})
+        assert _report(["probe"], "production", source).blocked == (), kind
+
+
+def test_fs04_raises_gate_error_and_wins_over_fs03() -> None:
+    """§7.16.6: 同一策略内 alias + canonical 并存 → FS04，且优先于 FS03。"""
+    source = _source(
+        vol60={"alias_of": "uf_vol60", "strategy_usable": False},
+        uf_vol60={},
+    )
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(["vol60", "uf_vol60"], "production", facts=source)
+    error = excinfo.value
+    assert error.code == "FS04"
+    assert error.detail["code"] == "FS04"
+    assert error.detail["canonical_id"] == "uf_vol60"
+    assert error.detail["resolved_id"] == "uf_vol60"
+    assert error.detail["dual_ids"] == ["vol60", "uf_vol60"]
+    assert error.detail["table_row"] is None
+    assert set(error.detail) >= FS03_DETAIL_KEYS
+    assert not isinstance(error, NotImplementedError)
+
+    # research 也拒（§7.8.4）；diagnostic 放行。
+    with pytest.raises(gate.GateError) as research_error:
+        gate.assert_factors_usable(["vol60", "uf_vol60"], "research", facts=source)
+    assert research_error.value.code == "FS04"
+    diagnostic = _report(["vol60", "uf_vol60"], "diagnostic", source)
+    assert diagnostic.ok is True
+
+    # 只有两个不相干的 canonical 时不出 FS04。
+    clean = _report(["uf_vol60", "vol60"], "production", _source(uf_vol60={}, vol60={}))
+    assert clean.blocked == ()
+
+
+# ------------------------------------------------- 真盘: 8 组双 id
+REAL_DATA_DIR = Path("D:/TSP/data")
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_eight_alias_ids_are_rejected_and_canonicals_pass() -> None:
+    """F-A42-2/F-A42-5: 真盘 8 个 alias → FS03；8 个 canonical 不出 FS03。"""
+    source = gate.RegistryFacts(REAL_DATA_DIR)
+
+    for alias_id, canonical_id in ALIAS_PAIRS:
+        facts = source.facts(alias_id)
+        assert facts.registered, alias_id
+        assert facts.alias_of == canonical_id, alias_id
+        assert facts.strategy_usable is False, alias_id
+
+        with pytest.raises(gate.GateError) as excinfo:
+            gate.assert_factors_usable([alias_id], "production", facts=source)
+        detail = excinfo.value.detail
+        assert excinfo.value.code == "FS03"
+        assert detail["submitted_id"] == alias_id
+        assert detail["resolved_id"] == canonical_id
+        assert detail["canonical_id"] == canonical_id
+
+        # research 放行（canonical 无 status → 按 draft 记 non_active，须显式允许；
+        # deprecated_alias_used 标记的落点见 CONTRACT-GAP 4）。
+        research = gate.assert_factors_usable(
+            [alias_id], "research", allow_non_active=True, facts=source
+        )
+        assert research.ok is True
+
+    for _alias_id, canonical_id in ALIAS_PAIRS:
+        canonical_facts = source.facts(canonical_id)
+        assert canonical_facts.registered, canonical_id
+        assert canonical_facts.alias_of is None, canonical_id
+        report = _report([canonical_id], "production", source)
+        assert "FS03" not in {item[2] for item in report.blocked}, canonical_id
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_six_single_sided_pack_factors_are_not_aliases() -> None:
+    """F-A42-5: §7.15.1 第 9–14 行的 6 个单侧件 alias_of 必须为 None。"""
+    source = gate.RegistryFacts(REAL_DATA_DIR)
+    for factor_id in ("ma20", "ma60", "sd20", "boll_lower", "boll_upper", "prior_amount_20"):
+        facts = source.facts(factor_id)
+        assert facts.registered, factor_id
+        assert facts.alias_of is None, factor_id
+        report = _report([factor_id], "production", source)
+        assert "FS03" not in {item[2] for item in report.blocked}, factor_id

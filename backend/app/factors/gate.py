@@ -60,8 +60,13 @@ MODES: tuple[str, ...] = ("production", "research", "diagnostic", "none")
 #: `custom_factors/*.json` 的 status 取值（store.STATUSES 同源）。
 STATUSES: tuple[str, ...] = ("draft", "active", "watch", "retired")
 
-#: §7.7.2 末行 / §7.8.3：base 与 virtual 不适用 status，也不按 alias 判。
-GATED_KINDS: frozenset[str] = frozenset({"custom", "composite"})
+#: §7.8.3 裁定 B：闸门按「可复算性」分类，**不按 kind** —— 因此这里记的是
+#: **豁免集**（不是白名单）：只有 base / virtual 不 gate（§7.7.2 末行：两者无 status、
+#: 准入由台账 G1–G3 与代码审核承担）；其余一切（custom / composite / python / 以及
+#: 任何未预期的新 kind）一律进闸门判定。旧实现用白名单 {custom, composite}，导致
+#: 「同一个 id 换个 kind 就逃出闸门」（实测 vol60 作 custom 出 FS03、作 frame 出 []），
+#: 178 个因子完全不受约束。改成黑名单语义后，新 kind 默认受约束（fail-closed）。
+EXEMPT_KINDS: frozenset[str] = frozenset({"base", "virtual"})
 
 #: §7.8.2 A-3：alias 传递解析上限，超过即 FS06。
 MAX_ALIAS_HOPS = 4
@@ -235,10 +240,11 @@ class RegistryFacts:
         kind = spec.kind if spec is not None else str(definition.get("kind") or "custom")
         lang = spec.lang if spec is not None else str(definition.get("lang") or "dsl")
         status = _definition_status(definition)
-        alias_of = getattr(spec, "alias_of", None) if spec is not None else None
+        # §7.16.5：spec 字段是权威投影（pack / store 定义写入），定义 JSON 只是兜底。
+        alias_of = spec.alias_of if spec is not None else None
         if alias_of is None and definition is not None:
             alias_of = definition.get("alias_of") or None
-        strategy_usable = getattr(spec, "strategy_usable", None) if spec is not None else None
+        strategy_usable = spec.strategy_usable if spec is not None else None
         if strategy_usable is None and definition is not None:
             strategy_usable = definition.get("strategy_usable")
         return FactorFacts(
@@ -313,8 +319,9 @@ def _judge(
     if not fact.registered:
         return _Verdict(("FS02",), False, False, None)
 
-    if fact.kind not in GATED_KINDS:
+    if fact.kind in EXEMPT_KINDS:
         # §7.7.2 末行 + §7.8.3：base / virtual 不适用 status，也不按 alias 判。
+        # 黑名单语义：不在这里「点名放行」，其余 kind 一律往下走判定。
         return _Verdict((), False, False, fact.factor_id)
 
     codes: list[str] = []
@@ -380,18 +387,43 @@ def _normalise_ids(factor_ids: Iterable[str] | str) -> list[str]:
     return ordered
 
 
-def _guard_dual_id(resolved: Mapping[str, str]) -> None:
-    """FS04（同一策略内 alias 与 canonical 并存）本单不实现，但绝不静默放行。"""
+def _guard_dual_id(
+    resolved: Mapping[str, str],
+    *,
+    mode: str,
+    report: GateReport,
+    entry: str | None = None,
+    shadow: bool = False,
+) -> None:
+    """§7.16.6 FS04：同一策略内 alias 与 canonical 并存 → 400 + `code="FS04"`。
+
+    * 只在 production / research 判（diagnostic 放行并标 `dual_id`，§7.8.4）。
+    * **FS04 优先于 FS03**（§7.16.6 末行）：本函数在 FS03 抛错之前调用。
+    * `detail` 与 FS03/FS06 共用 §7.16.4 形状；`submitted_id` 取输入顺序的第一条，
+      另给 `dual_ids` 列全部并存 id（§7.16.4 批量入口的 `violations` 同精神）。
+    * `table_row` 仍为 None：§7.15.1 没有机器可读副本（见 check_ledger_consistency）。
+    * `shadow=True` 时按 §7.7.2「shadow 不打断」返回、不抛 —— GateReport 六字段固定，
+      没有 FS04 槽位，`dual_id` 标记的落点见 CONTRACT-GAP 4。
+    """
     buckets: dict[str, list[str]] = {}
     for submitted, canonical in resolved.items():
         buckets.setdefault(canonical, []).append(submitted)
     for canonical, submitted in buckets.items():
-        if len(submitted) > 1:
-            raise NotImplementedError(
-                "FS04（同一策略内混用同口径两个 id）按本单派发书不在实现范围内，"
-                f"输入集合里 {submitted} 都指向 {canonical}。契约 §7.16.6 要求"
-                "production 与 research 都拒 FS04；此处显式抛出，不做放行。"
-            )
+        if len(submitted) < 2:
+            continue
+        if shadow:
+            return
+        detail = _detail(
+            "FS04",
+            mode,
+            submitted[0],
+            canonical,
+            None,
+            None,
+            f"同一策略内混用同口径两个 id: {' / '.join(submitted)} 都指向 {canonical}",
+        )
+        detail["dual_ids"] = list(submitted)
+        raise GateError("FS04", detail, report, entry=entry)
 
 
 def _detail(
@@ -489,10 +521,6 @@ def assert_factors_usable(
                     non_active.append(factor_id)
                 if verdict.retired:
                     historical = True
-        if mode in ("production", "research"):
-            # §7.16.6：FS04 在 production / research 都拒，diagnostic 允许（标 dual_id）。
-            _guard_dual_id(gated_resolved)
-
     report = GateReport(
         ok=not blocked,
         blocked=tuple(blocked),
@@ -501,6 +529,11 @@ def assert_factors_usable(
         mode=mode,
         historical_only=historical,
     )
+
+    if mode in ("production", "research"):
+        # §7.16.6：FS04 在 production / research 都拒，diagnostic 允许（标 dual_id）；
+        # 且 **FS04 优先于 FS03** —— 必须排在下面的 GateError(FS03) 之前。
+        _guard_dual_id(gated_resolved, mode=mode, report=report, entry=entry, shadow=shadow)
 
     if report.blocked and not shadow:
         first_id, first_status, first_code = report.blocked[0]

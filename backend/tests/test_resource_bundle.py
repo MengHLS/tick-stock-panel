@@ -686,3 +686,93 @@ def test_intraday_signals_use_the_minute_feature_contract(env, tmp_path, monkeyp
     assert not any(entry["issues"] for entry in preview["entries"])
     apply(blob, preview)
     assert (dest / "user_data/custom_signals/minute_cross.json").exists()
+
+
+# ── B0b-3 回归: _analyze 的显式预热 (resource_bundle.py:732) ────────────────
+# `registry.all_factors()` 这一行必须在 `isolated_registry()` 复制快照**之前**跑完:
+# `_PREVIEW_REGISTRY` 生效期间 `registry._ensure_ext_factors()` 直接 return, 所以扩展列
+# 一旦没在预热里注册, 预检就再也同步不进来 (公式判 E001 未知标识符 / 信号字段不在白名单)。
+# 删掉 :732 这两条用例必须变红。
+EXT_PROBE_COL = "ext_tags_hot"
+EXT_PROBE_FACTOR = {
+    "id": "uf_ext_probe",
+    "label": "扩展列探针",
+    "kind": "custom",
+    "formula": "ts_mean(ext_tags_hot, 5)",
+    "lang": "dsl",
+    "status": "draft",
+    "version": 1,
+}
+EXT_PROBE_SIGNAL = {
+    "id": "probe",
+    "name": "扩展列探针信号",
+    "kind": "entry",
+    "enabled": True,
+    "conditions": [{"left": "ext_tags_hot", "op": ">", "right": 0}],
+}
+
+
+@pytest.fixture()
+def ext_probe_env(tmp_path, monkeypatch):
+    """扩展配置在盘上, 但 ext_ 因子**尚未**注册 (模拟进程内还没同步过)。"""
+    from app import config as app_config
+    from app.factors import ext_factors, registry
+    from app.services.ext_data import ExtConfig, ExtConfigStore, ExtField, _load_all_cache
+
+    monkeypatch.setattr(app_config.settings, "data_dir", tmp_path)
+    _load_all_cache.clear()
+    ext_factors._frame_cache.clear()
+    ext_factors._sync_state = None
+    ExtConfigStore(tmp_path).upsert(
+        ExtConfig(id="tags", label="题材标签", mode="timeseries",
+                  fields=[ExtField(name="hot", dtype="float")])
+    )
+    write(tmp_path / "user_data/custom_factors/uf_ext_probe.json", EXT_PROBE_FACTOR)
+    if registry.peek_factor(EXT_PROBE_COL) is not None:
+        registry.unregister_factor(EXT_PROBE_COL)
+    yield tmp_path
+    _load_all_cache.clear()
+    ext_factors._frame_cache.clear()
+    ext_factors._sync_state = None
+    if registry.peek_factor(EXT_PROBE_COL) is not None:
+        registry.unregister_factor(EXT_PROBE_COL)
+    if registry.peek_factor("uf_ext_probe") is not None:
+        registry.unregister_factor("uf_ext_probe")
+
+
+def test_preview_compile_sees_ext_columns_registered_by_the_warmup(ext_probe_env) -> None:
+    from app.factors import registry
+
+    assert registry.peek_factor(EXT_PROBE_COL) is None, "前置条件: 扩展列尚未注册"
+    resources = {
+        "factor:uf_ext_probe": {
+            "key": "factor:uf_ext_probe",
+            "id": "uf_ext_probe",
+            "kind": "factor",
+            "inputs": frozenset(),
+            "payload": json.dumps(EXT_PROBE_FACTOR, ensure_ascii=False).encode("utf-8"),
+        }
+    }
+    resource_bundle._analyze(resources)
+
+    assert resources["factor:uf_ext_probe"]["issues"] == []
+    assert registry.peek_factor(EXT_PROBE_COL) is not None
+
+
+def test_preview_signal_whitelist_sees_ext_columns_registered_by_the_warmup(ext_probe_env) -> None:
+    from app.factors import registry
+
+    assert registry.peek_factor(EXT_PROBE_COL) is None, "前置条件: 扩展列尚未注册"
+    resources = {
+        "signal:probe": {
+            "key": "signal:probe",
+            "id": "probe",
+            "kind": "signal",
+            "inputs": frozenset(),
+            "payload": json.dumps(EXT_PROBE_SIGNAL, ensure_ascii=False).encode("utf-8"),
+        }
+    }
+    resource_bundle._analyze(resources)
+
+    assert resources["signal:probe"]["issues"] == []
+    assert registry.peek_factor(EXT_PROBE_COL) is not None

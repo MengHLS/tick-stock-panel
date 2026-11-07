@@ -68,12 +68,18 @@ def _memory_snapshot() -> dict:
 
 @router.get("/health")
 def health() -> dict:
+    # B0b-3: 因子 Provider 的发现/装载状态 (只读快照, 不触发发现)。四态
+    # pending / not_installed / load_failed / loaded —— 旧实现把装载失败只记一行
+    # warning, 这里能区分「没装」与「装失败」。
+    from app.extensions.factors import factor_provider_status
+
     return {
         "status": "ok",
         "version": __version__,
         # 三态: none(无key/无效) / free(免费key) / api_key(付费档)
         "mode": tf_client.current_mode(),
         "memory": _memory_snapshot(),
+        "factor_providers": factor_provider_status(),
     }
 
 
