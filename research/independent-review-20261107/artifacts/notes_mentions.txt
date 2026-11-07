@@ -1,0 +1,6 @@
+1804: | **R8（现状事实原位更正 + `notes` 出 digest）** | 见 `docs/architecture/CONTRACT_REVISION_R8_20261107.md`：**8 处逐行替换** —— 算子数 25 → **29**（= 25 + §3 E2 三键 + §4 E1 `xs_mean`；读取 2026-11-07 21:00、`dsl.py` 36,785 B / sha `49f3a110…`）；`xs_rank_market` 在算子键层独立计数（「不重复计数」仅该层作废，因子台账层仍与 `rank` 合计算 1 个）；`E017` 由「需新增」改为已落地；
+1859: ### 10.3 `notes` 是否进 canonical digest：**不进**；§7.12.4 由「剔除清单」升级为「载荷白名单」（recipe 2）
+1863: | 扰动 | recipe 1（含 `notes`，现 §7.12.4） | recipe 2（白名单，本节） |
+1865: | `notes` 每条尾加 1 个空格 | **变**（`ba414786…`） | **不变** |
+1870: **裁定：不进。** 签认对象必须只绑定**被判的事实**。`notes` 是散文（当前为 6 条人类说明的数组），改一个标点就换签认值 —— 这会把「谁签了什么」变成「谁的错别字先改」，等于给签认装了一个随机源。同一理由适用于 `summary` / `stale_count`：它们是 `records` 的派生量，一致性由 `F-A35` 单独判，不应进签认指纹。
+1874: - 载荷**之外**（不是「剔除」而是「不进载荷」）：`generated_at` / `repo_head` / `data_root`（时点与机器）、`notes`（散文）、`summary` / `stale_count`（派生）、生成器版本串、`canonical_digest` 自身（自指）、`canonical_digest_recipe` 自身。

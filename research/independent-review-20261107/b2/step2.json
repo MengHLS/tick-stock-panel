@@ -1,0 +1,174 @@
+{
+ "NEG-pool3of6": {
+  "pool": [
+   null,
+   0.3333333333333333,
+   null,
+   0.6666666666666666,
+   null,
+   1.0
+  ],
+  "pct": [
+   null,
+   1.3333333333333333,
+   null,
+   1.6666666666666667,
+   null,
+   2.0
+  ],
+  "errors": [
+   [],
+   [],
+   []
+  ],
+  "pool_expect": [
+   0.3333333333333333,
+   0.6666666666666666,
+   1.0
+  ],
+  "pct_max": 2.0,
+  "pct_exceeds_1": true,
+  "pool_le_1": true,
+  "last3_pool": [
+   0.3333333333333333,
+   0.6666666666666666,
+   1.0
+  ],
+  "last3_pct": [
+   1.3333333333333333,
+   1.6666666666666667,
+   2.0
+  ],
+  "distinguishable": true
+ },
+ "NEG-pool1": {
+  "pool": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   1.0
+  ],
+  "pct": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   6.0
+  ],
+  "market": [
+   0.16666666666666666,
+   0.3333333333333333,
+   0.5,
+   0.6666666666666666,
+   0.8333333333333334,
+   1.0
+  ],
+  "nonnull_pool": [
+   1.0
+  ],
+  "nonnull_pct": [
+   6.0
+  ],
+  "indistinguishable": false
+ },
+ "NEG-4rows": {
+  "pool": [
+   null,
+   1.0,
+   null,
+   0.5
+  ],
+  "pct": [
+   null,
+   2.0,
+   null,
+   1.5
+  ],
+  "pool_vals": [
+   0.5,
+   1.0
+  ],
+  "pct_vals": [
+   1.5,
+   2.0
+  ]
+ },
+ "XS-B1_fixture": {
+  "market": [
+   0.5,
+   0.1875,
+   0.625,
+   0.1875,
+   0.75,
+   1.0,
+   0.375,
+   0.875
+  ],
+  "rank": [
+   0.5,
+   0.1875,
+   0.625,
+   0.1875,
+   0.75,
+   1.0,
+   0.375,
+   0.875
+  ],
+  "bitwise_equal": true,
+  "float_exact_equal": true
+ },
+ "XS-B1_real": {
+  "rows": 258311,
+  "dates": 81,
+  "bitwise_equal": true,
+  "n_diff": 0,
+  "max_abs_diff": 0.0,
+  "nulls_market": 0,
+  "nulls_rank": 0
+ },
+ "old_dsl_loaded": true,
+ "rank_unchanged": {
+  "rank(close)": {
+   "old_ok": true,
+   "new_ok": true,
+   "bitwise_equal": true,
+   "hash_old": "262c011b90e535de",
+   "hash_new": "262c011b90e535de",
+   "n_diff": 0
+  },
+  "rank(amount)": {
+   "old_ok": true,
+   "new_ok": true,
+   "bitwise_equal": true,
+   "hash_old": "adc43a3f9f23e37b",
+   "hash_new": "adc43a3f9f23e37b",
+   "n_diff": 0
+  },
+  "zscore(close)": {
+   "old_ok": true,
+   "new_ok": true,
+   "bitwise_equal": true,
+   "hash_old": "3daec85a18efc077",
+   "hash_new": "3daec85a18efc077",
+   "n_diff": 0
+  }
+ },
+ "W4_window": {
+  "compiled": true,
+  "rows": 44654,
+  "days": 14,
+  "nonnull": 0,
+  "in_universe_nonnull": 0
+ },
+ "W4_normal_day": {
+  "rows": 3188,
+  "nonnull": 0,
+  "min": null,
+  "max": null,
+  "pool_member_rows": 0,
+  "out_of_pool_nonnull": 0
+ }
+}

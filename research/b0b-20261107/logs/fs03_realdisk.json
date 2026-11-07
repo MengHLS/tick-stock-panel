@@ -1,0 +1,334 @@
+{
+  "alias_rows": [
+    {
+      "alias": "vol60",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_vol60",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_vol60",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_vol60",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "ma120",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_ma120",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_ma120",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_ma120",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "ma200",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_ma200",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_ma200",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_ma200",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "prior_high_20",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_prior_high_20",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_prior_high_20",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_prior_high_20",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "prior_high_55",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_prior_high_55",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_prior_high_55",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_prior_high_55",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "prior_high_250",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_prior_high_250",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_prior_high_250",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_prior_high_250",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "prior_low_10",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_prior_low_10",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_prior_low_10",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_prior_low_10",
+      "spec_strategy_usable": false
+    },
+    {
+      "alias": "prior_vol_20",
+      "blocked_codes": [
+        "FS03",
+        "FS01"
+      ],
+      "canonical": "uf_prior_vol_20",
+      "error_code": "FS03",
+      "facts_alias_of": "uf_prior_vol_20",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": "uf_prior_vol_20",
+      "spec_strategy_usable": false
+    }
+  ],
+  "canonical_rows": [
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_vol60",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_ma120",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_ma200",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_prior_high_20",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_prior_high_55",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_prior_high_250",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_prior_low_10",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    },
+    {
+      "blocked_codes": [
+        "FS01"
+      ],
+      "canonical": "uf_prior_vol_20",
+      "error_code": "FS01",
+      "ok": true,
+      "registered": true,
+      "spec_alias_of": null
+    }
+  ],
+  "checks": [
+    {
+      "detail": {
+        "pack": {
+          "ma120": "uf_ma120",
+          "ma200": "uf_ma200",
+          "prior_high_20": "uf_prior_high_20",
+          "prior_high_250": "uf_prior_high_250",
+          "prior_high_55": "uf_prior_high_55",
+          "prior_low_10": "uf_prior_low_10",
+          "prior_vol_20": "uf_prior_vol_20",
+          "vol60": "uf_vol60"
+        },
+        "script": {
+          "ma120": "uf_ma120",
+          "ma200": "uf_ma200",
+          "prior_high_20": "uf_prior_high_20",
+          "prior_high_250": "uf_prior_high_250",
+          "prior_high_55": "uf_prior_high_55",
+          "prior_low_10": "uf_prior_low_10",
+          "prior_vol_20": "uf_prior_vol_20",
+          "vol60": "uf_vol60"
+        }
+      },
+      "id": "P0.alias_table_matches",
+      "ok": true
+    },
+    {
+      "detail": {
+        "providers": [
+          "official.cross-sectional-linkage",
+          "official.first-board-event-chain",
+          "official.research-calendar-pack-e4",
+          "official.research-factor-pack-b0",
+          "official.research-universe-pack-e3"
+        ],
+        "state": "loaded"
+      },
+      "id": "P1.providers_ready",
+      "ok": true
+    },
+    {
+      "detail": [],
+      "id": "P2.canonical_on_disk",
+      "ok": true
+    },
+    {
+      "detail": {
+        "failing": []
+      },
+      "id": "A1.eight_aliases_all_FS03",
+      "ok": true
+    },
+    {
+      "detail": {
+        "failing": []
+      },
+      "id": "A2.eight_canonicals_no_FS03",
+      "ok": true
+    },
+    {
+      "detail": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "id": "A3.diagnostic_does_not_reject_alias",
+      "ok": true
+    },
+    {
+      "detail": {
+        "ma120": "uf_ma120",
+        "ma200": "uf_ma200",
+        "prior_high_20": "uf_prior_high_20",
+        "prior_high_250": "uf_prior_high_250",
+        "prior_high_55": "uf_prior_high_55",
+        "prior_low_10": "uf_prior_low_10",
+        "prior_vol_20": "uf_prior_vol_20",
+        "vol60": "uf_vol60"
+      },
+      "id": "A4.spec_carrier",
+      "ok": true
+    },
+    {
+      "detail": {
+        "cf_auction_resonance": false,
+        "uf_auction_post0920_match_growth": false,
+        "uf_auction_tail_imbalance": false,
+        "uf_auction_tail_match_growth": false,
+        "uf_auction_volume_surprise": false,
+        "uf_auction_volume_vs_prev": false,
+        "uf_dist_prior_high_250": false,
+        "uf_ma120": false,
+        "uf_ma200": false,
+        "uf_prior_high_20": false,
+        "uf_prior_high_250": false,
+        "uf_prior_high_55": false,
+        "uf_prior_low_10": false,
+        "uf_prior_vol_20": false,
+        "uf_vol60": false
+      },
+      "id": "A5.disk_json_has_no_alias_of",
+      "ok": true
+    }
+  ],
+  "provider_status": {
+    "attempts": 1,
+    "factor_count": 33,
+    "failed_modules": [],
+    "failed_providers": [],
+    "failures": 0,
+    "last_error": null,
+    "last_failed": null,
+    "missing_package": null,
+    "modules_loaded": 5,
+    "packages_scanned": 14,
+    "providers": [
+      "official.cross-sectional-linkage",
+      "official.first-board-event-chain",
+      "official.research-calendar-pack-e4",
+      "official.research-factor-pack-b0",
+      "official.research-universe-pack-e3"
+    ],
+    "ready": true,
+    "state": "loaded"
+  },
+  "summary": {
+    "failed": 0,
+    "passed": 8,
+    "total": 8
+  }
+}

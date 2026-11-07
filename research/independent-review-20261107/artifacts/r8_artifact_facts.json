@@ -1,0 +1,221 @@
+{
+  "files": [
+    {
+      "path": "docs/architecture/evidence/referenced_factor_inventory.json",
+      "bytes": 186343,
+      "mtime": 1794050637.0056562,
+      "full_sha256": "df5e1a63e98f8834e95517bbdde556a2550bb901d865ba09c1ac7f4040b32e49",
+      "top_keys": [
+        "canonical_digest",
+        "data_root",
+        "generated_at",
+        "notes",
+        "records",
+        "repo_head",
+        "scanned_sources",
+        "schema_version",
+        "stale_count",
+        "summary"
+      ],
+      "ondisk_canonical_digest": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a",
+      "recipe_field": "<ABSENT>",
+      "schema_version": "2",
+      "scanned_sources": 67,
+      "generated_at": "2026-11-07T19:23:55+08:00",
+      "n_records": 218,
+      "r1": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a",
+      "r1_matches": true,
+      "r2": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+      "notes_chars": 1213,
+      "notes_len": 6
+    },
+    {
+      "path": "research/referenced-factor-inventory-20261107/logs/run1.json",
+      "bytes": 152826,
+      "mtime": 1794042600.522646,
+      "full_sha256": "8a6d13a1d61e0cb0d51176a1c288a060f2be8bcce646792e9549420e273ab2b2",
+      "top_keys": [
+        "canonical_sha256",
+        "data_root",
+        "generated_at",
+        "notes",
+        "records",
+        "repo_head",
+        "scanned_sources",
+        "schema_version",
+        "stale_count",
+        "summary"
+      ],
+      "ondisk_canonical_digest": "<ABSENT>",
+      "recipe_field": "<ABSENT>",
+      "schema_version": "2",
+      "scanned_sources": 67,
+      "generated_at": "2026-11-07T17:09:52+08:00",
+      "n_records": 218,
+      "r1": "9d34fef766da94f6a87ef5ed0b40863209f013a1a0390c47491e6766dc1ced3b",
+      "r1_matches": false,
+      "r2": "2ba970690ccea57ba30c40fded13dce2eeeee14b204e76f2cb3442bb4c5c5f74",
+      "notes_chars": 515,
+      "notes_len": 4
+    },
+    {
+      "path": "research/referenced-factor-inventory-v3-20261107/v2_replay.json",
+      "bytes": 152826,
+      "mtime": 1794043676.9941044,
+      "full_sha256": "35dc21556c5666ae599206f230669ae2e79cba62c6336dfd93b8228aa108752c",
+      "top_keys": [
+        "canonical_sha256",
+        "data_root",
+        "generated_at",
+        "notes",
+        "records",
+        "repo_head",
+        "scanned_sources",
+        "schema_version",
+        "stale_count",
+        "summary"
+      ],
+      "ondisk_canonical_digest": "<ABSENT>",
+      "recipe_field": "<ABSENT>",
+      "schema_version": "2",
+      "scanned_sources": 67,
+      "generated_at": "2026-11-07T17:27:55+08:00",
+      "n_records": 218,
+      "r1": "9d34fef766da94f6a87ef5ed0b40863209f013a1a0390c47491e6766dc1ced3b",
+      "r1_matches": false,
+      "r2": "2ba970690ccea57ba30c40fded13dce2eeeee14b204e76f2cb3442bb4c5c5f74",
+      "notes_chars": 515,
+      "notes_len": 4
+    },
+    {
+      "path": "research/referenced-factor-inventory-v3-20261107/run1.json",
+      "bytes": 184643,
+      "mtime": 1794043598.5711894,
+      "full_sha256": "5f08897dbff3b1fda6f2418c14448da6bcd710719463b73acc4dbc1d8465e1c7",
+      "top_keys": [
+        "canonical_digest",
+        "data_root",
+        "generated_at",
+        "notes",
+        "records",
+        "repo_head",
+        "scanned_sources",
+        "schema_version",
+        "stale_count",
+        "summary"
+      ],
+      "ondisk_canonical_digest": "184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1",
+      "recipe_field": "<ABSENT>",
+      "schema_version": "2",
+      "scanned_sources": 67,
+      "generated_at": "2026-11-07T17:26:27+08:00",
+      "n_records": 218,
+      "r1": "184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1",
+      "r1_matches": true,
+      "r2": "adb8a5fddd0f8fe47af38d22bc3c1173ba499b46c2ffcb6d8da9201a6b94ea6e",
+      "notes_chars": 1091,
+      "notes_len": 6
+    },
+    {
+      "path": "research/referenced-factor-inventory-v3-20261107/final_run_a.json",
+      "bytes": 184643,
+      "mtime": 1794043660.5553207,
+      "full_sha256": "fdef5e359450cde6ed8c96fe685f4463a5b9e5ac98f745956273bcc12e123457",
+      "top_keys": [
+        "canonical_digest",
+        "data_root",
+        "generated_at",
+        "notes",
+        "records",
+        "repo_head",
+        "scanned_sources",
+        "schema_version",
+        "stale_count",
+        "summary"
+      ],
+      "ondisk_canonical_digest": "184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1",
+      "recipe_field": "<ABSENT>",
+      "schema_version": "2",
+      "scanned_sources": 67,
+      "generated_at": "2026-11-07T17:27:33+08:00",
+      "n_records": 218,
+      "r1": "184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1",
+      "r1_matches": true,
+      "r2": "adb8a5fddd0f8fe47af38d22bc3c1173ba499b46c2ffcb6d8da9201a6b94ea6e",
+      "notes_chars": 1091,
+      "notes_len": 6
+    },
+    {
+      "path": "research/referenced-factor-inventory-v3-1-20261107/final_run_v3_prev.json",
+      "bytes": 184643,
+      "mtime": 1794045914.3052757,
+      "full_sha256": "c5d8d22d36c994c018f9a46c9810e481bd9ac9a042ed54ac5fd05ad78488126f",
+      "top_keys": [
+        "canonical_digest",
+        "data_root",
+        "generated_at",
+        "notes",
+        "records",
+        "repo_head",
+        "scanned_sources",
+        "schema_version",
+        "stale_count",
+        "summary"
+      ],
+      "ondisk_canonical_digest": "184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1",
+      "recipe_field": "<ABSENT>",
+      "schema_version": "2",
+      "scanned_sources": 67,
+      "generated_at": "2026-11-07T17:27:43+08:00",
+      "n_records": 218,
+      "r1": "184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1",
+      "r1_matches": true,
+      "r2": "adb8a5fddd0f8fe47af38d22bc3c1173ba499b46c2ffcb6d8da9201a6b94ea6e",
+      "notes_chars": 1091,
+      "notes_len": 6
+    }
+  ],
+  "notes": [
+    "记录粒度 = 一个结构化引用出现处（契约 §7.12.2）：条件 left / right、monitor conditions[].field、scoring 每个键、公式每个依赖名、composite 每个成员、research fields.<名> 各算一处，不按 (源 × 名字) 合并；同名两处 = 两条记录，由 evidence 行号区分。",
+    "ref_raw 保留配置里的字面量（含 field: 前缀），ref_name = 去前缀 + trim 后的名字，分类/解析/allowlist 比对只用 ref_name（§7.12.3）；side ∈ {L,R,F} 是表达式槽位，结构键路径（conditions[i].left / conditions[i].right / conditions[i].field / overlay_filter[i].left / overlay_filter[i].right / scoring / formula / members / fields.<名>）只进 side_key，不参与判定、不进唯一键。",
+    "both_collision=true 且 record_kind=companion 的是 F-A24 伴生记录（同一出现处的因子侧视图），verdict 恒 exempt，注释在 note 字段、evidence 只含 path:line；伴生不参与放行，不进入任何层的 by_verdict，只在 by_record_kind.companion 计数（§7.12.5 / F-A35）。",
+    "summary.live_config = source_enabled=true 的活配置源，是 L2 allowlist 的唯一读取面；summary.all_records 只作全仓观测；summary.by_verdict / by_code / by_namespace 是 v1 兼容别名，值与 all_records 对应项相等。",
+    "canonical_digest = §7.12.4：剔除 generated_at / repo_head / data_root / canonical_digest 四键，records 按每条记录的规范化 JSON 全序，整体 ensure_ascii=False + sort_keys + separators=(',',':') 后取 sha256；签认、产物比对、闸门读取一律用它。旁挂 .sha256 取全文哈希、含 generated_at，每次重跑必变，只证明本次运行字节完整（F-A22 不作比对基准）。",
+    "结构键引用没有表达式槽位、契约 side 只有三值：本产物统一记 side=L（被引用的值槽）并把结构路径写进 side_key；此处为契约留白，待架构师追认（改动面为 emit 调用处的常量）。"
+  ],
+  "summary_keys": [
+    "all_records",
+    "by_code",
+    "by_namespace",
+    "by_verdict",
+    "live_config"
+  ],
+  "summary_live_config": {
+    "sources": 22,
+    "records": 93,
+    "by_record_kind": {
+      "companion": 14,
+      "primary": 79
+    },
+    "by_verdict": {
+      "allow": 79
+    },
+    "by_code": {
+      "null": 79
+    },
+    "by_namespace": {
+      "column": 79
+    },
+    "by_class": {
+      "base": 79
+    },
+    "by_path_scope": {
+      "history": 77,
+      "intraday": 2
+    },
+    "by_verdict_sources": {
+      "allow": 22
+    }
+  },
+  "stale_count": 0
+}

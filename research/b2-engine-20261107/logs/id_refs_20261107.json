@@ -1,0 +1,70 @@
+{
+ "hard": {
+  "roots": [
+   {
+    "root": "D:/TSP/data/user_data/custom_signals",
+    "exists": true,
+    "files": 21
+   },
+   {
+    "root": "D:/TSP/data/user_data/strategy_overrides",
+    "exists": true,
+    "files": 4
+   },
+   {
+    "root": "D:/TSP/data/user_data/monitor_rules",
+    "exists": true,
+    "files": 1
+   },
+   {
+    "root": "C:/work/sourcecode/tick-stock-panel/research/strategy-search-20261107",
+    "exists": true,
+    "files": 110
+   },
+   {
+    "root": "C:/work/sourcecode/tick-stock-panel/backend/app/custom/strategy_research",
+    "exists": true,
+    "files": 8
+   }
+  ],
+  "hits": [],
+  "counts": {
+   "xs_rank_market": 0,
+   "xs_rank_pct": 0
+  }
+ },
+ "soft": {
+  "roots": [
+   {
+    "root": "C:/work/sourcecode/tick-stock-panel/backend/app",
+    "exists": true,
+    "files": 372
+   },
+   {
+    "root": "C:/work/sourcecode/tick-stock-panel/backend/tests",
+    "exists": true,
+    "files": 533
+   }
+  ],
+  "hits": [
+   {
+    "file": "C:/work/sourcecode/tick-stock-panel/backend/app/custom/research_universe_pack/factor_provider.py",
+    "line": 52,
+    "id": "xs_rank_pct",
+    "text": "# 值域 {1.0, 0.0, null} —— 供 xs_rank_pool / xs_mean / xs_rank_pct 的第 2 参数",
+    "is_comment": true
+   }
+  ],
+  "counts": {
+   "xs_rank_market": 0,
+   "xs_rank_pct": 1
+  }
+ },
+ "excluded": [
+  "C:/work/sourcecode/tick-stock-panel/backend/app/factors/dsl.py"
+ ],
+ "hard_total": 0,
+ "soft_total": 1,
+ "soft_all_comments": true,
+ "pass": true
+}

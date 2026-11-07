@@ -1,0 +1,525 @@
+{
+  "generated_by": "scripts/factor_map_build.py",
+  "registry": {
+    "n_factors": 178,
+    "n_base": 117,
+    "n_virtual": 61
+  },
+  "strategies": [
+    {
+      "id": "S01",
+      "name": "双均线 20/60 金叉",
+      "rebalance": "event",
+      "note": "ma20>ma60 等价于 ma20_bias<ma60_bias（同一 close 相除，序不变）",
+      "fields": {
+        "entry": {
+          "text": "ma20_bias < ma60_bias and ts_delay(ma20_bias, 1) >= ts_delay(ma60_bias, 1)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 2,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "ma20_bias",
+            "ma60_bias"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": "ma20_bias > ma60_bias",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "ma20_bias",
+            "ma60_bias"
+          ],
+          "unregistered_idents": []
+        },
+        "score": {
+          "text": "momentum_20d",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_20d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": []
+    },
+    {
+      "id": "S02",
+      "name": "唐奇安 20/10 突破",
+      "rebalance": "event",
+      "note": "prior_high20 == ts_delay(ts_max(high,20),1) 逐位等价（同为 t-20..t-1 的最大值）",
+      "fields": {
+        "entry": {
+          "text": "close > ts_delay(ts_max(high, 20), 1)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 21,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": "close < ts_delay(ts_min(low, 10), 1)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 11,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": []
+        },
+        "score": {
+          "text": "momentum_20d",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_20d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": [
+        "breakout_dist_20d",
+        "breakdown_dist_10d"
+      ]
+    },
+    {
+      "id": "S03",
+      "name": "时序动量 60 日 + 月末",
+      "rebalance": "month_end",
+      "note": "close>ma120 用 ts_mean(close,120) 表达；注册表最大只有 ma60_bias，无 ma120 级别因子",
+      "fields": {
+        "entry": {
+          "text": "momentum_60d > 0 and close > ts_mean(close, 120) and ma20_bias < ma60_bias",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 121,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "ma20_bias",
+            "ma60_bias",
+            "momentum_60d"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": "momentum_60d <= 0 or close < ts_mean(close, 120)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 121,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_60d"
+          ],
+          "unregistered_idents": []
+        },
+        "score": {
+          "text": "momentum_60d",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_60d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": [
+        "ma120_bias"
+      ]
+    },
+    {
+      "id": "S04",
+      "name": "RSI(14) 超卖反转",
+      "rebalance": "event",
+      "note": "口径风险：v0 用 ewm(alpha=1/14, adjust=False) 近似 Wilder，注册 rsi_14 的实现未核对",
+      "fields": {
+        "entry": {
+          "text": "rsi_14 < 30",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "rsi_14"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": "rsi_14 > 55",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "rsi_14"
+          ],
+          "unregistered_idents": []
+        },
+        "score": {
+          "text": "rsi_14",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "rsi_14"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": []
+    },
+    {
+      "id": "S05",
+      "name": "布林带 (20,2) 下轨反转",
+      "rebalance": "event",
+      "note": "前提：boll_position 定义=(close-lower)/(upper-lower)。注册表只写「下轨到上轨之间的位置」，标度未定，需确认",
+      "fields": {
+        "entry": {
+          "text": "boll_position < 0",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "boll_position"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": "boll_position > 0.5",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "boll_position"
+          ],
+          "unregistered_idents": []
+        },
+        "score": {
+          "text": "boll_position",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "boll_position"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": []
+    },
+    {
+      "id": "S06",
+      "name": "截面 5 日反转",
+      "rebalance": "week_end",
+      "note": "截面算子语义风险：DSL rank 分母=当日非空样本数，v0 分母=当日 in_universe 样本数",
+      "fields": {
+        "entry": {
+          "text": "rank(momentum_5d) <= 0.05",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": true,
+          "referenced_factors": [
+            "momentum_5d"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": null,
+          "status": "no_signal"
+        },
+        "score": {
+          "text": "momentum_5d",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_5d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": []
+    },
+    {
+      "id": "S07",
+      "name": "截面 60 日低波动",
+      "rebalance": "month_end",
+      "note": "vol60 未注册；prev_close 语义（复权昨收 vs 交易所昨收）未核对",
+      "fields": {
+        "entry": {
+          "text": "rank(ts_std(close / prev_close - 1, 60)) <= 0.10",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 61,
+          "cross_sectional": true,
+          "referenced_factors": [],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": null,
+          "status": "no_signal"
+        },
+        "score": {
+          "text": "ts_std(close / prev_close - 1, 60)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 61,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": [
+        "vol60"
+      ]
+    },
+    {
+      "id": "S08",
+      "name": "52 周新高附近",
+      "rebalance": "month_end",
+      "note": "注册表只有 240 日口径（distance_to_high_240d，且是收盘价口径，v0 用 high 的 250 日 rolling max）",
+      "fields": {
+        "entry": {
+          "text": "distance_to_high_250d >= -0.03 and close > ts_mean(close, 120)",
+          "ok": false,
+          "errors": [
+            {
+              "code": "E001",
+              "message": "未知标识符: distance_to_high_250d"
+            }
+          ],
+          "warmup_bars": 121,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": [
+            "distance_to_high_250d"
+          ]
+        },
+        "exit": {
+          "text": null,
+          "status": "no_signal"
+        },
+        "score": {
+          "text": "distance_to_high_250d",
+          "ok": false,
+          "errors": [
+            {
+              "code": "E001",
+              "message": "未知标识符: distance_to_high_250d"
+            }
+          ],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": [
+            "distance_to_high_250d"
+          ]
+        }
+      },
+      "missing_factor_ids": [
+        "distance_to_high_250d"
+      ],
+      "required_new_factors": [
+        "distance_to_high_250d"
+      ]
+    },
+    {
+      "id": "S09",
+      "name": "55 日新高 + 1.5 倍量能",
+      "rebalance": "event",
+      "note": "close<ma20 等价于 ma20_bias<0；vol_ratio_20d 未注册（现有 5d/10d）",
+      "fields": {
+        "entry": {
+          "text": "close > ts_delay(ts_max(high, 55), 1) and volume > 1.5 * ts_delay(ts_mean(volume, 20), 1)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 56,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": "ma20_bias < 0",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "ma20_bias"
+          ],
+          "unregistered_idents": []
+        },
+        "score": {
+          "text": "momentum_60d",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_60d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": [
+        "vol_ratio_20d",
+        "breakout_dist_55d"
+      ]
+    },
+    {
+      "id": "S10",
+      "name": "截面 20 日反转",
+      "rebalance": "month_end",
+      "note": "全部因子已注册，仅剩 rank 分母语义风险",
+      "fields": {
+        "entry": {
+          "text": "rank(momentum_20d) <= 0.10",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": true,
+          "referenced_factors": [
+            "momentum_20d"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": null,
+          "status": "no_signal"
+        },
+        "score": {
+          "text": "momentum_20d",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 1,
+          "cross_sectional": false,
+          "referenced_factors": [
+            "momentum_20d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": []
+    },
+    {
+      "id": "S11",
+      "name": "低波动 + 20 日反转复合",
+      "rebalance": "month_end",
+      "note": "复合排序用两个 rank 相加表达（等价于 v0 的 -(rk_vol60+rk_ret20) 升序）",
+      "fields": {
+        "entry": {
+          "text": "rank(ts_std(close / prev_close - 1, 60)) <= 0.30 and rank(momentum_20d) <= 0.30",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 61,
+          "cross_sectional": true,
+          "referenced_factors": [
+            "momentum_20d"
+          ],
+          "unregistered_idents": []
+        },
+        "exit": {
+          "text": null,
+          "status": "no_signal"
+        },
+        "score": {
+          "text": "rank(ts_std(close / prev_close - 1, 60)) + rank(momentum_20d)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 61,
+          "cross_sectional": true,
+          "referenced_factors": [
+            "momentum_20d"
+          ],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [],
+      "required_new_factors": [
+        "vol60"
+      ]
+    },
+    {
+      "id": "S12",
+      "name": "低波动 + 市场宽度择时",
+      "rebalance": "month_end",
+      "note": "market_breadth 是市场级（按日聚合）字段，不是逐股因子；DSL 无截面均值算子 → 需引擎能力",
+      "fields": {
+        "entry": {
+          "text": "rank(ts_std(close / prev_close - 1, 60)) <= 0.10 and market_breadth >= 0.5",
+          "ok": false,
+          "errors": [
+            {
+              "code": "E001",
+              "message": "未知标识符: market_breadth"
+            }
+          ],
+          "warmup_bars": 61,
+          "cross_sectional": true,
+          "referenced_factors": [],
+          "unregistered_idents": [
+            "market_breadth"
+          ]
+        },
+        "exit": {
+          "text": null,
+          "status": "no_signal"
+        },
+        "score": {
+          "text": "ts_std(close / prev_close - 1, 60)",
+          "ok": true,
+          "errors": [],
+          "warmup_bars": 61,
+          "cross_sectional": false,
+          "referenced_factors": [],
+          "unregistered_idents": []
+        }
+      },
+      "missing_factor_ids": [
+        "market_breadth"
+      ],
+      "required_new_factors": [
+        "vol60",
+        "market_breadth(市场级)"
+      ]
+    }
+  ],
+  "summary": {
+    "all_entries_compile": false,
+    "n_with_missing_factor_id": 2,
+    "strategies_missing": [
+      "S08",
+      "S12"
+    ],
+    "rebalance_calendars_required": [
+      "event",
+      "month_end",
+      "week_end"
+    ]
+  }
+}

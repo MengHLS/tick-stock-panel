@@ -1,0 +1,65 @@
+{
+  "fa11b_readings": {
+    "ma20": {
+      "n": 6592,
+      "read1_elem": {
+        "max_rel": 6.874064183444352e-08,
+        "pass_": true
+      },
+      "read2_col": {
+        "max_rel": 4.484595476842146e-08,
+        "pass_": true
+      },
+      "verdict_differs": false,
+      "worst_elem": {
+        "p": 8.071378309043151,
+        "m": 8.071377754211426,
+        "absdiff": 5.548317254522317e-07,
+        "rel": 6.874064183444352e-08,
+        "p_abs": 8.071378309043151,
+        "is_near_zero": false
+      }
+    },
+    "boll_lower": {
+      "n": 6592,
+      "read1_elem": {
+        "max_rel": 1.416306246139678e-07,
+        "pass_": false
+      },
+      "read2_col": {
+        "max_rel": 8.634744579114573e-08,
+        "pass_": true
+      },
+      "verdict_differs": true,
+      "worst_elem": {
+        "p": 9.273079278134725,
+        "m": 9.273077964782715,
+        "absdiff": 1.3133520102570628e-06,
+        "rel": 1.416306246139678e-07,
+        "p_abs": 9.273079278134725,
+        "is_near_zero": false
+      }
+    },
+    "boll_upper": {
+      "n": 6592,
+      "read1_elem": {
+        "max_rel": 1.4289603722436258e-07,
+        "pass_": false
+      },
+      "read2_col": {
+        "max_rel": 8.721429318966016e-08,
+        "pass_": true
+      },
+      "verdict_differs": true,
+      "worst_elem": {
+        "p": 9.188821433230686,
+        "m": 9.188822746276855,
+        "absdiff": 1.3130461695709528e-06,
+        "rel": 1.4289603722436258e-07,
+        "p_abs": 9.188821433230686,
+        "is_near_zero": false
+      }
+    }
+  },
+  "note": "v0.7:1501 同一句含两个断言；读法1(逐元素,1e-12 才有意义)与读法2(列级)在正确核上判决相反"
+}

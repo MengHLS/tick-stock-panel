@@ -1,0 +1,355 @@
+{
+  "P1_allowlist": {
+    "records": 93,
+    "sources": 22,
+    "primary": 79,
+    "companion": 14,
+    "n_ids": 19,
+    "ids": [
+      "boll_lower",
+      "boll_upper",
+      "close",
+      "high",
+      "high_60d",
+      "limit_down_price",
+      "limit_up_price",
+      "low_60d",
+      "ma10",
+      "ma20",
+      "ma5",
+      "ma60",
+      "macd_dea",
+      "macd_dif",
+      "open",
+      "raw_close",
+      "raw_high",
+      "raw_low",
+      "vol_ratio_5d"
+    ]
+  },
+  "P2_facts": {
+    "boll_lower": {
+      "kind": "custom",
+      "status": null,
+      "registered": true,
+      "lang": "dsl"
+    },
+    "boll_upper": {
+      "kind": "custom",
+      "status": null,
+      "registered": true,
+      "lang": "dsl"
+    },
+    "close": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "high": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "high_60d": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "limit_down_price": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "limit_up_price": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "low_60d": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "ma10": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "ma20": {
+      "kind": "custom",
+      "status": null,
+      "registered": true,
+      "lang": "dsl"
+    },
+    "ma5": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "ma60": {
+      "kind": "custom",
+      "status": null,
+      "registered": true,
+      "lang": "dsl"
+    },
+    "macd_dea": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "macd_dif": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "open": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "raw_close": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "raw_high": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "raw_low": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": null
+    },
+    "vol_ratio_5d": {
+      "kind": "base",
+      "status": null,
+      "registered": true,
+      "lang": "dsl"
+    }
+  },
+  "P3_column_universe": {
+    "n": 68,
+    "BASE_COLUMNS_n": 9,
+    "ids_in_universe": [
+      "boll_lower",
+      "boll_upper",
+      "close",
+      "high",
+      "high_60d",
+      "limit_down_price",
+      "limit_up_price",
+      "low_60d",
+      "ma10",
+      "ma20",
+      "ma5",
+      "ma60",
+      "macd_dea",
+      "macd_dif",
+      "open",
+      "raw_close",
+      "raw_high",
+      "raw_low",
+      "vol_ratio_5d"
+    ],
+    "ids_not_in_universe": []
+  },
+  "P4_allowed_fields": {
+    "n_ALLOWED_FIELDS": 54,
+    "ids_in_ALLOWED_FIELDS": [
+      "boll_lower",
+      "boll_upper",
+      "close",
+      "high",
+      "high_60d",
+      "limit_down_price",
+      "limit_up_price",
+      "low_60d",
+      "ma10",
+      "ma20",
+      "ma5",
+      "ma60",
+      "macd_dea",
+      "macd_dif",
+      "open",
+      "raw_close",
+      "raw_high",
+      "raw_low",
+      "vol_ratio_5d"
+    ],
+    "collision_4": {
+      "ma20": true,
+      "ma60": true,
+      "boll_lower": true,
+      "boll_upper": true
+    }
+  },
+  "P5_production": {
+    "ok": false,
+    "blocked": [
+      [
+        "boll_lower",
+        null,
+        "FS01"
+      ],
+      [
+        "boll_upper",
+        null,
+        "FS01"
+      ],
+      [
+        "ma20",
+        null,
+        "FS01"
+      ],
+      [
+        "ma60",
+        null,
+        "FS01"
+      ]
+    ],
+    "n_blocked": 4,
+    "non_active": [],
+    "unknown": []
+  },
+  "P5_research_default": {
+    "ok": false,
+    "blocked": [
+      [
+        "boll_lower",
+        null,
+        "FS01"
+      ],
+      [
+        "boll_upper",
+        null,
+        "FS01"
+      ],
+      [
+        "ma20",
+        null,
+        "FS01"
+      ],
+      [
+        "ma60",
+        null,
+        "FS01"
+      ]
+    ],
+    "n_blocked": 4,
+    "non_active": [],
+    "unknown": []
+  },
+  "P5_research_allow": {
+    "ok": true,
+    "blocked": [],
+    "n_blocked": 0,
+    "non_active": [
+      "boll_lower",
+      "boll_upper",
+      "ma20",
+      "ma60"
+    ],
+    "unknown": []
+  },
+  "P5_diagnostic": {
+    "ok": true,
+    "blocked": [],
+    "n_blocked": 0,
+    "non_active": [
+      "boll_lower",
+      "boll_upper",
+      "ma20",
+      "ma60"
+    ],
+    "unknown": []
+  },
+  "P6_signature": {
+    "text": "(factor_ids: 'Iterable[str] | str', mode: 'str', *, allow_non_active: 'bool' = False, allow_retired: 'bool' = False, require_status: 'bool' = True, shadow: 'bool' = False, entry: 'str | None' = None, facts: 'FactsSource | None' = None) -> 'GateReport'",
+    "params": [
+      {
+        "name": "factor_ids",
+        "kind": "POSITIONAL_OR_KEYWORD",
+        "default": null
+      },
+      {
+        "name": "mode",
+        "kind": "POSITIONAL_OR_KEYWORD",
+        "default": null
+      },
+      {
+        "name": "allow_non_active",
+        "kind": "KEYWORD_ONLY",
+        "default": "False"
+      },
+      {
+        "name": "allow_retired",
+        "kind": "KEYWORD_ONLY",
+        "default": "False"
+      },
+      {
+        "name": "require_status",
+        "kind": "KEYWORD_ONLY",
+        "default": "True"
+      },
+      {
+        "name": "shadow",
+        "kind": "KEYWORD_ONLY",
+        "default": "False"
+      },
+      {
+        "name": "entry",
+        "kind": "KEYWORD_ONLY",
+        "default": "None"
+      },
+      {
+        "name": "facts",
+        "kind": "KEYWORD_ONLY",
+        "default": "None"
+      }
+    ],
+    "has_namespace": false
+  },
+  "P7_collision_mechanism": {
+    "gate_py_order": "RegistryFacts.facts: spec/definition 非空时走 provider 分支，_column_universe 只在 spec 与 definition 都为空时才被查",
+    "facts_for_collision_4": {
+      "ma20": {
+        "kind": "custom",
+        "status": null
+      },
+      "ma60": {
+        "kind": "custom",
+        "status": null
+      },
+      "boll_lower": {
+        "kind": "custom",
+        "status": null
+      },
+      "boll_upper": {
+        "kind": "custom",
+        "status": null
+      }
+    },
+    "in_universe": {
+      "ma20": true,
+      "ma60": true,
+      "boll_lower": true,
+      "boll_upper": true
+    }
+  }
+}

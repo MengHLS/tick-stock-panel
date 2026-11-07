@@ -1,0 +1,2 @@
+df5e1a63e98f8834e95517bbdde556a2550bb901d865ba09c1ac7f4040b32e49 *docs/architecture/evidence/referenced_factor_inventory.json
+45bd3dbaedf58a26c41b06f0ccb02f4ecc202e37a2d2433780de0cc65fc5f755 *docs/architecture/evidence/referenced_factor_inventory.json.sha256

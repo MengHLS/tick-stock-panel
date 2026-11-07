@@ -1,0 +1,161 @@
+{
+  "matrix_feature_probe": {
+    "close_dtype": "float32",
+    "covered": [
+      "ma20",
+      "ma60",
+      "ma120",
+      "ma200",
+      "boll_lower",
+      "boll_upper"
+    ],
+    "n_covered": 6,
+    "n_total": 14,
+    "failed": [
+      "sd20",
+      "vol60",
+      "prior_high_20",
+      "prior_high_55",
+      "prior_high_250",
+      "prior_low_10",
+      "prior_vol_20",
+      "prior_amount_20"
+    ],
+    "detail": {
+      "ma20": {
+        "ok": true,
+        "dtype": "float32",
+        "finite": 2910,
+        "shape": [
+          601,
+          5
+        ]
+      },
+      "ma60": {
+        "ok": true,
+        "dtype": "float32",
+        "finite": 2710,
+        "shape": [
+          601,
+          5
+        ]
+      },
+      "ma120": {
+        "ok": true,
+        "dtype": "float32",
+        "finite": 2410,
+        "shape": [
+          601,
+          5
+        ]
+      },
+      "ma200": {
+        "ok": true,
+        "dtype": "float32",
+        "finite": 2010,
+        "shape": [
+          601,
+          5
+        ]
+      },
+      "boll_lower": {
+        "ok": true,
+        "dtype": "float32",
+        "finite": 2910,
+        "shape": [
+          601,
+          5
+        ]
+      },
+      "boll_upper": {
+        "ok": true,
+        "dtype": "float32",
+        "finite": 2910,
+        "shape": [
+          601,
+          5
+        ]
+      },
+      "sd20": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: sd20"
+      },
+      "vol60": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: vol60"
+      },
+      "prior_high_20": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: prior_high_20"
+      },
+      "prior_high_55": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: prior_high_55"
+      },
+      "prior_high_250": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: prior_high_250"
+      },
+      "prior_low_10": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: prior_low_10"
+      },
+      "prior_vol_20": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: prior_vol_20"
+      },
+      "prior_amount_20": {
+        "ok": false,
+        "err": "ValueError: unsupported matrix feature: prior_amount_20"
+      }
+    }
+  },
+  "matrix_vs_panel": {
+    "detail": {
+      "ma20": {
+        "n_both": 2910,
+        "max_abs_diff": 7.462688381565385e-05,
+        "n_diff": 2908,
+        "within_1e-10": false,
+        "within_f32_eps": false
+      },
+      "ma60": {
+        "n_both": 2710,
+        "max_abs_diff": 6.990501788095571e-05,
+        "n_diff": 2709,
+        "within_1e-10": false,
+        "within_f32_eps": false
+      },
+      "ma120": {
+        "n_both": 2410,
+        "max_abs_diff": 6.483926449618593e-05,
+        "n_diff": 2410,
+        "within_1e-10": false,
+        "within_f32_eps": false
+      },
+      "ma200": {
+        "n_both": 2010,
+        "max_abs_diff": 6.370021787915903e-05,
+        "n_diff": 2009,
+        "within_1e-10": false,
+        "within_f32_eps": false
+      },
+      "boll_lower": {
+        "n_both": 2910,
+        "max_abs_diff": 0.0001314734624884295,
+        "n_diff": 2910,
+        "within_1e-10": false,
+        "within_f32_eps": false
+      },
+      "boll_upper": {
+        "n_both": 2910,
+        "max_abs_diff": 0.00015391026454381063,
+        "n_diff": 2910,
+        "within_1e-10": false,
+        "within_f32_eps": false
+      }
+    }
+  },
+  "elapsed_s": 5.5,
+  "generated_at": "2026-11-07T18:34:31"
+}

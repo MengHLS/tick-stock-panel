@@ -1,0 +1,6 @@
+stored_keys ['created_at', 'description', 'direction', 'formula', 'group', 'id', 'kind', 'label', 'lang', 'status', 'updated_at', 'version']
+api_def_keys ['created_at', 'description', 'direction', 'formula', 'group', 'id', 'kind', 'label', 'status', 'updated_at', 'version']
+same_content_raw False
+repeat_POST_result {'ok': True, 'id': 'uf_vol60', 'version': 2, 'unchanged': False}
+version_after 2 bytes_changed_vs_seed True
+third_repeat {'ok': True, 'id': 'uf_vol60', 'version': 2, 'unchanged': True}

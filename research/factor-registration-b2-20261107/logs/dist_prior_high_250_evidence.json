@@ -1,0 +1,622 @@
+{
+ "meta": {
+  "generated_at": "2026-11-07T16:10:55",
+  "script": "research/factor-registration-b2-20261107/dist_prior_high_250_parity.py",
+  "repo": "C:\\work\\sourcecode\\tick-stock-panel",
+  "data_dir": "D:\\TSP\\data",
+  "custom_factor_dir": "D:\\TSP\\data\\user_data\\custom_factors",
+  "factor_id": "uf_dist_prior_high_250",
+  "formula": "close / ts_delay(ts_max(high, 250), 1) - 1",
+  "formula_alt": "close / ts_max(ts_delay(high, 1), 250) - 1",
+  "window": {
+   "start": "2019-07-01",
+   "end": "2026-10-30"
+  },
+  "panel_window": {
+   "start": "2018-01-08",
+   "end": "2026-10-30"
+  },
+  "tolerance": 1e-12,
+  "threshold": -0.03,
+  "chunking": "none — 单次全帧、无抽样、无分块",
+  "system_path": "app.factors.dsl.compile_formula(...).frame_transform(...)（与 app/strategy/scoring.py 生产物化同函数）",
+  "research_path": "research/strategy-search-20261107/scripts/common.py → add_indicators（只读 import）",
+  "registration_path": "app.factors.store.upsert_definition（F-A5 幂等入口）",
+  "polars_version": "1.44.1",
+  "python": "3.11.15",
+  "git_head": "65c6e42f1fcd6362e72699afb118bdbcb247b3d3",
+  "git_branch": "dev",
+  "elapsed_seconds": 15.5
+ },
+ "prod_before": [
+  {
+   "file": "cf_auction_resonance.json",
+   "id": "cf_auction_resonance",
+   "version": 2,
+   "bytes": 638,
+   "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191"
+  },
+  {
+   "file": "uf_auction_post0920_match_growth.json",
+   "id": "uf_auction_post0920_match_growth",
+   "version": 2,
+   "bytes": 461,
+   "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582"
+  },
+  {
+   "file": "uf_auction_tail_imbalance.json",
+   "id": "uf_auction_tail_imbalance",
+   "version": 2,
+   "bytes": 503,
+   "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7"
+  },
+  {
+   "file": "uf_auction_tail_match_growth.json",
+   "id": "uf_auction_tail_match_growth",
+   "version": 2,
+   "bytes": 438,
+   "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0"
+  },
+  {
+   "file": "uf_auction_volume_surprise.json",
+   "id": "uf_auction_volume_surprise",
+   "version": 2,
+   "bytes": 469,
+   "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a"
+  },
+  {
+   "file": "uf_auction_volume_vs_prev.json",
+   "id": "uf_auction_volume_vs_prev",
+   "version": 2,
+   "bytes": 500,
+   "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d"
+  },
+  {
+   "file": "uf_dist_prior_high_250.json",
+   "id": "uf_dist_prior_high_250",
+   "version": 1,
+   "bytes": 756,
+   "sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5"
+  },
+  {
+   "file": "uf_ma120.json",
+   "id": "uf_ma120",
+   "version": 1,
+   "bytes": 368,
+   "sha256": "3ddb904acc7277d4195e870f1b7b0cca232932316d69f11e584ea131cdfcbefe"
+  },
+  {
+   "file": "uf_ma200.json",
+   "id": "uf_ma200",
+   "version": 1,
+   "bytes": 368,
+   "sha256": "cf96176f8458dca2827e5f9c27e31ede4d462f7a91533c1ff5076fa3af579bc2"
+  },
+  {
+   "file": "uf_prior_high_20.json",
+   "id": "uf_prior_high_20",
+   "version": 1,
+   "bytes": 490,
+   "sha256": "e3070878b5472b1aab4fdd5d0253487397b0a943e742a97b6be1577ebac23e86"
+  },
+  {
+   "file": "uf_prior_high_250.json",
+   "id": "uf_prior_high_250",
+   "version": 1,
+   "bytes": 438,
+   "sha256": "9f95286b8f97ab4047ff4a0bf2a61c7b48e1c618acd3982fbb1afd2b2446b9f8"
+  },
+  {
+   "file": "uf_prior_high_55.json",
+   "id": "uf_prior_high_55",
+   "version": 1,
+   "bytes": 434,
+   "sha256": "1f0ce5c6d8365da34a3d0aa22ed86f4665e5d4685334ba3b148b5bb4bbd6e59c"
+  },
+  {
+   "file": "uf_prior_low_10.json",
+   "id": "uf_prior_low_10",
+   "version": 1,
+   "bytes": 432,
+   "sha256": "e5885f47f4356043d7ec7826f4cf6d043c6ae290037f6b581127d9d05e140fe3"
+  },
+  {
+   "file": "uf_prior_vol_20.json",
+   "id": "uf_prior_vol_20",
+   "version": 1,
+   "bytes": 472,
+   "sha256": "fa8667bc5e6f61323f33a357cb24d4bcb37658bba279688b78cabd297ed22563"
+  },
+  {
+   "file": "uf_vol60.json",
+   "id": "uf_vol60",
+   "version": 1,
+   "bytes": 545,
+   "sha256": "c9041ba4930ac9c2ece17adbd05f25a4c37e4693e0e223ccd3e55b7e5b7430bb"
+  }
+ ],
+ "denominator_identity_check": {
+  "ts_delay_ts_max": 0.0,
+  "ts_delay_ts_max_warmup": 251,
+  "ts_max_ts_delay": 0.0,
+  "ts_max_ts_delay_warmup": 251,
+  "research_recompute_self_check": 0.0,
+  "note": "研究 prior_high250 = high.shift(1).rolling_max(250)；任务书写法 = ts_delay(ts_max(high,250),1)；B0 写法 = ts_max(ts_delay(high,1),250)。三者应逐位一致。"
+ },
+ "compile": {
+  "main": {
+   "formula": "close / ts_delay(ts_max(high, 250), 1) - 1",
+   "warmup_bars": 251,
+   "dependencies": [
+    "close",
+    "high"
+   ]
+  },
+  "alt": {
+   "formula": "close / ts_max(ts_delay(high, 1), 250) - 1",
+   "warmup_bars": 251,
+   "dependencies": [
+    "close",
+    "high"
+   ]
+  }
+ },
+ "registration_first": {
+  "ok": true,
+  "id": "uf_dist_prior_high_250",
+  "version": 1,
+  "unchanged": true,
+  "file": "D:\\TSP\\data\\user_data\\custom_factors\\uf_dist_prior_high_250.json",
+  "file_bytes": 756,
+  "file_sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+  "on_disk": {
+   "id": "uf_dist_prior_high_250",
+   "kind": "custom",
+   "label": "距此前250日最高价",
+   "group": "研究补充",
+   "formula": "close / ts_delay(ts_max(high, 250), 1) - 1",
+   "lang": "dsl",
+   "description": "close / prior_high_250 - 1，prior_high_250 = ts_delay(ts_max(high,250),1)。输出为小数不是百分比（-3% = -0.03）。分子为当日 close，与分母同一复权序列；分母为 0 或空时由 DSL _safe_div 给 null。口径见 docs/research/caliber-decisions-20261107.md §1.1/§1.4/§8.3.1；研究源 research/strategy-search-20261107/scripts/common.py add_indicators。",
+   "direction": "none",
+   "status": "draft",
+   "created_at": "2026-11-07T16:07:00",
+   "version": 1,
+   "updated_at": "2026-11-07T16:07:00"
+  },
+  "spec": {
+   "id": "uf_dist_prior_high_250",
+   "label": "距此前250日最高价",
+   "group": "研究补充",
+   "kind": "custom",
+   "version": 1,
+   "warmup_bars": 251,
+   "dependencies": [
+    "close",
+    "high"
+   ],
+   "stability": "experimental"
+  }
+ },
+ "registration_second": {
+  "ok": true,
+  "id": "uf_dist_prior_high_250",
+  "version": 1,
+  "unchanged": true,
+  "file_sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+  "bytes_same": true,
+  "version_after": 1
+ },
+ "row_counts": {
+  "panel_rows_full": 6422875,
+  "panel_symbols_full": 3384,
+  "eval_window_rows": 5510001,
+  "eval_window_symbols": 3384,
+  "eval_window_trading_days": 1779
+ },
+ "parity": {
+  "main": {
+   "formula": "close / ts_delay(ts_max(high, 250), 1) - 1",
+   "n_both_nonnull": 5332523,
+   "n_sys_nonnull": 5332523,
+   "n_res_nonnull": 5332523,
+   "n_sys_only_nonnull": 0,
+   "n_res_only_nonnull": 0,
+   "n_null_mismatch": 0,
+   "max_abs_diff": 0.0,
+   "mean_abs_diff": 0.0,
+   "p95_abs_diff": 0.0,
+   "n_nonzero_diff": 0,
+   "n_over_tol": 0,
+   "tol": 1e-12,
+   "n_symbols_compared": 3326,
+   "n_symbols_first_bar_mismatch": 0,
+   "mismatch_samples": [],
+   "panel_first_nonnull_date_sys": "2019-01-17",
+   "panel_first_nonnull_date_res": "2019-01-17",
+   "judgment_dist_ge_minus_3pct": {
+    "n": 5332523,
+    "both_true": 150292,
+    "only_sys": 0,
+    "only_res": 0,
+    "both_false": 5182231,
+    "jaccard": 1.0,
+    "trigger_rate_sys": 0.02818403221139412,
+    "trigger_rate_res": 0.02818403221139412
+   }
+  },
+  "alt": {
+   "formula": "close / ts_max(ts_delay(high, 1), 250) - 1",
+   "n_both_nonnull": 5332523,
+   "n_sys_nonnull": 5332523,
+   "n_res_nonnull": 5332523,
+   "n_sys_only_nonnull": 0,
+   "n_res_only_nonnull": 0,
+   "n_null_mismatch": 0,
+   "max_abs_diff": 0.0,
+   "mean_abs_diff": 0.0,
+   "p95_abs_diff": 0.0,
+   "n_nonzero_diff": 0,
+   "n_over_tol": 0,
+   "tol": 1e-12,
+   "n_symbols_compared": 3326,
+   "n_symbols_first_bar_mismatch": 0,
+   "mismatch_samples": [],
+   "panel_first_nonnull_date_sys": "2019-01-17",
+   "panel_first_nonnull_date_res": "2019-01-17",
+   "judgment_dist_ge_minus_3pct": {
+    "n": 5332523,
+    "both_true": 150292,
+    "only_sys": 0,
+    "only_res": 0,
+    "both_false": 5182231,
+    "jaccard": 1.0,
+    "trigger_rate_sys": 0.02818403221139412,
+    "trigger_rate_res": 0.02818403221139412
+   }
+  }
+ },
+ "denominator_rows": {
+  "eval_window": {
+   "scope": "eval_window",
+   "rows": 5510001,
+   "den_le_0": 0,
+   "den_lt_0": 0,
+   "den_eq_0": 0,
+   "den_null": 177478,
+   "den_le_0_or_null": 177478,
+   "research_inf_rows": 0,
+   "samples": [
+    {
+     "symbol": "000005.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000035.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000150.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000156.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000413.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000415.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000526.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000564.SZ",
+     "date": "2019-07-01",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    }
+   ]
+  },
+  "full_panel": {
+   "scope": "full_panel",
+   "rows": 6422875,
+   "den_le_0": 0,
+   "den_lt_0": 0,
+   "den_eq_0": 0,
+   "den_null": 838826,
+   "den_le_0_or_null": 838826,
+   "research_inf_rows": 0,
+   "samples": [
+    {
+     "symbol": "000001.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000002.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000008.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000009.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000010.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000011.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000012.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    },
+    {
+     "symbol": "000014.SZ",
+     "date": "2018-01-08",
+     "prior_high250": null,
+     "research_value": null,
+     "system_value": null,
+     "research_is_inf": false
+    }
+   ]
+  }
+ },
+ "nonnull_rows": {
+  "eval_window_research": 5332523,
+  "eval_window_system": 5332523,
+  "full_panel_research": 5584049,
+  "full_panel_system": 5584049
+ },
+ "prod_after": [
+  {
+   "file": "cf_auction_resonance.json",
+   "id": "cf_auction_resonance",
+   "version": 2,
+   "bytes": 638,
+   "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191"
+  },
+  {
+   "file": "uf_auction_post0920_match_growth.json",
+   "id": "uf_auction_post0920_match_growth",
+   "version": 2,
+   "bytes": 461,
+   "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582"
+  },
+  {
+   "file": "uf_auction_tail_imbalance.json",
+   "id": "uf_auction_tail_imbalance",
+   "version": 2,
+   "bytes": 503,
+   "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7"
+  },
+  {
+   "file": "uf_auction_tail_match_growth.json",
+   "id": "uf_auction_tail_match_growth",
+   "version": 2,
+   "bytes": 438,
+   "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0"
+  },
+  {
+   "file": "uf_auction_volume_surprise.json",
+   "id": "uf_auction_volume_surprise",
+   "version": 2,
+   "bytes": 469,
+   "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a"
+  },
+  {
+   "file": "uf_auction_volume_vs_prev.json",
+   "id": "uf_auction_volume_vs_prev",
+   "version": 2,
+   "bytes": 500,
+   "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d"
+  },
+  {
+   "file": "uf_dist_prior_high_250.json",
+   "id": "uf_dist_prior_high_250",
+   "version": 1,
+   "bytes": 756,
+   "sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5"
+  },
+  {
+   "file": "uf_ma120.json",
+   "id": "uf_ma120",
+   "version": 1,
+   "bytes": 368,
+   "sha256": "3ddb904acc7277d4195e870f1b7b0cca232932316d69f11e584ea131cdfcbefe"
+  },
+  {
+   "file": "uf_ma200.json",
+   "id": "uf_ma200",
+   "version": 1,
+   "bytes": 368,
+   "sha256": "cf96176f8458dca2827e5f9c27e31ede4d462f7a91533c1ff5076fa3af579bc2"
+  },
+  {
+   "file": "uf_prior_high_20.json",
+   "id": "uf_prior_high_20",
+   "version": 1,
+   "bytes": 490,
+   "sha256": "e3070878b5472b1aab4fdd5d0253487397b0a943e742a97b6be1577ebac23e86"
+  },
+  {
+   "file": "uf_prior_high_250.json",
+   "id": "uf_prior_high_250",
+   "version": 1,
+   "bytes": 438,
+   "sha256": "9f95286b8f97ab4047ff4a0bf2a61c7b48e1c618acd3982fbb1afd2b2446b9f8"
+  },
+  {
+   "file": "uf_prior_high_55.json",
+   "id": "uf_prior_high_55",
+   "version": 1,
+   "bytes": 434,
+   "sha256": "1f0ce5c6d8365da34a3d0aa22ed86f4665e5d4685334ba3b148b5bb4bbd6e59c"
+  },
+  {
+   "file": "uf_prior_low_10.json",
+   "id": "uf_prior_low_10",
+   "version": 1,
+   "bytes": 432,
+   "sha256": "e5885f47f4356043d7ec7826f4cf6d043c6ae290037f6b581127d9d05e140fe3"
+  },
+  {
+   "file": "uf_prior_vol_20.json",
+   "id": "uf_prior_vol_20",
+   "version": 1,
+   "bytes": 472,
+   "sha256": "fa8667bc5e6f61323f33a357cb24d4bcb37658bba279688b78cabd297ed22563"
+  },
+  {
+   "file": "uf_vol60.json",
+   "id": "uf_vol60",
+   "version": 1,
+   "bytes": 545,
+   "sha256": "c9041ba4930ac9c2ece17adbd05f25a4c37e4693e0e223ccd3e55b7e5b7430bb"
+  }
+ ],
+ "prod_diff": {
+  "before_count": 15,
+  "after_count": 15,
+  "changed_baseline_files": [],
+  "new_files": []
+ },
+ "prod_vs_first_run_baseline": {
+  "available": true,
+  "baseline_count": 14,
+  "changed_vs_baseline": [],
+  "added_vs_baseline": [
+   "uf_dist_prior_high_250.json"
+  ],
+  "removed_vs_baseline": []
+ },
+ "checks": [
+  {
+   "case": "A1 编译 warmup=251 且 dependencies={close,high}",
+   "ok": true,
+   "detail": "warmup=251 deps=['close', 'high']"
+  },
+  {
+   "case": "A2 id 匹配 ^uf_[a-z0-9_]{1,40}$ 且 kind=custom / status=draft",
+   "ok": true,
+   "detail": "uf_dist_prior_high_250.json status=draft"
+  },
+  {
+   "case": "A3 首次注册 version=1 且已进注册表",
+   "ok": true,
+   "detail": "version=1 spec.version=1"
+  },
+  {
+   "case": "A4 同内容二次注册 unchanged=true 且文件字节不变",
+   "ok": true,
+   "detail": "unchanged=True bytes_same=True version=1"
+  },
+  {
+   "case": "A5 与研究工作列逐位一致 max_abs_diff=0",
+   "ok": true,
+   "detail": "max_abs_diff=0.0 n_both=5,332,523 over_tol=0"
+  },
+  {
+   "case": "A6 两种公式写法数值一致",
+   "ok": true,
+   "detail": "alt max_abs_diff=0.0"
+  },
+  {
+   "case": "A7 空值口径无差异（仅一侧为空=0）",
+   "ok": true,
+   "detail": "sys_only=0 res_only=0"
+  },
+  {
+   "case": "A8 dist>=-0.03 判定 jaccard=1.0",
+   "ok": true,
+   "detail": "jaccard=1.0 n=5,332,523 both_true=150,292 only_sys=0 only_res=0"
+  },
+  {
+   "case": "A9 分母<=0 或空后研究侧无 inf 分支",
+   "ok": true,
+   "detail": "eval den<=0=0 den_null=177478 research_inf=0"
+  },
+  {
+   "case": "A10 首根非空逐 symbol 一致",
+   "ok": true,
+   "detail": "symbols=3326 mismatch=0 first=2019-01-17"
+  },
+  {
+   "case": "A11 生产目录既有文件逐字节未变（只允许新增本因子文件）",
+   "ok": true,
+   "detail": "本次 15→15 changed=[] new=[]; 对首跑基线(14) changed=[] added=['uf_dist_prior_high_250.json'] removed=[]"
+  }
+ ],
+ "summary": {
+  "passed": 11,
+  "total": 11,
+  "all_passed": true
+ }
+}

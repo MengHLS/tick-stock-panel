@@ -1,0 +1,114 @@
+{
+ "A15b_selector_inside_recipe1_outside_recipe2": [
+  {
+   "label": "1",
+   "r1": "00b3b1e4b5bef19646c13b8b8eb32a5b4c3a1354bf262d3c20467b60f4bd35d7",
+   "r2": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+   "r1_changed": true,
+   "r2_changed": false
+  },
+  {
+   "label": "2",
+   "r1": "9f9dd640c368a1b1c2aae64cd44f12dccaa1e89dcf37135110fde4cb7567cc2b",
+   "r2": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+   "r1_changed": true,
+   "r2_changed": false
+  },
+  {
+   "label": "3",
+   "r1": "cf3a8e821de15cda1a74ed05093d6ac835d1408dc307828ce533860b6114f6d2",
+   "r2": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+   "r1_changed": true,
+   "r2_changed": false
+  },
+  {
+   "label": "",
+   "r1": "b966e66598d302d40360ff5d36c25522cae3b98fef9c95d9e9196ebd860a6514",
+   "r2": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+   "r1_changed": true,
+   "r2_changed": false
+  }
+ ],
+ "A15c_F_A36_text_still_mandates_7_12_4": {
+  "F_A36_row": "| F-A36 | canonical digest 可复算且稳定 | 按 §7.12.4 代码复算 == 落盘 `canonical_digest`；扰动 `generated_at`/`repo_head`/`data_root` 与记录顺序后不变；改任一 `verdict` 必变；把旁挂 `.sha256` 当签认对象时不通过 |",
+  "mandates_7_12_4": true,
+  "mentions_recipe": false,
+  "s10_3_mandates_recipe2_for_new": true
+ },
+ "A15d_7_12_4_body_unchanged_v06_v09": {
+  "_v0.6": {
+   "chars": 1776,
+   "lf_sha16": "aec3df336b6e6064",
+   "raw_sha16": "aec3df336b6e6064"
+  },
+  "_v0.7": {
+   "chars": 1776,
+   "lf_sha16": "aec3df336b6e6064",
+   "raw_sha16": "aec3df336b6e6064"
+  },
+  "_v0.8": {
+   "chars": 1776,
+   "lf_sha16": "aec3df336b6e6064",
+   "raw_sha16": "aec3df336b6e6064"
+  },
+  "_v0.9": {
+   "chars": 1776,
+   "lf_sha16": "aec3df336b6e6064",
+   "raw_sha16": "aec3df336b6e6064"
+  }
+ },
+ "A2_recipe2_computed": {
+  "computed": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+  "differs_from_recipe1": true
+ },
+ "A5_contract_claim_vs_measured": [
+  {
+   "case": "notes_each_tail_space",
+   "r1_prefix_measured": "ba414786",
+   "r1_prefix_claimed": "ba414786",
+   "r2_prefix_measured": "d87fef14",
+   "r2_prefix_claimed": null,
+   "r1_changed_measured": true,
+   "r1_changed_claimed": true,
+   "r2_changed_measured": false,
+   "r2_changed_claimed": false,
+   "mismatch": []
+  },
+  {
+   "case": "summary.live_config.records_93_to_999",
+   "r1_prefix_measured": "6c33d2db",
+   "r1_prefix_claimed": "6c33d2db",
+   "r2_prefix_measured": "d87fef14",
+   "r2_prefix_claimed": null,
+   "r1_changed_measured": true,
+   "r1_changed_claimed": true,
+   "r2_changed_measured": false,
+   "r2_changed_claimed": false,
+   "mismatch": []
+  },
+  {
+   "case": "records_shuffle_seed7",
+   "r1_prefix_measured": "aefdf528",
+   "r1_prefix_claimed": null,
+   "r2_prefix_measured": "d87fef14",
+   "r2_prefix_claimed": null,
+   "r1_changed_measured": false,
+   "r1_changed_claimed": false,
+   "r2_changed_measured": false,
+   "r2_changed_claimed": false,
+   "mismatch": []
+  },
+  {
+   "case": "one_verdict_allow_to_block",
+   "r1_prefix_measured": "3b4e85e7",
+   "r1_prefix_claimed": "3b4e85e7",
+   "r2_prefix_measured": "6e6d6cde",
+   "r2_prefix_claimed": "6e6d6cde",
+   "r1_changed_measured": true,
+   "r1_changed_claimed": true,
+   "r2_changed_measured": true,
+   "r2_changed_claimed": true,
+   "mismatch": []
+  }
+ ]
+}

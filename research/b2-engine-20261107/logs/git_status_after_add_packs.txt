@@ -1,0 +1,11 @@
+# git status --porcelain -- backend/app/custom   (AFTER: 三包全部 staged, 只 add 未 commit)
+# at 2026-11-07T22:25:43+08:00  HEAD=65c6e42f
+A  backend/app/custom/research_calendar_pack/__init__.py
+A  backend/app/custom/research_calendar_pack/calendar_axis.py
+A  backend/app/custom/research_calendar_pack/factor_provider.py
+A  backend/app/custom/research_factor_pack/__init__.py
+A  backend/app/custom/research_factor_pack/factor_provider.py
+A  backend/app/custom/research_factor_pack/factor_specs.py
+A  backend/app/custom/research_universe_pack/__init__.py
+A  backend/app/custom/research_universe_pack/factor_provider.py
+A  backend/app/custom/research_universe_pack/universe.py

@@ -1,0 +1,56 @@
+=== 2026-11-07T15:55:40+08:00 ===
+--- git grep unchanged (HEAD, tracked) ---
+backend/app/api/position_policies.py:80:    if existing_code is not None and req.code.strip() == "__unchanged__":
+backend/app/api/position_policies.py:94:    if req.code.strip() == "__unchanged__" and req.id:
+backend/app/custom/limit_board_events/minute_adapter.py:216:    remains unchanged.
+backend/app/custom/paper_execution/snapshot.py:297:            unchanged = (
+backend/app/custom/paper_execution/snapshot.py:303:        if not unchanged:
+backend/app/factors/store.py:226:    不变 → 依赖指纹的缓存不被全表失效), 返回 unchanged=True; 注册表里缺这个
+backend/app/factors/store.py:229:    者 + 1, 避免「版本未提升」), 校验 → 注册 → 原子覆盖写, 返回 unchanged=False。
+backend/app/factors/store.py:239:        return {"ok": True, "id": factor_id, "version": spec.version, "unchanged": True}
+backend/app/factors/store.py:257:    return {"ok": True, "id": factor_id, "version": updated["version"], "unchanged": False}
+backend/app/main.py:90:# remains unchanged. A failed action is logged and never blocks the remaining
+HEAD_EXIT=0
+--- worktree grep unchanged ---
+backend/app/api/position_policies.py:80:    if existing_code is not None and req.code.strip() == "__unchanged__":
+backend/app/api/position_policies.py:94:    if req.code.strip() == "__unchanged__" and req.id:
+Binary file backend/app/api/__pycache__/position_policies.cpython-311.pyc matches
+Binary file backend/app/api/__pycache__/position_policies.cpython-312.pyc matches
+Binary file backend/app/api/__pycache__/position_policies.cpython-314.pyc matches
+backend/app/custom/limit_board_events/minute_adapter.py:216:    remains unchanged.
+Binary file backend/app/custom/limit_board_events/__pycache__/minute_adapter.cpython-311.pyc matches
+Binary file backend/app/custom/limit_board_events/__pycache__/minute_adapter.cpython-312.pyc matches
+Binary file backend/app/custom/limit_board_events/__pycache__/minute_adapter.cpython-314.pyc matches
+backend/app/custom/paper_execution/snapshot.py:297:            unchanged = (
+--- HEAD version of store.py unchanged count ---
+0
+--- git status ---
+ M backend/app/api/factors.py
+ M backend/app/factors/store.py
+ M research/strategy-search-20261107/REPORT.md
+ M research/strategy-search-20261107/results/registry.csv
+ M research/strategy-search-20261107/results/registry.json
+ M research/strategy-search-20261107/results/registry_table.md
+ M research/strategy-search-20261107/scripts/make_report.py
+?? backend/app/custom/research_factor_pack/
+?? docs/architecture/
+?? docs/factors/
+?? docs/research/caliber-decisions-20261107.md
+?? docs/research/factor-audit-20261107/
+?? research/e3-data-availability-20261107/
+?? research/factor-registration-20261107/
+?? research/independent-review-20261107/
+?? research/jiaogedan-review-20261107/
+?? research/strategy-search-20261107/FACTOR_MAP_v1.md
+?? research/strategy-search-20261107/RULE-CHANGE-20261107.md
+?? research/strategy-search-20261107/factor_map_v1.json
+?? research/strategy-search-20261107/results/e2_caliber_check_20261107.json
+?? research/strategy-search-20261107/scripts/factor_map_build.py
+?? research/trade-ledger-20261107/
+--- diffstat backend docs ---
+ backend/app/api/factors.py   | 24 ++++--------
+ backend/app/factors/store.py | 92 +++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 99 insertions(+), 17 deletions(-)
+--- contract sha/mtime ---
+5eb9772411f723576b657f85af7c0aa26427137a41fb53b5774b935942565903 *docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md
+-rw-r--r-- 1 A 197609 89833 2026-11-07 15:51:09.976454700 +0800 docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md

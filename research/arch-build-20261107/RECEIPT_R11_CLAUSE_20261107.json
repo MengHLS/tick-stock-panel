@@ -1,0 +1,189 @@
+{
+ "receipt_date": "2026-11-07",
+ "v0_11": {
+  "size": 245364,
+  "lines": 2061,
+  "body_len": 243209,
+  "body_sha": "aa6e06c306eb250d96b7f37af12e672733483b598507b50331f909dbed8525b2",
+  "full": "c2eec518d6bae2c2ac483a8a6524d7c28ec6048f339c723c1e68c9ebc0c3c58d",
+  "mtime": "2026-11-07 22:58:22.275"
+ },
+ "v0_10": {
+  "size": 244093,
+  "lines": 2057,
+  "body_len": 242303,
+  "body_sha": "e47703f2da50837627013d67abb8eebda094a2314490e35884de26af2cc4b870",
+  "full": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
+  "mtime": "2026-11-07 22:00:29.882"
+ },
+ "clause": {
+  "size": 24535,
+  "lines": 281,
+  "body_len": 24097,
+  "body_sha": "745f3bd7c3f4facd914f95cbb23b009b314bb5be6ea2ebfe1d99554edd16e94f",
+  "full": "8f5560527a5fa233a02f1005c316cc45f8d2c57f881476c6c572a2176e08bdf4",
+  "mtime": "2026-11-07 23:06:45.138"
+ },
+ "revision_R11": {
+  "size": 21821,
+  "lines": 278,
+  "body_len": 21679,
+  "body_sha": "d24f091ebf5e6d14394cc5344afc95c4eb00ccee92fd7301ea1d3264936cd984",
+  "full": "ded75adb5371de5965e5acf0f61439d9da891fc9e3bb21517f0865f31e60b97f",
+  "mtime": "2026-11-07 23:12:23.693"
+ },
+ "v0_11_footer_selfcheck": {
+  "footer_says_body_sha": "e47703f2da50837627013d67abb8eebda094a2314490e35884de26af2cc4b870",
+  "footer_says_body_len": 242303,
+  "footer_says_lines": 2057,
+  "actual_body_sha": "aa6e06c306eb250d96b7f37af12e672733483b598507b50331f909dbed8525b2",
+  "actual_body_len": 243209,
+  "actual_lines": 2061,
+  "consistent": false,
+  "note": "v0.11 footer 三元组仍为 v0.10 的数；v0.11 不得作为现行契约引用（DELIVERY_SCHEDULE §0.1 第 3 条成立），修法并入 v0.12"
+ },
+ "numstat": {
+  "autojunk_True": {
+   "hunks": 3,
+   "insert": 1,
+   "replace": 2,
+   "delete": 0,
+   "added": 6,
+   "deleted": 2,
+   "detail": [
+    [
+     "replace",
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     "insert",
+     1860,
+     1859,
+     1860,
+     1863
+    ],
+    [
+     "replace",
+     2057,
+     2057,
+     2061,
+     2061
+    ]
+   ]
+  },
+  "autojunk_False": {
+   "hunks": 3,
+   "insert": 1,
+   "replace": 2,
+   "delete": 0,
+   "added": 6,
+   "deleted": 2,
+   "detail": [
+    [
+     "replace",
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     "insert",
+     1861,
+     1860,
+     1861,
+     1864
+    ],
+    [
+     "replace",
+     2057,
+     2057,
+     2061,
+     2061
+    ]
+   ]
+  }
+ },
+ "git_numstat": "6 2",
+ "reverse_restore": {
+  "len": 244093,
+  "full": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
+  "equals_v0_10": true
+ },
+ "stopword_counts": {
+  "v0_10": "0",
+  "v0_11": "6"
+ },
+ "fa_body_occurrences": {
+  "v0_10": 218,
+  "v0_11": 218
+ },
+ "collision_facts": {
+  "live_ids": 19,
+  "blocked_production": 4,
+  "blocked_ids": [
+   "boll_lower",
+   "boll_upper",
+   "ma20",
+   "ma60"
+  ],
+  "code": "FS01",
+  "column_universe": 68,
+  "allowed_fields": 54,
+  "universe_minus_allowed": 14,
+  "research_allow_non_active_ok": true,
+  "diagnostic_ok": true,
+  "signature_has_namespace": false,
+  "production_callsites_in_app": 0,
+  "test_callsites": 7
+ },
+ "git_facts": {
+  "docs_architecture_tracked": true,
+  "commit_484f81f3_r11_bytes": 17025,
+  "commit_484f81f3_r11_lines": 261,
+  "note": "484f81f3 收的是 22:51 草稿版 R11（245,314/243,159/6ea5accb/d1349af5）与 22:5x 版条款；v0.11 本体未被改动。仓库 autocrlf=true：blob=LF（2927fd7d…），盘上 CRLF（c2eec518…），去 CR 后同字节。",
+  "autocrlf": true,
+  "blob_v0_11_lf_sha": "2927fd7d1aefe101f9fc8b4011a0c4e9d31e970b4155cd5fa4d5f6413a2d0de6"
+ },
+ "numstat_check": {
+  "added": "6",
+  "deleted": "2",
+  "git": "6 2"
+ },
+ "v0_7_to_v0_10_untouched": {
+  "v0.7": {
+   "size": 193586,
+   "lines": 1696,
+   "body_len": 191933,
+   "body_sha": "73e15ddc4d8e4a780d02f72cd4e06342834e28fbc77c284b34476e91f8efd6d0",
+   "full": "5a87d4b090d996abf28f45cce9f1b5bc6c97c7505371e512b12fe89c1f8723e8",
+   "mtime": "2026-11-07 18:03:23.683"
+  },
+  "v0.8": {
+   "size": 206608,
+   "lines": 1792,
+   "body_len": 204939,
+   "body_sha": "18b769a44c4a2c5fdfdcffdaf61787311cec1b400432da245a3a300050be0689",
+   "full": "2cf85ccbaaf1fed7e5316bf2c83c73b5193fc02f3aadf3b3e453600aabaedd2f",
+   "mtime": "2026-11-07 21:04:09.347"
+  },
+  "v0.9": {
+   "size": 228478,
+   "lines": 1957,
+   "body_len": 226428,
+   "body_sha": "d967d463ff1e10c00294cb47e622d245d55b9a7c49ace0410cb6bc53929c3955",
+   "full": "5d0abbb59636ae9c38929ed04d35899b0a2b11727a99d2c2a84ef601bc8b4b0c",
+   "mtime": "2026-11-07 21:14:03.280"
+  },
+  "v0.10": {
+   "size": 244093,
+   "lines": 2057,
+   "body_len": 242303,
+   "body_sha": "e47703f2da50837627013d67abb8eebda094a2314490e35884de26af2cc4b870",
+   "full": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
+   "mtime": "2026-11-07 22:00:29.882"
+  }
+ }
+}

@@ -1,0 +1,187 @@
+{
+  "generated_at": "2026-11-07T14:30:36+0800",
+  "purpose": "E2（掩码截面排名）口径验算：把 caliber-decisions §7.2 的反算变成对 add_universe 输出的实测计数。不含收益指标、不改任何因子。",
+  "source": "research/strategy-search-20261107/scripts/common.py::add_universe（第 190-201 行原样调用，未修改）",
+  "uni": {
+    "min_price_raw": 3.0,
+    "min_prior_amount20": 100000000.0,
+    "min_observed_bars": 120
+  },
+  "eval_start": "2019-07-01",
+  "eval_end": "2026-10-30",
+  "panel_rows": 6422875,
+  "eval_month_ends": 88,
+  "signal_crosscheck": {
+    "computed": {
+      "e_lowvol": 4883,
+      "e_xsrev": 18694,
+      "e_xsrev20": 8162,
+      "e_lowvol_rev": 1293
+    },
+    "registry_10bp": {
+      "S06_xs_reversal_5d@10": 18694,
+      "S07_xs_lowvol_60d@10": 4883,
+      "S10_xs_reversal_20d@10": 8162,
+      "S11_lowvol_reversal@10": 1293
+    }
+  },
+  "identity": "若 rk 为池内分位：rk<=t ⟺ 池内名次<=t·P，故 count(rk<=t) 必须 = t·P（average 名次法下精确）",
+  "rows": [
+    {
+      "date": "2021-06-30",
+      "P": 1210,
+      "rows_total": 3084,
+      "rk_vol60": {
+        "threshold": 0.1,
+        "P": 1210,
+        "P_nonnull_in_pool": 1210,
+        "count": 26,
+        "ratio": 0.021487603305785124,
+        "nominal_count_times_P": 121.0,
+        "rk_nonnull": 1210,
+        "rk_max": 2.513223140495868,
+        "rk_min": 0.0008264462809917355,
+        "rk_gt1_count": 964,
+        "rk_gt1_share": 0.7966942148760331,
+        "nonnull_all_rows": 3041,
+        "rk_max_times_P": 3041.0
+      },
+      "rk_ret5": {
+        "threshold": 0.05,
+        "P": 1210,
+        "P_nonnull_in_pool": 1210,
+        "count": 35,
+        "ratio": 0.028925619834710745,
+        "nominal_count_times_P": 60.5,
+        "rk_nonnull": 1210,
+        "rk_max": 2.5446280991735537,
+        "rk_min": 0.0024793388429752068,
+        "rk_gt1_count": 758,
+        "rk_gt1_share": 0.6264462809917355,
+        "nonnull_all_rows": 3080,
+        "rk_max_times_P": 3079.0
+      },
+      "rk_ret20": {
+        "threshold": 0.1,
+        "P": 1210,
+        "P_nonnull_in_pool": 1210,
+        "count": 75,
+        "ratio": 0.06198347107438017,
+        "nominal_count_times_P": 121.0,
+        "rk_nonnull": 1210,
+        "rk_max": 2.5388429752066117,
+        "rk_min": 0.0049586776859504135,
+        "rk_gt1_count": 758,
+        "rk_gt1_share": 0.6264462809917355,
+        "nonnull_all_rows": 3073,
+        "rk_max_times_P": 3072.0
+      },
+      "e_lowvol_signals_on_date": 26,
+      "market_breadth": 0.6487603305785123
+    },
+    {
+      "date": "2024-06-28",
+      "P": 1037,
+      "rows_total": 3173,
+      "rk_vol60": {
+        "threshold": 0.1,
+        "P": 1037,
+        "P_nonnull_in_pool": 1037,
+        "count": 56,
+        "ratio": 0.05400192864030858,
+        "nominal_count_times_P": 103.7,
+        "rk_nonnull": 1037,
+        "rk_max": 3.0568948891031824,
+        "rk_min": 0.0009643201542912247,
+        "rk_gt1_count": 618,
+        "rk_gt1_share": 0.5959498553519769,
+        "nonnull_all_rows": 3171,
+        "rk_max_times_P": 3170.0
+      },
+      "rk_ret5": {
+        "threshold": 0.05,
+        "P": 1037,
+        "P_nonnull_in_pool": 1037,
+        "count": 15,
+        "ratio": 0.01446480231436837,
+        "nominal_count_times_P": 51.85,
+        "rk_nonnull": 1037,
+        "rk_max": 3.0530376084860174,
+        "rk_min": 0.003857280617164899,
+        "rk_gt1_count": 648,
+        "rk_gt1_share": 0.6248794599807136,
+        "nonnull_all_rows": 3172,
+        "rk_max_times_P": 3166.0
+      },
+      "rk_ret20": {
+        "threshold": 0.1,
+        "P": 1037,
+        "P_nonnull_in_pool": 1037,
+        "count": 19,
+        "ratio": 0.01832208293153327,
+        "nominal_count_times_P": 103.7,
+        "rk_nonnull": 1037,
+        "rk_max": 3.0588235294117645,
+        "rk_min": 0.01832208293153327,
+        "rk_gt1_count": 811,
+        "rk_gt1_share": 0.7820636451301832,
+        "nonnull_all_rows": 3172,
+        "rk_max_times_P": 3172.0
+      },
+      "e_lowvol_signals_on_date": 56,
+      "market_breadth": 0.3153326904532305
+    },
+    {
+      "date": "2026-09-30",
+      "P": 1790,
+      "rows_total": 3188,
+      "rk_vol60": {
+        "threshold": 0.1,
+        "P": 1790,
+        "P_nonnull_in_pool": 1790,
+        "count": 90,
+        "ratio": 0.05027932960893855,
+        "nominal_count_times_P": 179.0,
+        "rk_nonnull": 1790,
+        "rk_max": 1.7776536312849163,
+        "rk_min": 0.0011173184357541898,
+        "rk_gt1_count": 1086,
+        "rk_gt1_share": 0.6067039106145251,
+        "nonnull_all_rows": 3182,
+        "rk_max_times_P": 3182.0
+      },
+      "rk_ret5": {
+        "threshold": 0.05,
+        "P": 1790,
+        "P_nonnull_in_pool": 1790,
+        "count": 83,
+        "ratio": 0.04636871508379888,
+        "nominal_count_times_P": 89.5,
+        "rk_nonnull": 1790,
+        "rk_max": 1.7798882681564245,
+        "rk_min": 0.0016759776536312849,
+        "rk_gt1_count": 529,
+        "rk_gt1_share": 0.29553072625698323,
+        "nonnull_all_rows": 3187,
+        "rk_max_times_P": 3186.0
+      },
+      "rk_ret20": {
+        "threshold": 0.1,
+        "P": 1790,
+        "P_nonnull_in_pool": 1790,
+        "count": 153,
+        "ratio": 0.08547486033519552,
+        "nominal_count_times_P": 179.0,
+        "rk_nonnull": 1790,
+        "rk_max": 1.7787709497206703,
+        "rk_min": 0.0011173184357541898,
+        "rk_gt1_count": 716,
+        "rk_gt1_share": 0.4,
+        "nonnull_all_rows": 3185,
+        "rk_max_times_P": 3184.0
+      },
+      "e_lowvol_signals_on_date": 90,
+      "market_breadth": 0.4474860335195531
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "quad_v0_10": {
+    "size": 244093,
+    "lines": 2057,
+    "full": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
+    "body_len": 242303,
+    "body_sha": "e47703f2da50837627013d67abb8eebda094a2314490e35884de26af2cc4b870",
+    "footer_len": 1790,
+    "footer_sha": "c9f636b86da2ab03fdae7730a4bade867369ae8428a0a6a4d7a3f660efd8cf94"
+  },
+  "quad_v0_11": {
+    "size": 245364,
+    "lines": 2061,
+    "full": "c2eec518d6bae2c2ac483a8a6524d7c28ec6048f339c723c1e68c9ebc0c3c58d",
+    "body_len": 243209,
+    "body_sha": "aa6e06c306eb250d96b7f37af12e672733483b598507b50331f909dbed8525b2",
+    "footer_len": 2155,
+    "footer_sha": "33698bb8ac78d02b038dfc51effa315f9d456e61dc096fead95cbf1e42f288d4"
+  },
+  "numstat_autojunk_true": {
+    "hunks": 3,
+    "insert": 1,
+    "replace": 2,
+    "delete": 0,
+    "added": 6,
+    "deleted": 2,
+    "detail": [
+      [
+        "replace",
+        1,
+        1,
+        1,
+        1
+      ],
+      [
+        "insert",
+        1860,
+        1859,
+        1860,
+        1863
+      ],
+      [
+        "replace",
+        2057,
+        2057,
+        2061,
+        2061
+      ]
+    ]
+  },
+  "numstat_autojunk_false": {
+    "hunks": 3,
+    "insert": 1,
+    "replace": 2,
+    "delete": 0,
+    "added": 6,
+    "deleted": 2,
+    "detail": [
+      [
+        "replace",
+        1,
+        1,
+        1,
+        1
+      ],
+      [
+        "insert",
+        1861,
+        1860,
+        1861,
+        1864
+      ],
+      [
+        "replace",
+        2057,
+        2057,
+        2061,
+        2061
+      ]
+    ]
+  },
+  "git_numstat": [
+    "6",
+    "2"
+  ],
+  "git_stat_tail": " 1 file changed, 6 insertions(+), 2 deletions(-)",
+  "sec_7_1_v0_10": {
+    "crlf_len": 2541,
+    "crlf": "a8e88134f60b504c",
+    "lf_len": 2514,
+    "lf": "6d3db0139a45f54c"
+  },
+  "sec_7_1_v0_11": {
+    "crlf_len": 2541,
+    "crlf": "a8e88134f60b504c",
+    "lf_len": 2514,
+    "lf": "6d3db0139a45f54c"
+  },
+  "sec_7_1_all_9_identical": true,
+  "sec_7_1_per_version": {
+    "v0.3": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.4": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.5": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.6": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.7": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.8": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.9": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.10": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    },
+    "v0.11": {
+      "crlf_len": 2541,
+      "crlf": "a8e88134f60b504c",
+      "lf_len": 2514,
+      "lf": "6d3db0139a45f54c"
+    }
+  },
+  "banner_shape": {
+    "n_lines": 3,
+    "chars": [
+      68,
+      299,
+      169
+    ],
+    "bytes": [
+      138,
+      498,
+      262
+    ],
+    "block_bytes": 906
+  },
+  "reverse_restore": {
+    "len": 244093,
+    "sha": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
+    "equals_v0_10_bytes": true
+  },
+  "fa_seq": {
+    "body_equal_after_banner_removal": false,
+    "fa_seq_equal": true,
+    "n_a": 218,
+    "n_b": 218,
+    "body_no_h1_equal": true
+  },
+  "stopword": {
+    "v0_10_full": 0,
+    "v0_11_full": 6,
+    "v0_11_in_banner": 3
+  },
+  "untouched": {
+    "FACTOR_ENGINE_CONTRACTS_20261107_v0.7.md": {
+      "size": 193586,
+      "lines": 1696,
+      "full": "5a87d4b090d996abf28f45cce9f1b5bc6c97c7505371e512b12fe89c1f8723e8"
+    },
+    "FACTOR_ENGINE_CONTRACTS_20261107_v0.8.md": {
+      "size": 206608,
+      "lines": 1792,
+      "full": "2cf85ccbaaf1fed7e5316bf2c83c73b5193fc02f3aadf3b3e453600aabaedd2f"
+    },
+    "FACTOR_ENGINE_CONTRACTS_20261107_v0.9.md": {
+      "size": 228478,
+      "lines": 1957,
+      "full": "5d0abbb59636ae9c38929ed04d35899b0a2b11727a99d2c2a84ef601bc8b4b0c"
+    },
+    "FACTOR_ENGINE_CONTRACTS_20261107_v0.10.md": {
+      "size": 244093,
+      "lines": 2057,
+      "full": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007"
+    }
+  }
+}

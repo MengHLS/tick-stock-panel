@@ -1,0 +1,13 @@
+raw_close 2019-01-01..2026-10-29 n= 5778514 mean 0.026519283324118993 p01 0.009265966960349866 p50 0.025059423396197433 p99 0.05606691310319864
+Traceback (most recent call last):
+  File "<stdin>", line 16, in <module>
+  File "C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\polars\dataframe\frame.py", line 1445, in __getitem__
+    return get_df_item_by_key(self, key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\polars\_utils\getitem.py", line 163, in get_df_item_by_key
+    return df.get_column(key)
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\polars\dataframe\frame.py", line 9400, in get_column
+    return wrap_s(self._df.get_column(name))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+polars.exceptions.ColumnNotFoundError: "vol60" not found

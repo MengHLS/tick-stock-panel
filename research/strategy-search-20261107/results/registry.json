@@ -27,7 +27,69 @@
       "min_observed_bars": 120
     },
     "python": "3.11.15 (main, Jun 23 2026, 15:20:37) [MSC v.1944 64 bit (AMD64)]",
-    "polars": "1.44.1"
+    "polars": "1.44.1",
+    "void_annotations": [
+      {
+        "strategy": "S06_xs_reversal_5d",
+        "status": "void",
+        "caliber": "research-v0-rank",
+        "reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+        "ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+        "evidence": "results/e2_caliber_check_20261107.json",
+        "annotated_at": "2026-11-07T14:45+08:00",
+        "scope": "该策略全部 3 个情景（@10 / @30 / gross）的研究侧结果",
+        "note": "S07 原被列为唯一「研究线索」（OOS +31.8%、DSR 0.027、2024 单年驱动），与 S06/S10/S11/S12 同一口径问题，同属作废范围；其数字保留在册但不得再引用。",
+        "numbers_kept": true
+      },
+      {
+        "strategy": "S07_xs_lowvol_60d",
+        "status": "void",
+        "caliber": "research-v0-rank",
+        "reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+        "ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+        "evidence": "results/e2_caliber_check_20261107.json",
+        "annotated_at": "2026-11-07T14:45+08:00",
+        "scope": "该策略全部 3 个情景（@10 / @30 / gross）的研究侧结果",
+        "note": "S07 原被列为唯一「研究线索」（OOS +31.8%、DSR 0.027、2024 单年驱动），与 S06/S10/S11/S12 同一口径问题，同属作废范围；其数字保留在册但不得再引用。",
+        "numbers_kept": true
+      },
+      {
+        "strategy": "S10_xs_reversal_20d",
+        "status": "void",
+        "caliber": "research-v0-rank",
+        "reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+        "ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+        "evidence": "results/e2_caliber_check_20261107.json",
+        "annotated_at": "2026-11-07T14:45+08:00",
+        "scope": "该策略全部 3 个情景（@10 / @30 / gross）的研究侧结果",
+        "note": "S07 原被列为唯一「研究线索」（OOS +31.8%、DSR 0.027、2024 单年驱动），与 S06/S10/S11/S12 同一口径问题，同属作废范围；其数字保留在册但不得再引用。",
+        "numbers_kept": true
+      },
+      {
+        "strategy": "S11_lowvol_reversal",
+        "status": "void",
+        "caliber": "research-v0-rank",
+        "reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+        "ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+        "evidence": "results/e2_caliber_check_20261107.json",
+        "annotated_at": "2026-11-07T14:45+08:00",
+        "scope": "该策略全部 3 个情景（@10 / @30 / gross）的研究侧结果",
+        "note": "S07 原被列为唯一「研究线索」（OOS +31.8%、DSR 0.027、2024 单年驱动），与 S06/S10/S11/S12 同一口径问题，同属作废范围；其数字保留在册但不得再引用。",
+        "numbers_kept": true
+      },
+      {
+        "strategy": "S12_lowvol_breadth",
+        "status": "void",
+        "caliber": "research-v0-rank",
+        "reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+        "ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+        "evidence": "results/e2_caliber_check_20261107.json",
+        "annotated_at": "2026-11-07T14:45+08:00",
+        "scope": "该策略全部 3 个情景（@10 / @30 / gross）的研究侧结果",
+        "note": "S07 原被列为唯一「研究线索」（OOS +31.8%、DSR 0.027、2024 单年驱动），与 S06/S10/S11/S12 同一口径问题，同属作废范围；其数字保留在册但不得再引用。",
+        "numbers_kept": true
+      }
+    ]
   },
   "runs": {
     "S01_ma_cross_20_60@10": {
@@ -1712,7 +1774,13 @@
         "sell_limit_down": 32,
         "sell_suspended": 4,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S06_xs_reversal_5d@30": {
       "strategy": "S06_xs_reversal_5d",
@@ -1866,7 +1934,13 @@
         "sell_limit_down": 32,
         "sell_suspended": 4,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S07_xs_lowvol_60d@10": {
       "strategy": "S07_xs_lowvol_60d",
@@ -2020,7 +2094,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S07_xs_lowvol_60d@30": {
       "strategy": "S07_xs_lowvol_60d",
@@ -2174,7 +2254,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S08_high_52w@10": {
       "strategy": "S08_high_52w",
@@ -2485,6 +2571,22 @@
       }
     },
     "S09_volume_breakout_55@10": {
+      "baseline_provenance": {
+        "role": "current_baseline",
+        "superseded": false,
+        "superseded_note": "重定基线请求未产生第二个当前数字：clean worktree @200238ec 重跑与本源逐值相同（delta 全 0），故本源即当前基线，不标 superseded。",
+        "reproduced_at": "2026-11-07T23:11:59+08:00",
+        "git_head": "200238ecfdefc52c2f48a88e86fd3eb16cfd5734",
+        "engine_py_commit": "15717100dff213d7edf92cff2e394f2399e338a8",
+        "engine_py_sha256": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+        "common_py_sha256_at_head": "580f158854dc9547d06ec8ff3739c2972b801a2195a23ceab9aafc1090456239",
+        "registry_json_sha256_before": "396199982168cc0fb240554827c400fcad2bd3fc947724c87f30cd2cbbe5a5f7",
+        "factor_ids": ["uf_prior_high_55", "uf_prior_vol_20", "ma20"],
+        "panel_hash": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3",
+        "rerun_delta": {"n_trades": 0, "final_equity": 0.0, "total_return": 0.0, "sharpe": 0.0, "signals": 0, "buy_limit_up": 0},
+        "evidence": "research/s09-rebaseline-20261107/RESULT_head200238ec.json",
+        "note": "§12.4「registry 数字不可复现」已撤回（caliber v1.8 §15）。本块只加溯源，不改任何数字。"
+      },
       "strategy": "S09_volume_breakout_55",
       "title": "55 日新高 + 1.5 倍量能突破",
       "family": "趋势",
@@ -3714,7 +3816,13 @@
         "sell_limit_down": 32,
         "sell_suspended": 4,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S07_xs_lowvol_60d@gross": {
       "strategy": "S07_xs_lowvol_60d",
@@ -3868,7 +3976,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S08_high_52w@gross": {
       "strategy": "S08_high_52w",
@@ -4330,7 +4444,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 13,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S10_xs_reversal_20d@30": {
       "strategy": "S10_xs_reversal_20d",
@@ -4484,7 +4604,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 13,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S11_lowvol_reversal@10": {
       "strategy": "S11_lowvol_reversal",
@@ -4638,7 +4764,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S11_lowvol_reversal@30": {
       "strategy": "S11_lowvol_reversal",
@@ -4792,7 +4924,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S12_lowvol_breadth@10": {
       "strategy": "S12_lowvol_breadth",
@@ -4946,7 +5084,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S12_lowvol_breadth@30": {
       "strategy": "S12_lowvol_breadth",
@@ -5100,7 +5244,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S10_xs_reversal_20d@gross": {
       "strategy": "S10_xs_reversal_20d",
@@ -5254,7 +5404,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 13,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S11_lowvol_reversal@gross": {
       "strategy": "S11_lowvol_reversal",
@@ -5408,7 +5564,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     },
     "S12_lowvol_breadth@gross": {
       "strategy": "S12_lowvol_breadth",
@@ -5562,7 +5724,13 @@
         "sell_limit_down": 0,
         "sell_suspended": 0,
         "buy_same_day_reentry": 0
-      }
+      },
+      "status": "void",
+      "caliber": "research-v0-rank",
+      "void_reason": "E2 排名口径：rk = 全样本名次/池内家数，非池内分位",
+      "void_ref": "docs/research/caliber-decisions-20261107.md §7 决定四（现行 v1.2，2026-11-07 14:40；标注时依据 v1.1 14:30，判定内容未变）",
+      "void_evidence": "results/e2_caliber_check_20261107.json",
+      "status_set_at": "2026-11-07T14:45+08:00"
     }
   }
 }

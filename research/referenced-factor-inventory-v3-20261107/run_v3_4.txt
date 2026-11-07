@@ -1,0 +1,37 @@
+[PASS] F-A22 幂等(字节): 两次生成除 generated_at 外逐字节相同
+[PASS] F-A22 幂等(digest): canonical_digest=184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1
+[PASS] F-A36 外部复算: §7.12.4 复算=184e4728810248e7ede9247685705bca6b1fd614333d4ec67e668689a869e1b1
+[PASS] F-A36 扰动不变: 改 generated_at/repo_head/data_root + records 倒序 → digest 不变
+[PASS] F-A36 改 verdict 必变: 改 1 条 primary 的 verdict → digest 变化
+[PASS] §7.10.2 字段: 23 字段 / 218 条，越界 0 条
+[PASS] F-A34 唯一键: 218 条 / 去重 218 条（键 = path+evidence+side+ref_name+record_kind）
+[PASS] F-A34 活配置 93=79+14: live records=93 by_record_kind={'companion': 14, 'primary': 79}
+[PASS] F-A34 ma_golden_20_60 4 主 + 4 伴生: 主=[(9, 'L', 'ma20'), (11, 'R', 'field:ma60'), (16, 'L', 'ma20'), (18, 'R', 'field:ma60')] / 伴生=4
+[PASS] F-A35 层内求和=primary: all 204==204 / live 79==79
+[PASS] F-A35 v1 别名等值: summary.by_verdict={'allow': 97, 'exempt': 107} == all_records.by_verdict
+[PASS] F-A35 live 22 源: live sources=22（期望 22）
+[PASS] F-A35 反例可失败: 把伴生 14 条计入 → 求和 218 ≠ primary 204
+[PASS] F-A37 ref_raw 保留前缀: 带前缀 48 条（field:），ref_name 去前缀错 0 条
+[PASS] F-A37 side 三值: 取值集合 ['F', 'L', 'R']
+[PASS] F-A37 evidence 可解析: 含 # 或不可解析 0 条（正则 `path:line` / `path:start-end`）
+[PASS] F-A37 结构键只进 side_key: side_key 取值 ['fields.entry', 'fields.exit', 'fields.score', 'formula', 'members', 'scoring']
+[PASS] F-A38 path_scope ⊆ {history,intraday}: 取值集合 ['history', 'intraday']，both 计数 0
+[PASS] F-A38 21 日线 history + 1 monitor intraday: 日线源 21 / monitor 记录 2
+[PASS] F-A38 path_divergence 0: 0 条
+[PASS] F-A38 7 条冲突源 allow: 7 源 / verdict ['allow']
+[PASS] F-A39 v1 降级可读: ref_name:=ref_raw / side:=null / record_kind:="primary"
+[PASS] F-A39 v1 不许 L2/L3: 读 "1" 却要求 L2 → 拒绝启动
+[PASS] F-A39 v2 缺字段拒绝加载: "2" 且缺新增字段 → 拒绝加载
+[PASS] F-A25 无 unknown: verdict=unknown 0 条
+[PASS] F-A26 新鲜度: stale_count 复算=0 / 记录值=0
+[PASS] 源级 22 allow / 0 shadow / 0 block: by_verdict_sources={'allow': 22}
+[PASS] 活配置 by_verdict 全 allow: live.by_verdict={'allow': 79}
+[PASS] 全量记录数: records=218（期望 218）
+[PASS] summary 结构: summary 键=['all_records', 'by_code', 'by_namespace', 'by_verdict', 'live_config']
+[PASS] F-A24 冲突必报: column 主 14 / 伴生 14（期望各 14），伴生形态=factor 视图(class=custom_dsl)
+[PASS] F-A23 不 grep: 散文/展示列误计 0 条
+[PASS] 7 条冲突信号=column: 判错 0 条 []
+[PASS] 2 virtual 不拦: virtual 记录 2 条，判错 0 条
+[PASS] FS01 实拦: 0 条
+[PASS] N3 通道可触发: ma20 按 both 解析 → divergence=True, verdict=block
+[PASS] FS01 通道可触发: 试探 15 个 draft 定义，判 block+FS01 15 个

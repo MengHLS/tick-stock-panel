@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-06",
+  "out_dir": "out\\idem\\daily\\2026-11-06",
+  "fills": 2,
+  "closed_roundtrips": 3,
+  "realized_pnl": 152.8,
+  "realized_pnl_est_unmatched": 0,
+  "fees": 17.23,
+  "equity": 16249.36,
+  "equity_chg": -7278.23,
+  "reconcile_rows": 2,
+  "prices": {
+    "codes": 132,
+    "days": 396,
+    "day_min": "2025-03-21",
+    "day_max": "2026-11-06",
+    "mode": "close"
+  }
+}

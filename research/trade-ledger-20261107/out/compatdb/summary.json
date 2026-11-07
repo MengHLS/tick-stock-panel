@@ -1,0 +1,42 @@
+{
+  "batch_id": "20261107T143626941440-ebebda13",
+  "outputs": {
+    "trades": 717,
+    "events": 1055,
+    "roundtrips": 447,
+    "daily_equity": 396,
+    "daily_positions": 396,
+    "exposure": 617,
+    "industry_exposure": 475
+  },
+  "performance": {
+    "roundtrips": 447,
+    "roundtrips_paired": 435,
+    "roundtrips_unmatched": 12,
+    "roundtrips_unmatched_sell": 12,
+    "pnl_realized": -79597.28,
+    "pnl_unmatched_est": 3374.82,
+    "pnl_total_est": -76222.46,
+    "win_rate": 0.4206896551724138,
+    "avg_win": 884.8431147540985,
+    "avg_loss": 958.4268650793649,
+    "payoff": 0.9232244493489097,
+    "profit_factor": 0.6704368025033749,
+    "expectancy": -182.98225287356323,
+    "avg_ret": -0.015234538260840319,
+    "hold_median_td": 1.0,
+    "buy_amount": 7770443.48,
+    "sell_amount": 7693167.99,
+    "turnover_x": 364.4087084233427,
+    "fees": 8688.14,
+    "fee_ratio": 0.20474090946629173,
+    "avg_equity": 42434.8,
+    "equity_end": 16249.36,
+    "cum_deposit": 92073.93,
+    "cum_pnl": -75824.59,
+    "max_drawdown": 0.978980337030346,
+    "max_drawdown_raw": 0.9999998236228138,
+    "drawdown_equity_floor": 1000.0,
+    "trading_days": 396
+  }
+}

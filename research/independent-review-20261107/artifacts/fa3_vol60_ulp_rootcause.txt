@@ -1,0 +1,4 @@
+research(vol60: pct_change) vs polars division: n=5469335 max_abs_diff=1.1102230246251565e-16 nonzero_rows=4214876
+research(vol60) vs DSL(ts_std(close/ts_delay-1,60)): n=5469335 max_abs_diff=1.1102230246251565e-16 nonzero_rows=4214876
+polars division vs DSL: n=5469335 max_abs_diff=0.0 nonzero_rows=0
+rows 5510001

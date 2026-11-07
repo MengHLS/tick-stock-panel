@@ -1,0 +1,172 @@
+--- research/referenced-factor-inventory-v3-1-20261107/build_referenced_factor_inventory.v3.bak.py	2026-11-07 18:01:48.669782200 +0800
++++ backend/scripts/build_referenced_factor_inventory.py	2026-11-07 18:04:30.880694800 +0800
+@@ -33,8 +33,11 @@
+   `ref_raw`   = 配置里的**字面量**，保留 `field:` 前缀（`field:ma60`），不剥不改；
+   `ref_name`  = `ref_raw` 去前缀 + trim（`ma60`）—— 分类、解析、allowlist 比对只用它；
+   `side`      = 表达式槽位，只允许 `L` / `R` / `F`（左值 / 右值 / monitor 条件字段）；
+-  `side_key`  = 结构键路径（`scoring` / `formula` / `members` / `fields.<名>`），可选，
+-                只做人读定位，**不参与任何判据、不进 allowlist、不进唯一键**；
++  `side_key`  = 结构键路径（`conditions[<i>].left` / `conditions[<i>].right` /
++                `conditions[<i>].field` / `overlay_filter[<i>].left` /
++                `overlay_filter[<i>].right` / `scoring` / `formula` / `members` /
++                `fields.<名>`），可选，只做人读定位，**不参与任何判据、不进 allowlist、
++                不进唯一键**；它由扫描处的真实结构位置生成，不按名字猜；
+   `path_base` = `repo`（仓库根）或 `data`（`data_root` 相对路径，不带 `user_data/` 前缀）。
+   结构键引用没有表达式槽位、契约又只给三个取值：本脚本统一记 `side=L`（被引用的值槽），
+   结构路径进 `side_key`。这是契约留白处，已在报告里登记为待架构师追认。
+@@ -124,6 +127,13 @@
+ CANONICAL_DROP = ("generated_at", "repo_head", "data_root", "canonical_digest")
+ # §7.12.2：`evidence` 必须是 `path:line` 或 `path:start-end`，不得夹注释。
+ EVIDENCE_RE = re.compile(r"^.+?:\d+(?:-\d+)?$")
++# §7.10.2：`side_key` 的合法取值形态 = 真实结构键路径（见 `_condition_occurrences` /
++# `scan_monitor_rules` / `formula_occurrences` / `scan_research_strategies` 的产出处）。
++SIDE_KEY_RE = re.compile(
++    r"^(?:conditions\[\d+\]\.(?:left|right|field)"
++    r"|overlay_filter\[\d+\]\.(?:left|right)"
++    r"|scoring|formula|members"
++    r"|fields\.[A-Za-z_][A-Za-z0-9_]*)$")
+ 
+ 
+ # ---------------------------------------------------------------- 小工具
+@@ -341,8 +351,10 @@
+     不再按名字去重：
+       * `side` ∈ {L,R,F}（§7.10.2 v0.6：左值 / 右值 / monitor 条件字段）；
+       * `ref_raw` 是配置里的字面量（保留 `field:` 前缀）；
+-      * `side_key` 是结构键路径（`scoring` / `formula` / `members` / `fields.<名>`），
+-        不参与判定、不进 allowlist、不进唯一键。
++      * `side_key` 是结构键路径（`conditions[<i>].left` / `conditions[<i>].right` /
++        `conditions[<i>].field` / `overlay_filter[<i>].left` / `overlay_filter[<i>].right` /
++        `scoring` / `formula` / `members` / `fields.<名>`），不参与判定、不进 allowlist、
++        不进唯一键。
+     伴生记录（F-A24）与主记录成对产出，`record_kind=companion` + `both_collision=true`
+     双重标记，唯一键靠 `record_kind` 与主记录区分。
+     """
+@@ -418,24 +430,31 @@
+     return out
+ 
+ 
+-def _condition_occurrences(cond: dict, allowed: frozenset) -> list[tuple[str, str, str | None]]:
++def _condition_occurrences(cond: dict, allowed: frozenset, *, container: str,
++                           index: int) -> list[tuple[str, str, str | None]]:
+     """条件表达式的**逐出现**结构化引用：`(side, ref_raw, side_key)`。
+ 
+     `left` → `side=L`，字面量原样；`right` 写成 `field:X` → `side=R` 且 `ref_raw="field:X"`
+     （前缀保留，`ref_name` 去前缀）；`right` 直接写白名单列名 → `side=R`；数字右值不是
+-    引用，不产记录（与 `custom_signals._parse_right` 同口径）。条件里没有结构键，
+-    故 `side_key` 恒 None。
++    引用，不产记录（与 `custom_signals._parse_right` 同口径）。
++
++    `side_key` = 引用在源文件里的**真实结构路径**：`container`（`conditions` /
++    `overlay_filter`）+ 该条件在数组里的原始下标，如 `conditions[1].right`。下标取数组
++    下标而不是「第几条产出记录」，跳过的条件（非 dict / 非引用 / 数字右值）不改变其它
++    条件的下标。
+     """
+     occ: list[tuple[str, str, str | None]] = []
++    left_key = f"{container}[{index}].left"
++    right_key = f"{container}[{index}].right"
+     left = cond.get("left")
+     if isinstance(left, str) and left.strip():
+-        occ.append(("L", left.strip(), None))
++        occ.append(("L", left.strip(), left_key))
+     right = cond.get("right")
+     if isinstance(right, str) and right.strip():
+         text = right.strip()
+         name, prefix = split_prefix(text)
+         if prefix is not None or name in allowed:
+-            occ.append(("R", text, None))
++            occ.append(("R", text, right_key))
+     return occ
+ 
+ # ---------------------------------------------------------------- 六个扫描域
+@@ -453,9 +472,10 @@
+         # 显式跳过 timeframe != intraday，日线信号只在历史帧上求值（N4 / F-A38）。
+         path_scope = "intraday" if timeframe == "intraday" else "history"
+         occurrences: list[tuple[str, str, str | None]] = []
+-        for cond in data.get("conditions") or []:
++        for idx, cond in enumerate(data.get("conditions") or []):
+             if isinstance(cond, dict):
+-                occurrences.extend(_condition_occurrences(cond, resolver.allowed))
++                occurrences.extend(_condition_occurrences(cond, resolver.allowed,
++                                                          container="conditions", index=idx))
+         rel = f"custom_signals/{path.name}"
+ 
+         def evidence_for(side: str, raw: str, _p: Path = path, _rel: str = rel) -> str:
+@@ -478,7 +498,7 @@
+         enabled = data.get("enabled")
+         enabled = None if enabled is None else bool(enabled)
+         occurrences: list[tuple[str, str, str | None]] = []
+-        for cond in data.get("conditions") or []:
++        for idx, cond in enumerate(data.get("conditions") or []):
+             if not isinstance(cond, dict):
+                 continue
+             field = cond.get("field")
+@@ -488,7 +508,7 @@
+             if cond.get("op") == "truth" or field.startswith(SIGNAL_PREFIXES):
+                 continue
+             # monitor 规则的引用槽位固定是 `conditions[].field` → `side=F`（§7.12.3）。
+-            occurrences.append(("F", field.strip(), None))
++            occurrences.append(("F", field.strip(), f"conditions[{idx}].field"))
+         rel = f"monitor_rules/{path.name}"
+ 
+         def evidence_for(side: str, raw: str, _p: Path = path, _rel: str = rel) -> str:
+@@ -515,9 +535,10 @@
+         scoring_occ = ([("L", str(k), "scoring") for k in scoring]
+                        if isinstance(scoring, dict) else [])
+         cond_occ: list[tuple[str, str, str | None]] = []
+-        for cond in data.get("overlay_filter") or []:
++        for idx, cond in enumerate(data.get("overlay_filter") or []):
+             if isinstance(cond, dict):
+-                cond_occ.extend(_condition_occurrences(cond, resolver.allowed))
++                cond_occ.extend(_condition_occurrences(cond, resolver.allowed,
++                                                       container="overlay_filter", index=idx))
+         rel = f"strategy_overrides/{path.name}"
+         sha = sha256_file(path)
+ 
+@@ -837,7 +858,9 @@
+     "fields.<名> 各算一处，不按 (源 × 名字) 合并；同名两处 = 两条记录，由 evidence 行号区分。",
+     "ref_raw 保留配置里的字面量（含 field: 前缀），ref_name = 去前缀 + trim 后的名字，"
+     "分类/解析/allowlist 比对只用 ref_name（§7.12.3）；side ∈ {L,R,F} 是表达式槽位，"
+-    "结构键路径（scoring/formula/members/fields.<名>）只进 side_key，不参与判定、不进唯一键。",
++    "结构键路径（conditions[i].left / conditions[i].right / conditions[i].field / "
++    "overlay_filter[i].left / overlay_filter[i].right / scoring / formula / members / "
++    "fields.<名>）只进 side_key，不参与判定、不进唯一键。",
+     "both_collision=true 且 record_kind=companion 的是 F-A24 伴生记录（同一出现处的因子侧"
+     "视图），verdict 恒 exempt，注释在 note 字段、evidence 只含 path:line；伴生不参与放行，"
+     "不进入任何层的 by_verdict，只在 by_record_kind.companion 计数（§7.12.5 / F-A35）。",
+@@ -1029,9 +1052,12 @@
+     bad_name = [r for r in records if r["ref_name"] != split_prefix(r["ref_raw"])[0]]
+     sides = sorted({r["side"] for r in records})
+     bad_ev = [r for r in records if "#" in r["evidence"] or not EVIDENCE_RE.match(r["evidence"])]
++    # 结构键路径的合法形态（判据不变：side_key 里只许结构路径，不许字面量/槽位）：
++    # 条件槽位 conditions[i].left|right|field、overlay_filter[i].left|right，
++    # 结构块 scoring / formula / members，research 的 fields.<名>。白名单随「真实结构
++    # 位置」扩了两族，判据语义（结构键只进 side_key、side 仍只 L/R/F）未变。
+     bad_side_key = [r for r in records if r["side_key"] is not None
+-                    and not (r["side_key"] in {"scoring", "formula", "members"}
+-                             or r["side_key"].startswith("fields."))]
++                    and not SIDE_KEY_RE.match(r["side_key"])]
+     add("F-A37 ref_raw 保留前缀",
+         len(prefixed) >= 36 and not bad_name,
+         f"带前缀 {len(prefixed)} 条（field:），ref_name 去前缀错 {len(bad_name)} 条")
+@@ -1041,6 +1067,21 @@
+         f"含 # 或不可解析 {len(bad_ev)} 条（正则 `path:line` / `path:start-end`）")
+     add("F-A37 结构键只进 side_key", not bad_side_key,
+         f"side_key 取值 {sorted({r['side_key'] for r in records if r['side_key']})}")
++    # 反例：把字面量 / 槽位值塞进 side_key 必须被判失败（证明上面那条不是恒真）。
++    poison_keys = {"field:ma20", "ma20", "L", "conditions[x].left", "conditions.left",
++                   "scoring.extra", "fields."}
++    still_ok = [k for k in poison_keys if SIDE_KEY_RE.match(k)]
++    add("F-A37 side_key 反例可失败", not still_ok,
++        f"7 个非法形态被放行 {len(still_ok)} 个 {still_ok}")
++    # 派单 2026-11-07 17:55 done_when ①：活配置 93 条 side_key 必须全部非 null；
++    # 全量 218 条同样要求（扫描处均已知真实结构位置，无「判不出」项）。
++    live_null = [r for r in records
++                 if r["source_enabled"] is True and r["side_key"] is None]
++    all_null = [r for r in records if r["side_key"] is None]
++    add("side_key 活配置全覆盖", not live_null,
++        f"活配置 {len([r for r in records if r['source_enabled'] is True])} 条 / null {len(live_null)} 条")
++    add("side_key 全量全覆盖", not all_null,
++        f"{len(records)} 条 / null {len(all_null)} 条")
+ 
+     # ---- F-A38 path_scope 与 both。
+     scopes = sorted({r["path_scope"] for r in records})

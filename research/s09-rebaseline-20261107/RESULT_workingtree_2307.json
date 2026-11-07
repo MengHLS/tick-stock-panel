@@ -1,0 +1,384 @@
+{
+ "provenance": {
+  "git_branch": "dev",
+  "git_head": "200238ecfdefc52c2f48a88e86fd3eb16cfd5734",
+  "git_head_subject": "docs(schedule): 交付排期 v7 — 判 v0.11 未签发、记录首个 git 版本锚、B0/B2 结项附条件",
+  "git_status_porcelain": [
+   " M docs/architecture/CLAUSE_NAMESPACE_COLLISION_20261107.md",
+   " M docs/architecture/CONTRACT_REVISION_R11_20261107.md",
+   " M docs/architecture/evidence/WORKTREE_SHIP_MANIFEST_20261107.json",
+   " M docs/architecture/evidence/WORKTREE_SHIP_MANIFEST_20261107.md",
+   " M research/strategy-search-20261107/REPORT.md",
+   " M research/strategy-search-20261107/results/registry.csv",
+   " M research/strategy-search-20261107/results/registry.json",
+   " M research/strategy-search-20261107/results/registry_table.md",
+   " M research/strategy-search-20261107/scripts/make_report.py",
+   "?? research/_intake/",
+   "?? research/arch-build-20261107/",
+   "?? research/b0-correction-20261107/",
+   "?? research/b2-engine-20261107/",
+   "?? research/b4-calendar-20261107/",
+   "?? research/e3-data-availability-20261107/",
+   "?? research/factor-registration-20261107/",
+   "?? research/factor-registration-b2-20261107/",
+   "?? research/factor-registration-fa5b-20261107/",
+   "?? research/gate-core-20261107/",
+   "?? research/independent-review-20261106/_b0report_final.md",
+   "?? research/independent-review-20261107/",
+   "?? research/jiaogedan-review-20261107/",
+   "?? research/mgr-verify-20261107/",
+   "?? research/pattern-review-20261107/",
+   "?? research/referenced-factor-inventory-20261107/",
+   "?? research/referenced-factor-inventory-v3-1-20261107/",
+   "?? research/referenced-factor-inventory-v3-20261107/",
+   "?? research/s09-rebaseline-20261107/",
+   "?? research/s09-s02-rerun-20261107/",
+   "?? research/strategy-search-20261107/FACTOR_MAP_v1.md",
+   "?? research/strategy-search-20261107/RULE-CHANGE-20261107.md",
+   "?? research/strategy-search-20261107/factor_map_v1.json",
+   "?? research/strategy-search-20261107/results/e2_caliber_check_20261107.json",
+   "?? research/strategy-search-20261107/scripts/factor_map_build.py",
+   "?? research/tmp_sources.txt",
+   "?? research/trade-ledger-20261107/"
+  ],
+  "engine_py_log": "15717100dff213d7edf92cff2e394f2399e338a8 2026-11-07 12:54:24 +0800",
+  "common_py_sha256": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09",
+  "registry_json_sha256_before": "d19bfb74f83ad00b562ccd12d8b834d5ed500e49f82923ddd48e6d6a224ab1dc",
+  "engine_py_sha256": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+  "started_at": "2026-11-07T23:06:47+0800",
+  "python": "3.11.15 (main, Jun 23 2026, 15:20:37) [MSC v.1944 64 bit (AMD64)]",
+  "polars": "1.44.1"
+ },
+ "panel": {
+  "rows": 6422875,
+  "symbols": 3384,
+  "dates": 2136,
+  "min_date": "2018-01-08",
+  "max_date": "2026-10-30",
+  "panel_hash": "fda82b47b6d5b92e0cc4b6d481020ee9a5cb328b282645c647697927c0f6dfe3",
+  "load_seconds": 18.8
+ },
+ "store_loaded_n": 15,
+ "store_has_uf_prior_high_55": true,
+ "canon_columns_ok": {
+  "ma20": true,
+  "uf_prior_high_55": true,
+  "uf_prior_vol_20": true
+ },
+ "formulas": {
+  "S09_hi55": {
+   "formula": "close > uf_prior_high_55",
+   "referenced_factors": [
+    "uf_prior_high_55"
+   ],
+   "cross_sectional": false,
+   "warmup_bars": 56
+  },
+  "S09_vol20": {
+   "formula": "volume > 1.5 * uf_prior_vol_20",
+   "referenced_factors": [
+    "uf_prior_vol_20"
+   ],
+   "cross_sectional": false,
+   "warmup_bars": 21
+  },
+  "S09_exit_ma20": {
+   "formula": "close < ma20",
+   "referenced_factors": [
+    "ma20"
+   ],
+   "cross_sectional": false,
+   "warmup_bars": 21
+  }
+ },
+ "eval": {
+  "start": "2019-07-01",
+  "end": "2026-10-30",
+  "rows": 5510001,
+  "entry_signals": 52965,
+  "exit_signals": 2861205
+ },
+ "run_seconds": 19.0,
+ "n_trades": 732,
+ "final_positions": 5,
+ "segments": [
+  {
+   "start": "2019-07-01",
+   "end": "2019-12-31",
+   "signals": 1752,
+   "n_trades": 42,
+   "total_return": 0.1233,
+   "max_drawdown": -0.1189
+  },
+  {
+   "start": "2020-01-01",
+   "end": "2020-12-31",
+   "signals": 7756,
+   "n_trades": 94,
+   "total_return": -0.0871,
+   "max_drawdown": -0.2944
+  },
+  {
+   "start": "2021-01-01",
+   "end": "2021-12-31",
+   "signals": 7082,
+   "n_trades": 85,
+   "total_return": 0.1482,
+   "max_drawdown": -0.1407
+  },
+  {
+   "start": "2022-01-01",
+   "end": "2022-12-31",
+   "signals": 5678,
+   "n_trades": 117,
+   "total_return": -0.6415,
+   "max_drawdown": -0.7271
+  },
+  {
+   "start": "2023-01-01",
+   "end": "2023-12-31",
+   "signals": 5313,
+   "n_trades": 91,
+   "total_return": -0.7092,
+   "max_drawdown": -0.2316
+  },
+  {
+   "start": "2024-01-01",
+   "end": "2024-12-31",
+   "signals": 7812,
+   "n_trades": 101,
+   "total_return": -0.779,
+   "max_drawdown": -0.3026
+  },
+  {
+   "start": "2025-01-01",
+   "end": "2025-12-31",
+   "signals": 10775,
+   "n_trades": 103,
+   "total_return": -0.8784,
+   "max_drawdown": -0.446
+  },
+  {
+   "start": "2026-01-01",
+   "end": "2026-10-30",
+   "signals": 6797,
+   "n_trades": 99,
+   "total_return": -0.941,
+   "max_drawdown": -0.5391
+  }
+ ],
+ "execution": {
+  "buy_limit_up": 1387,
+  "buy_no_slot": 36216,
+  "buy_suspended": 0,
+  "sell_limit_down": 20,
+  "sell_suspended": 24,
+  "buy_same_day_reentry": 0
+ },
+ "IS": {
+  "label": "IS",
+  "n_days": 853,
+  "total_return": -0.64152816,
+  "cagr": -0.26146073658891755,
+  "ann_vol": 0.25625891216088104,
+  "sharpe": -1.0536592762671895,
+  "sortino": -1.5632454913114968,
+  "max_drawdown": -0.7270987243703859,
+  "calmar": -0.35959454724022977,
+  "n_closed_trades": 338,
+  "n_open_at_end": 0,
+  "win_rate": 0.27514792899408286,
+  "profit_factor": 0.7405487805788314,
+  "avg_pnl_pct": -0.023719866863905325,
+  "median_pnl_pct": -0.05995,
+  "avg_holding_days": 12.26923076923077,
+  "pct_trades_gt_20pct": 0.09763313609467456,
+  "gross_traded_over_initial": 68.72216527999998,
+  "avg_exposure": 0.5745,
+  "final_equity": 358471.84,
+  "start_equity": 1000000.0
+ },
+ "OOS": {
+  "label": "OOS",
+  "n_days": 924,
+  "total_return": -0.8371573830593082,
+  "cagr": -0.39042428563916876,
+  "ann_vol": 0.2282052428733582,
+  "sharpe": -2.052553259013436,
+  "sortino": -3.054376299352983,
+  "max_drawdown": -0.8371573830593082,
+  "calmar": -0.46636904068432405,
+  "n_closed_trades": 394,
+  "n_open_at_end": 0,
+  "win_rate": 0.25380710659898476,
+  "profit_factor": 0.5706944988788668,
+  "avg_pnl_pct": -0.038656314720812185,
+  "median_pnl_pct": -0.0643575,
+  "avg_holding_days": 11.647208121827411,
+  "pct_trades_gt_20pct": 0.06345177664974619,
+  "gross_traded_over_initial": 17.065094569999996,
+  "avg_exposure": 0.5745,
+  "final_equity": 59011.37,
+  "start_equity": 362382.84
+ },
+ "ALL": {
+  "label": "ALL",
+  "n_days": 1778,
+  "total_return": -0.94098863,
+  "cagr": -0.3304208682941805,
+  "ann_vol": 0.24206631910198986,
+  "sharpe": -1.534346868704053,
+  "sortino": -2.280926549244716,
+  "max_drawdown": -0.9536504646611731,
+  "calmar": -0.34648005798600146,
+  "n_closed_trades": 732,
+  "n_open_at_end": 0,
+  "win_rate": 0.26366120218579236,
+  "profit_factor": 0.7044541177458578,
+  "avg_pnl_pct": -0.031759430327868855,
+  "median_pnl_pct": -0.0618085,
+  "avg_holding_days": 11.934426229508198,
+  "pct_trades_gt_20pct": 0.07923497267759563,
+  "gross_traded_over_initial": 85.78725984999996,
+  "avg_exposure": 0.5745,
+  "final_equity": 59011.37,
+  "start_equity": 1000000.0
+ },
+ "old_row": {
+  "registry_meta_created_at": "2026-11-06T23:19:13.377133+08:00",
+  "registry_meta_head": "848bd04b7266f6645fabdfdc4b2c0cdf404eb643",
+  "signals": 52965,
+  "n_trades": 732,
+  "final_equity": 59011.37,
+  "total_return": -0.94098863,
+  "sharpe": -1.534346868704053,
+  "max_drawdown": -0.9536504646611731,
+  "buy_limit_up": 1387,
+  "by_year": [
+   {
+    "year": "2019",
+    "signals": 1752,
+    "n_trades": 42
+   },
+   {
+    "year": "2020",
+    "signals": 7756,
+    "n_trades": 94
+   },
+   {
+    "year": "2021",
+    "signals": 7082,
+    "n_trades": 85
+   },
+   {
+    "year": "2022",
+    "signals": 5678,
+    "n_trades": 117
+   },
+   {
+    "year": "2023",
+    "signals": 5313,
+    "n_trades": 91
+   },
+   {
+    "year": "2024",
+    "signals": 7812,
+    "n_trades": 101
+   },
+   {
+    "year": "2025",
+    "signals": 10775,
+    "n_trades": 103
+   },
+   {
+    "year": "2026",
+    "signals": 6797,
+    "n_trades": 99
+   }
+  ]
+ },
+ "delta": {
+  "n_trades": 0,
+  "final_equity": 0.0,
+  "total_return": 0.0,
+  "sharpe": 0.0,
+  "signals": 0,
+  "buy_limit_up": 0,
+  "by_year": [
+   {
+    "year": "2019",
+    "new_trades": 42,
+    "old_trades": 42,
+    "delta_trades": 0,
+    "new_signals": 1752,
+    "old_signals": 1752,
+    "delta_signals": 0
+   },
+   {
+    "year": "2020",
+    "new_trades": 94,
+    "old_trades": 94,
+    "delta_trades": 0,
+    "new_signals": 7756,
+    "old_signals": 7756,
+    "delta_signals": 0
+   },
+   {
+    "year": "2021",
+    "new_trades": 85,
+    "old_trades": 85,
+    "delta_trades": 0,
+    "new_signals": 7082,
+    "old_signals": 7082,
+    "delta_signals": 0
+   },
+   {
+    "year": "2022",
+    "new_trades": 117,
+    "old_trades": 117,
+    "delta_trades": 0,
+    "new_signals": 5678,
+    "old_signals": 5678,
+    "delta_signals": 0
+   },
+   {
+    "year": "2023",
+    "new_trades": 91,
+    "old_trades": 91,
+    "delta_trades": 0,
+    "new_signals": 5313,
+    "old_signals": 5313,
+    "delta_signals": 0
+   },
+   {
+    "year": "2024",
+    "new_trades": 101,
+    "old_trades": 101,
+    "delta_trades": 0,
+    "new_signals": 7812,
+    "old_signals": 7812,
+    "delta_signals": 0
+   },
+   {
+    "year": "2025",
+    "new_trades": 103,
+    "old_trades": 103,
+    "delta_trades": 0,
+    "new_signals": 10775,
+    "old_signals": 10775,
+    "delta_signals": 0
+   },
+   {
+    "year": "2026",
+    "new_trades": 99,
+    "old_trades": 99,
+    "delta_trades": 0,
+    "new_signals": 6797,
+    "old_signals": 6797,
+    "delta_signals": 0
+   }
+  ]
+ },
+ "ok": true,
+ "finished_at": "2026-11-07T23:07:27+0800"
+}

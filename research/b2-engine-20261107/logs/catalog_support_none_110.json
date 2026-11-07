@@ -1,0 +1,89 @@
+{
+  "tag": "none_110",
+  "catalog_size": 93,
+  "matrix_supported": 79,
+  "matrix_unsupported": 14,
+  "unsupported": [
+    {
+      "id": "debt_ratio_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: debt_ratio_latest"
+    },
+    {
+      "id": "deviate_10d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_10d"
+    },
+    {
+      "id": "deviate_30d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_30d"
+    },
+    {
+      "id": "deviate_3d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_3d"
+    },
+    {
+      "id": "gross_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: gross_margin_latest"
+    },
+    {
+      "id": "industry_beta_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_beta_60d"
+    },
+    {
+      "id": "industry_corr_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_corr_60d"
+    },
+    {
+      "id": "industry_rank_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_rank_momentum_20d"
+    },
+    {
+      "id": "industry_relative_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_relative_momentum_20d"
+    },
+    {
+      "id": "net_income_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_income_yoy_latest"
+    },
+    {
+      "id": "net_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_margin_latest"
+    },
+    {
+      "id": "pb_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: pb_latest"
+    },
+    {
+      "id": "revenue_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: revenue_yoy_latest"
+    },
+    {
+      "id": "roe_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: roe_latest"
+    }
+  ],
+  "linkage_excluded": [
+    "deviate_10d",
+    "deviate_30d",
+    "deviate_3d",
+    "industry_beta_60d",
+    "industry_corr_60d",
+    "industry_rank_momentum_20d",
+    "industry_relative_momentum_20d"
+  ],
+  "has_b0_pack": false,
+  "has_universe_pack": false
+}

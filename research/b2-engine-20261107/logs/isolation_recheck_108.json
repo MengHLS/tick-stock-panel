@@ -1,0 +1,437 @@
+{
+ "measured_at": "2026-11-07T21:38:26+08:00",
+ "tests_version": "按 108 口径更新后的现盘测试 (test_factor_registry.py / test_factor_store.py, mtime 2026-11-07 20:48:59)",
+ "states": {
+  "all_on": {
+   "setup": "B0 + B2 全在 (工作区现状)",
+   "passed": 74,
+   "failed": 0,
+   "failed_tests": [],
+   "rc": 0,
+   "tail": "  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))",
+   "probe": {
+    "tag": "all_on",
+    "catalog_size": 108,
+    "matrix_supported": 85,
+    "matrix_unsupported": 23,
+    "unsupported": [
+     {
+      "id": "debt_ratio_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: debt_ratio_latest"
+     },
+     {
+      "id": "deviate_10d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_10d"
+     },
+     {
+      "id": "deviate_30d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_30d"
+     },
+     {
+      "id": "deviate_3d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_3d"
+     },
+     {
+      "id": "gross_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: gross_margin_latest"
+     },
+     {
+      "id": "in_universe",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: in_universe"
+     },
+     {
+      "id": "industry_beta_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_beta_60d"
+     },
+     {
+      "id": "industry_corr_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_corr_60d"
+     },
+     {
+      "id": "industry_rank_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_rank_momentum_20d"
+     },
+     {
+      "id": "industry_relative_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_relative_momentum_20d"
+     },
+     {
+      "id": "net_income_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_income_yoy_latest"
+     },
+     {
+      "id": "net_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_margin_latest"
+     },
+     {
+      "id": "pb_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: pb_latest"
+     },
+     {
+      "id": "prior_amount_20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_amount_20"
+     },
+     {
+      "id": "prior_high_20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_high_20"
+     },
+     {
+      "id": "prior_high_250",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_high_250"
+     },
+     {
+      "id": "prior_high_55",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_high_55"
+     },
+     {
+      "id": "prior_low_10",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_low_10"
+     },
+     {
+      "id": "prior_vol_20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_vol_20"
+     },
+     {
+      "id": "revenue_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: revenue_yoy_latest"
+     },
+     {
+      "id": "roe_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: roe_latest"
+     },
+     {
+      "id": "sd20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: sd20"
+     },
+     {
+      "id": "vol60",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: vol60"
+     }
+    ],
+    "linkage_excluded": [
+     "deviate_10d",
+     "deviate_30d",
+     "deviate_3d",
+     "industry_beta_60d",
+     "industry_corr_60d",
+     "industry_rank_momentum_20d",
+     "industry_relative_momentum_20d"
+    ],
+    "has_b0_pack": true,
+    "has_universe_pack": true
+   }
+  },
+  "b0_only": {
+   "setup": "只留 research_factor_pack, 无 research_universe_pack",
+   "passed": 68,
+   "failed": 6,
+   "failed_tests": [
+    "tests/test_factor_registry.py::test_asset_type_filter",
+    "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+    "tests/test_factor_registry.py::test_factor_columns_snapshot",
+    "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+    "tests/test_factor_registry.py::test_factors_api_contract",
+    "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+   ],
+   "rc": 1,
+   "tail": "  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))",
+   "probe": {
+    "tag": "b0_only",
+    "catalog_size": 107,
+    "matrix_supported": 85,
+    "matrix_unsupported": 22,
+    "unsupported": [
+     {
+      "id": "debt_ratio_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: debt_ratio_latest"
+     },
+     {
+      "id": "deviate_10d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_10d"
+     },
+     {
+      "id": "deviate_30d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_30d"
+     },
+     {
+      "id": "deviate_3d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_3d"
+     },
+     {
+      "id": "gross_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: gross_margin_latest"
+     },
+     {
+      "id": "industry_beta_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_beta_60d"
+     },
+     {
+      "id": "industry_corr_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_corr_60d"
+     },
+     {
+      "id": "industry_rank_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_rank_momentum_20d"
+     },
+     {
+      "id": "industry_relative_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_relative_momentum_20d"
+     },
+     {
+      "id": "net_income_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_income_yoy_latest"
+     },
+     {
+      "id": "net_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_margin_latest"
+     },
+     {
+      "id": "pb_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: pb_latest"
+     },
+     {
+      "id": "prior_amount_20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_amount_20"
+     },
+     {
+      "id": "prior_high_20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_high_20"
+     },
+     {
+      "id": "prior_high_250",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_high_250"
+     },
+     {
+      "id": "prior_high_55",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_high_55"
+     },
+     {
+      "id": "prior_low_10",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_low_10"
+     },
+     {
+      "id": "prior_vol_20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: prior_vol_20"
+     },
+     {
+      "id": "revenue_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: revenue_yoy_latest"
+     },
+     {
+      "id": "roe_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: roe_latest"
+     },
+     {
+      "id": "sd20",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: sd20"
+     },
+     {
+      "id": "vol60",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: vol60"
+     }
+    ],
+    "linkage_excluded": [
+     "deviate_10d",
+     "deviate_30d",
+     "deviate_3d",
+     "industry_beta_60d",
+     "industry_corr_60d",
+     "industry_rank_momentum_20d",
+     "industry_relative_momentum_20d"
+    ],
+    "has_b0_pack": true,
+    "has_universe_pack": false
+   }
+  },
+  "none": {
+   "setup": "两个 pack 目录都移出 (93 基线)",
+   "passed": 68,
+   "failed": 6,
+   "failed_tests": [
+    "tests/test_factor_registry.py::test_asset_type_filter",
+    "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+    "tests/test_factor_registry.py::test_factor_columns_snapshot",
+    "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+    "tests/test_factor_registry.py::test_factors_api_contract",
+    "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+   ],
+   "rc": 1,
+   "tail": "  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))",
+   "probe": {
+    "tag": "none",
+    "catalog_size": 93,
+    "matrix_supported": 79,
+    "matrix_unsupported": 14,
+    "unsupported": [
+     {
+      "id": "debt_ratio_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: debt_ratio_latest"
+     },
+     {
+      "id": "deviate_10d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_10d"
+     },
+     {
+      "id": "deviate_30d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_30d"
+     },
+     {
+      "id": "deviate_3d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: deviate_3d"
+     },
+     {
+      "id": "gross_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: gross_margin_latest"
+     },
+     {
+      "id": "industry_beta_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_beta_60d"
+     },
+     {
+      "id": "industry_corr_60d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_corr_60d"
+     },
+     {
+      "id": "industry_rank_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_rank_momentum_20d"
+     },
+     {
+      "id": "industry_relative_momentum_20d",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: industry_relative_momentum_20d"
+     },
+     {
+      "id": "net_income_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_income_yoy_latest"
+     },
+     {
+      "id": "net_margin_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: net_margin_latest"
+     },
+     {
+      "id": "pb_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: pb_latest"
+     },
+     {
+      "id": "revenue_yoy_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: revenue_yoy_latest"
+     },
+     {
+      "id": "roe_latest",
+      "error": "ValueError",
+      "detail": "unsupported matrix feature: roe_latest"
+     }
+    ],
+    "linkage_excluded": [
+     "deviate_10d",
+     "deviate_30d",
+     "deviate_3d",
+     "industry_beta_60d",
+     "industry_corr_60d",
+     "industry_rank_momentum_20d",
+     "industry_relative_momentum_20d"
+    ],
+    "has_b0_pack": false,
+    "has_universe_pack": false
+   }
+  }
+ },
+ "summary": {
+  "all_on": {
+   "catalog_size": 108,
+   "matrix_unsupported": 23,
+   "has_b0_pack": true,
+   "has_universe_pack": true,
+   "suite": "0 failed / 74 passed",
+   "failed_tests": []
+  },
+  "b0_only": {
+   "catalog_size": 107,
+   "matrix_unsupported": 22,
+   "has_b0_pack": true,
+   "has_universe_pack": false,
+   "suite": "6 failed / 68 passed",
+   "failed_tests": [
+    "tests/test_factor_registry.py::test_asset_type_filter",
+    "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+    "tests/test_factor_registry.py::test_factor_columns_snapshot",
+    "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+    "tests/test_factor_registry.py::test_factors_api_contract",
+    "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+   ]
+  },
+  "none": {
+   "catalog_size": 93,
+   "matrix_unsupported": 14,
+   "has_b0_pack": false,
+   "has_universe_pack": false,
+   "suite": "6 failed / 68 passed",
+   "failed_tests": [
+    "tests/test_factor_registry.py::test_asset_type_filter",
+    "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+    "tests/test_factor_registry.py::test_factor_columns_snapshot",
+    "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+    "tests/test_factor_registry.py::test_factors_api_contract",
+    "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+   ]
+  }
+ },
+ "restored": true
+}

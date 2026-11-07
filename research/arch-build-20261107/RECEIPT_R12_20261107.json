@@ -1,0 +1,265 @@
+{
+ "v0_10": {
+  "size": 244093,
+  "lines": 2057,
+  "chars": 154365,
+  "body_len": 242303,
+  "body_sha": "e47703f2da50837627013d67abb8eebda094a2314490e35884de26af2cc4b870",
+  "full": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
+  "footer_len": 1790,
+  "mtime": 1794060029.8828478
+ },
+ "v0_11": {
+  "size": 245364,
+  "lines": 2061,
+  "chars": 155158,
+  "body_len": 243209,
+  "body_sha": "aa6e06c306eb250d96b7f37af12e672733483b598507b50331f909dbed8525b2",
+  "full": "c2eec518d6bae2c2ac483a8a6524d7c28ec6048f339c723c1e68c9ebc0c3c58d",
+  "footer_len": 2155,
+  "mtime": 1794063502.275445
+ },
+ "v0_12": {
+  "size": 269092,
+  "lines": 2248,
+  "chars": 170445,
+  "body_len": 267257,
+  "body_sha": "d97f657b61b853769ab42fd01d32dfa5052a9dc0cd577dccea9c400ae9fd08c2",
+  "full": "d7df40ffa284d9961e83b9fb074dc4e5263bab9299969b3d0387a020df1c1ce6",
+  "footer_len": 1835,
+  "mtime": 1794064290.3285637
+ },
+ "clause": {
+  "size": 24535,
+  "lines": 281,
+  "chars": 15184,
+  "body_len": 24535,
+  "body_sha": "8f5560527a5fa233a02f1005c316cc45f8d2c57f881476c6c572a2176e08bdf4",
+  "full": "8f5560527a5fa233a02f1005c316cc45f8d2c57f881476c6c572a2176e08bdf4",
+  "footer_len": 0,
+  "mtime": 1794064005.1382656
+ },
+ "R11": {
+  "size": 22063,
+  "lines": 278,
+  "chars": 14139,
+  "body_len": 22061,
+  "body_sha": "eb1e9f2329583641e69d16b54eadf005044c9ce949b83f2474eba87e294e65a5",
+  "full": "c8bb82407a026202d462faf89b7ec262798677c553debc87bc2e0da38c5409fa",
+  "last_line_len": 140
+ },
+ "R12": {
+  "size": 23769,
+  "lines": 227,
+  "chars": 15987,
+  "body_len": 23767,
+  "body_sha": "d6fdb2cc1fbe6ecddd11724e2379d9418e8f7090d8a2d90e5a99f77f285bd3af",
+  "full": "8868b8747f742bf0b4009378d2cdfac6dfb57720aa0d38d3c9aa0e503c106e24"
+ },
+ "numstat": {
+  "autojunk_True": {
+   "hunks": 5,
+   "added": 191,
+   "deleted": 4,
+   "kinds": [
+    [
+     "replace",
+     1,
+     1
+    ],
+    [
+     "replace",
+     1,
+     1
+    ],
+    [
+     "replace",
+     1,
+     1
+    ],
+    [
+     "insert",
+     0,
+     187
+    ],
+    [
+     "replace",
+     1,
+     1
+    ]
+   ]
+  },
+  "autojunk_False": {
+   "hunks": 5,
+   "added": 191,
+   "deleted": 4,
+   "kinds": [
+    [
+     "replace",
+     1,
+     1
+    ],
+    [
+     "replace",
+     1,
+     1
+    ],
+    [
+     "replace",
+     1,
+     1
+    ],
+    [
+     "insert",
+     0,
+     187
+    ],
+    [
+     "replace",
+     1,
+     1
+    ]
+   ]
+  }
+ },
+ "git_numstat": "191\t4\tdocs/architecture/{FACTOR_ENGINE_CONTRACTS_20261107_v0.11.md => FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md}",
+ "sec_7_1": [
+  [
+   "archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.5.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.7.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.8.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.9.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.10.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.11.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ],
+  [
+   "FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md",
+   2541,
+   "a8e88134f60b504c",
+   2514,
+   "6d3db0139a45f54c"
+  ]
+ ],
+ "fa": {
+  "v11": 218,
+  "v12": 263,
+  "new": [
+   "F-A43",
+   "F-A43-1",
+   "F-A43-2",
+   "F-A43-3",
+   "F-A43-4",
+   "F-A44",
+   "F-A44-1",
+   "F-A44-2",
+   "F-A44-3",
+   "F-A44-4",
+   "F-A45",
+   "F-A45-1",
+   "F-A45-2",
+   "F-A46",
+   "F-A46-1",
+   "F-A46-2",
+   "F-A46-3",
+   "F-A46-4",
+   "F-A47",
+   "F-A47-1",
+   "F-A47-2",
+   "F-A47-3",
+   "F-A47-4"
+  ]
+ },
+ "stopword": {
+  "v0_10": 0,
+  "v0_11": 6,
+  "v0_12": 4
+ },
+ "v0_7_to_v0_11": {
+  "v0_7": {
+   "size": 193586,
+   "lines": 1696,
+   "chars": 123104,
+   "body_len": 191933,
+   "body_sha": "73e15ddc4d8e4a780d02f72cd4e06342834e28fbc77c284b34476e91f8efd6d0",
+   "full": "5a87d4b090d996abf28f45cce9f1b5bc6c97c7505371e512b12fe89c1f8723e8",
+   "footer_len": 1653,
+   "mtime": 1794045803.6833546
+  },
+  "v0_8": {
+   "size": 206608,
+   "lines": 1792,
+   "chars": 131137,
+   "body_len": 204939,
+   "body_sha": "18b769a44c4a2c5fdfdcffdaf61787311cec1b400432da245a3a300050be0689",
+   "full": "2cf85ccbaaf1fed7e5316bf2c83c73b5193fc02f3aadf3b3e453600aabaedd2f",
+   "footer_len": 1669,
+   "mtime": 1794056649.3474846
+  },
+  "v0_9": {
+   "size": 228478,
+   "lines": 1957,
+   "chars": 145011,
+   "body_len": 226428,
+   "body_sha": "d967d463ff1e10c00294cb47e622d245d55b9a7c49ace0410cb6bc53929c3955",
+   "full": "5d0abbb59636ae9c38929ed04d35899b0a2b11727a99d2c2a84ef601bc8b4b0c",
+   "footer_len": 2050,
+   "mtime": 1794057243.2800171
+  }
+ },
+ "note_body_rule": "R11/R12 的 body = 去掉最后一行（本说明的最后一句，非 footer），用于说明自身口径；R11 正文里引用了「本文件正文 sha256」字样，故不能用字符串定位 footer"
+}

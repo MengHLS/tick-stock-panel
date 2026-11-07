@@ -1,0 +1,21 @@
+# 目的: 验证「只 add pack 目录、不 commit」能否让「干净检出」不再 6 红
+# at 2026-11-07T22:28:50+08:00  HEAD=65c6e42f
+# 方法: git checkout-index -a --prefix=<空目录>  (= 只用索引内容导出, 等价于「按索引检出」)
+$ rm -rf /c/work/tmp_cleancheck && mkdir -p /c/work/tmp_cleancheck && git checkout-index -a --prefix=/c/work/tmp_cleancheck/
+$ cd /c/work/tmp_cleancheck/backend && PYTHONUTF8=1 <repo>/backend/.venv/Scripts/python.exe -m pytest tests/test_factor_dsl.py tests/test_factor_registry.py tests/test_factor_api.py tests/test_factor_store.py tests/test_factor_provider_contracts.py -q
+
+--- 输出 (tail) ---
+FAILED tests/test_factor_registry.py::test_asset_type_filter - AssertionError
+FAILED tests/test_factor_registry.py::test_factors_api_contract - AssertionError
+FAILED tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation
+FAILED tests/test_factor_registry.py::test_catalog_counts_and_kinds
+FAILED tests/test_factor_store.py::test_custom_factor_definition_roundtrip
+6 failed, 68 passed, 1 warning in 10.57s
+
+--- 根因 (单跑 test_factor_store.py) ---
+>       assert len(factor_columns_view()) == 93
+E       AssertionError: assert 110 == 93
+tests\test_factor_store.py:88
+
+# 结论: 索引里的 pack 已有 110 条, 但索引里的 tests 仍是 HEAD 那版 (押 93) —— 因为测试改动是未 staged 的 M。
+# 故「只 add 不 commit」不能达成「干净检出 0 红」; 需把 tests (与 dsl.py) 一并提交才可能。此结论提交开发经理裁定。

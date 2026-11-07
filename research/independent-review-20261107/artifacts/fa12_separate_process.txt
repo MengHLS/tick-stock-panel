@@ -1,0 +1,11 @@
+data_dir= D:\TSP\data
+loaded_count= ['uf_auction_post0920_match_growth', 'uf_auction_tail_imbalance', 'uf_auction_tail_match_growth', 'uf_auction_volume_surprise', 'uf_auction_volume_vs_prev', 'uf_ma120', 'uf_ma200', 'uf_prior_high_20', 'uf_prior_high_250', 'uf_prior_high_55', 'uf_prior_low_10', 'uf_prior_vol_20', 'uf_vol60', 'cf_auction_resonance']
+uf_vol60 warmup=61 exp=61 warmup_ok=True deps=['close'] exp=['close'] deps_ok=True version=1 kind=custom formula=ts_std(close / ts_delay(close, 1) - 1, 60)
+uf_ma120 warmup=121 exp=121 warmup_ok=True deps=['close'] exp=['close'] deps_ok=True version=1 kind=custom formula=ts_mean(close, 120)
+uf_ma200 warmup=201 exp=201 warmup_ok=True deps=['close'] exp=['close'] deps_ok=True version=1 kind=custom formula=ts_mean(close, 200)
+uf_prior_high_20 warmup=21 exp=21 warmup_ok=True deps=['high'] exp=['high'] deps_ok=True version=1 kind=custom formula=ts_max(ts_delay(high, 1), 20)
+uf_prior_high_55 warmup=56 exp=56 warmup_ok=True deps=['high'] exp=['high'] deps_ok=True version=1 kind=custom formula=ts_max(ts_delay(high, 1), 55)
+uf_prior_high_250 warmup=251 exp=251 warmup_ok=True deps=['high'] exp=['high'] deps_ok=True version=1 kind=custom formula=ts_max(ts_delay(high, 1), 250)
+uf_prior_low_10 warmup=11 exp=11 warmup_ok=True deps=['low'] exp=['low'] deps_ok=True version=1 kind=custom formula=ts_min(ts_delay(low, 1), 10)
+uf_prior_vol_20 warmup=21 exp=21 warmup_ok=True deps=['volume'] exp=['volume'] deps_ok=True version=1 kind=custom formula=ts_mean(ts_delay(volume, 1), 20)
+F_A1_A2_ALL_OK= True

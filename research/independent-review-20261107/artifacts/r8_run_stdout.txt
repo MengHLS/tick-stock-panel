@@ -1,0 +1,15 @@
+{
+  "n_assertions": 19,
+  "n_fail": 2,
+  "failed": [
+    "A11_generator_implements_recipe2",
+    "A12_consumers_reading_recipe"
+  ],
+  "digest_recipe1_measured": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a",
+  "digest_recipe2_measured": "d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6",
+  "digest_ondisk": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a",
+  "recipe1_matches_ondisk": true,
+  "artifact_bytes": 186343,
+  "artifact_full_sha256": "df5e1a63e98f8834e95517bbdde556a2550bb901d865ba09c1ac7f4040b32e49",
+  "n_records": 218
+}

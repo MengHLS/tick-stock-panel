@@ -1,0 +1,190 @@
+diff --git a/backend/app/api/factors.py b/backend/app/api/factors.py
+index 1998a3bb..956cdf3c 100644
+--- a/backend/app/api/factors.py
++++ b/backend/app/api/factors.py
+@@ -281,13 +281,6 @@ def _resolve_id(requested: str | None, label: str, prefix: str) -> str:
+     return requested.strip() if requested and requested.strip() else _slugify_id(label, prefix)
+ 
+ 
+-def _next_version(data_dir, factor_id: str) -> int:
+-    for definition in store.load_all(data_dir):
+-        if str(definition.get("id")) == factor_id:
+-            return int(definition.get("version", 1)) + 1
+-    return 1
+-
+-
+ def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -> None:
+     """保存前置校验: 公式在最近 40 个交易日有非空输出 (设计 §3.5, fail-closed)。"""
+     compiled = compile_formula(formula)
+@@ -345,7 +338,7 @@ def create_custom_factor(req: CustomFactorCreateRequest, request: Request) -> di
+     definition = {
+         "id": factor_id,
+         "kind": "custom",
+-        "version": _next_version(data_dir, factor_id),
++        "version": 1,  # 版本号由 store.upsert_definition 裁决 (F-A5 幂等)
+         "label": req.label,
+         "group": req.group,
+         "formula": req.formula,
+@@ -359,13 +352,14 @@ def create_custom_factor(req: CustomFactorCreateRequest, request: Request) -> di
+         store.to_spec(definition)  # 先做 schema/id/编译校验
+     except ValueError as exc:
+         raise HTTPException(status_code=400, detail=str(exc)) from exc
+-    _trial_nonempty(request, req.formula)
++    # 内容与已存定义等价时 (F-A5) 不重跑试算、不写盘: 同内容二次注册是空操作
++    stored = store.load_one(data_dir, factor_id)
++    if stored is None or not store.is_same_content(stored, definition):
++        _trial_nonempty(request, req.formula)
+     try:
+-        store.register_definition(definition)
++        return store.upsert_definition(data_dir, definition)
+     except ValueError as exc:
+         raise HTTPException(status_code=400, detail=str(exc)) from exc
+-    store.save_one(data_dir, definition)
+-    return {"ok": True, "id": factor_id, "version": definition["version"]}
+ 
+ 
+ @router.post("/composite")
+@@ -376,7 +370,7 @@ def create_composite_factor(req: CompositeFactorCreateRequest, request: Request)
+     definition = {
+         "id": factor_id,
+         "kind": "composite",
+-        "version": _next_version(data_dir, factor_id),
++        "version": 1,  # 版本号由 store.upsert_definition 裁决 (F-A5 幂等)
+         "label": req.label,
+         "group": req.group,
+         "members": req.members,
+@@ -387,11 +381,9 @@ def create_composite_factor(req: CompositeFactorCreateRequest, request: Request)
+         "updated_at": store._now(),
+     }
+     try:
+-        store.register_definition(definition)
++        return store.upsert_definition(data_dir, definition)
+     except ValueError as exc:
+         raise HTTPException(status_code=400, detail=str(exc)) from exc
+-    store.save_one(data_dir, definition)
+-    return {"ok": True, "id": factor_id, "version": definition["version"]}
+ 
+ 
+ class CustomFactorUpdateRequest(BaseModel):
+diff --git a/backend/app/factors/store.py b/backend/app/factors/store.py
+index 69e8adb6..5d534e3c 100644
+--- a/backend/app/factors/store.py
++++ b/backend/app/factors/store.py
+@@ -6,6 +6,7 @@ draft → active → watch → retired (P4 状态机, 存储字段就绪, 迁移
+ """
+ from __future__ import annotations
+ 
++import json
+ import logging
+ import re
+ from datetime import datetime
+@@ -35,6 +36,11 @@ def save_one(data_dir: Path, definition: dict) -> None:
+     _STORE.save_one(data_dir, definition)
+ 
+ 
++def load_one(data_dir: Path, factor_id: str) -> dict | None:
++    """按 id 读取单个定义; 不存在或损坏返回 None (与 load_all 同隔离口径)。"""
++    return _STORE.load_one(data_dir, factor_id)
++
++
+ def delete_one(data_dir: Path, factor_id: str) -> bool:
+     return _STORE.delete_one(data_dir, factor_id)
+ 
+@@ -161,12 +167,96 @@ def to_spec(definition: dict) -> FactorSpec:
+ 
+ 
+ def register_definition(definition: dict) -> FactorSpec:
+-    """定义 → spec → 注册 (重复 id 版本未升时由注册表拒绝)。"""
++    """定义 → spec → 注册 (重复 id 版本未升时由注册表拒绝)。
++
++    同一个 spec 已注册时按幂等跳过 (F-A5): 重复加载同一份盘上定义
++    (启动期二次 load_into_registry / worker 复用) 不再告警, 也不抬版本;
++    内容不同才会走到注册表的「版本未提升」拒绝。
++    """
+     spec = to_spec(definition)
++    if get_factor(spec.id) == spec:
++        return spec
+     register_factor(spec)
+     return spec
+ 
+ 
++# ── 注册幂等 (F-A5) ─────────────────────────────────────────────────
++# 「同内容二次注册」的判等口径: 定义中除 version / created_at / updated_at
++# 之外的全部字段逐字段等价。用黑名单而不是白名单 —— 白名单会把将来新增的
++# 字段 (params 之类) 静默漏判成「没变」; 黑名单失效的方向是「当成变了」,
++# 只会多抬一版, 不会漏抬。status 参与比对: 它决定注册表 stability, 状态
++# 变化本身就是内容变化。mtime / 文件大小 / 目录指纹不参与判等 (只看语义)。
++_NON_CONTENT_FIELDS = frozenset({"version", "created_at", "updated_at"})
++
++
++def _canonical(value):
++    """JSON 值 → 可逐字比对的规范化结构 (数值走 float repr: 1 与 1.0 等价)。"""
++    if isinstance(value, dict):
++        return {f"k:{key}": _canonical(item) for key, item in value.items()}
++    if isinstance(value, (list, tuple)):
++        return [_canonical(item) for item in value]
++    if isinstance(value, bool):
++        return "true" if value else "false"
++    if isinstance(value, (int, float)):
++        return "n:" + repr(float(value))
++    if value is None:
++        return "~null"
++    return "s:" + str(value)
++
++
++def content_signature(definition: dict) -> str:
++    """定义的内容签名 (F-A5 判等的唯一口径); 不含版本号与时间戳, 不看 mtime。"""
++    payload = {
++        key: value for key, value in definition.items() if key not in _NON_CONTENT_FIELDS
++    }
++    return json.dumps(
++        _canonical(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":")
++    )
++
++
++def is_same_content(stored: dict, incoming: dict) -> bool:
++    """盘上定义与待注册定义内容是否等价 (F-A5)。"""
++    return content_signature(stored) == content_signature(incoming)
++
++
++def upsert_definition(data_dir: Path, definition: dict) -> dict:
++    """按内容幂等落库 (F-A5) —— 注册 + 保存的唯一入口。
++
++    内容与盘上定义等价: 版本不变、文件不写 (字节与 mtime 都不动 → 目录指纹
++    不变 → 依赖指纹的缓存不被全表失效), 返回 unchanged=True; 注册表里缺这个
++    版本时按盘上版本补注册, 同样不抬版本。
++    内容有差异 (或尚无定义): 版本 = 盘上版本 + 1 (注册表里的版本更高时取更高
++    者 + 1, 避免「版本未提升」), 校验 → 注册 → 原子覆盖写, 返回 unchanged=False。
++    版本号一律以盘上/注册表为准; 调用方传入的 version 只在首次创建时生效。
++    """
++    factor_id = str(definition.get("id", ""))
++    stored = _STORE.load_one(data_dir, factor_id) if factor_id else None
++    if stored is not None and is_same_content(stored, definition):
++        spec = to_spec(stored)  # 盘上定义为权威: 版本号与时间戳都以它为准
++        current = get_factor(factor_id)
++        if current is None or current.version < spec.version:
++            register_factor(spec)
++        return {"ok": True, "id": factor_id, "version": spec.version, "unchanged": True}
++
++    updated = dict(definition)
++    if stored is None:
++        updated["version"] = int(definition.get("version", 1) or 1)
++    else:
++        base = int(stored.get("version", 1))
++        current = get_factor(factor_id)
++        if current is not None and current.version > base:
++            base = current.version
++        updated["version"] = base + 1
++        updated["created_at"] = (
++            stored.get("created_at") or definition.get("created_at") or _now()
++        )
++    updated["updated_at"] = _now()
++    spec = to_spec(updated)  # 与 register_definition 同一门禁: 非法即 ValueError
++    register_factor(spec)
++    _STORE.save_one(data_dir, updated)
++    return {"ok": True, "id": factor_id, "version": updated["version"], "unchanged": False}
++
++
+ def load_into_registry(data_dir: Path) -> list[str]:
+     """启动期把存储中的因子注册进注册表; 单个失败只跳过并告警。
+ 

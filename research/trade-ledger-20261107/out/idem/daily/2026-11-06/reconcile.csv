@@ -1,0 +1,3 @@
+﻿date,time,code,name,side,actual_qty,actual_px,actual_amt,fees,signal_id,plan_time,plan_side,plan_qty,plan_px,deviation_type,deviation_reason,link_status,note
+2026-11-06,09:33:16,603618,杭电股份,B,700,22.487371,15736,5.16,,,,,,待填,,no_signal,
+2026-11-06,14:52:31,603618,杭电股份,S,600,23.079883,13860,12.07,,,,,,待填,,no_signal,

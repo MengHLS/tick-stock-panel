@@ -1,0 +1,39 @@
+F-class ledger self-check (read-only)
+  registry : docs\factors\evidence\f_class_registry.json
+  ledger   : docs\factors\F_CLASS_REGISTRATION_20261107.md
+  contract : docs\architecture\FACTOR_ENGINE_CONTRACTS_20261107.md
+  factors  : 8   contract rows parsed: 8
+
+per-factor:
+  uf_vol60             window=60   shift=0  warmup=61   min_warmup=-    formula=ts_std(close / ts_delay(close, 1) - 1, 60)
+  uf_ma120             window=120  shift=0  warmup=121  min_warmup=-    formula=ts_mean(close, 120)
+  uf_ma200             window=200  shift=0  warmup=201  min_warmup=-    formula=ts_mean(close, 200)
+  uf_prior_high_20     window=20   shift=1  warmup=21   min_warmup=21   formula=ts_max(ts_delay(high, 1), 20)
+  uf_prior_high_55     window=55   shift=1  warmup=56   min_warmup=56   formula=ts_max(ts_delay(high, 1), 55)
+  uf_prior_high_250    window=250  shift=1  warmup=251  min_warmup=251  formula=ts_max(ts_delay(high, 1), 250)
+  uf_prior_low_10      window=10   shift=1  warmup=11   min_warmup=11   formula=ts_min(ts_delay(low, 1), 10)
+  uf_prior_vol_20      window=20   shift=1  warmup=21   min_warmup=21   formula=ts_mean(ts_delay(volume, 1), 20)
+
+[1] research_name_id_bijection
+    rule      : research_name <-> uf_ id is 1:1, ids match ^uf_[a-z0-9_]{1,40}$, no duplicates
+    violations: 0
+[2] prior_shift_and_warmup
+    rule      : all prior_* have shift==1, semantics=='prior', warmup_bars >= N+1; non-prior rows have shift==0, semantics=='incl_today_close'
+    violations: 0
+[3] expected_id_set_and_warmup_order
+    rule      : ids/set and warmup order equal 61/121/201/21/56/251/11/21 for the fixed 8 ids
+    violations: 0
+[4] formula_verbatim_vs_contract
+    rule      : formula_text is byte-identical to contract 7.1 (also checks warmup and deps against it)
+    violations: 0
+[5] md_ledger_consistency
+    rule      : markdown ledger contains every id, every verbatim formula, and a row carrying the warmup
+    violations: 0
+[6] required_fields_present
+    rule      : every row carries all ledger fields (research name, id, formula, warmup, deps, semantics, shift, price_basis, unit, scale_free, strategy_usable, replaces/replaced_by, ...)
+    violations: 0
+
+TOTAL VIOLATIONS: 0
+RECORD MISMATCHES: 0
+RESULT: PASS
+EXIT=0

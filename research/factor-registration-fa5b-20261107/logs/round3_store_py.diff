@@ -1,0 +1,46 @@
+diff --git "a/C:\\Users\\A\\AppData\\Local\\Temp\\measure_z_9o4j5s\\backend_app_factors_store.py" "b/C:\\work\\sourcecode\\tick-stock-panel\\backend\\app\\factors\\store.py"
+index 405e5930..86f9bf99 100644
+--- "a/C:\\Users\\A\\AppData\\Local\\Temp\\measure_z_9o4j5s\\backend_app_factors_store.py"
++++ "b/C:\\work\\sourcecode\\tick-stock-panel\\backend\\app\\factors\\store.py"
+@@ -275,0 +276,34 @@ def _merge_for_write(stored: dict | None, definition: dict) -> dict:
++def resolve_status(stored: dict | None, definition: dict) -> str:
++    """upsert 的 status 裁决 —— create 不是生命周期操作。
++
++    status 的唯一写入口是 POST /custom/{id}/status 与「编辑即回 draft」语义。
++    因此盘上已存在该 id 时:
++      - 调用方显式给出 status: 以调用方为准;
++      - 未给出且除 status 外内容无变化 → 沿用盘上 status (一次 create 形状的
++        重提交不得把 active 打回 draft);
++      - 未给出但内容有变化 → draft (编辑即回 draft);
++    尚无定义 (首次创建) 时: 调用方给出的 status, 否则 draft。
++    """
++    explicit = definition.get("status")
++    if stored is None:
++        return str(explicit or "draft")
++    if explicit not in (None, ""):
++        return str(explicit)
++    on_disk = str(stored.get("status") or "draft")
++    # 用盘上 status 探一次「除 status 外是否同内容」(is_same_content 内部已 fail-closed)
++    probe = {**definition, "status": on_disk}
++    return on_disk if is_same_content(stored, probe) else "draft"
++
++
++def is_unchanged_definition(stored: dict | None, definition: dict) -> bool:
++    """这次提交是否会走 upsert_definition 的幂等空操作 (同一口径, 供路由预判)。
++
++    路由用它决定「不重跑试算」——必须与 upsert_definition 的归一化完全一致, 否则
++    会出现「判等说变了、upsert 说没变」两套结论 (旧路由硬编码 status=draft 就是
++    这样把 active 定义判成内容变化)。
++    """
++    if stored is None:
++        return False
++    return is_same_content(stored, {**definition, "status": resolve_status(stored, definition)})
++
++
+@@ -285,0 +320,2 @@ def upsert_definition(data_dir: Path, definition: dict) -> dict:
++    status 不由此入口「重置」: 归一化见 resolve_status (盘上已有定义沿用盘上状态,
++    除真改内容回 draft 外), 否则一次 create 形状的重提交就会把线上因子打回不可用。
+@@ -288,0 +325,3 @@ def upsert_definition(data_dir: Path, definition: dict) -> dict:
++    # status 归一化必须排在判等之前: 否则 API 形状 (无 status) 与盘上 active 会因
++    # status 参与签名而被判成内容变化 (v+1 且状态回 draft)
++    definition = {**definition, "status": resolve_status(stored, definition)}

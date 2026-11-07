@@ -1,0 +1,5 @@
+# git status --porcelain -- backend/app/custom   (BEFORE: 三包全部未跟踪)
+# at 2026-11-07T22:25:42+08:00  HEAD=65c6e42f
+?? backend/app/custom/research_calendar_pack/
+?? backend/app/custom/research_factor_pack/
+?? backend/app/custom/research_universe_pack/

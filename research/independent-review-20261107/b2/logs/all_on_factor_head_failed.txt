@@ -1,0 +1,6 @@
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_factor_registry.py::test_asset_type_filter
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_factor_registry.py::test_catalog_counts_and_kinds
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_factor_registry.py::test_factor_columns_snapshot
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_factor_registry.py::test_factors_api_asset_filter_and_validation
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_factor_registry.py::test_factors_api_contract
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_factor_store.py::test_custom_factor_definition_roundtrip

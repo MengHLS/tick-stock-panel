@@ -1,0 +1,8 @@
+r1 {'ok': True, 'id': 'uf_audit_probe', 'version': 1, 'unchanged': False}
+r2 {'ok': True, 'id': 'uf_audit_probe', 'version': 1, 'unchanged': True}
+file C:\Users\A\AppData\Local\Temp\fa5-audit-vukjpein\user_data\custom_factors\uf_audit_probe.json
+bytes_equal True mtime_equal True registry_version 1
+r3_changed {'ok': True, 'id': 'uf_audit_probe', 'version': 2, 'unchanged': False} bytes_changed True mtime_changed True
+registry_version_after_change 2
+r4_status_change {'ok': True, 'id': 'uf_audit_probe', 'version': 3, 'unchanged': False}
+VERDICT_version_stable_on_repeat True unchanged_flag True

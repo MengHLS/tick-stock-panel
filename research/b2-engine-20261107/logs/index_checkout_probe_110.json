@@ -1,0 +1,103 @@
+{
+ "at": "2026-11-07T22:38:53+08:00",
+ "gate": {
+  "index_only": {
+   "argv": [
+    "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "tests/test_factor_gate.py",
+    "-q"
+   ],
+   "cwd": "C:\\Users\\A\\AppData\\Local\\Temp\\idxco_94y7_6pz\\backend",
+   "failed_tests": [
+    "tests/test_factor_gate.py::test_live_config_allowlist_shape_matches_the_artifact",
+    "tests/test_factor_gate.py::test_live_config_allowlist_reads_only_the_inventory_json",
+    "tests/test_factor_gate.py::test_live_config_allowlist_fails_closed_on_summary_mismatch",
+    "tests/test_factor_gate.py::test_live_config_ids_are_all_known_and_never_blocked_as_columns"
+   ],
+   "finished_at": "2026-11-07T22:38:47+08:00",
+   "returncode": 1,
+   "started_at": "2026-11-07T22:38:42+08:00",
+   "stdout_tail": "=========================== short test summary info ===========================\nFAILED tests/test_factor_gate.py::test_live_config_allowlist_shape_matches_the_artifact\nFAILED tests/test_factor_gate.py::test_live_config_allowlist_reads_only_the_inventory_json\nFAILED tests/test_factor_gate.py::test_live_config_allowlist_fails_closed_on_summary_mismatch\nFAILED tests/test_factor_gate.py::test_live_config_ids_are_all_known_and_never_blocked_as_columns\n4 failed, 52 passed, 1 warning in 3.94s",
+   "summary_line": "4 failed, 52 passed, 1 warning in 3.94s"
+  },
+  "with_inventory_artifact": {
+   "argv": [
+    "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "tests/test_factor_gate.py",
+    "-q"
+   ],
+   "cwd": "C:\\Users\\A\\AppData\\Local\\Temp\\idxco_94y7_6pz\\backend",
+   "failed_tests": [],
+   "finished_at": "2026-11-07T22:38:51+08:00",
+   "injected_artifact": {
+    "bytes": 186343,
+    "git_hash_object": "57c695bc2d515fe5a8b587cb3270542e6ed58acc",
+    "how": "cp 到导出树同一相对路径后用同一命令重跑; 索引未改动",
+    "path": "docs/architecture/evidence/referenced_factor_inventory.json"
+   },
+   "returncode": 0,
+   "started_at": "2026-11-07T22:38:47+08:00",
+   "stdout_tail": "  Update imports to use CallSpec instead.\n  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed\n    from _pytest.python import CallSpec2\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n56 passed, 1 warning in 2.54s",
+   "summary_line": "56 passed, 1 warning in 2.54s"
+  }
+ },
+ "head": "65c6e42f1fcd6362e72699afb118bdbcb247b3d3",
+ "head_short": "65c6e42f",
+ "index": {
+  "staged_count": 16,
+  "staged_files": [
+   "backend/app/api/factors.py",
+   "backend/app/custom/research_calendar_pack/__init__.py",
+   "backend/app/custom/research_calendar_pack/calendar_axis.py",
+   "backend/app/custom/research_calendar_pack/factor_provider.py",
+   "backend/app/custom/research_factor_pack/__init__.py",
+   "backend/app/custom/research_factor_pack/factor_provider.py",
+   "backend/app/custom/research_factor_pack/factor_specs.py",
+   "backend/app/custom/research_universe_pack/__init__.py",
+   "backend/app/custom/research_universe_pack/factor_provider.py",
+   "backend/app/custom/research_universe_pack/universe.py",
+   "backend/app/factors/dsl.py",
+   "backend/app/factors/gate.py",
+   "backend/app/factors/store.py",
+   "backend/tests/test_factor_gate.py",
+   "backend/tests/test_factor_registry.py",
+   "backend/tests/test_factor_store.py"
+  ],
+  "worktree_dirty_lines": 52
+ },
+ "method": "git checkout-index -a --prefix=<临时空目录> 导出索引内容 -> 在导出树的 backend/ 下用同一 venv 跑 pytest",
+ "question": "把该进索引的文件全部 add (不 commit) 后, 「按索引内容检出」是否 0 红?",
+ "suite5": {
+  "argv": [
+   "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+   "-m",
+   "pytest",
+   "tests/test_factor_dsl.py",
+   "tests/test_factor_registry.py",
+   "tests/test_factor_api.py",
+   "tests/test_factor_store.py",
+   "tests/test_factor_provider_contracts.py",
+   "-q"
+  ],
+  "cwd": "C:\\Users\\A\\AppData\\Local\\Temp\\idxco_94y7_6pz\\backend",
+  "failed_tests": [],
+  "finished_at": "2026-11-07T22:38:42+08:00",
+  "returncode": 0,
+  "started_at": "2026-11-07T22:38:32+08:00",
+  "stdout_tail": "  Update imports to use CallSpec instead.\n  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed\n    from _pytest.python import CallSpec2\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n74 passed, 1 warning in 8.09s",
+  "summary_line": "74 passed, 1 warning in 8.09s"
+ },
+ "tooling": {
+  "pytest": "9.2.0",
+  "python": "3.11.15"
+ },
+ "verdict": {
+  "gate_clean_index_only": false,
+  "gate_clean_with_artifact": true,
+  "suite5_clean": true
+ }
+}

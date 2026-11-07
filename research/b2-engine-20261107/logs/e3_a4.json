@@ -1,0 +1,28 @@
+{
+ "A4_1_days": 2141,
+ "A4_1_conservation_violations": 0,
+ "A4_1_pass": true,
+ "A4_2_days_with_unknown": 253,
+ "A4_2_days_unknown_without_reason": 0,
+ "A4_2_days_reason_without_unknown": 0,
+ "A4_2_pass": true,
+ "A4_3_codes": [
+  "beyond_coverage",
+  "st_missing",
+  "st_unknown_window"
+ ],
+ "A4_3_unknown_codes": [],
+ "A4_3_each_code_used": {
+  "beyond_coverage": 6,
+  "st_missing": 239,
+  "st_unknown_window": 8
+ },
+ "A4_3_pass": true,
+ "A4_4_st_missing_days": 239,
+ "A4_4_sample_date": "2018-01-08",
+ "A4_4_unknown_symbols_that_day": 2422,
+ "A4_4_of_which_have_st_record": 0,
+ "A4_4_missing_column": "st_history.st_flag (该 (symbol, date) 无记录 → null, 不当 False)",
+ "A4_4_pass": true,
+ "all_pass": true
+}

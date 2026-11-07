@@ -1,0 +1,109 @@
+[
+  {
+    "path": "docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md",
+    "sections": [
+      "§1 G1-G8",
+      "§7.1",
+      "§7.2",
+      "§7.3",
+      "§7.5",
+      "§7.6",
+      "§7.8.1",
+      "§7.8.2"
+    ],
+    "sha256": "4105c08da2de7ec400e8794513e7dd80986187d1cebf702d57a9dfb56378e907",
+    "sha256_caliber": "LF-normalized sha256 (CRLF collapsed to LF; immune to line-ending rewrites)",
+    "binding": "frozen v0.3 archive (immutable) + live numbered revision v0.5 —— 自检 [4] 双绑这两份，任一 §7.1 不同即 FAIL",
+    "size_bytes": 89833,
+    "hash_note_v5": "v5.2 起公式权威改为归档冻结副本，不再绑多路写入的活文件。活文件 docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md 在 v5.2 写入时实读 128,007 B / 1,226 CRLF（raw sha256 5bd81a74…，LF 归一化 60598fb2…），归档副本 §7.1 在 L680、§7.2 在 L707，8 行公式逐字一致；旧记 6b8fb14c…（110,944 B）为活文件 16:18 的 v0.4，已失效",
+    "hash_note_v4": "v3 记的 5c1264…（109,914 B）已被系统架构师于 16:18 再次更新：110,944 B / 1050 行；正文前缀 head -c 110098 的 sha256 = 11bfe51f…",
+    "hash_note_v3": "v2 记的哈希属契约 v0.3 之前的版本；文件已由系统架构师于 2026-11-07T16:13:21 更新为 v0.4（109,914 B）"
+  },
+  {
+    "path": "docs/research/caliber-decisions-20261107.md",
+    "sections": [
+      "§1.1",
+      "§1.2",
+      "§1.3",
+      "§1.4",
+      "§1.5",
+      "§2.1",
+      "§4.1",
+      "§4.2"
+    ],
+    "sha256": "bc23e90823d5d258454e349ec17d2559e2745f6350e10a4c656acf276182b9d1",
+    "hash_note_v5": "v5.2 复算：文件已被其作者更新，现 51088 B / 0 CRLF，LF 归一化 sha256 = 5c5edc3ccbf3c7298b975f4612aff17149c63ca6887cdbdebf214d8c5012b817；旧记 d95551c187547d1f74f23ce2d9aa35b007823d78961cbe373c9878a282712adb 失效（该文件当前 raw 字节 sha256 = 5c5edc3ccbf3c7298b975f4612aff17149c63ca6887cdbdebf214d8c5012b817）",
+    "numbering": "编号以本文件为准：D1=prior_* 口径、D2=rsi_14 涨跌幅、D3 并入本文件 §1.5",
+    "hash_note_v3": "v2 记的哈希属策略经理 §8 之前的版本；现行文件 2026-11-07T15:27:40（46,605 B，含 §8 v1.3）",
+    "sha256_verified_at": "2026-11-07T17:28+08:00",
+    "size_bytes": 59112,
+    "hash_note_v5_4": "v5.4 复算：该文件已被其作者更新（旧记 5c5edc3c…），现 59112 B / 0 CRLF，LF 归一化 sha256 = bc23e90823d5d258454e349ec17d2559e2745f6350e10a4c656acf276182b9d1；本条只改哈希与大小，不改引用内容。"
+  },
+  {
+    "path": "docs/factors/FACTOR_GAP_SPEC_20261107.md",
+    "sections": [
+      "§0 总表",
+      "§2 F1-F7"
+    ],
+    "sha256": "bc2fc2f6b9db2fd347de853ce5056c02a4dc25c961498fed5bd26ed039eacc98",
+    "hash_note_v5": "v5.2 口径切换：文件内容未变（raw 字节 sha256 仍为 7c93d4f2ba9ad782614663e76e9d2e4e86039effce7255dff6ec47898f7deec3），本条改记 LF 归一化值 bd297d8bdf1355c9031b55a2210972670ee92462bed29afa8c53b1538a010eba（29333 B / 304 CRLF）",
+    "numbering": "本文件 D1/D2/D3 与 caliber-decisions 的编号不同，勿混用",
+    "hash_note_v3": "v2 记的哈希属本文件 16:05 重写前的一版；现行 29,333 B",
+    "sha256_verified_at": "2026-11-07T17:28+08:00",
+    "size_bytes": 35147,
+    "hash_note_v5_4": "v5.4 复算：该文件已被其作者更新（旧记 bd297d8b…），现 35147 B / 313 CRLF，LF 归一化 sha256 = bc2fc2f6b9db2fd347de853ce5056c02a4dc25c961498fed5bd26ed039eacc98；本条只改哈希与大小，不改引用内容。"
+  },
+  {
+    "path": "research/strategy-search-20261107/scripts/common.py",
+    "lines": "119-141（add_indicators）",
+    "sha256": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09"
+  },
+  {
+    "path": "docs/factors/evidence/compare_stats.json",
+    "sha256": "3c86d85da2f85ed0dfbaa5fbad8e39d5f2347495afa9dcf5ba492254f6ae630b",
+    "hash_note_v5": "v5.2 口径切换：文件内容未变（raw 字节 sha256 仍为 b10d32b089a8e6fab53e2b4d98c8ab8a4d82c95f83ac47f737c40fb0f242091b），本条改记 LF 归一化值 3c86d85da2f85ed0dfbaa5fbad8e39d5f2347495afa9dcf5ba492254f6ae630b（40611 B / 1331 CRLF）",
+    "meta": {
+      "rows": 6422875,
+      "symbols": 3384,
+      "eval_start": "2019-07-01",
+      "date_max": "2026-10-30",
+      "eval_rows": 5510001
+    }
+  },
+  {
+    "path": "docs/factors/STRATEGY_INPUT_FACTOR_MAP_20261107.md",
+    "sections": [
+      "§2 S01-S12",
+      "§3 横向输入",
+      "§4 可落地结论"
+    ],
+    "sha256": "2b617493a3ba321c5674d3cfbfcfbf8384eaec96c7221cd9dfba3111d6067dac",
+    "hash_note_v5": "v5.2 口径切换：文件内容未变（raw 字节 sha256 仍为 09213723d33660d9ed3384d1c31741cb25560b3fdff88b2d43054c0624b04f5c），本条改记 LF 归一化值 2b617493a3ba321c5674d3cfbfcfbf8384eaec96c7221cd9dfba3111d6067dac（17613 B / 171 CRLF）",
+    "sha256_verified_at": "2026-11-07T16:15:13+08:00"
+  },
+  {
+    "path": "research/factor-registration-b2-20261107/REPORT_20261107.md",
+    "sections": [
+      "§2 uf_dist_prior_high_250 注册与逐位对账",
+      "§3 rsi_14 base 列可行性",
+      "§5 未覆盖"
+    ],
+    "sha256": "fcae57b168224c929c88125b4ff55904a54235d36a6a6dbd4404d52a2f2f17e0",
+    "used_for": "§4.2 / §4.3 / K10 / K11"
+  },
+  {
+    "path": "docs/architecture/ARCH_DECISION_FACTOR_ID_CANONICAL_20261107.md",
+    "sections": [
+      "§1 事实（8 组）",
+      "§1.2 prior_amount_20 单 id",
+      "§2.2 台账写法与 replaced_by 禁忌",
+      "§2.3 例外理由",
+      "§6 ID-CANON-1"
+    ],
+    "sha256": "befd0816e7411da595ac3db7c0bfdee3ea51614f4bc550eebe3fae1575eef805",
+    "hash_note_v5": "v5.2 复算：文件已被其作者更新，现 28028 B / 197 CRLF，LF 归一化 sha256 = befd0816e7411da595ac3db7c0bfdee3ea51614f4bc550eebe3fae1575eef805；旧记 b8373c191c3b8c8087d930932a17e3d05d276a2e9f0b9a121b315b2a5de60e40 失效（该文件当前 raw 字节 sha256 = caa957bffae31fe1caec5298fb85b9d985bee294d4ea6f437ce46469ffb64eab）",
+    "size_bytes": 17473,
+    "used_for": "§2.11 / K8 / double_id_rulings / prior_amount_20 例外",
+    "sha256_verified_at": "2026-11-07T16:22:00+08:00"
+  }
+]

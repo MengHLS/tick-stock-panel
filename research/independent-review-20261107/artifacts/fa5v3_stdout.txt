@@ -1,0 +1,81 @@
+{
+ "stage": "start",
+ "store_files": {
+  "store.py": {
+   "size": 19502,
+   "mtime_ns": 1794040432152147700,
+   "sha256": "de77eae6815adecd5e6f75a97329967752bd6b3fe52208a412a88c5641701199"
+  },
+  "factors.py": {
+   "size": 24629,
+   "mtime_ns": 1794040437705784000,
+   "sha256": "b17228b3dcdfab26be21057c262ce43919a8f2d0904adf6addfb43d13e274ac0"
+  }
+ },
+ "prod_n": 15
+}
+{"case": "T0_env", "verdict": "info", "all_factors": 192, "ext": 85, "auction_ext_registered": true}
+{"case": "T1_minus_target_uf_auction_post0920_match_growth", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 461, "preload_fail": ["cf_auction_resonance"]}
+{"case": "T1_minus_target_uf_auction_tail_imbalance", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 503, "preload_fail": ["cf_auction_resonance"]}
+{"case": "T1_minus_target_uf_auction_tail_match_growth", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 438, "preload_fail": []}
+{"case": "T1_minus_target_uf_auction_volume_surprise", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 469, "preload_fail": ["cf_auction_resonance"]}
+{"case": "T1_minus_target_uf_auction_volume_vs_prev", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 500, "preload_fail": ["cf_auction_resonance"]}
+{"case": "T1_minus_target_uf_ma120", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 368, "preload_fail": []}
+{"case": "T1_minus_target_uf_ma200", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 368, "preload_fail": []}
+{"case": "T1_minus_target_uf_prior_high_20", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 490, "preload_fail": []}
+{"case": "T1_minus_target_uf_prior_high_250", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 438, "preload_fail": []}
+{"case": "T1_minus_target_uf_prior_high_55", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 434, "preload_fail": []}
+{"case": "T1_minus_target_uf_prior_low_10", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 432, "preload_fail": []}
+{"case": "T1_minus_target_uf_prior_vol_20", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 472, "preload_fail": []}
+{"case": "T1_minus_target_uf_vol60", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 545, "preload_fail": []}
+{"case": "T1_minus_target_uf_dist_prior_high_250", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 756, "preload_fail": []}
+{"case": "T1_minus_target_cf_auction_resonance", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 638, "preload_fail": []}
+{"case": "T1_preloaded_uf_auction_post0920_match_growth", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 461, "preload_fail": []}
+{"case": "T1_preloaded_uf_auction_tail_imbalance", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 503, "preload_fail": []}
+{"case": "T1_preloaded_uf_auction_tail_match_growth", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 438, "preload_fail": []}
+{"case": "T1_preloaded_uf_auction_volume_surprise", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 469, "preload_fail": []}
+{"case": "T1_preloaded_uf_auction_volume_vs_prev", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 500, "preload_fail": []}
+{"case": "T1_preloaded_uf_ma120", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 368, "preload_fail": []}
+{"case": "T1_preloaded_uf_ma200", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 368, "preload_fail": []}
+{"case": "T1_preloaded_uf_prior_high_20", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 490, "preload_fail": []}
+{"case": "T1_preloaded_uf_prior_high_250", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 438, "preload_fail": []}
+{"case": "T1_preloaded_uf_prior_high_55", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 434, "preload_fail": []}
+{"case": "T1_preloaded_uf_prior_low_10", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 432, "preload_fail": []}
+{"case": "T1_preloaded_uf_prior_vol_20", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 472, "preload_fail": []}
+{"case": "T1_preloaded_uf_vol60", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 545, "preload_fail": []}
+{"case": "T1_preloaded_uf_dist_prior_high_250", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_before": "dsl", "lang_after": "dsl", "size": 756, "preload_fail": []}
+{"case": "T1_preloaded_cf_auction_resonance", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_before": null, "lang_after": null, "size": 638, "preload_fail": []}
+{"case": "T2_api_uf_auction_post0920_match_growth", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_after": null, "len_diff": 0}
+{"case": "T2_api_uf_auction_tail_imbalance", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_after": null, "len_diff": 0}
+{"case": "T2_api_uf_auction_tail_match_growth", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_after": null, "len_diff": 0}
+{"case": "T2_api_uf_auction_volume_surprise", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_after": null, "len_diff": 0}
+{"case": "T2_api_uf_auction_volume_vs_prev", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_after": null, "len_diff": 0}
+{"case": "T2_api_uf_ma120", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_ma200", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_prior_high_20", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_prior_high_250", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_prior_high_55", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_prior_low_10", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_prior_vol_20", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_vol60", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_uf_dist_prior_high_250", "verdict": "PASS", "unchanged": true, "version_in": 1, "version_out": 1, "bytes_same": true, "mtime_same": true, "lang_after": "dsl", "len_diff": 0}
+{"case": "T2_api_cf_auction_resonance", "verdict": "PASS", "unchanged": true, "version_in": 2, "version_out": 2, "bytes_same": true, "mtime_same": true, "lang_after": null, "len_diff": 0}
+{"case": "T2b_symmetry", "verdict": "PASS", "cases": 15, "asymmetric": []}
+{"case": "T2b_neg", "verdict": "PASS", "leaked": []}
+{"case": "T2c_shape_binding", "verdict": "PASS", "route_custom": ["created_at", "description", "direction", "formula", "group", "id", "kind", "label", "updated_at", "version"], "route_composite": ["created_at", "description", "direction", "group", "id", "kind", "label", "members", "updated_at", "version"], "my_custom": ["created_at", "description", "direction", "formula", "group", "id", "kind", "label", "updated_at", "version"], "my_composite": ["created_at", "description", "direction", "group", "id", "kind", "label", "members", "updated_at", "version"]}
+{"case": "T3_python_same", "verdict": "PASS", "first_unchanged": false, "second_unchanged": true, "version": 1, "bytes_same": true, "mtime_same": true, "lang": "python", "warmup": 80, "unit": "none", "tags": ["audit", "py"]}
+{"case": "T3b_api_shape_python", "verdict": "DEFECT", "unchanged": false, "version": 2, "error": null}
+{"case": "T3b2_probe", "verdict": "OBSERVE", "sig_status": {"stored": "ok", "api": "ValueError: 公式无效 [E014]: 语法错误: 无法识别的字符 '.'"}, "same": false}
+{"case": "T3c_python_warmup_omitted", "verdict": "OBSERVE", "unchanged": false, "version": 3, "disk_warmup": 80, "disk_lang": "python"}
+{"case": "T4_reverse_formula", "verdict": "PASS", "unchanged": false, "version": 2, "bytes_changed": true, "lang": "dsl", "mtime_changed": true}
+{"case": "T4b_extra_fields_kept", "verdict": "PASS", "version": 2, "kept": true, "unit": "pct", "tags": ["audit"], "scale_free": true, "note": "自定义附加键"}
+{"case": "T5_draft_to_active", "verdict": "PASS", "first_unchanged": false, "version_after": 2, "disk_status": "active", "second_unchanged": true, "second_version": 2, "stability": "stable", "disk_status_after": "active"}
+{"case": "T6_create_shape_vs_active", "verdict": "PASS", "unchanged": true, "version": 2, "disk_status": "active", "lang": "dsl"}
+{"case": "T6b_old_shape_explicit_draft", "verdict": "OBSERVE", "unchanged": false, "version": 3, "disk_status": "draft"}
+{"case": "T7_bare_env_auction", "verdict": "PASS", "exit": 0, "parsed": {"ext_auction_left": 0, "probe": false, "raised": "ValueError", "msg": "公式无效 [E001]: 未知标识符: ext_auction_preopen_last_imbalance", "unchanged": null}, "bytes_same": true, "mtime_same": true, "stderr": ""}
+{"case": "T10_registry_gate", "verdict": "PASS", "dup_raise": null, "version_after_dup": 1, "changed_same_version": "factor id 已注册且版本未提升: uf_vol60"}
+{"case": "T10b_double_startup", "verdict": "PASS", "first": ["uf_vol60"], "second": ["uf_vol60"], "v_after": [1, 1]}
+{"case": "T11_illegal_disk", "verdict": "PASS", "raised": "ValueError", "msg": "label 不能为空", "bytes_same": true}
+{"case": "T8_prod_unchanged", "verdict": "PASS", "n": 15, "drift": []}
+{"case": "T9_impl_version_stable", "verdict": "PASS", "start": {"store.py": {"mtime": 1794040432152147700, "sha": "de77eae6815adecd"}, "factors.py": {"mtime": 1794040437705784000, "sha": "b17228b3dcdfab26"}}, "end": {"store.py": {"mtime": 1794040432152147700, "sha": "de77eae6815adecd"}, "factors.py": {"mtime": 1794040437705784000, "sha": "b17228b3dcdfab26"}}}
+{"case": "SUMMARY", "verdict": "PASS", "total": 64, "fail": 0, "fail_cases": [], "defects": ["T3b_api_shape_python"], "elapsed_s": 6.3}

@@ -1,0 +1,102 @@
+{
+  "a11b_reachability": {
+    "eps23": 1.1920928955078125e-07,
+    "detail": {
+      "ma20": {
+        "n": 6592,
+        "max_abs": 7.462688381565385e-05,
+        "max_rel": 6.874064183444352e-08,
+        "col_max_abs": 1664.0716916613135,
+        "eps23": 1.1920928955078125e-07,
+        "eps24": 5.960464477539063e-08,
+        "rel_x_eps23": 0.5766382980175476,
+        "over_eps23": false,
+        "over_eps24": true,
+        "a11b_pass": true,
+        "a11b_ok_rel": true,
+        "a11b_ok_abs": true
+      },
+      "ma60": {
+        "n": 6272,
+        "max_abs": 6.990501765358204e-05,
+        "max_rel": 6.2232994492826e-08,
+        "col_max_abs": 1635.5914670652446,
+        "eps23": 1.1920928955078125e-07,
+        "eps24": 5.960464477539063e-08,
+        "rel_x_eps23": 0.5220481954664761,
+        "over_eps23": false,
+        "over_eps24": true,
+        "a11b_pass": true,
+        "a11b_ok_rel": true,
+        "a11b_ok_abs": true
+      },
+      "ma120": {
+        "n": 5792,
+        "max_abs": 6.483926449618593e-05,
+        "max_rel": 6.16520495259667e-08,
+        "col_max_abs": 1595.1394234921502,
+        "eps23": 1.1920928955078125e-07,
+        "eps24": 5.960464477539063e-08,
+        "rel_x_eps23": 0.5171748758699205,
+        "over_eps23": false,
+        "over_eps24": true,
+        "a11b_pass": true,
+        "a11b_ok_rel": true,
+        "a11b_ok_abs": true
+      },
+      "ma200": {
+        "n": 5152,
+        "max_abs": 6.370021787915903e-05,
+        "max_rel": 6.008058086415529e-08,
+        "col_max_abs": 1581.961087344649,
+        "eps23": 1.1920928955078125e-07,
+        "eps24": 5.960464477539063e-08,
+        "rel_x_eps23": 0.5039924412817,
+        "over_eps23": false,
+        "over_eps24": true,
+        "a11b_pass": true,
+        "a11b_ok_rel": true,
+        "a11b_ok_abs": true
+      },
+      "boll_lower": {
+        "n": 6592,
+        "max_abs": 0.00013904465208725014,
+        "max_rel": 1.416306246139678e-07,
+        "col_max_abs": 1610.2925895870346,
+        "eps23": 1.1920928955078125e-07,
+        "eps24": 5.960464477539063e-08,
+        "rel_x_eps23": 1.1880837906817272,
+        "over_eps23": true,
+        "over_eps24": true,
+        "a11b_pass": false,
+        "a11b_ok_rel": false,
+        "a11b_ok_abs": true
+      },
+      "boll_upper": {
+        "n": 6592,
+        "max_abs": 0.0001539102647711843,
+        "max_rel": 1.4289603722436258e-07,
+        "col_max_abs": 1764.7367093428602,
+        "eps23": 1.1920928955078125e-07,
+        "eps24": 5.960464477539063e-08,
+        "rel_x_eps23": 1.1986988410285857,
+        "over_eps23": true,
+        "over_eps24": true,
+        "a11b_pass": false,
+        "a11b_ok_rel": false,
+        "a11b_ok_abs": true
+      }
+    },
+    "all_pass": false,
+    "worst_rel": 1.4289603722436258e-07,
+    "worst_multiple": 1.1986988410285857,
+    "verdict": "FAIL"
+  },
+  "discrimination": {
+    "predicate": "value >= median",
+    "flips_correct_kernel": 0,
+    "flips_wrong_window": 9,
+    "catches_semantic_error": true
+  },
+  "generated_at": "2026-11-07T18:28:10"
+}

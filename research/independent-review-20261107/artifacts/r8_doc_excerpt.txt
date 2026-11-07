@@ -1,0 +1,82 @@
+145: 
+146: ```bash
+147: cd /c/work/sourcecode/tick-stock-panel
+148: wc -c -l backend/app/factors/dsl.py && sha256sum backend/app/factors/dsl.py
+149: backend/.venv/Scripts/python.exe -c "import sys; sys.path.insert(0,'backend'); from app.factors import dsl as m; print(len(m.OPERATORS), len(m.TS_OPERATORS), len(m.CROSS_OPERATORS)); print([m.compile_formula(t).ok for t in ('xs_rank_pool(close, close>0)','xs_rank_market(close)','xs_rank_pct(close, close>0)','xs_mean(close, close>0)')]); print([e.code for e in m.compile_formula('ewm(close,14)').errors])"
+150: ```
+151: 
+152: ## 4. `notes` 是否进 digest —— 裁定：**不进**（recipe 1 → recipe 2）
+153: 
+154: 锚点产物：`docs/architecture/evidence/referenced_factor_inventory.json` **186343 B** / 全文 `df5e1a63e98f8834e95517bbdde556a2550bb901d865ba09c1ac7f4040b32e49` / `records` 218 / `generated_at` `2026-11-07T19:23:55+08:00` / `schema_version` `2` / `scanned_sources` 67。
+155: 
+156: 落盘 `canonical_digest` = `aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a`；按 §7.12.4 原文（recipe 1）复算 = `aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a` → **逐位相等**；按 recipe 2 复算 = `d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6`。
+157: 
+158: | 扰动 | recipe 1 | recipe 2 |
+159: | --- | --- | --- |
+160: | 原样 | `aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a` | `d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6` |
+161: | `notes` 每条尾加 1 个空格 | `ba414786544e21f4ff5c1b57d82f0da0bb1c8e1b573ff3db20810ed78987a1d8`（**变**） | `d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6`（不变） |
+162: | 改 `summary.live_config.records`（93 → 999） | `6c33d2db7c182d0ea3e925111f36242958495c7822614c1c0bc3bac20aab6f25`（变） | `d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6`（不变） |
+163: | `records` 随机重排（`seed=7`） | `aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a`（不变） | `d87fef1413c0b6c1754b455a63bb31e36a4ec23359d7690a653218be9b7a44d6`（不变） |
+164: | 改 1 条 `verdict`（`allow`→`block`） | `3b4e85e7806abc09b7a6e21b7c9222da414b070b5bef750166b977cc3c0c46d3`（变） | `6e6d6cdeca136cf68842a6975a6b990599b66da393d216adbe22ac23a839bd73`（**变**） |
+165: 
+166: **结论**：签认对象只绑定被判事实。`notes`（6 条散文）/ `summary` / `stale_count` 不进载荷；`records` 与 `verdict` 必须进（改了必变，实测）。recipe 1 保留为历史定义、已公布值不失效；新增 `canonical_digest_recipe`，签认升为四元组 `(recipe, digest, schema_version, scanned_sources)`；跨 recipe 报「不可比」，L2 起必须 `"2"`。
+167: 
+168: ## 5. 未动面：逐块逐字节相等（不是仅哈希相等）
+169: 
+170: | 块 | CRLF 字符数 | CRLF sha16 | LF 字符数 | LF sha16 |
+171: | --- | --- | --- | --- | --- |
+172: | `## 6. X1 生产侧组合级调仓执行器` | 24 | `9385b506831fa9bc` | 22 | `079c3760f91e0c59` |
+173: | `## 7. F 类表达式因子注册入口` | 29 | `25d3e2b4e5f845b5` | 27 | `3461d805252f10cf` |
+174: | `### 7.1 实测结论` | 2541 | `a8e88134f60b504c` | 2514 | `6d3db0139a45f54c` |
+175: | `### 7.9 `POST /custom` 对既有定义` | 57 | `73e0ba549781b94f` | 55 | `2b1f13ef5c95f5e5` |
+176: | `### 7.11 `POST /custom/{id}/` | 142 | `9aa94c74bd40a4d2` | 138 | `c9dd4c0203c2fc0a` |
+177: | `### 7.12 清单 v2 规格：粒度、记录身份、ca` | 75 | `b89c673c6b263669` | 73 | `fde733bf3cabadfe` |
+178: | `### 7.13 矩阵回测路径的能力清单与准入前置` | 3964 | `c580720a1b31d925` | 3900 | `328d64faa756cbaa` |
+179: | `### 7.14 `F-A11` 裁定：分层判据` | 3908 | `f3571417ee0e1033` | 3842 | `1bbc5bd02e2f7fae` |
+180: | `### 7.15 canonical id 表` | 4153 | `1862a3282f9fa740` | 4103 | `6fb89b219b5374d5` |
+181: 
+182: §7.1 与 v0.6、v0.7、v0.8 三处**同块**：CRLF `2541`/`a8e88134f60b504c`，LF `2514`/`6d3db0139a45f54c`（与派单口径 `2,514`/`6d3db013…` = **LF 归一**一致；`a8e88134…` = **CRLF 保留**）。
+183: 
+184: **全章节审计**（机器比对，非目测）：v0.7 共 **115** 个二至四级小节，其中 **111 个逐字节相等**、**4 个改动**、另新增 **7** 个（§10 及其 6 个子节）。改动集合经断言等于预期集合 `{§3.5, §8, §8.1, §9}` —— 多一个就会抛断言、不落盘。
+185: 
+186: | 改动小节 | v0.7 字符 / sha8 | v0.8 字符 / sha8 | 原因 |
+187: | --- | --- | --- | --- |
+188: | `### 3.5 对现有调用方的兼容性` | 489 / `fe1fde91` | 610 / `d9e2685c` | §3.5 四键 / 29 |
+189: | `## 8. 改动性质总表` | 2471 / `d7434dbc` | 2833 / `b8c029f1` | §8 E2 落点行 |
+190: | `### 8.1 `rsi_14_pct`` | 6230 / `c3959c70` | 6283 / `a1b40f11` | §8.1 三处（D2 / `ewm` 否决 / 裁定段） |
+191: | `## 9. 未覆盖与依赖` | 4525 / `59931211` | 3822 / `64f17cbc` | §9 加 1 行 + footer 换行（该块 v0.7 含 footer / v0.8 不含；净 **-703 字符** = +482（新增那 1 行）− 1185（旧 footer 行），非「删内容」） |
+192: 
+193: ## 6. v0.7 的冻结状态（明确回答）
+194: 
+195: | 问题 | 回答 |
+196: | --- | --- |
+197: | v0.7 是否升 v0.8 | **是**。不原地改 v0.7：它已于 18:03 流通（193,586 B / `5a87d4b0…`），原地改会造成「同一路径同版本号两种字节」 |
+198: | v0.7 当前冻结状态 | **冻结为 2026-11-07 18:03 快照**：文件保留、不删、不再写入、四元组固定；引用状态「已被 v0.8 取代」；`F-A30`–`F-A41` 判定对象不变 |
+199: | v0.8 是否操作版 | **是**。此后「现状」一律以 §10.1 为准 |
+200: | v0.6 / v0.5 / v0.4 | v0.6 不更正（历史读数，其「25 键」不得再作基线）；v0.5、v0.4 一字未改，`F-A5` 锚点仍 v0.4 |
+201: 
+202: ## 7. 四元组（v0.8，原生工具复算）
+203: 
+204: ```bash
+205: cd /c/work/sourcecode/tick-stock-panel
+206: F=docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.8.md
+207: wc -c -l "$F"                       # 1792 206608
+208: head -c 204939 "$F" | sha256sum         # 18b769a44c4a2c5fdfdcffdaf61787311cec1b400432da245a3a300050be0689
+209: sha256sum "$F"                      # 2cf85ccbaaf1fed7e5316bf2c83c73b5193fc02f3aadf3b3e453600aabaedd2f
+210: ```
+211: 
+212: | 项 | 值 |
+213: | --- | --- |
+214: | size | **206,608 B** |
+215: | 行数 | **1,792** |
+216: | 正文前缀 | `head -c 204939` → **`18b769a44c4a2c5fdfdcffdaf61787311cec1b400432da245a3a300050be0689`** |
+217: | 全文 | **`2cf85ccbaaf1fed7e5316bf2c83c73b5193fc02f3aadf3b3e453600aabaedd2f`** |
+218: | 读取/落盘时刻 | 2026-11-07 21:04:09（Asia/Shanghai） |
+219: 
+220: ## 8. 未确证（不圆）
+221: 
+222: - `E1/E2` 实现与 §3/§4 判据的逐条一致 **未验**（归独立审核）；`xs_rank_market` 与 `rank` 的数值等价 **未逐位验**。
+223: - `E009`（截面算子不得嵌入时序窗口）对四个新键只读了分支（`dsl.py:738`），**未构造嵌入用例实跑**。
+224: - §10.1 的 29/13/3 是**导入模块**实测，**未穷举**其他算子白名单（如矩阵路径 `_MATRIX_COMPUTED_FEATURES`）。
+225: - recipe 2 只在本机对**单个产物**验证过；未验证其他产物（期望表 `referenced_factor_inventory_expected_20261107.json`）的情况。
+226: - 本轮**未**改 `backend/**`、`docs/factors/**`、`docs/research/**`；未 add、未提交、未部署；`gate.py` 未创建。

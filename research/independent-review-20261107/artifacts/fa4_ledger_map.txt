@@ -1,0 +1,15 @@
+JSON_IDS 8 ['uf_ma120', 'uf_ma200', 'uf_prior_high_20', 'uf_prior_high_250', 'uf_prior_high_55', 'uf_prior_low_10', 'uf_prior_vol_20', 'uf_vol60']
+DISK_UF 13 ['uf_auction_post0920_match_growth', 'uf_auction_tail_imbalance', 'uf_auction_tail_match_growth', 'uf_auction_volume_surprise', 'uf_auction_volume_vs_prev', 'uf_ma120', 'uf_ma200', 'uf_prior_high_20', 'uf_prior_high_250', 'uf_prior_high_55', 'uf_prior_low_10', 'uf_prior_vol_20', 'uf_vol60']
+ID_SET_EQUAL False json_only [] disk_only ['uf_auction_post0920_match_growth', 'uf_auction_tail_imbalance', 'uf_auction_tail_match_growth', 'uf_auction_volume_surprise', 'uf_auction_volume_vs_prev']
+MD_PAIRS []
+MD_PAIR_N 0 name_unique True id_unique True
+MD_ID_SET_EQUAL_JSON False
+uf_vol60 DIFFS {"label": ["60日收益标准差（日频，未年化）", "60日收益波动率"], "formula": [null, "ts_std(close / ts_delay(close, 1) - 1, 60)"]}
+uf_ma120 DIFFS {"label": ["120日均线（含当日）", "120日均价"], "formula": [null, "ts_mean(close, 120)"]}
+uf_ma200 DIFFS {"label": ["200日均线（含当日）", "200日均价"], "formula": [null, "ts_mean(close, 200)"]}
+uf_prior_high_20 DIFFS {"label": ["此前20日最高价（不含当日）", "此前20日最高价"], "formula": [null, "ts_max(ts_delay(high, 1), 20)"]}
+uf_prior_high_55 DIFFS {"label": ["此前55日最高价（不含当日）", "此前55日最高价"], "formula": [null, "ts_max(ts_delay(high, 1), 55)"]}
+uf_prior_high_250 DIFFS {"label": ["此前250日最高价（不含当日）", "此前250日最高价"], "formula": [null, "ts_max(ts_delay(high, 1), 250)"]}
+uf_prior_low_10 DIFFS {"label": ["此前10日最低价（不含当日）", "此前10日最低价"], "formula": [null, "ts_min(ts_delay(low, 1), 10)"]}
+uf_prior_vol_20 DIFFS {"label": ["此前20日均量（不含当日）", "此前20日均量"], "formula": [null, "ts_mean(ts_delay(volume, 1), 20)"]}
+LEDGER_FACTOR_KEYS ['asset_types', 'dependencies', 'direction', 'direction_note', 'evidence', 'formula_text', 'group', 'id', 'kind', 'label', 'lang', 'notes', 'null_policy', 'pit', 'pit_source', 'price_basis', 'price_basis_adjustment', 'relation_note', 'replaced_by', 'replaces', 'research_name', 'research_source', 'scale_free', 'semantics', 'serves_strategies', 'shift', 'status', 'strategy_usable', 'strategy_usable_note', 'unit', 'unit_note', 'usable_now', 'version', 'warmup_bars', 'window']

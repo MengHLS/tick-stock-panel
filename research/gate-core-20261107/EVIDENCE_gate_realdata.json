@@ -1,0 +1,481 @@
+{
+  "dsl_before": {
+    "bytes": 36785,
+    "sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b",
+    "mtime": "18:37:48"
+  },
+  "store_before": {
+    "dir_mtime_ns": 1794038820278864900,
+    "files": [
+      [
+        "cf_auction_resonance.json",
+        638,
+        1793441996359659300
+      ],
+      [
+        "uf_auction_post0920_match_growth.json",
+        461,
+        1793441996355662200
+      ],
+      [
+        "uf_auction_tail_imbalance.json",
+        503,
+        1793441996353661800
+      ],
+      [
+        "uf_auction_tail_match_growth.json",
+        438,
+        1793441996354661300
+      ],
+      [
+        "uf_auction_volume_surprise.json",
+        469,
+        1793441996358660000
+      ],
+      [
+        "uf_auction_volume_vs_prev.json",
+        500,
+        1793441996356663700
+      ],
+      [
+        "uf_dist_prior_high_250.json",
+        756,
+        1794038820278336300
+      ],
+      [
+        "uf_ma120.json",
+        368,
+        1794033026053255600
+      ],
+      [
+        "uf_ma200.json",
+        368,
+        1794033026054859800
+      ],
+      [
+        "uf_prior_high_20.json",
+        490,
+        1794033026056512500
+      ],
+      [
+        "uf_prior_high_250.json",
+        438,
+        1794033026059168900
+      ],
+      [
+        "uf_prior_high_55.json",
+        434,
+        1794033026058083900
+      ],
+      [
+        "uf_prior_low_10.json",
+        432,
+        1794033026061179100
+      ],
+      [
+        "uf_prior_vol_20.json",
+        472,
+        1794033026062176000
+      ],
+      [
+        "uf_vol60.json",
+        545,
+        1794033024987139500
+      ]
+    ]
+  },
+  "store_ids": [
+    "cf_auction_resonance",
+    "uf_auction_post0920_match_growth",
+    "uf_auction_tail_imbalance",
+    "uf_auction_tail_match_growth",
+    "uf_auction_volume_surprise",
+    "uf_auction_volume_vs_prev",
+    "uf_dist_prior_high_250",
+    "uf_ma120",
+    "uf_ma200",
+    "uf_prior_high_20",
+    "uf_prior_high_250",
+    "uf_prior_high_55",
+    "uf_prior_low_10",
+    "uf_prior_vol_20",
+    "uf_vol60"
+  ],
+  "store_facts": {
+    "cf_auction_resonance": {
+      "kind": "composite",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_auction_post0920_match_growth": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_auction_tail_imbalance": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_auction_tail_match_growth": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_auction_volume_surprise": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_auction_volume_vs_prev": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_dist_prior_high_250": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_ma120": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_ma200": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_prior_high_20": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_prior_high_250": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_prior_high_55": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_prior_low_10": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_prior_vol_20": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    },
+    "uf_vol60": {
+      "kind": "custom",
+      "status": "draft",
+      "lang": "dsl",
+      "registered": true
+    }
+  },
+  "store_production": {
+    "ok": false,
+    "blocked": [
+      [
+        "cf_auction_resonance",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_auction_post0920_match_growth",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_auction_tail_imbalance",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_auction_tail_match_growth",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_auction_volume_surprise",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_auction_volume_vs_prev",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_dist_prior_high_250",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_ma120",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_ma200",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_prior_high_20",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_prior_high_250",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_prior_high_55",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_prior_low_10",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_prior_vol_20",
+        "draft",
+        "FS01"
+      ],
+      [
+        "uf_vol60",
+        "draft",
+        "FS01"
+      ]
+    ],
+    "codes": [
+      "FS01"
+    ],
+    "unknown": []
+  },
+  "store_research_default": {
+    "ok": false,
+    "n_blocked": 15
+  },
+  "store_research_allow_non_active": {
+    "ok": true,
+    "non_active": [
+      "cf_auction_resonance",
+      "uf_auction_post0920_match_growth",
+      "uf_auction_tail_imbalance",
+      "uf_auction_tail_match_growth",
+      "uf_auction_volume_surprise",
+      "uf_auction_volume_vs_prev",
+      "uf_dist_prior_high_250",
+      "uf_ma120",
+      "uf_ma200",
+      "uf_prior_high_20",
+      "uf_prior_high_250",
+      "uf_prior_high_55",
+      "uf_prior_low_10",
+      "uf_prior_vol_20",
+      "uf_vol60"
+    ]
+  },
+  "live_config": {
+    "records": 93,
+    "sources": 22,
+    "primary": 79,
+    "companion": 14,
+    "ids": [
+      "boll_lower",
+      "boll_upper",
+      "close",
+      "high",
+      "high_60d",
+      "limit_down_price",
+      "limit_up_price",
+      "low_60d",
+      "ma10",
+      "ma20",
+      "ma5",
+      "ma60",
+      "macd_dea",
+      "macd_dif",
+      "open",
+      "raw_close",
+      "raw_high",
+      "raw_low",
+      "vol_ratio_5d"
+    ]
+  },
+  "live_config_production": {
+    "ok": false,
+    "blocked": [
+      [
+        "boll_lower",
+        null,
+        "FS01"
+      ],
+      [
+        "boll_upper",
+        null,
+        "FS01"
+      ],
+      [
+        "ma20",
+        null,
+        "FS01"
+      ],
+      [
+        "ma60",
+        null,
+        "FS01"
+      ]
+    ]
+  },
+  "live_config_research_allow_non_active": {
+    "ok": true,
+    "non_active": [
+      "boll_lower",
+      "boll_upper",
+      "ma20",
+      "ma60"
+    ]
+  },
+  "live_config_diagnostic": {
+    "ok": true,
+    "non_active": [
+      "boll_lower",
+      "boll_upper",
+      "ma20",
+      "ma60"
+    ]
+  },
+  "live_config_kinds": {
+    "boll_lower": "custom",
+    "boll_upper": "custom",
+    "close": "base",
+    "high": "base",
+    "high_60d": "base",
+    "limit_down_price": "base",
+    "limit_up_price": "base",
+    "low_60d": "base",
+    "ma10": "base",
+    "ma20": "custom",
+    "ma5": "base",
+    "ma60": "custom",
+    "macd_dea": "base",
+    "macd_dif": "base",
+    "open": "base",
+    "raw_close": "base",
+    "raw_high": "base",
+    "raw_low": "base",
+    "vol_ratio_5d": "base"
+  },
+  "store_after": {
+    "dir_mtime_ns": 1794038820278864900,
+    "files": [
+      [
+        "cf_auction_resonance.json",
+        638,
+        1793441996359659300
+      ],
+      [
+        "uf_auction_post0920_match_growth.json",
+        461,
+        1793441996355662200
+      ],
+      [
+        "uf_auction_tail_imbalance.json",
+        503,
+        1793441996353661800
+      ],
+      [
+        "uf_auction_tail_match_growth.json",
+        438,
+        1793441996354661300
+      ],
+      [
+        "uf_auction_volume_surprise.json",
+        469,
+        1793441996358660000
+      ],
+      [
+        "uf_auction_volume_vs_prev.json",
+        500,
+        1793441996356663700
+      ],
+      [
+        "uf_dist_prior_high_250.json",
+        756,
+        1794038820278336300
+      ],
+      [
+        "uf_ma120.json",
+        368,
+        1794033026053255600
+      ],
+      [
+        "uf_ma200.json",
+        368,
+        1794033026054859800
+      ],
+      [
+        "uf_prior_high_20.json",
+        490,
+        1794033026056512500
+      ],
+      [
+        "uf_prior_high_250.json",
+        438,
+        1794033026059168900
+      ],
+      [
+        "uf_prior_high_55.json",
+        434,
+        1794033026058083900
+      ],
+      [
+        "uf_prior_low_10.json",
+        432,
+        1794033026061179100
+      ],
+      [
+        "uf_prior_vol_20.json",
+        472,
+        1794033026062176000
+      ],
+      [
+        "uf_vol60.json",
+        545,
+        1794033024987139500
+      ]
+    ]
+  },
+  "dsl_after": {
+    "bytes": 36785,
+    "sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b",
+    "mtime": "18:37:48"
+  },
+  "store_untouched": true
+}

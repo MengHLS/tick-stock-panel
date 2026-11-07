@@ -1,0 +1,1701 @@
+{
+ "assertions": [
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "逐日池内家数与研究侧一致 (对账模式)",
+   "id": "E3-A1",
+   "note": "9 个 null 日全部落在 st_unknown_window(8)/beyond_coverage(1); 其余 1,770 天逐日 diff 恰为 0",
+   "observed": {
+    "compared_days": 1770,
+    "days_with_diff": 0,
+    "max_abs_diff": 0,
+    "mean_abs_diff": 0.0,
+    "null_days": 9,
+    "null_days_list": [
+     "2026-10-20",
+     "2026-10-21",
+     "2026-10-22",
+     "2026-10-23",
+     "2026-10-26",
+     "2026-10-27",
+     "2026-10-28",
+     "2026-10-29",
+     "2026-10-30"
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "池内行无 raw_close/volume 空值 (停牌=无 bar 行, 不用 volume=0 判)",
+   "id": "E3-A2",
+   "observed": {
+    "null_raw_close": 0,
+    "null_volume": 0,
+    "pool_rows": 2527847,
+    "symbols": 3271
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "池内家数 vs 池内该列非空家数可比对 (XS-A5 上游)",
+   "id": "E3-A3",
+   "observed": {
+    "pool_mean": 1420.937043
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3_a4.py",
+   "evidence": {
+    "bytes": 744,
+    "path": "research/b2-engine-20261107/logs/e3_a4.json",
+    "sha256": "0f91fe8de5c3a0b6a8fe148ff63e0d3ab7dc9c512fbf453fedcb08c5c581922d"
+   },
+   "gate": "空值可解释: universe_unknown_count 逐日为 0 或可逐条归因 (哪只/哪天/缺哪列)",
+   "id": "E3-A4",
+   "observed": {
+    "codes": [
+     "beyond_coverage",
+     "st_missing",
+     "st_unknown_window"
+    ],
+    "conservation_violations": 0,
+    "days": 2141,
+    "days_reason_without_unknown": 0,
+    "days_unknown_without_reason": 0,
+    "days_with_unknown": 253,
+    "each_code_used": {
+     "beyond_coverage": 6,
+     "st_missing": 239,
+     "st_unknown_window": 8
+    },
+    "missing_column": "st_history.st_flag (该 (symbol, date) 无记录 → null, 不当 False)",
+    "sample_date": "2018-01-08",
+    "sample_of_which_have_st_record": 0,
+    "sample_unknown_symbols": 2422,
+    "st_missing_days": 239
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "改参数必须改变结果 (参数未被写死)",
+   "id": "E3-A5",
+   "observed": {
+    "changed_pool_mean": 1274.922428,
+    "default_pool_mean": 1420.937043
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "尾部截断回放: 历史日逐位相同 (PIT, as-of 不偷未来)",
+   "id": "E3-A6",
+   "observed": {
+    "mismatch": 0,
+    "rows": 4028810
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "ST 不可判日 (含 2026-10-20..11-06 共 14 日) 值必须为 null 且 unknown == 当日 bar 数",
+   "id": "E3-A7",
+   "observed": {
+    "all_null_days": 253,
+    "window_14_days": 14,
+    "window_all_null": true,
+    "window_reasons": {
+     "beyond_coverage": 6,
+     "st_unknown_window": 8
+    },
+    "window_unknown_eq_bars": true
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e3.py",
+   "evidence": {
+    "bytes": 6192,
+    "path": "research/b2-engine-20261107/logs/e3_verify.json",
+    "sha256": "1c64af3c38c2c027c2b6801c190ae7a2a9955d82cab881906ea692b76dff06ec"
+   },
+   "gate": "覆盖期末端不外推 (10-30 之后不得有任何非 null)",
+   "id": "E3-A8",
+   "observed": {
+    "non_null_after_coverage": 0,
+    "rows_after_coverage": 6
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_window.py",
+   "evidence": {
+    "bytes": 2189,
+    "path": "research/b2-engine-20261107/logs/window_20261107.json",
+    "sha256": "5693b31c408326aa8c97249ec23a1f45d4d0803b140d233f242d46680a2831ae"
+   },
+   "gate": "14 日窗口内 count(in_universe ∈ {0.0,1.0}) == 0",
+   "id": "W1",
+   "observed": {
+    "nonnull_rows": 0,
+    "rows_in_0_1": 0,
+    "window_rows": 44654
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_window.py",
+   "evidence": {
+    "bytes": 2189,
+    "path": "research/b2-engine-20261107/logs/window_20261107.json",
+    "sha256": "5693b31c408326aa8c97249ec23a1f45d4d0803b140d233f242d46680a2831ae"
+   },
+   "gate": "14 日窗口内每日 universe_unknown_count == 当日有 bar 行数",
+   "id": "W2",
+   "note": "8 天 st_unknown_window + 6 天 beyond_coverage (st_history 覆盖期末端 2026-10-29), 与 E3-A7 的 8+6 一致",
+   "observed": {
+    "all_match": true,
+    "per_day": [
+     {
+      "bars": 3191,
+      "date": "2026-10-20",
+      "reason": "st_unknown_window",
+      "unknown": 3191
+     },
+     {
+      "bars": 3190,
+      "date": "2026-10-21",
+      "reason": "st_unknown_window",
+      "unknown": 3190
+     },
+     {
+      "bars": 3191,
+      "date": "2026-10-22",
+      "reason": "st_unknown_window",
+      "unknown": 3191
+     },
+     {
+      "bars": 3192,
+      "date": "2026-10-23",
+      "reason": "st_unknown_window",
+      "unknown": 3192
+     },
+     {
+      "bars": 3188,
+      "date": "2026-10-26",
+      "reason": "st_unknown_window",
+      "unknown": 3188
+     },
+     {
+      "bars": 3188,
+      "date": "2026-10-27",
+      "reason": "st_unknown_window",
+      "unknown": 3188
+     },
+     {
+      "bars": 3189,
+      "date": "2026-10-28",
+      "reason": "st_unknown_window",
+      "unknown": 3189
+     },
+     {
+      "bars": 3189,
+      "date": "2026-10-29",
+      "reason": "st_unknown_window",
+      "unknown": 3189
+     },
+     {
+      "bars": 3189,
+      "date": "2026-10-30",
+      "reason": "beyond_coverage",
+      "unknown": 3189
+     },
+     {
+      "bars": 3189,
+      "date": "2026-11-02",
+      "reason": "beyond_coverage",
+      "unknown": 3189
+     },
+     {
+      "bars": 3188,
+      "date": "2026-11-03",
+      "reason": "beyond_coverage",
+      "unknown": 3188
+     },
+     {
+      "bars": 3190,
+      "date": "2026-11-04",
+      "reason": "beyond_coverage",
+      "unknown": 3190
+     },
+     {
+      "bars": 3190,
+      "date": "2026-11-05",
+      "reason": "beyond_coverage",
+      "unknown": 3190
+     },
+     {
+      "bars": 3190,
+      "date": "2026-11-06",
+      "reason": "beyond_coverage",
+      "unknown": 3190
+     }
+    ],
+    "reason_counts": {
+     "beyond_coverage": 6,
+     "st_unknown_window": 8
+    },
+    "window_days": 14
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_window.py",
+   "evidence": {
+    "bytes": 2189,
+    "path": "research/b2-engine-20261107/logs/window_20261107.json",
+    "sha256": "5693b31c408326aa8c97249ec23a1f45d4d0803b140d233f242d46680a2831ae"
+   },
+   "gate": "同窗口 E1 market_breadth 输出 null",
+   "id": "W3",
+   "observed": {
+    "days": 14,
+    "days_with_nonnull": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_window.py",
+   "evidence": {
+    "bytes": 2189,
+    "path": "research/b2-engine-20261107/logs/window_20261107.json",
+    "sha256": "5693b31c408326aa8c97249ec23a1f45d4d0803b140d233f242d46680a2831ae"
+   },
+   "gate": "同窗口 xs_rank_pool 输出 null",
+   "id": "W4",
+   "observed": {
+    "days": 14,
+    "max_nonnull": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "xs_rank_pool 逐日 max==1 且 min>0, 任何 rk>1 直接不通过",
+   "id": "XS-A1",
+   "observed": {
+    "below_0": 0,
+    "days": 1770,
+    "days_max_ne_1": 0,
+    "days_min_times_n_ne_1": 0,
+    "max": 1.0,
+    "min": 0.0004233700254022015,
+    "n": 2527847,
+    "out_of_pool_nonnull": 0,
+    "over_1": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "分母指纹 = 池内非空家数 (不是池内成员数)",
+   "id": "XS-A2",
+   "note": "真实样本池内无空 vol60, ①②恒等, 区分力由 XS-A5 合成 fixture 提供; 本条不作合格线",
+   "observed": {
+    "distinguishable_on_full_sample": false,
+    "member_count_mean": 1538.442452806677,
+    "pool_size_mean": 1538.442452806677,
+    "pool_vs_pct_rows_differ": 2523399,
+    "rows_bad": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/probe_xs_a3_same_data.py  # 同数据, 旧 dsl vs 新 dsl",
+   "evidence": {
+    "after_snapshot": "research/b2-engine-20261107/baseline_after.json",
+    "before_snapshot": "research/b2-engine-20261107/baseline_before.json",
+    "raw_identical": false,
+    "same_data_probe": {
+     "bytes": 4801,
+     "path": "research/b2-engine-20261107/logs/xs_a3_same_data_old_vs_new_dsl.json",
+     "sha256": "08e01497133201abbf5116a664adba9b65274d3ded7e287fa2433d097791d825"
+    }
+   },
+   "gate": "dsl.py 改动后 rank/zscore/winsorize + 14 个 B0 因子输出逐位不变 (同数据新旧 dsl 对照)",
+   "id": "XS-A3",
+   "note": "同数据对照: 把 B2 前的 dsl.py (backup/dsl.py.orig, 无 xs_* 算子) 临时换入, 与现盘 dsl.py (含 4 个新算子) 在同一份当前数据上各算一次, 51 个键 (7 个表达式 + 14 个 B0 因子的 sha256 与 null 数) 逐位相同 → B2 的 dsl.py 改动对既有 rank/zscore/winsorize 与 B0 因子零影响; 对照完成后已还原 dsl.py 并校验 sha。【非缺陷声明】18:16 的 baseline_before.json 与 21:36 重算的 baseline_after.json 现在有 15 个 sha 键不同(null 数与 rows/symbols 全同), 原因是行情数据在 20:46:42 / 20:54:07 被重建 (kline_daily/date=2026-11-06, kline_daily_enriched/date=2026-11-06), 该日落在面板区间内; 跨时间哈希对比测到的是数据漂移, 不是代码变更, 故改用同数据新旧 dsl 对照。",
+   "observed": {
+    "compared_keys": 51,
+    "dsl_restored_ok": true,
+    "n_diff": 0,
+    "new_dsl_sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b",
+    "old_dsl_sha256": "3d76ccdc3d5b876e1610d8db8701485252bbf7d20d95b56ab817243f224d54f2",
+    "raw_snapshot_diff_keys": [
+     "b0.boll_lower.sha256",
+     "b0.boll_upper.sha256",
+     "b0.ma120.sha256",
+     "b0.ma20.sha256",
+     "b0.ma200.sha256",
+     "b0.ma60.sha256",
+     "b0.sd20.sha256",
+     "b0.vol60.sha256",
+     "exprs.rank_amount.sha256",
+     "exprs.rank_close.sha256",
+     "exprs.rank_momentum_20d.sha256",
+     "exprs.rank_ts_inner.sha256",
+     "exprs.rank_vol60.sha256",
+     "exprs.winsorize_close_3.sha256",
+     "exprs.zscore_close.sha256"
+    ],
+    "rows": 598329,
+    "symbols": 300
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "E3 依赖: in_universe 由 Provider 物化",
+   "id": "XS-A4",
+   "observed": {
+    "compiled_ok": [
+     "xs_rank_market",
+     "xs_rank_pct",
+     "xs_rank_pool"
+    ],
+    "provider_registered": true
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "池内成员 x 为 null -> 该成员 null 且不进分母",
+   "id": "XS-A5",
+   "observed": {
+    "expected": [
+     0.5,
+     1.0
+    ],
+    "forbidden": [
+     0.3333333333333333,
+     0.6666666666666666
+    ],
+    "pass": true,
+    "values": [
+     0.5,
+     1.0
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "空池 -> 全 null (不是 0)",
+   "id": "XS-A6",
+   "observed": {
+    "all_null": true,
+    "pass": true,
+    "values": [
+     null,
+     null
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "14 日 ST 窗口: pool/pct 全 null, market 仍非 null",
+   "id": "XS-A7",
+   "observed": {
+    "XS-A7_market_nonnull_values": 44570,
+    "XS-A7_pct_nonnull_values": 0,
+    "XS-A7_pool_nonnull_values": 0,
+    "XS-A7_window_days": 14,
+    "XS-A7_window_first": "2026-10-20",
+    "XS-A7_window_last": "2026-11-06"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "并列取平均名次 (average, 非 ordinal)",
+   "id": "XS-A8",
+   "observed": {
+    "expected": 0.625,
+    "ordinal_would_be": [
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ],
+    "pass": true,
+    "values": [
+     0.625,
+     0.625,
+     0.625,
+     0.625
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "xs_rank_market 与 rank 逐位相同",
+   "id": "XS-B1",
+   "observed": {
+    "bitwise_equal": true,
+    "values": [
+     {
+      "mkt": 0.3333333333333333,
+      "y": 0.3333333333333333
+     },
+     {
+      "mkt": 0.6666666666666666,
+      "y": 0.6666666666666666
+     },
+     {
+      "mkt": 1.0,
+      "y": 1.0
+     }
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "xs_rank_market 值域 (0,1] 且逐日 max==1",
+   "id": "XS-B2",
+   "observed": {
+    "XS-B2_days": 1779,
+    "XS-B2_days_max_ne_1": 0,
+    "XS-B2_max": 1.0,
+    "XS-B2_min": 0.0003132832080200501,
+    "XS-B2_rows": 5469335
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_id_refs.py",
+   "evidence": {
+    "bytes": 1535,
+    "path": "research/b2-engine-20261107/logs/id_refs_20261107.json",
+    "sha256": "74dca44c7f0a75c981d5e0bebfb30f0c212237698b5c4a2308ba7f819a581347"
+   },
+   "gate": "策略侧对 xs_rank_market / xs_rank_pct 的引用计数 = 0 (与 XS-C3 同)",
+   "id": "XS-B3",
+   "note": "硬面 144 个文件 0 命中; 软面 1 处为 factor_provider.py:52 的注释, 不是引用",
+   "observed": {
+    "hard_surfaces": [
+     {
+      "exists": true,
+      "files": 21,
+      "root": "D:/TSP/data/user_data/custom_signals"
+     },
+     {
+      "exists": true,
+      "files": 4,
+      "root": "D:/TSP/data/user_data/strategy_overrides"
+     },
+     {
+      "exists": true,
+      "files": 1,
+      "root": "D:/TSP/data/user_data/monitor_rules"
+     },
+     {
+      "exists": true,
+      "files": 110,
+      "root": "C:/work/sourcecode/tick-stock-panel/research/strategy-search-20261107"
+     },
+     {
+      "exists": true,
+      "files": 8,
+      "root": "C:/work/sourcecode/tick-stock-panel/backend/app/custom/strategy_research"
+     }
+    ],
+    "hard_total": 0,
+    "soft_hits": [
+     {
+      "file": "C:/work/sourcecode/tick-stock-panel/backend/app/custom/research_universe_pack/factor_provider.py",
+      "id": "xs_rank_pct",
+      "is_comment": true,
+      "line": 52,
+      "text": "# 值域 {1.0, 0.0, null} —— 供 xs_rank_pool / xs_mean / xs_rank_pct 的第 2 参数"
+     }
+    ],
+    "soft_total": 1
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "佐证: 池外行 pool 为 null 而 market 非 null (两条互不等价)",
+   "id": "XS-B3-cover",
+   "note": "market 是为诊断而覆盖全样本的 id, 不得当策略可用口径",
+   "observed": {
+    "market_out_of_pool_nonnull": 2912835,
+    "out_of_pool_rows": 2953447,
+    "pool_out_of_pool_nonnull": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_full.py",
+   "evidence": {
+    "bytes": 1676,
+    "path": "research/b2-engine-20261107/logs/e2_full.json",
+    "sha256": "4ccc9ab71dbd06079484674458320153d90c3872d1d0192cae06b7b44ac6cff9"
+   },
+   "gate": "xs_rank_pct 可 >1 (差异证明: 全样本名次 ÷ 池内家数)",
+   "id": "XS-C2",
+   "observed": {
+    "max": 4.367909238249595,
+    "over_1_rows": 1619560,
+    "rows": 2527847
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "负样本: 契约 §3.1 四行样例上 pool != pct",
+   "id": "NEG-3.1-4rows",
+   "note": "pool={0.5,1.0}, pct={0.5,1.5}: 证明没有把全样本名次当池内名次",
+   "observed": {
+    "pass": true,
+    "pct_expect": [
+     0.5,
+     1.5
+    ],
+    "pool_expect": [
+     0.5,
+     1.0
+    ],
+    "xs_rank_pct": [
+     0.5,
+     null,
+     1.5,
+     null
+    ],
+    "xs_rank_pool": [
+     0.5,
+     null,
+     1.0,
+     null
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "负样本: 6 行 3 只入池, pool 分母=3 vs pct 分母=6",
+   "id": "NEG-pool3of6",
+   "observed": {
+    "pass": true,
+    "pct_expect": [
+     0.6666666666666666,
+     1.3333333333333333,
+     2.0
+    ],
+    "pct_max_gt_1": true,
+    "pool_expect": [
+     0.3333333333333333,
+     0.6666666666666666,
+     1.0
+    ],
+    "xs_rank_pct": [
+     null,
+     0.6666666666666666,
+     null,
+     1.3333333333333333,
+     null,
+     2.0
+    ],
+    "xs_rank_pool": [
+     null,
+     0.3333333333333333,
+     null,
+     0.6666666666666666,
+     null,
+     1.0
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "负样本: 池内 1 只时 pool=pct=1.0 (不能区分, 如实记录)",
+   "id": "NEG-pool1",
+   "observed": {
+    "market_expect_first": 0.16666666666666666,
+    "note": "池内 1 只时 ① 与 ③ 恰好同值, 不能用来区分; 区分靠 CONTRACT_3_1_four_rows",
+    "pass": true,
+    "pct_expect": 1.0,
+    "pool_expect": 1.0,
+    "xs_rank_market": [
+     0.16666666666666666,
+     0.3333333333333333,
+     0.5,
+     0.6666666666666666,
+     0.8333333333333334,
+     1.0
+    ],
+    "xs_rank_pct": [
+     1.0,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "xs_rank_pool": [
+     1.0,
+     null,
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e2_fixtures.py",
+   "evidence": {
+    "bytes": 2745,
+    "path": "research/b2-engine-20261107/logs/e2_fixtures.json",
+    "sha256": "c16f83f48582e93f884e828412549effeecf8095f7c6462d8118b0f815d9343d"
+   },
+   "gate": "掩码参数非布尔 -> E017 (新增错误码)",
+   "id": "E017",
+   "note": "第 4 例 xs_rank_market(close, in_universe) 是参数个数错 -> E003, 不是 E017",
+   "observed": {
+    "xs_mean(close, 1)": {
+     "codes": [
+      "E017"
+     ],
+     "ok": false
+    },
+    "xs_rank_market(close, in_universe)": {
+     "codes": [
+      "E003"
+     ],
+     "ok": false
+    },
+    "xs_rank_pool(close, close)": {
+     "codes": [
+      "E017"
+     ],
+     "ok": false
+    },
+    "xs_rank_pool(close, volume)": {
+     "codes": [
+      "E017"
+     ],
+     "ok": false
+    }
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e1.py",
+   "evidence": {
+    "bytes": 2767,
+    "path": "research/b2-engine-20261107/logs/e1_verify.json",
+    "sha256": "76e61f7556cfa7924454abea2dc184c1d5de658d4034aed8320b81b6f2735d70"
+   },
+   "gate": "market_breadth 逐日比 (只在两侧均非 null 的交易日要求 <1e-12)",
+   "id": "B1",
+   "observed": {
+    "compared_days": 1770,
+    "days_over_tol": 0,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "null_days": 9,
+    "null_days_list": [
+     {
+      "date": "2026-10-20",
+      "reason": "st_unknown_window",
+      "research_value": 0.3033256880733945
+     },
+     {
+      "date": "2026-10-21",
+      "reason": "st_unknown_window",
+      "research_value": 0.2995418098510882
+     },
+     {
+      "date": "2026-10-22",
+      "reason": "st_unknown_window",
+      "research_value": 0.21646516983304548
+     },
+     {
+      "date": "2026-10-23",
+      "reason": "st_unknown_window",
+      "research_value": 0.24568469505178367
+     },
+     {
+      "date": "2026-10-26",
+      "reason": "st_unknown_window",
+      "research_value": 0.260422615648201
+     },
+     {
+      "date": "2026-10-27",
+      "reason": "st_unknown_window",
+      "research_value": 0.2180881511161992
+     },
+     {
+      "date": "2026-10-28",
+      "reason": "st_unknown_window",
+      "research_value": 0.24898902368573078
+     },
+     {
+      "date": "2026-10-29",
+      "reason": "st_unknown_window",
+      "research_value": 0.21627906976744185
+     },
+     {
+      "date": "2026-10-30",
+      "reason": "beyond_coverage",
+      "research_value": 0.1845618107951248
+     }
+    ],
+    "null_reason_counts": {
+     "beyond_coverage": 1,
+     "st_unknown_window": 8
+    }
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e1.py",
+   "evidence": {
+    "bytes": 2767,
+    "path": "research/b2-engine-20261107/logs/e1_verify.json",
+    "sha256": "76e61f7556cfa7924454abea2dc184c1d5de658d4034aed8320b81b6f2735d70"
+   },
+   "gate": "月末通过率与研究侧计数逐月一致 (0.5402298850574713 为靶值)",
+   "id": "B2",
+   "note": "0.5407417 是研究侧全窗均值, 属诊断参照不是靶值",
+   "observed": {
+    "compared": 87,
+    "diagnostic_ref_rate": 0.5407417151801761,
+    "month_ends": 88,
+    "null_list": [
+     {
+      "date": "2026-10-30",
+      "reason": "beyond_coverage"
+     }
+    ],
+    "pass_count": 47,
+    "pass_rate": 0.5402298850574713
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e1.py",
+   "evidence": {
+    "bytes": 2767,
+    "path": "research/b2-engine-20261107/logs/e1_verify.json",
+    "sha256": "76e61f7556cfa7924454abea2dc184c1d5de658d4034aed8320b81b6f2735d70"
+   },
+   "gate": "当日所有行同值 (含池外行); 池内无有效样本 -> null",
+   "id": "B3",
+   "observed": {
+    "days_with_any_nonnull": 1770,
+    "days_with_out_of_pool_broadcast": 1770,
+    "days_with_spread": 0
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e1.py",
+   "evidence": {
+    "bytes": 2767,
+    "path": "research/b2-engine-20261107/logs/e1_verify.json",
+    "sha256": "76e61f7556cfa7924454abea2dc184c1d5de658d4034aed8320b81b6f2735d70"
+   },
+   "gate": "空池 -> null 不是 0",
+   "id": "B4",
+   "observed": {
+    "values": [
+     null,
+     null
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e1.py",
+   "evidence": {
+    "bytes": 2767,
+    "path": "research/b2-engine-20261107/logs/e1_verify.json",
+    "sha256": "76e61f7556cfa7924454abea2dc184c1d5de658d4034aed8320b81b6f2735d70"
+   },
+   "gate": "同输入两跑哈希相同 (确定性)",
+   "id": "B5",
+   "observed": {
+    "hash_run1": "820a0929f2e098854c03ae632d57573a43eeb8f101201c4ba21bcbde876c1de2",
+    "hash_run2": "820a0929f2e098854c03ae632d57573a43eeb8f101201c4ba21bcbde876c1de2"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_e1.py",
+   "evidence": {
+    "bytes": 2767,
+    "path": "research/b2-engine-20261107/logs/e1_verify.json",
+    "sha256": "76e61f7556cfa7924454abea2dc184c1d5de658d4034aed8320b81b6f2735d70"
+   },
+   "gate": "warmup == 120",
+   "id": "B6",
+   "observed": {
+    "warmup_bars": 120
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "materialize_factor_columns 产出 Float64 掩码, 值域 ⊆ {1.0,0.0,null}",
+   "id": "W-A",
+   "observed": {
+    "distinct_nonnull": [
+     0.0,
+     1.0
+    ],
+    "dtype": "Float64",
+    "null_rows": 44654,
+    "rows": 646943,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "生产入口与直调 compute_in_universe 逐位相同 (同帧 sha256)",
+   "id": "W-B",
+   "observed": {
+    "direct_sha": "94866b8e6faa09608ceb0a1399675ec3d50c22876132bc415ee636699e986047",
+    "prod_sha": "94866b8e6faa09608ceb0a1399675ec3d50c22876132bc415ee636699e986047",
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "data_dir 无 st_history -> fail-closed (ValueError), 不静默当非 ST",
+   "id": "W-C",
+   "observed": {
+    "error_type": "ValueError",
+    "message": "in_universe 需要 st_history 数据集, 但未在数据目录找到 (<tmpdir>\\st_history); 不能用当前名称或默认值代替",
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "已物化帧上重复调用不重算 (幂等, 值不变)",
+   "id": "W-D",
+   "observed": {
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "DSL 端到端 xs_rank_pool(close, in_universe): 池内 (0,1] 且与手工逐位相同",
+   "id": "W-E",
+   "observed": {
+    "dependencies": [
+     "amount",
+     "close",
+     "date",
+     "raw_close",
+     "symbol",
+     "volume"
+    ],
+    "max_abs_diff": 0.0,
+    "pool_max": 1.0,
+    "pool_min": 0.0005491488193300384,
+    "pool_nonnull": 124398,
+    "pool_rows": 124398,
+    "referenced": [
+     "in_universe"
+    ],
+    "verdict": "PASS",
+    "warmup_bars": 120
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "池外行必须为 null (池外不是 0)",
+   "id": "W-E2",
+   "observed": {
+    "out_of_pool_nonnull": 0,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "掩码标签: tags 含 'mask' (E017 静态判定的唯一依据)",
+   "id": "W-F",
+   "observed": {
+    "kind": "custom",
+    "tags": [
+     "mask",
+     "研究基线",
+     "E3"
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "E017 负样本: xs_rank_pool(close, volume) 被拒",
+   "id": "W-G",
+   "observed": {
+    "codes": [
+     "E017"
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "14 日窗口经生产入口同样全 null",
+   "id": "W-H",
+   "observed": {
+    "bars_total": 44654,
+    "nonnull_total": 0,
+    "verdict": "PASS",
+    "window_days": 14
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_wiring.py  # 生产 Provider 入口 materialize_factor_columns",
+   "evidence": {
+    "bytes": 2607,
+    "path": "research/b2-engine-20261107/logs/wiring_verify.json",
+    "sha256": "0562724d92e80391e29d4cba0362d72dfd511ad7da53d5cc52777b78b3ad25d6"
+   },
+   "gate": "E009 对四个新键生效 (截面算子嵌进时序窗口一律拒), 对照 rank/zscore 不变",
+   "id": "W-I",
+   "note": "补 v0.8 §10.2 未确证③; 同时证明 in_universe 带 mask 标签被 xs_rank_pool/xs_mean 接受",
+   "observed": {
+    "cases": {
+     "ts_mean(rank(close), 5)": {
+      "codes": [
+       "E009"
+      ],
+      "expect": [
+       "E009"
+      ],
+      "ok": false
+     },
+     "ts_mean(xs_mean(close, in_universe), 5)": {
+      "codes": [
+       "E009"
+      ],
+      "expect": [
+       "E009"
+      ],
+      "ok": false
+     },
+     "ts_mean(xs_rank_market(close), 5)": {
+      "codes": [
+       "E009"
+      ],
+      "expect": [
+       "E009"
+      ],
+      "ok": false
+     },
+     "ts_mean(xs_rank_pct(close, in_universe), 5)": {
+      "codes": [
+       "E009"
+      ],
+      "expect": [
+       "E009"
+      ],
+      "ok": false
+     },
+     "ts_mean(xs_rank_pool(close, in_universe), 5)": {
+      "codes": [
+       "E009"
+      ],
+      "expect": [
+       "E009"
+      ],
+      "ok": false
+     },
+     "ts_mean(zscore(close), 5)": {
+      "codes": [
+       "E009"
+      ],
+      "expect": [
+       "E009"
+      ],
+      "ok": false
+     },
+     "xs_mean(close, in_universe)": {
+      "codes": [],
+      "expect": [],
+      "ok": true
+     },
+     "xs_rank_pool(close, in_universe)": {
+      "codes": [],
+      "expect": [],
+      "ok": true
+     }
+    },
+    "n_cases": 8,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/verify_id_canonical.py",
+   "evidence": {
+    "bytes": 787,
+    "path": "research/b2-engine-20261107/logs/id_canonical_20261107.json",
+    "sha256": "e58b6f26c5e8e0b4cd233b382fd590711f4c10e067d3eedf23703225c1c47988"
+   },
+   "gate": "引用的因子 id 逐个按 canonical 裁定分类: 无 alias 违规, pack-only 已标注",
+   "id": "REFS-CANON",
+   "note": "E1 formula 实际引用 in_universe + ma60。ma60 属「只有 pack 一侧」的 6 个之一 (无 uf_ma60), 已标注 pack_only=true; 其余 8 组双 id 口径本批一个都没引 (故无 alias 违规)。E3 的 dependencies 是面板列名 (amount/date/raw_close/symbol/volume), 不参与 id 判定。",
+   "observed": {
+    "alias_violations": [],
+    "all_ids_known": true,
+    "e1_referenced_factors": [
+     "in_universe",
+     "ma60"
+    ],
+    "e3_dependencies_are_columns_not_ids": true,
+    "pack_only_used": [
+     "ma60"
+    ]
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PROBE_TAG=none|b0_only|all_on PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/probe_catalog_support.py",
+   "evidence": [
+    {
+     "bytes": 2406,
+     "path": "research/b2-engine-20261107/logs/catalog_support_none_110.json",
+     "sha256": "4e92d01af205e83ba7cd3f2268f615aff5b00db7d4a9687ec9e876e80c98c5c3"
+    },
+    {
+     "bytes": 2669,
+     "path": "research/b2-engine-20261107/logs/catalog_support_calendar_only_110.json",
+     "sha256": "8d70319ddf765cba1240d7b743e52e72b2339583440cff83fa09a89cda83ccfd"
+    },
+    {
+     "bytes": 3719,
+     "path": "research/b2-engine-20261107/logs/catalog_support_b0_only_110.json",
+     "sha256": "831912000f503ffe21f1ac69e74800b4370931763f7106ed5a140eaedc3b4bb5"
+    },
+    {
+     "bytes": 3849,
+     "path": "research/b2-engine-20261107/logs/catalog_support_all_on_110.json",
+     "sha256": "a4e31e992b086d87aac23b9a0d692c7d1757a08046bf94026ee1d08a0b5c2c8c"
+    }
+   ],
+   "gate": "目录/矩阵能力隔离 (四态): none 93 -> calendar_only 95 -> b0_only 109 -> 全开 110",
+   "id": "T-A",
+   "note": "四态实测 (pack 目录 mv 出 app/custom 再放回, 试验后已完整还原): 93(无 pack) -> 95(+B4 日历 2) -> 109(+B0 14) -> 110(+B2 in_universe)。矩阵不可物化数 14 -> 16(+month_end/week_end) -> 24(+B0 的 8 个 frame 因子) -> 25(+in_universe), 每步只加该包自己的 id, 没有互相放大; 矩阵路径代码本批未改 (materialize_matrix_field 仍为基类默认 None)。",
+   "observed": {
+    "all_on": {
+     "catalog": 110,
+     "matrix_supported": 85,
+     "matrix_unsupported": 25
+    },
+    "b0_only": {
+     "catalog": 109,
+     "matrix_supported": 85,
+     "matrix_unsupported": 24
+    },
+    "calendar_only": {
+     "catalog": 95,
+     "matrix_supported": 79,
+     "matrix_unsupported": 16
+    },
+    "none": {
+     "catalog": 93,
+     "matrix_supported": 79,
+     "matrix_unsupported": 14
+    }
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel/backend && PYTHONUTF8=1 ./.venv/Scripts/python.exe -m pytest tests/test_factor_dsl.py tests/test_factor_registry.py tests/test_factor_api.py tests/test_factor_store.py tests/test_factor_provider_contracts.py -q",
+   "evidence": {
+    "all_on_log": {
+     "bytes": 8251,
+     "path": "research/b2-engine-20261107/logs/pytest_factor_suite_all_on.log",
+     "sha256": "81f6225893731e3b397a7fcbfbdc3da3402c813847016408138af00c969998bd"
+    },
+    "b0_only_log": {
+     "bytes": 8251,
+     "path": "research/b2-engine-20261107/logs/pytest_factor_suite_b0_only.log",
+     "sha256": "58583e1305b898b11e5c2b051b7fd4846f682be8f2c2b7a4ee0a01ca58e44d50"
+    },
+    "isolation": {
+     "bytes": 17559,
+     "path": "research/b2-engine-20261107/logs/isolation_recheck_110.json",
+     "sha256": "e4eb2c6dfd0a1f62a6a9eead41f9d15e366b0fc793c843435afe8352d2eeaa6b"
+    },
+    "suite_now": {
+     "bytes": 2794,
+     "path": "research/b2-engine-20261107/logs/pytest_after_110_run.json",
+     "sha256": "49b5bd5677277c52048eecaa01bdb877eba868831b6ab260e99720a31b96b8dc"
+    }
+   },
+   "gate": "factor 套件红/绿只由目录条数决定; 实现代码零红灯 (四态实测)",
+   "id": "T-B",
+   "note": "四态都跑同一组 5 文件 (110 口径测试现盘版本): 93 / 95 / 109 下失败的永远是同一 6 条计数断言 (test id 逐字相同), 110 下 74 passed / 0 failed => 任何红灯都只由「目录条数 != 断言里的数」决定, 与哪些 pack 在场无关, 也没有一条失败来自实现代码。断言数已两次按新事实更新 (93→108→110), 未删断言/未 skip/未 xfail, 见 test_status.test_files_changed 与 assertion_coverage_preserved。",
+   "observed": {
+    "all_on_110": "0 failed / 74 passed",
+    "b0_only_109": "6 failed / 68 passed",
+    "calendar_only_95": "6 failed / 68 passed",
+    "catalog_sizes": {
+     "all_on": 110,
+     "b0_only": 109,
+     "calendar_only": 95,
+     "none": 93
+    },
+    "none_93": "6 failed / 68 passed",
+    "same_red_set_in_three_red_states": true
+   },
+   "verdict": "PASS"
+  },
+  {
+   "command": "cd C:/work/sourcecode/tick-stock-panel && PYTHONUTF8=1 backend/.venv/Scripts/python.exe research/b2-engine-20261107/probe_observed_bars_calibers.py",
+   "evidence": {
+    "bytes": 658,
+    "path": "research/b2-engine-20261107/logs/observed_bars_calibers.json",
+    "sha256": "147ec16a402a5786f7dbd9d95d09568759bf3c5ac5aabaf7360631f19b89c36a"
+   },
+   "gate": "observed_bars 两口径差异量化 (交付需裁定项)",
+   "id": "CAL-observed_bars",
+   "note": "实现取 cum_count(=研究侧, A1 逐日 0 差)。契约 v0.7:125 原文: observed_bars 在研究中 = date.cum_count().over(symbol)，即该标的在已加载面板内的 bar 行数，不是上市自然日（并明确「不要自然日差」）; brief 的 listing_date+交易日轴 表述与契约冲突, 按「口径以契约与因子研究员定义为准」取契约。40,717 标的日不同(评估窗内 17,499), 全部是 listing 口径>=120 而 bar 口径 <120 的情形",
+   "observed": {
+    "diff_by_year": {
+     "2018": 18515,
+     "2019": 11376,
+     "2020": 10616,
+     "2021": 155,
+     "2022": 35,
+     "2025": 10,
+     "2026": 10
+    },
+    "diff_in_eval_window": 17499,
+    "rows": 6438822,
+    "rows_a_only": 0,
+    "rows_b_only": 40717,
+    "rows_diff_ge120": 40717
+   },
+   "verdict": "INFO"
+  }
+ ],
+ "batch": "B2 (E3 in_universe → E2 截面排名族 → E1 宽度)",
+ "changed_files": [
+  {
+   "bytes": 36785,
+   "change": "改 +108/−12",
+   "lines": 850,
+   "note": "xs_rank_pool/xs_rank_market/xs_rank_pct/xs_mean + E017 + MASK_FACTOR_TAG",
+   "path": "backend/app/factors/dsl.py",
+   "sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b"
+  },
+  {
+   "bytes": 371,
+   "change": "新增",
+   "lines": 7,
+   "path": "backend/app/custom/research_universe_pack/__init__.py",
+   "sha256": "b2b210631907ab92635fd7848a5f4ea8b1ddde621c7a9101a9b71d4bed180653"
+  },
+  {
+   "bytes": 4894,
+   "change": "新增",
+   "lines": 128,
+   "note": "Provider 注册 (provider_id=official.research-universe-pack-e3, kind=frame)",
+   "path": "backend/app/custom/research_universe_pack/factor_provider.py",
+   "sha256": "90dbc6ca46f3f5b892f9a9fba0b49d8169596c40ce68d2e2130bbe99a21f69e8"
+  },
+  {
+   "bytes": 11957,
+   "change": "新增",
+   "lines": 268,
+   "note": "compute_in_universe / UniverseParams / universe_diagnostics",
+   "path": "backend/app/custom/research_universe_pack/universe.py",
+   "sha256": "c45d0bcc26c730e0cdcd399581e1e91b2a7e231b8fbaab0e1cc3ad88841cf06d"
+  }
+ ],
+ "contract": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.7.md §2.6 / §3 / §4.6",
+ "decisions_needed": [
+  {
+   "conflict": "brief 要求 instruments.listing_date + 交易日轴 (不要 bar 序号); 契约 v0.7:125 明确定义为 date.cum_count().over(symbol) 即面板内 bar 行数, 并写明「不是上市自然日」。",
+   "id": "D-B2-1",
+   "if_overruled": "改 min_observed_bars 的输入为 listing_date+交易日轴, 需重跑 E3/E1/E2 全部判据; 差异量已量化在 CAL-observed_bars (40,717 标的日, 评估窗内 17,499)。",
+   "taken": "按契约与因子研究员定义实现 (cum_count), E3-A1 与研究侧逐日 0 差。",
+   "topic": "observed_bars 口径"
+  },
+  {
+   "detail": "Provider 注册即进目录 (扩展点既定行为, B0 的 14 个同理), 故 /api/factors 由 107 变 108 (B4 之后 110)。若要求 E3 掩码不进对外目录, 需改扩展点语义 (影响 B0 与 B4 日历列)。",
+   "id": "D-B2-2",
+   "topic": "in_universe 是否进 /api/factors 目录"
+  },
+  {
+   "detail": "已实现为诊断形态 (strategy_usable=false / replaced_by=xs_rank_pool 属台账口径, registry 无该字段)。是否入台账/以何种 status 登记, 由因子工程师定; 本批不进验收。",
+   "id": "D-B2-3",
+   "topic": "xs_rank_pct 的登记形态"
+  }
+ ],
+ "generated_for": "docs/factors/B2_IMPLEMENTATION_20261107.md",
+ "git_head": "65c6e42f",
+ "not_done": [
+  "矩阵路径 in_universe (materialize_matrix_field) — 契约 §7.13/§7.14 归 B0b, 等 v0.7 落盘后按 F-A11a–d",
+  "矩阵路径 xs_* (market matrix 里没有 date 截面 group_by 之外的新结构; 本批只做 frame)",
+  "high_60d / low_60d 未改 (git status 无该文件变更)",
+  "未向生产因子目录 (D:/TSP/data/user_data/custom_factors) 注册任何新因子; 未跑收益回测; 未提交; 未部署",
+  "E4 (month_end / week_end 轴) 不在 B2 范围内: 已由同批 B4 另行实现并交付 (research/b4-calendar-20261107, docs/factors/E4_CALENDAR_20261107.md), 只走 frame 路径, 矩阵路径同 B2 归 B0b",
+  "矩阵目录测试 (tests/backtest/test_matrix_strategy.py) 仍红: 矩阵路径无 materialize_matrix_field, 归 B0b, 本批按派工不接",
+  "6 条「目录=93」测试已两次按新事实更新断言 (2026-11-07 20:48:59 → 108; 22:01:47 → 110), 现盘 74 passed / 0 failed (见 test_status)"
+ ],
+ "paths": {
+  "frame": "Provider + DSL frame_transform",
+  "matrix": "未动 (materialize_matrix_field 保持基类 None)"
+ },
+ "rework": {
+  "defect": "B-1 (独立审核 B2_ACCEPTANCE_20261107.md: 实现侧 6/6 PASS, 证据包 FAIL) + B-1b (本轮自查)",
+  "fixes": [
+   "test_status 换成现盘实测: 原命令 + ran_at (起止时刻) + pytest/python 版本 + 74 passed / 0 failed, 完整 stdout 落 artifact",
+   "unchanged_on_purpose 第 4 条如实写两次过期断言更新 (93→108 于 20:48:59; 108→110 于 22:01:47), 附现盘两文件字节/行/sha 与 assert 45→45 / 20→20",
+   "isolation 四态重测 (110 口径测试): 93 / 95 / 109 / 110 + 三红态同一 6 条红集合 + 全开 74P/0F (落 isolation_recheck_110.json)",
+   "49 条断言逐条重跑后重新汇总 (E3 / E3-A4 / E2 fixtures / E2 full / E1 / W / wiring / refs / canonical / calibers / xs_a3 全部重跑, 日志已刷新); 生成器仍无 generated_at、dump 仍排序固定"
+  ],
+  "why": "旧包的 test_status 仍记 6 failed / 68 passed, 且 unchanged_on_purpose 第 4 条写「本批未改任何测试」; 而 20:48:59 两个测试文件已按 108 口径更新, 现盘实测 74 passed / 0 failed, 与旧包不符。B-1b: 21:50 重生成的包里 test_status 记的是 108 口径测试 (de3ce0ad/07cf3dc2), 但同批第 3 件 B4 的日历包 (month_end/week_end) 注册即进目录, 22:01:47 测试再按 110 更新, 若不重生成, 证据与现盘又会差一步 —— 同一缺陷的第二次发生, 故一并收在同一次重生成里。"
+ },
+ "summary": {
+  "FAIL": 0,
+  "INFO": 1,
+  "PASS": 48,
+  "total": 49
+ },
+ "test_status": {
+  "artifact": {
+   "bytes": 2794,
+   "path": "research/b2-engine-20261107/logs/pytest_after_110_run.json",
+   "sha256": "49b5bd5677277c52048eecaa01bdb877eba868831b6ab260e99720a31b96b8dc"
+  },
+  "assertion_coverage_preserved": "未删任何断言、未加 skip/xfail、未用 -k 排除、未把精确计数改成 >=93 这类无判别力写法 (仍用确定值 110); `assert ` 语句数 45→45 / 20→20 (0 删除)。",
+  "checkout_probe": {
+   "artifact": {
+    "bytes": 4821,
+    "path": "research/b2-engine-20261107/logs/index_checkout_probe_110.json",
+    "sha256": "fa603d00dea2cd05fe257dd369207adbfa1255a19adf55807b77ad5b1507fb88"
+   },
+   "artifact_text": {
+    "bytes": 2600,
+    "path": "research/b2-engine-20261107/logs/index_checkout_probe_110.txt",
+    "sha256": "a24cecbf4e7735ad24659fb8c5a11d5c874c2f5981b81d0180d369787262bb4a"
+   },
+   "conclusion": "五文件套件在索引检出上 0 红 (74 passed / 0 failed); gate 在索引检出上 52 passed / 4 failed, 4 红全部由未跟踪的证据产物缺席引起, 补该产物即 56 passed。与 22:28 那次探针相比的翻转原因是: 那次 tests 改动还是未 staged 的 M (索引里押 93), 本次已 add。",
+   "gate_suite": {
+    "command": "PYTHONUTF8=1 ./.venv/Scripts/python.exe -m pytest tests/test_factor_gate.py -q",
+    "index_only": "4 failed, 52 passed, 1 warning in 3.94s",
+    "index_only_failed_tests": [
+     "tests/test_factor_gate.py::test_live_config_allowlist_shape_matches_the_artifact",
+     "tests/test_factor_gate.py::test_live_config_allowlist_reads_only_the_inventory_json",
+     "tests/test_factor_gate.py::test_live_config_allowlist_fails_closed_on_summary_mismatch",
+     "tests/test_factor_gate.py::test_live_config_ids_are_all_known_and_never_blocked_as_columns"
+    ],
+    "remedy_proven": "把这一份产物 cp 到导出树的同一相对路径后, 同一命令 56 passed (索引未改动), 证明 4 红唯一原因是该产物未进索引。按派工「docs/ 不动」本批未 add, 裁定权在开发经理。",
+    "root_cause": "gate 的 4 条 allowlist 用例只读 docs/architecture/evidence/referenced_factor_inventory.json; docs/ 整目录当时未跟踪 (?? docs/architecture/), 导出树里没有这份产物 -> FileNotFoundError。索引里的 gate.py 与 test_factor_gate.py 本身没问题。",
+    "with_inventory_artifact": "56 passed, 1 warning in 2.54s"
+   },
+   "history": {
+    "artifact": {
+     "bytes": 1543,
+     "path": "research/b2-engine-20261107/logs/clean_checkout_probe_110.txt",
+     "sha256": "332603e28cdac6a354d83c784e2ccb6b009c28b489ae1a740785b24f2c69ef65"
+    },
+    "at": "2026-11-07T22:28:50+08:00",
+    "note": "该历史结论「只 add 不 commit 不足以 0 红」在「补齐索引」后不再成立, 保留为过程证据。",
+    "result": "6 failed / 68 passed — 索引里 pack 已 110 条而 tests 押 93",
+    "state": "只 add 三个 pack 目录、tests 与 dsl.py 仍为未 staged 的 M"
+   },
+   "index_state": {
+    "committed": false,
+    "head": "65c6e42f",
+    "pushed": false,
+    "staged_count": 16,
+    "staged_files": [
+     "backend/app/api/factors.py",
+     "backend/app/custom/research_calendar_pack/__init__.py",
+     "backend/app/custom/research_calendar_pack/calendar_axis.py",
+     "backend/app/custom/research_calendar_pack/factor_provider.py",
+     "backend/app/custom/research_factor_pack/__init__.py",
+     "backend/app/custom/research_factor_pack/factor_provider.py",
+     "backend/app/custom/research_factor_pack/factor_specs.py",
+     "backend/app/custom/research_universe_pack/__init__.py",
+     "backend/app/custom/research_universe_pack/factor_provider.py",
+     "backend/app/custom/research_universe_pack/universe.py",
+     "backend/app/factors/dsl.py",
+     "backend/app/factors/gate.py",
+     "backend/app/factors/store.py",
+     "backend/tests/test_factor_gate.py",
+     "backend/tests/test_factor_registry.py",
+     "backend/tests/test_factor_store.py"
+    ]
+   },
+   "method": "git checkout-index -a --prefix=<临时空目录> 导出索引内容 (等价于按索引检出), 在导出树的 backend/ 下用同一个 backend/.venv 跑 pytest; 脚本 probe_index_checkout_110.py",
+   "question": "把该进索引的文件全部 git add (不 commit) 后, 「按索引内容检出」是否 0 红?",
+   "suite5": {
+    "clean": true,
+    "command": "PYTHONUTF8=1 ./.venv/Scripts/python.exe -m pytest tests/test_factor_dsl.py tests/test_factor_registry.py tests/test_factor_api.py tests/test_factor_store.py tests/test_factor_provider_contracts.py -q",
+    "ran_at": {
+     "finished_at": "2026-11-07T22:38:42+08:00",
+     "started_at": "2026-11-07T22:38:32+08:00"
+    },
+    "result": "74 passed, 1 warning in 8.09s",
+    "returncode": 0
+   }
+  },
+  "classification": "改前那 6 条红的根因已核实: 全部是「目录条数硬编码 93」类断言 (test_factor_registry 5 条 + test_factor_store 1 条), 无一条属于其他根因。按开发经理裁定「不重定基线、按新事实更新过期断言值」先改为 108; 同批 B4 日历包落地后目录为 110, 再按同一裁定改为 110。现盘全绿。",
+  "command": "cd C:/work/sourcecode/tick-stock-panel/backend && PYTHONUTF8=1 ./.venv/Scripts/python.exe -m pytest tests/test_factor_dsl.py tests/test_factor_registry.py tests/test_factor_api.py tests/test_factor_store.py tests/test_factor_provider_contracts.py -q",
+  "gate_suite": {
+   "artifact": {
+    "bytes": 2556,
+    "path": "research/b2-engine-20261107/logs/pytest_gate_110_run.json",
+    "sha256": "4bd09c503657b45f94d322b10468e246f85a2b2f5c00f5ccfbb52ee3b017cbfa"
+   },
+   "command": "cd C:/work/sourcecode/tick-stock-panel/backend && PYTHONUTF8=1 ./.venv/Scripts/python.exe -m pytest tests/test_factor_gate.py -q",
+   "files": [
+    {
+     "assert_statements": 0,
+     "bytes": 25829,
+     "lines": 602,
+     "mtime": "2026-11-07 21:40:12",
+     "path": "backend/app/factors/gate.py",
+     "sha256": "39a9d9cf3a17f1a657400c4eb80a29b1cec474490298614286e6397485d62375"
+    },
+    {
+     "assert_statements": 89,
+     "bytes": 18056,
+     "lines": 463,
+     "mtime": "2026-11-07 21:40:32",
+     "path": "backend/tests/test_factor_gate.py",
+     "sha256": "84591d2a32c321d0d305b362543f0e0160c411fdfd9ab805dbe8b0a8c2ba6974"
+    }
+   ],
+   "not_wired": "gate.py 本批未接线: assert_factors_usable 的生产调用点 0 (只有自身 3 处 + 测试 6 处)。",
+   "ran_at": {
+    "finished_at": "2026-11-07T22:39:16+08:00",
+    "started_at": "2026-11-07T22:39:12+08:00"
+   },
+   "result": "56 passed, 1 warning in 2.45s",
+   "returncode": 0,
+   "tooling": {
+    "pytest": "9.2.0",
+    "python": "3.11.15"
+   },
+   "why": "gate 套件是新增的独立交付 (gate.py + test_factor_gate.py), 不在 B2 五文件套件内; 本批只把它纳入索引并实测, 未接线。",
+   "wiring_audit": "生产调用点 0: 全仓 `assert_factors_usable(` 只在 test_factor_gate.py 出现 (7 处, 其中 1 处在 helper _run 内), gate.py 自身调用 0 处 (第 24 行那处是 docstring 里的说明文字); 本批未新增任何调用点。"
+  },
+  "isolation": {
+   "artifact": {
+    "bytes": 17559,
+    "path": "research/b2-engine-20261107/logs/isolation_recheck_110.json",
+    "sha256": "e4eb2c6dfd0a1f62a6a9eead41f9d15e366b0fc793c843435afe8352d2eeaa6b"
+   },
+   "conclusion": "none(93) / calendar_only(95) / b0_only(109) 三态失败的永远是同一 6 条计数断言 (test id 逐字相同), all_on(110) 为 74 passed / 0 failed => 红/绿只由目录条数决定, 与哪些 pack 在场无关, 也没有任何一条失败来自实现代码。推论: pack 目录若不进版本库, 干净检出=93, 这 6 条会一直红 => 故本批把三个 pack 目录 git add (只 add, 不 commit)。",
+   "matrix_catalog_test_per_state": {
+    "all_on": "FAILED — ValueError: in_universe 缺少必需列: ['raw_close']",
+    "b0_only": "FAILED — ValueError: unsupported matrix feature: prior_amount_20",
+    "none": "PASSED (30 passed)",
+    "source": "19:47–19:54 实测 (none/b0_only/all_on 三态), 与测试文件更新无关 (tests/backtest/test_matrix_strategy.py 未改动), 故仍成立; B4 落地后 all_on 目录由 108 变 110, 该测试失败点仍是第一个不可物化 id, 结论不变"
+   },
+   "measured_at": "2026-11-07T22:04:54+08:00",
+   "restored_after_experiment": true,
+   "same_red_set_in_three_red_states": true,
+   "states": [
+    {
+     "artifact": "logs/catalog_support_none.json",
+     "catalog_size": 93,
+     "factor_suite": "6 failed / 68 passed",
+     "failed_tests": [
+      "tests/test_factor_registry.py::test_asset_type_filter",
+      "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+      "tests/test_factor_registry.py::test_factor_columns_snapshot",
+      "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+      "tests/test_factor_registry.py::test_factors_api_contract",
+      "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+     ],
+     "has_b0_pack": false,
+     "has_calendar_pack": null,
+     "has_universe_pack": false,
+     "matrix_supported": 79,
+     "matrix_unsupported": 14,
+     "setup": "三个 pack 目录都移出 (93 基线)",
+     "tag": "none"
+    },
+    {
+     "artifact": "logs/catalog_support_b0_only.json",
+     "catalog_size": 109,
+     "factor_suite": "6 failed / 68 passed",
+     "failed_tests": [
+      "tests/test_factor_registry.py::test_asset_type_filter",
+      "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+      "tests/test_factor_registry.py::test_factor_columns_snapshot",
+      "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+      "tests/test_factor_registry.py::test_factors_api_contract",
+      "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+     ],
+     "has_b0_pack": true,
+     "has_calendar_pack": null,
+     "has_universe_pack": false,
+     "matrix_supported": 85,
+     "matrix_unsupported": 24,
+     "setup": "只留 research_factor_pack + research_calendar_pack",
+     "tag": "b0_only"
+    },
+    {
+     "artifact": "logs/catalog_support_calendar_only.json",
+     "catalog_size": 95,
+     "factor_suite": "6 failed / 68 passed",
+     "failed_tests": [
+      "tests/test_factor_registry.py::test_asset_type_filter",
+      "tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+      "tests/test_factor_registry.py::test_factor_columns_snapshot",
+      "tests/test_factor_registry.py::test_factors_api_asset_filter_and_validation",
+      "tests/test_factor_registry.py::test_factors_api_contract",
+      "tests/test_factor_store.py::test_custom_factor_definition_roundtrip"
+     ],
+     "has_b0_pack": false,
+     "has_calendar_pack": null,
+     "has_universe_pack": false,
+     "matrix_supported": 79,
+     "matrix_unsupported": 16,
+     "setup": "只留 research_calendar_pack",
+     "tag": "calendar_only"
+    },
+    {
+     "artifact": "logs/catalog_support_all_on.json",
+     "catalog_size": 110,
+     "factor_suite": "0 failed / 74 passed",
+     "failed_tests": [],
+     "has_b0_pack": true,
+     "has_calendar_pack": null,
+     "has_universe_pack": true,
+     "matrix_supported": 85,
+     "matrix_unsupported": 25,
+     "setup": "B0 + B2 + B4 全在 (工作区现状)",
+     "tag": "all_on"
+    }
+   ],
+   "tests_version": "按 110 口径更新后的现盘测试 (test_factor_registry.py / test_factor_store.py, B4 日历包落地后第二次更新过期计数)",
+   "why": "把 pack 目录 mv 出 app/custom 四态 (none / calendar_only / b0_only / all_on) 重跑同一组 5 文件 (110 口径测试现盘版本) + 目录探针, 证明「红/绿的唯一决定因素是目录条数」, 且四态都能完整还原。"
+  },
+  "matrix_catalog_test": {
+   "detail": "矩阵路径对 16 个目录 id 无物化能力: 8 个财务 (测试自身有 fundamental 分支, 不是失败点) + 8 个 B0 pack frame 因子 (sd20/vol60/prior_high_20/prior_low_10/prior_high_55/prior_vol_20/prior_high_250/prior_amount_20) + in_universe。8 个 B0 id 在本批改动前就无可物化能力, 故该测试自 B0 注册起即红, 本批使失败点前移到 in_universe。修法属 B0b (补 materialize_matrix_field) 或由架构裁定排除表。",
+   "id": "tests/backtest/test_matrix_strategy.py::test_research_factor_catalog_matches_matrix_features",
+   "out_of_scope": "不在本批 5 文件套件内; 该测试文件未被修改 (git status 无该文件), 按派工不动 matrix.py、不接 B0b。",
+   "probe": "research/b2-engine-20261107/probe_matrix_catalog.py",
+   "result": "FAILED (2026-11-07 21:40 现盘实测: 1 failed)"
+  },
+  "note": "现盘实测: 上方 command 原样执行一次 (本包同时把这条命令写进 artifact 的 argv), 起止时刻与完整 stdout 均落在 artifact。同一命令改前 (93 口径) 为 6 failed / 68 passed (用例总数同为 74), 差异全部来自 test_files_changed 里那两个文件的计数断言更新, 不是实现改动。另: 2026-11-07 22:06 起 74 passed 状态被独立复算过一次 (见 isolation.all_on 态), 两次一致。",
+  "ran_at": {
+   "finished_at": "2026-11-07T22:03:37+08:00",
+   "started_at": "2026-11-07T22:03:26+08:00"
+  },
+  "result": "74 passed / 0 failed",
+  "returncode": 0,
+  "summary_line": "74 passed, 1 warning in 8.75s",
+  "test_files_changed": [
+   {
+    "assert_statements": {
+     "after": 45,
+     "before": 45
+    },
+    "bytes": 28187,
+    "change": "+25/−6 (git diff --numstat vs HEAD 65c6e42f), 只动计数断言与 GOLDEN_COLUMNS 追加",
+    "lines": 403,
+    "mtime": "2026-11-07 22:01:47",
+    "path": "backend/tests/test_factor_registry.py",
+    "sha256": "81e4b1f9803642e77281249cfa0f3a8ec46e30008d7b91144aa545a5b5c2507d",
+    "why": "两步基线更新合并在同一个工作区改动里: ① GOLDEN_COLUMNS 追加 15 条 (B0 14 + B2 in_universe), 计数断言 93→108 四处、70→85 两处 (2026-11-07 20:48:59); ② B4 日历包的 month_end/week_end 注册即进目录, 计数断言 108→110 三处 (22:01:47)。两步都只改数字与追加 golden 行, 未改任何断言逻辑。"
+   },
+   {
+    "assert_statements": {
+     "after": 20,
+     "before": 20
+    },
+    "bytes": 6793,
+    "change": "+3/−3 (git diff --numstat vs HEAD 65c6e42f), 只动断言数字与同步注释",
+    "lines": 171,
+    "mtime": "2026-11-07 22:01:47",
+    "path": "backend/tests/test_factor_store.py",
+    "sha256": "79de1eca6cc65522e8ed83b51c6dbb5c9fc74637faa1ac817b561dcc81a7dd9e",
+    "why": "builtin_count 与两处 == 93 先改 108 (20:48:59), 再随 B4 改 110 (22:01:47); 未改断言逻辑。"
+   }
+  ],
+  "tooling": {
+   "pytest": "9.2.0",
+   "python": "3.11.15"
+  }
+ },
+ "unchanged_on_purpose": [
+  "backend/app/backtest/matrix.py (矩阵路径, materialize_matrix_field 仍为基类 None)",
+  "backend/app/factors/registry.py (未改目录顺序/未插队; in_universe 由 Provider 追加在末尾)",
+  "high_60d / low_60d 相关文件 (git status 无变更)",
+  "backend/tests/** — B2 编码期内未改任何测试。但本部门在 2026-11-07 两次更新了同一组 2 个测试文件的过期计数断言 (过期断言更新, 非回归; 未删任何断言): ① 20:48:59 按「catalog 93→108」(B0 14 + B2 in_universe); ② 22:01:47 按「catalog 108→110」(B4 的 month_end / week_end 随日历包注册即进目录, 与本批 5 文件套件同一目录口径)。现盘: test_factor_registry.py 28187 B / 403 行 / 81e4b1f9803642e77281249cfa0f3a8ec46e30008d7b91144aa545a5b5c2507d; test_factor_store.py 6793 B / 171 行 / 79de1eca6cc65522e8ed83b51c6dbb5c9fc74637faa1ac817b561dcc81a7dd9e; 未改断言条数: `assert ` 45→45 (test_factor_registry.py)、20→20 (test_factor_store.py), 0 删除。详见 test_status.test_files_changed (含两次各步骤的字节/行/sha)。"
+ ]
+}

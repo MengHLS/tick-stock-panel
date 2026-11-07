@@ -1,0 +1,167 @@
+{
+ "table_stats": [
+  7758,
+  5817,
+  1436,
+  "2019-01-01",
+  "2026-10-29",
+  986,
+  0,
+  7758
+ ],
+ "bulk_1020": [
+  [
+   false,
+   198
+  ]
+ ],
+ "asof_all_symbols": [
+  {
+   "date": "2026-10-16",
+   "st_true_all_symbols": 218,
+   "symbols": 5813
+  },
+  {
+   "date": "2026-10-19",
+   "st_true_all_symbols": 218,
+   "symbols": 5813
+  },
+  {
+   "date": "2026-10-20",
+   "st_true_all_symbols": 20,
+   "symbols": 5813
+  },
+  {
+   "date": "2026-10-29",
+   "st_true_all_symbols": 20,
+   "symbols": 5817
+  }
+ ],
+ "asof_kline_bars": [
+  {
+   "date": "2026-10-12",
+   "bars": 5561,
+   "st_true": 195,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-13",
+   "bars": 5561,
+   "st_true": 194,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-14",
+   "bars": 5563,
+   "st_true": 194,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-15",
+   "bars": 5565,
+   "st_true": 194,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-16",
+   "bars": 5567,
+   "st_true": 194,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-19",
+   "bars": 5564,
+   "st_true": 192,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-20",
+   "bars": 5568,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-21",
+   "bars": 5568,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-22",
+   "bars": 5570,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-23",
+   "bars": 5572,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-26",
+   "bars": 5568,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-27",
+   "bars": 5568,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-28",
+   "bars": 5569,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-29",
+   "bars": 5569,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-10-30",
+   "bars": 5570,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-11-02",
+   "bars": 5570,
+   "st_true": 0,
+   "st_null": 0
+  },
+  {
+   "date": "2026-11-03",
+   "bars": 5569,
+   "st_true": 0,
+   "st_null": 1
+  },
+  {
+   "date": "2026-11-04",
+   "bars": 5571,
+   "st_true": 0,
+   "st_null": 1
+  },
+  {
+   "date": "2026-11-05",
+   "bars": 5570,
+   "st_true": 0,
+   "st_null": 1
+  },
+  {
+   "date": "2026-11-06",
+   "bars": 5572,
+   "st_true": 0,
+   "st_null": 2
+  }
+ ],
+ "last_record": [
+  198,
+  198,
+  20
+ ]
+}

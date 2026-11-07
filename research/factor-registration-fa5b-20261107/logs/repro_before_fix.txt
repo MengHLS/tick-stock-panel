@@ -1,0 +1,29 @@
+F-A5 两形状复现 —— 改动前基线（2026-11-07 16:2x，store.py 旧实现 = 原始键集黑名单比对）
+
+命令: backend\.venv\Scripts\python.exe -X utf8 researchactor-registration-fa5b-20261107epro_two_shapes.py
+退出码: 0（脚本语义: 复现成功 = 存在 API 形状差异）
+
+====================================================================================================
+盘上形状 (原样重提交)
+  uf_ma120                 unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_ma200                 unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_prior_high_20         unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_prior_high_55         unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_prior_high_250        unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_prior_low_10          unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_prior_vol_20          unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+  uf_vol60                 unchanged=True  v 1→1 bytes_same=True  mtime_same=True  lang=dsl
+API 形状 (照 api/factors.py 构造, 无 lang)
+  uf_ma120                 unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_ma200                 unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_prior_high_20         unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_prior_high_55         unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_prior_high_250        unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_prior_low_10          unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_prior_vol_20          unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+  uf_vol60                 unchanged=False v 1→2 bytes_same=False mtime_same=False lang=None
+====================================================================================================
+盘上形状全部 unchanged 且字节/mtime 不变: True (8 例)
+API 形状被判为「变了」的例数: 8/8
+
+结论: 与开发经理报告的 8/8 vs 8/8 完全一致（同根因: 盘上多一个 lang 键即判不等，且写盘以入参整份覆盖 → lang 被抹掉）。

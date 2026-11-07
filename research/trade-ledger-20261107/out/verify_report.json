@@ -1,0 +1,42 @@
+{
+  "baseline_dir": "..\\jiaogedan-review-20261107\\data",
+  "trades": {
+    "rows_baseline": 717,
+    "rows_mine": 717,
+    "only_baseline": 0,
+    "only_mine": 0,
+    "field_diffs": {},
+    "match": true
+  },
+  "roundtrips": {
+    "rows_baseline": 447,
+    "rows_mine": 447,
+    "only_baseline": 0,
+    "only_mine": 0,
+    "only_mine_sample": [],
+    "pnl_diffs": [],
+    "pnl_diff_count": 0,
+    "baseline_pnl_sum": -79597.29,
+    "mine_pnl_sum": -76222.46
+  },
+  "daily_equity": {
+    "days_baseline": 396,
+    "days_mine": 396,
+    "missing_days": [],
+    "extra_days": [],
+    "field_diffs": 0,
+    "diff_sample": [],
+    "equity_end_baseline": 16249.359999999911,
+    "equity_end_mine": 16249.36,
+    "cumdep_baseline": 92073.93,
+    "cumdep_mine": 92073.93,
+    "pnl_baseline": -75824.59000000008,
+    "pnl_mine": -75824.59
+  },
+  "daily_positions": {
+    "days_baseline": 396,
+    "days_mine": 396,
+    "cell_diffs": 0,
+    "sample": []
+  }
+}

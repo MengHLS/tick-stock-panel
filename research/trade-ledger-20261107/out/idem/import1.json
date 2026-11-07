@@ -1,0 +1,21 @@
+{
+  "db": "out\\idem\\ledger.sqlite",
+  "batches": [
+    {
+      "batch_id": "20261107T144143216043-ebebda13",
+      "file_sha256": "ebebda132d4122c2745dbbb7f223d8fdb18581739a52b434c2fc3df94ca3a295",
+      "rows_total": 1055,
+      "rows_skipped": 0,
+      "rows_new": 1055,
+      "rows_dup": 0,
+      "date_min": "2025-03-21",
+      "date_max": "2026-11-06",
+      "imported_at": "2026-11-07T14:41:43+08:00",
+      "encoding": "gb18030",
+      "warnings": [
+        "第 792 行发生日期为空，回落交收日期 2025-09-04",
+        "第 793 行发生日期为空，回落交收日期 2025-09-04"
+      ]
+    }
+  ]
+}

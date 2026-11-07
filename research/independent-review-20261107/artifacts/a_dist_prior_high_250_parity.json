@@ -1,0 +1,574 @@
+{
+  "factor": "uf_dist_prior_high_250",
+  "rows": [
+    {
+      "k": "target_json_bytes",
+      "v": "756",
+      "note": ""
+    },
+    {
+      "k": "target_json_sha256",
+      "v": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+      "note": ""
+    },
+    {
+      "k": "target_json_mtime",
+      "v": "2026-11-07T16:07:00",
+      "note": ""
+    },
+    {
+      "k": "target_json_version",
+      "v": "1",
+      "note": ""
+    },
+    {
+      "k": "target_json_status",
+      "v": "draft",
+      "note": ""
+    },
+    {
+      "k": "target_json_lang",
+      "v": "dsl",
+      "note": ""
+    },
+    {
+      "k": "formula_text",
+      "v": "'close / ts_delay(ts_max(high, 250), 1) - 1'",
+      "note": ""
+    },
+    {
+      "k": "dsl_compile_ok",
+      "v": "True",
+      "note": ""
+    },
+    {
+      "k": "dsl_errors",
+      "v": "[]",
+      "note": ""
+    },
+    {
+      "k": "dsl_dependencies",
+      "v": "['close', 'high']",
+      "note": ""
+    },
+    {
+      "k": "dsl_warmup_bars",
+      "v": "251",
+      "note": ""
+    },
+    {
+      "k": "frame_rows",
+      "v": "6422875",
+      "note": ""
+    },
+    {
+      "k": "frame_symbols",
+      "v": "3384",
+      "note": ""
+    },
+    {
+      "k": "frame_date_min",
+      "v": "2018-01-08",
+      "note": ""
+    },
+    {
+      "k": "frame_date_max",
+      "v": "2026-10-30",
+      "note": ""
+    },
+    {
+      "k": "join_rows",
+      "v": "6422875",
+      "note": ""
+    },
+    {
+      "k": "join_rowcount_matches_frame",
+      "v": "True",
+      "note": ""
+    },
+    {
+      "k": "full_n",
+      "v": "6422875",
+      "note": ""
+    },
+    {
+      "k": "full_null_res",
+      "v": "838826",
+      "note": ""
+    },
+    {
+      "k": "full_null_sys",
+      "v": "838826",
+      "note": ""
+    },
+    {
+      "k": "full_null_mismatch",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_max_abs_diff",
+      "v": "0.0",
+      "note": ""
+    },
+    {
+      "k": "full_over_tol",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_nonzero_diff",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_den_lt0",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_den_eq0",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_den_null",
+      "v": "838826",
+      "note": ""
+    },
+    {
+      "k": "full_den_res_lt0",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_den_res_null",
+      "v": "838826",
+      "note": ""
+    },
+    {
+      "k": "full_den_max_abs_diff",
+      "v": "0.0",
+      "note": ""
+    },
+    {
+      "k": "full_den_nonzero",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_sys_inf",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_res_inf",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_both_true",
+      "v": "157765",
+      "note": ""
+    },
+    {
+      "k": "full_sys_only",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_res_only",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "full_sys_true",
+      "v": "157765",
+      "note": ""
+    },
+    {
+      "k": "full_res_true",
+      "v": "157765",
+      "note": ""
+    },
+    {
+      "k": "full_n",
+      "v": "6422875",
+      "note": ""
+    },
+    {
+      "k": "full_jaccard",
+      "v": "1.0000000000",
+      "note": ""
+    },
+    {
+      "k": "full_sys_trigger_pct",
+      "v": "2.456299",
+      "note": ""
+    },
+    {
+      "k": "full_res_trigger_pct",
+      "v": "2.456299",
+      "note": ""
+    },
+    {
+      "k": "full_first_nonnull_date_sys",
+      "v": "2019-01-17",
+      "note": ""
+    },
+    {
+      "k": "full_first_nonnull_date_res",
+      "v": "2019-01-17",
+      "note": ""
+    },
+    {
+      "k": "full_nonnull_rows_sys",
+      "v": "5584049",
+      "note": ""
+    },
+    {
+      "k": "full_first_bar_symbols",
+      "v": "3326",
+      "note": ""
+    },
+    {
+      "k": "full_first_bar_mismatch",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_rows",
+      "v": "5510001",
+      "note": ""
+    },
+    {
+      "k": "eval_n",
+      "v": "5510001",
+      "note": ""
+    },
+    {
+      "k": "eval_null_res",
+      "v": "177478",
+      "note": ""
+    },
+    {
+      "k": "eval_null_sys",
+      "v": "177478",
+      "note": ""
+    },
+    {
+      "k": "eval_null_mismatch",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_max_abs_diff",
+      "v": "0.0",
+      "note": ""
+    },
+    {
+      "k": "eval_over_tol",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_nonzero_diff",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_den_lt0",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_den_eq0",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_den_null",
+      "v": "177478",
+      "note": ""
+    },
+    {
+      "k": "eval_den_res_lt0",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_den_res_null",
+      "v": "177478",
+      "note": ""
+    },
+    {
+      "k": "eval_den_max_abs_diff",
+      "v": "0.0",
+      "note": ""
+    },
+    {
+      "k": "eval_den_nonzero",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_sys_inf",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_res_inf",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_both_true",
+      "v": "150292",
+      "note": ""
+    },
+    {
+      "k": "eval_sys_only",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_res_only",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "eval_sys_true",
+      "v": "150292",
+      "note": ""
+    },
+    {
+      "k": "eval_res_true",
+      "v": "150292",
+      "note": ""
+    },
+    {
+      "k": "eval_n",
+      "v": "5510001",
+      "note": ""
+    },
+    {
+      "k": "eval_jaccard",
+      "v": "1.0000000000",
+      "note": ""
+    },
+    {
+      "k": "eval_sys_trigger_pct",
+      "v": "2.727622",
+      "note": ""
+    },
+    {
+      "k": "eval_res_trigger_pct",
+      "v": "2.727622",
+      "note": ""
+    },
+    {
+      "k": "eval_first_nonnull_date_sys",
+      "v": "2019-07-01",
+      "note": ""
+    },
+    {
+      "k": "eval_first_nonnull_date_res",
+      "v": "2019-07-01",
+      "note": ""
+    },
+    {
+      "k": "eval_nonnull_rows_sys",
+      "v": "5332523",
+      "note": ""
+    },
+    {
+      "k": "eval_first_bar_symbols",
+      "v": "3326",
+      "note": ""
+    },
+    {
+      "k": "eval_first_bar_mismatch",
+      "v": "0",
+      "note": ""
+    },
+    {
+      "k": "prod_files_before",
+      "v": "15",
+      "note": ""
+    },
+    {
+      "k": "prod_files_after",
+      "v": "15",
+      "note": ""
+    },
+    {
+      "k": "prod_diff_files",
+      "v": "[]",
+      "note": ""
+    },
+    {
+      "k": "target_sha256_after",
+      "v": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+      "note": ""
+    },
+    {
+      "k": "target_unchanged",
+      "v": "True",
+      "note": ""
+    }
+  ],
+  "snapshot_before": {
+    "cf_auction_resonance.json": {
+      "bytes": 638,
+      "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_post0920_match_growth.json": {
+      "bytes": 461,
+      "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_tail_imbalance.json": {
+      "bytes": 503,
+      "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_tail_match_growth.json": {
+      "bytes": 438,
+      "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_volume_surprise.json": {
+      "bytes": 469,
+      "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_volume_vs_prev.json": {
+      "bytes": 500,
+      "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_dist_prior_high_250.json": {
+      "bytes": 756,
+      "sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+      "mtime": "2026-11-07T16:07:00"
+    },
+    "uf_ma120.json": {
+      "bytes": 368,
+      "sha256": "3ddb904acc7277d4195e870f1b7b0cca232932316d69f11e584ea131cdfcbefe",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_ma200.json": {
+      "bytes": 368,
+      "sha256": "cf96176f8458dca2827e5f9c27e31ede4d462f7a91533c1ff5076fa3af579bc2",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_high_20.json": {
+      "bytes": 490,
+      "sha256": "e3070878b5472b1aab4fdd5d0253487397b0a943e742a97b6be1577ebac23e86",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_high_250.json": {
+      "bytes": 438,
+      "sha256": "9f95286b8f97ab4047ff4a0bf2a61c7b48e1c618acd3982fbb1afd2b2446b9f8",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_high_55.json": {
+      "bytes": 434,
+      "sha256": "1f0ce5c6d8365da34a3d0aa22ed86f4665e5d4685334ba3b148b5bb4bbd6e59c",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_low_10.json": {
+      "bytes": 432,
+      "sha256": "e5885f47f4356043d7ec7826f4cf6d043c6ae290037f6b581127d9d05e140fe3",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_vol_20.json": {
+      "bytes": 472,
+      "sha256": "fa8667bc5e6f61323f33a357cb24d4bcb37658bba279688b78cabd297ed22563",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_vol60.json": {
+      "bytes": 545,
+      "sha256": "c9041ba4930ac9c2ece17adbd05f25a4c37e4693e0e223ccd3e55b7e5b7430bb",
+      "mtime": "2026-11-07T14:30:24"
+    }
+  },
+  "snapshot_after": {
+    "cf_auction_resonance.json": {
+      "bytes": 638,
+      "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_post0920_match_growth.json": {
+      "bytes": 461,
+      "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_tail_imbalance.json": {
+      "bytes": 503,
+      "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_tail_match_growth.json": {
+      "bytes": 438,
+      "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_volume_surprise.json": {
+      "bytes": 469,
+      "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_auction_volume_vs_prev.json": {
+      "bytes": 500,
+      "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d",
+      "mtime": "2026-10-31T18:19:56"
+    },
+    "uf_dist_prior_high_250.json": {
+      "bytes": 756,
+      "sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+      "mtime": "2026-11-07T16:07:00"
+    },
+    "uf_ma120.json": {
+      "bytes": 368,
+      "sha256": "3ddb904acc7277d4195e870f1b7b0cca232932316d69f11e584ea131cdfcbefe",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_ma200.json": {
+      "bytes": 368,
+      "sha256": "cf96176f8458dca2827e5f9c27e31ede4d462f7a91533c1ff5076fa3af579bc2",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_high_20.json": {
+      "bytes": 490,
+      "sha256": "e3070878b5472b1aab4fdd5d0253487397b0a943e742a97b6be1577ebac23e86",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_high_250.json": {
+      "bytes": 438,
+      "sha256": "9f95286b8f97ab4047ff4a0bf2a61c7b48e1c618acd3982fbb1afd2b2446b9f8",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_high_55.json": {
+      "bytes": 434,
+      "sha256": "1f0ce5c6d8365da34a3d0aa22ed86f4665e5d4685334ba3b148b5bb4bbd6e59c",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_low_10.json": {
+      "bytes": 432,
+      "sha256": "e5885f47f4356043d7ec7826f4cf6d043c6ae290037f6b581127d9d05e140fe3",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_prior_vol_20.json": {
+      "bytes": 472,
+      "sha256": "fa8667bc5e6f61323f33a357cb24d4bcb37658bba279688b78cabd297ed22563",
+      "mtime": "2026-11-07T14:30:26"
+    },
+    "uf_vol60.json": {
+      "bytes": 545,
+      "sha256": "c9041ba4930ac9c2ece17adbd05f25a4c37e4693e0e223ccd3e55b7e5b7430bb",
+      "mtime": "2026-11-07T14:30:24"
+    }
+  }
+}

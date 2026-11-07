@@ -1,0 +1,100 @@
+[
+  {
+    "file": "cf_auction_resonance.json",
+    "id": "cf_auction_resonance",
+    "version": 2,
+    "bytes": 638,
+    "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191"
+  },
+  {
+    "file": "uf_auction_post0920_match_growth.json",
+    "id": "uf_auction_post0920_match_growth",
+    "version": 2,
+    "bytes": 461,
+    "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582"
+  },
+  {
+    "file": "uf_auction_tail_imbalance.json",
+    "id": "uf_auction_tail_imbalance",
+    "version": 2,
+    "bytes": 503,
+    "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7"
+  },
+  {
+    "file": "uf_auction_tail_match_growth.json",
+    "id": "uf_auction_tail_match_growth",
+    "version": 2,
+    "bytes": 438,
+    "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0"
+  },
+  {
+    "file": "uf_auction_volume_surprise.json",
+    "id": "uf_auction_volume_surprise",
+    "version": 2,
+    "bytes": 469,
+    "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a"
+  },
+  {
+    "file": "uf_auction_volume_vs_prev.json",
+    "id": "uf_auction_volume_vs_prev",
+    "version": 2,
+    "bytes": 500,
+    "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d"
+  },
+  {
+    "file": "uf_ma120.json",
+    "id": "uf_ma120",
+    "version": 1,
+    "bytes": 368,
+    "sha256": "3ddb904acc7277d4195e870f1b7b0cca232932316d69f11e584ea131cdfcbefe"
+  },
+  {
+    "file": "uf_ma200.json",
+    "id": "uf_ma200",
+    "version": 1,
+    "bytes": 368,
+    "sha256": "cf96176f8458dca2827e5f9c27e31ede4d462f7a91533c1ff5076fa3af579bc2"
+  },
+  {
+    "file": "uf_prior_high_20.json",
+    "id": "uf_prior_high_20",
+    "version": 1,
+    "bytes": 490,
+    "sha256": "e3070878b5472b1aab4fdd5d0253487397b0a943e742a97b6be1577ebac23e86"
+  },
+  {
+    "file": "uf_prior_high_250.json",
+    "id": "uf_prior_high_250",
+    "version": 1,
+    "bytes": 438,
+    "sha256": "9f95286b8f97ab4047ff4a0bf2a61c7b48e1c618acd3982fbb1afd2b2446b9f8"
+  },
+  {
+    "file": "uf_prior_high_55.json",
+    "id": "uf_prior_high_55",
+    "version": 1,
+    "bytes": 434,
+    "sha256": "1f0ce5c6d8365da34a3d0aa22ed86f4665e5d4685334ba3b148b5bb4bbd6e59c"
+  },
+  {
+    "file": "uf_prior_low_10.json",
+    "id": "uf_prior_low_10",
+    "version": 1,
+    "bytes": 432,
+    "sha256": "e5885f47f4356043d7ec7826f4cf6d043c6ae290037f6b581127d9d05e140fe3"
+  },
+  {
+    "file": "uf_prior_vol_20.json",
+    "id": "uf_prior_vol_20",
+    "version": 1,
+    "bytes": 472,
+    "sha256": "fa8667bc5e6f61323f33a357cb24d4bcb37658bba279688b78cabd297ed22563"
+  },
+  {
+    "file": "uf_vol60.json",
+    "id": "uf_vol60",
+    "version": 1,
+    "bytes": 545,
+    "sha256": "c9041ba4930ac9c2ece17adbd05f25a4c37e4693e0e223ccd3e55b7e5b7430bb"
+  }
+]

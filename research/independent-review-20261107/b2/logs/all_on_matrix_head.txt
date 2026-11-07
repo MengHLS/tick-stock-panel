@@ -1,0 +1,94 @@
+C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\pytest_asyncio\plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+F                                                                        [100%]
+================================== FAILURES ===================================
+____________ test_research_factor_catalog_matches_matrix_features _____________
+
+    def test_research_factor_catalog_matches_matrix_features():
+        rows = []
+        start = date(2024, 1, 1)
+        for offset in range(120):
+            for asset_id, symbol in enumerate(("000001.SZ", "600000.SH")):
+                close = 10.0 + asset_id * 5.0 + offset * (0.02 + asset_id * 0.01) + np.sin(offset / 5.0)
+                volume = 1000.0 + asset_id * 250.0 + (offset % 9) * 80.0
+                rows.append({
+                    "symbol": symbol,
+                    "date": start + timedelta(days=offset),
+                    "open": close - 0.15 + (offset % 3) * 0.02,
+                    "high": close + 0.35 + asset_id * 0.03,
+                    "low": close - 0.3,
+                    "close": close,
+                    "volume": volume,
+                    "amount": volume * close,
+                    "turnover_rate": 1.0 + asset_id * 0.2 + (offset % 7) * 0.05,
+                    "consecutive_limit_ups": (
+                        (offset % 17) + 1 if (asset_id == 0 and offset % 17 == 0)
+                        else (2 if (asset_id == 1 and offset % 23 == 0) else 0)
+                    ),
+                })
+        panel = pl.DataFrame(rows)
+        from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
+    
+        # 联动因子由 linkage store 物化, 不能从这段无外部状态的合成面板推导。
+        factor_names = {item["id"] for item in FACTOR_COLUMNS} - LINKAGE_FACTOR_IDS
+>       expected = FactorBacktestService._compute_missing_factors(panel, factor_names)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\A\AppData\Local\Temp\b2head\test_matrix_strategy.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\backtest\factor.py:870: in _compute_missing_factors
+    panel = materialize_factor_columns(
+app\extensions\factors.py:308: in materialize_factor_columns
+    frame = provider.materialize_frame(
+app\custom\research_universe_pack\factor_provider.py:104: in materialize_frame
+    return compute_in_universe(frame, st_history=history)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frame = shape: (240, 33)
+┌───────────┬────────────┬───────────┬───────────┬───┬───────────┬───────────┬──────────┬──────────┐
+...17063 ┆ 0.008214 │
+└───────────┴────────────┴───────────┴───────────┴───┴───────────┴───────────┴──────────┴──────────┘
+st_history = shape: (7_758, 3)
+┌───────────┬────────────┬─────────┐
+│ symbol    ┆ flag_date  ┆ st_flag │
+│ ---       ┆ ---        ┆...alse   │
+│ 920985.BJ ┆ 2022-08-08 ┆ false   │
+│ 920992.BJ ┆ 2022-10-18 ┆ false   │
+└───────────┴────────────┴─────────┘
+params = UniverseParams(min_observed_bars=120, min_price_raw=3.0, min_prior_amount20=100000000.0, require_volume_gt0=True, symb...lude_st=True, st_flag_missing_policy='unknown', st_unknown_windows=(('2026-10-20', '2026-10-29'),), universe_version=2)
+
+    def compute_in_universe(
+        frame: pl.DataFrame,
+        *,
+        st_history: pl.DataFrame,
+        params: UniverseParams | None = None,
+    ) -> pl.DataFrame:
+        """在 `frame` 上追加 `in_universe` 列 (float64: 1.0 / 0.0 / null)。
+    
+        `frame` 必须含: symbol, date, volume, amount, raw_close。行序保持调用方原样
+        (内部按 (symbol, date) 排序计算, 结果按原行序还原)。
+        缺列 / `st_history` 为空 → `ValueError` (fail-closed, 不回退默认值)。
+        """
+        params = params or UniverseParams()
+        required = {"symbol", "date", "volume", "amount", "raw_close"}
+        missing = required - set(frame.columns)
+        if missing:
+>           raise ValueError(f"in_universe 缺少必需列: {sorted(missing)}")
+E           ValueError: in_universe 缺少必需列: ['raw_close']
+
+app\custom\research_universe_pack\universe.py:111: ValueError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\anyio\pytest_plugin.py:14
+  C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\anyio\pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\Users\A\AppData\Local\Temp\b2head\test_matrix_strategy.py::test_research_factor_catalog_matches_matrix_features
+1 failed, 29 deselected, 1 warning in 6.79s

@@ -1,0 +1,56 @@
+ M backend/app/api/factors.py
+A  backend/app/custom/research_factor_pack/__init__.py
+A  backend/app/custom/research_factor_pack/factor_provider.py
+A  backend/app/custom/research_factor_pack/factor_specs.py
+A  backend/app/custom/research_universe_pack/__init__.py
+A  backend/app/custom/research_universe_pack/factor_provider.py
+A  backend/app/custom/research_universe_pack/universe.py
+ M backend/app/factors/dsl.py
+ M backend/app/factors/store.py
+ M backend/tests/test_factor_registry.py
+ M backend/tests/test_factor_store.py
+ M research/strategy-search-20261107/REPORT.md
+ M research/strategy-search-20261107/results/registry.csv
+ M research/strategy-search-20261107/results/registry.json
+ M research/strategy-search-20261107/results/registry_table.md
+ M research/strategy-search-20261107/scripts/make_report.py
+?? backend/app/factors/gate.py
+?? backend/scripts/build_referenced_factor_inventory.py
+?? backend/tests/test_factor_gate.py
+?? docs/INDEX_20261107.md
+?? docs/architecture/
+?? docs/factors/
+?? docs/research/caliber-decisions-20261107.md
+?? docs/research/factor-audit-20261107/
+?? research/_intake/
+?? research/_repro/
+?? research/_tmp_check_run.txt
+?? research/_tmp_l33.txt
+?? research/_tmp_manifest_tail.txt
+?? research/_tmp_probe.txt
+?? research/_tmp_r39.txt
+?? research/_tmp_readme_grep.txt
+?? research/_tmp_readme_skeleton.txt
+?? research/arch-build-20261107/
+?? research/b0-correction-20261107/
+?? research/b2-engine-20261107/
+?? research/e3-data-availability-20261107/
+?? research/factor-registration-20261107/
+?? research/factor-registration-b2-20261107/
+?? research/factor-registration-fa5b-20261107/
+?? research/gate-core-20261107/
+?? research/independent-review-20261106/_b0report_final.md
+?? research/independent-review-20261107/
+?? research/jiaogedan-review-20261107/
+?? research/mgr-verify-20261107/
+?? research/pattern-review-20261107/
+?? research/referenced-factor-inventory-20261107/
+?? research/referenced-factor-inventory-v3-1-20261107/
+?? research/referenced-factor-inventory-v3-20261107/
+?? research/strategy-search-20261107/FACTOR_MAP_v1.md
+?? research/strategy-search-20261107/RULE-CHANGE-20261107.md
+?? research/strategy-search-20261107/factor_map_v1.json
+?? research/strategy-search-20261107/results/e2_caliber_check_20261107.json
+?? research/strategy-search-20261107/scripts/factor_map_build.py
+?? research/tmp_sources.txt
+?? research/trade-ledger-20261107/

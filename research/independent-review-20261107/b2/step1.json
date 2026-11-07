@@ -1,0 +1,205 @@
+{
+ "panel": {
+  "rows": 6438822,
+  "symbols": 3385,
+  "days": 2141
+ },
+ "research_cols_ok": true,
+ "E3A1_recon": {
+  "compared_days": 1770,
+  "days_with_diff": 0,
+  "diff_days_list": [],
+  "null_days": 9,
+  "null_days_list": [
+   "2026-10-20",
+   "2026-10-21",
+   "2026-10-22",
+   "2026-10-23",
+   "2026-10-26",
+   "2026-10-27",
+   "2026-10-28",
+   "2026-10-29",
+   "2026-10-30"
+  ],
+  "first_day": "2019-07-01",
+  "last_day": "2026-10-30",
+  "mean_pool_prod": 1428.1621468926553,
+  "mean_pool_research": 1428.1621468926553
+ },
+ "E3A1_unknown_mode": {
+  "days": 1779,
+  "null_days": 9,
+  "null_days_list": [
+   "2026-10-20",
+   "2026-10-21",
+   "2026-10-22",
+   "2026-10-23",
+   "2026-10-26",
+   "2026-10-27",
+   "2026-10-28",
+   "2026-10-29",
+   "2026-10-30"
+  ],
+  "days_prod_null_but_research_has": 9
+ },
+ "W_window_days": [
+  "2026-10-20",
+  "2026-10-21",
+  "2026-10-22",
+  "2026-10-23",
+  "2026-10-26",
+  "2026-10-27",
+  "2026-10-28",
+  "2026-10-29",
+  "2026-10-30",
+  "2026-11-02",
+  "2026-11-03",
+  "2026-11-04",
+  "2026-11-05",
+  "2026-11-06"
+ ],
+ "W1_in_0_1": 0,
+ "W2": {
+  "all_match": true,
+  "per_day": [
+   {
+    "date": "2026-10-20",
+    "bars": 3191,
+    "unknown": 3191,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-21",
+    "bars": 3190,
+    "unknown": 3190,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-22",
+    "bars": 3191,
+    "unknown": 3191,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-23",
+    "bars": 3192,
+    "unknown": 3192,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-26",
+    "bars": 3188,
+    "unknown": 3188,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-27",
+    "bars": 3188,
+    "unknown": 3188,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-28",
+    "bars": 3189,
+    "unknown": 3189,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-29",
+    "bars": 3189,
+    "unknown": 3189,
+    "reason": "st_unknown_window"
+   },
+   {
+    "date": "2026-10-30",
+    "bars": 3189,
+    "unknown": 3189,
+    "reason": "beyond_coverage"
+   },
+   {
+    "date": "2026-11-02",
+    "bars": 3189,
+    "unknown": 3189,
+    "reason": "beyond_coverage"
+   },
+   {
+    "date": "2026-11-03",
+    "bars": 3188,
+    "unknown": 3188,
+    "reason": "beyond_coverage"
+   },
+   {
+    "date": "2026-11-04",
+    "bars": 3190,
+    "unknown": 3190,
+    "reason": "beyond_coverage"
+   },
+   {
+    "date": "2026-11-05",
+    "bars": 3190,
+    "unknown": 3190,
+    "reason": "beyond_coverage"
+   },
+   {
+    "date": "2026-11-06",
+    "bars": 3190,
+    "unknown": 3190,
+    "reason": "beyond_coverage"
+   }
+  ]
+ },
+ "W2_days": 14,
+ "E1_compile": {
+  "ok": true,
+  "errors": [],
+  "warmup": 120,
+  "cross": true,
+  "refs": [
+   "in_universe",
+   "ma60"
+  ]
+ },
+ "E1_breadth": {
+  "days_total": 1779,
+  "days_both_nonnull": 1770,
+  "max_abs_diff": 0.0,
+  "mean_abs_diff": 0.0,
+  "days_gt_1e-12": 0,
+  "null_days_prod": [
+   "2026-10-20",
+   "2026-10-21",
+   "2026-10-22",
+   "2026-10-23",
+   "2026-10-26",
+   "2026-10-27",
+   "2026-10-28",
+   "2026-10-29",
+   "2026-10-30"
+  ],
+  "null_days_res": [],
+  "mixed_null_days": [
+   "2026-10-20",
+   "2026-10-21",
+   "2026-10-22",
+   "2026-10-23",
+   "2026-10-26",
+   "2026-10-27",
+   "2026-10-28",
+   "2026-10-29",
+   "2026-10-30"
+  ],
+  "mean_prod": 0.5422520639953171,
+  "mean_res": 0.5422520639953171,
+  "rows_with_differing_values_within_day": 0
+ },
+ "W3_breadth_nonnull_in_window": 0,
+ "W3_window_days": 44654,
+ "W4_compile": {
+  "ok": true,
+  "errors": []
+ },
+ "W4_compile_refs": [
+  "in_universe",
+  "vol60"
+ ]
+}

@@ -1,0 +1,25 @@
+ 744 ### 7.4 幂等
+ 745 - 同一 `(id, formula 摘要, dependencies, warmup)` 重复 POST：现状每次 `_next_version()` +1，**不幂等**，且会让 `materialize_cache` 的键（含 `spec.version`）全部失效 → 整表重算。
+ 746 - 要求：内容未变则返回既有定义、`version` 不变、响应标 `unchanged=true`；仅内容变化才 +1。改动点仅在 `api/factors.py` 保存分支，**不动 `registry`/`dsl`/`store`**。
+ 747 
+ 748 ### 7.5 禁止事项
+ 749 1. **禁止**把 `prior_*` 写成不含 `ts_delay` 的形式。
+ 750 2. **禁止**跨层取数构造因子：不得把 API/展示层返回值（`api/intraday.py:72` 等百分点字段）或 provider 原始百分数字段直接喂进因子帧；一个因子只能引用因子帧内的列。`change_pct` 在因子帧内是小数（`pipeline.py:156`），可直接引用（v0.3 更正）。
+ 751 3. **禁止**同一口径起两个 id 并用于同一策略；研究名 ↔ `uf_` id 映射必须唯一并登记在 `docs/factors/` 台账。
+ 752 4. **禁止**手填 `warmup_bars`/`dependencies`（DSL 路径会被静默覆盖，手填值是幻觉）。
+ 753 5. **禁止**给未通过 V3 的因子标 `status="active"`。
+ 754 6. **禁止**把 `status` 当运行时闸门（v0.3 新增）：运行时对象 `FactorSpec` 里没有 `status`（§7.7.1），「已标 active 所以可用」在代码里没有依据；闸门落地前 `status` 仅为登记字段，准入必须走 §7.7 的 `assert_factors_usable`。
+ 755 
+ 756 ### 7.6 验收判据
+ 757 | # | 判据 | 度量 |
+ 758 | --- | --- | --- |
+ 759 | F-A1 | 八只全部可 `get_factor` | `uf_vol60`/`uf_ma120`/`uf_ma200`/`uf_prior_high_20`/`uf_prior_high_55`/`uf_prior_high_250`/`uf_prior_low_10`/`uf_prior_vol_20` |
+ 760 | F-A2 | warmup 一致 | 逐一等于 61/121/201/21/56/251/11/21 |
+ 761 | F-A3 | 数值对账 | 8 只 × 20 symbol × 近 250 交易日，与研究 `add_indicators` 逐值 `max_abs_diff < 1e-12` |
+ 762 | F-A4 | 命名映射唯一 | 台账中研究名 ↔ `uf_` id 一对一 |
+ 763 | F-A5 | 幂等 | 同内容二次注册：`version` 不变、响应 `unchanged=true`、盘上文件字节与 mtime 均不变（→ 目录指纹不变 → 依赖指纹的缓存不全表失效）。**实现现状（2026-11-07 15:44 复核）**：工作区已有**未提交**实现 `backend/app/factors/store.py:207-257`（`content_signature` / `is_same_content` / `upsert_definition`）+ `backend/app/api/factors.py:333-360`；HEAD `65c6e42f`（2026-11-07 12:56:05 +0800）中**没有**这部分（`git show HEAD:backend/app/factors/store.py` 内 `unchanged` 命中数 = 0）；`git status` 显示两文件为 `M`，mtime 15:35:28。**判据状态 = 待独立审核**，通过前不得记为已满足；靶值（version 不变 + `unchanged=true` + 文件未写）可直接按现实现复跑。 |
+ 764 | F-A6a | 量纲（中位数） | 评估域：`60*`/`00*` 前缀 × `2019-01-01` 起 × 逐 symbol `ret1 = close/close.shift(1)-1` 的 `rolling_std(60, min_samples=60, ddof=1)` × 仅非空 × `n ≥ 5.0e6`。判据：`p50 ∈ [0.015, 0.06]` |
+ 765 | F-A6b | 上尾 | 同一评估域：`p99 < 0.10` |
+ 766 | F-A6c | 下尾 | 同一评估域：`p01 ∈ (0, 0.02)` |
+ 767 | F-A6 | 判定 | `F-A6a ∧ F-A6b ∧ F-A6c` 同时成立 = pass；任一不满足 = fail，且失败报告**必须**打印实测 `p01/p50/p99` 与「若为百分点口径的预期值（×100）」以便一眼定位。**记录值**（2026-11-07 复算）：架构师独立复算（本机 `backend/.venv` polars，raw close，`60*`/`00*`，`2019-01-01`–`2026-10-29`，`n=5,639,581`）= mean **0.026555** / p01 **0.009244** / p50 **0.025096** / p99 **0.056152**；开发经理复算（`n=5,469,335`）= 0.0261 / 0.0090 / 0.0247 / 0.0549（样本窗与是否用复权价不同，量级一致）。**原「典型值 0.015–0.06，越界即 fail」按字面会误判**：全样本 1% 的行合法地低于 0.015（p01=0.0092）。判据区分力：百分点口径 p50≈2.5、方差口径 p50≈0.0006、年化口径 p50≈0.39，三者分别落在上界/下界外 |
+ 768 

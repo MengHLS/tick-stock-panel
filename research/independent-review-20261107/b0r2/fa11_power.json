@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-11-07T18:12:36",
+  "eps32_rel": 1.1920928955078125e-07,
+  "symbols": [
+    "000001.SZ",
+    "001389.SZ",
+    "002555.SZ",
+    "600122.SH",
+    "600793.SH",
+    "603202.SH"
+  ],
+  "results": {
+    "sd20": {
+      "rows": 7195,
+      "correct_kernel": {
+        "label": "correct-float32",
+        "a11a_struct_symdiff": 0,
+        "max_abs_diff": 2.805532826499757e-06,
+        "max_rel_diff": 2.1798803382361495e-06,
+        "a11b_pass": false,
+        "a11c_jaccard": 1.0,
+        "a11c_flips": 0,
+        "a11c_pass": true
+      },
+      "wrong_kernel": {
+        "label": "wrong-semantics",
+        "a11a_struct_symdiff": 6,
+        "max_abs_diff": 3.4318336180589917,
+        "max_rel_diff": 0.9466582886448144,
+        "a11b_pass": false,
+        "a11c_jaccard": 0.959579180509413,
+        "a11c_flips": 146,
+        "a11c_pass": false
+      }
+    },
+    "prior_high_20": {
+      "rows": 7195,
+      "correct_kernel": {
+        "label": "correct-float32",
+        "a11a_struct_symdiff": 0,
+        "max_abs_diff": 7.61206695187866e-06,
+        "max_rel_diff": 5.824031308557078e-08,
+        "a11b_pass": true,
+        "a11c_jaccard": 1.0,
+        "a11c_flips": 0,
+        "a11c_pass": true
+      },
+      "wrong_kernel": {
+        "label": "wrong-semantics",
+        "a11a_struct_symdiff": 6,
+        "max_abs_diff": 23.675756740449344,
+        "max_rel_diff": 0.1657142644770917,
+        "a11b_pass": false,
+        "a11c_jaccard": 0.9915966386554622,
+        "a11c_flips": 30,
+        "a11c_pass": false
+      }
+    },
+    "vol60": {
+      "rows": 7195,
+      "correct_kernel": {
+        "label": "correct-float32",
+        "a11a_struct_symdiff": 0,
+        "max_abs_diff": 1.9959382348277988e-08,
+        "max_rel_diff": 1.1855566640638538e-06,
+        "a11b_pass": false,
+        "a11c_jaccard": 0.9997074312463429,
+        "a11c_flips": 1,
+        "a11c_pass": false
+      },
+      "wrong_kernel": {
+        "label": "wrong-semantics",
+        "a11a_struct_symdiff": 6,
+        "max_abs_diff": 32.014576919786805,
+        "max_rel_diff": 672.2608362208491,
+        "a11b_pass": false,
+        "a11c_jaccard": 0.49963455635141063,
+        "a11c_flips": 3423,
+        "a11c_pass": false
+      }
+    }
+  },
+  "elapsed_s": 6.9
+}

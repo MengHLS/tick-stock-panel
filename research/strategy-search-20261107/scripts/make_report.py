@@ -46,6 +46,8 @@ def main() -> None:
     sr_var = float(np.var(list(daily_sr.values()), ddof=1)) if len(daily_sr) > 1 else 0.0
 
     rows = []
+    # 作废信息单独存放，与 rows 逐行对齐：绝不能进 rows，否则会污染 summary.json
+    void_meta = []
     for key, rec in sorted(runs.items()):
         if float(rec["slippage_bps"]) not in (10.0, 30.0) and not rec.get("gross"):
             continue
@@ -69,6 +71,11 @@ def main() -> None:
             "final_equity": rec["ALL"]["final_equity"],
         }
         rows.append(row)
+        void_meta.append({
+            "status": rec.get("status") if rec.get("status") else "\u2014",
+            "caliber": rec.get("caliber") if rec.get("caliber") else "\u2014",
+            "void_ref": rec.get("void_ref") if rec.get("void_ref") else "\u2014",
+        })
 
     # 年度收益（10bp 情景）
     yearly = {}
@@ -89,27 +96,31 @@ def main() -> None:
         "rows": rows,
     })
 
-    # registry.csv
+    # registry.csv（原 24 列不动，行尾追加 status/caliber/void_ref）
     if rows:
-        keys = list(rows[0].keys())
+        keys = list(rows[0].keys()) + ["status", "caliber", "void_ref"]
         with (RESULTS / "registry.csv").open("w", newline="", encoding="utf-8-sig") as fh:
             writer = csv.DictWriter(fh, fieldnames=keys)
             writer.writeheader()
-            for row in rows:
-                writer.writerow(row)
+            for row, meta in zip(rows, void_meta):
+                writer.writerow({**row, **meta})
+
+    meta_by_run = {(r["strategy"], r["scenario"]): m for r, m in zip(rows, void_meta)}
 
     # Markdown 片段
     lines = []
-    lines.append("| 策略 | 情景 | 样本内收益 | 样本内Sharpe | 样本外收益 | 样本外Sharpe | 全期收益 | 年化 | 最大回撤 | Sharpe | DSR | 已平仓笔数 | 换手倍数 |")
-    lines.append("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+    lines.append("| 策略 | 情景 | 样本内收益 | 样本内Sharpe | 样本外收益 | 样本外Sharpe | 全期收益 | 年化 | 最大回撤 | Sharpe | DSR | 已平仓笔数 | 换手倍数 | status | caliber | void_ref |")
+    lines.append("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |")
     for row in sorted(rows, key=lambda r: (r["strategy"], r["scenario"])):
         d = dsr.get(row["strategy"], {}) if row["scenario"] == "10bp" else {}
         dsrcell = f"{d.get('dsr', float('nan')):.3f}" if d.get("ok") else "—"
+        meta = meta_by_run[(row["strategy"], row["scenario"])]
         lines.append(
             f"| {row['strategy']} | {row['scenario']} | {row['is_return']:.2%} | "
             f"{row['is_sharpe']:.2f} | {row['oos_return']:.2%} | {row['oos_sharpe']:.2f} | "
             f"{row['all_return']:.2%} | {row['all_cagr']:.2%} | {row['all_mdd']:.2%} | "
             f"{row['all_sharpe']:.2f} | {dsrcell} | {row['trades_closed']} | {row['turnover_x']:.1f} |"
+            f" {meta['status']} | {meta['caliber']} | {meta['void_ref']} |"
         )
     (RESULTS / "registry_table.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 

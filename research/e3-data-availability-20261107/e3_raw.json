@@ -1,0 +1,1370 @@
+{
+ "A_surface": {
+  "A1_axis": {
+   "kind": "sql",
+   "sql": "select count(*) n_trading_days, min(date) first_day, max(date) last_day, count(*) filter (where date between '2019-07-01' and '2026-10-30') n_eval_days from axis",
+   "note": "",
+   "seconds": 3.35,
+   "rows": 1,
+   "result": [
+    {
+     "n_trading_days": 2141,
+     "first_day": "2018-01-08T00:00:00.000",
+     "last_day": "2026-11-06T00:00:00.000",
+     "n_eval_days": 1779
+    }
+   ]
+  },
+  "A2_panel_shape": {
+   "kind": "sql",
+   "sql": "select count(*) n_rows, count(distinct symbol) n_symbols, min(date) first_bar, max(date) last_bar, (select count(*) from axis a where a.date between '2019-07-01' and '2026-10-30') n_eval_days, count(*) filter (where date between '2019-07-01' and '2026-10-30') n_eval_rows from bars",
+   "note": "",
+   "seconds": 1.59,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 6438822,
+     "n_symbols": 3385,
+     "first_bar": "2018-01-08T00:00:00.000",
+     "last_bar": "2026-11-06T00:00:00.000",
+     "n_eval_days": 1779,
+     "n_eval_rows": 5510001
+    }
+   ]
+  },
+  "A3_partition_completeness": {
+   "kind": "sql",
+   "sql": "with p as ( select distinct date from read_parquet('D:\\TSP\\data\\kline_daily\\date=*\\*.parquet') ) select (select count(*) from axis) n_axis, (select count(*) from p) n_partitions, (select count(*) from axis a anti join p on p.date = a.date) n_axis_without_partition",
+   "note": "",
+   "seconds": 3.61,
+   "rows": 1,
+   "result": [
+    {
+     "n_axis": 2141,
+     "n_partitions": 2141,
+     "n_axis_without_partition": 0
+    }
+   ]
+  },
+  "A4_daily_floor": {
+   "kind": "sql",
+   "sql": "select min(n) min_symbols_per_day, max(n) max_symbols_per_day, avg(n)::decimal(10,1) avg_symbols_per_day from (select date, count(*) n from bars group by date)",
+   "note": "",
+   "seconds": 0.76,
+   "rows": 1,
+   "result": [
+    {
+     "min_symbols_per_day": 2354,
+     "max_symbols_per_day": 3201,
+     "avg_symbols_per_day": 3007.4
+    }
+   ]
+  }
+ },
+ "F1_suspension": {
+  "F1_1_zero_volume": {
+   "kind": "sql",
+   "sql": "select case when date between '2019-07-01' and '2026-10-30' then 'eval' else 'warmup' end win, count(*) n_rows, count(*) filter (where volume is null) n_volume_null, count(*) filter (where volume = 0) n_volume_zero, count(*) filter (where amount is null) n_amount_null, count(*) filter (where amount is not null and amount <= 0) n_amount_nonpos, count(*) filter (where volume = 0 and coalesce(amount,0) = 0) n_vol0_amt0, count(*) filter (where raw_close is null) n_raw_close_null, count(*) filter (where raw_close is not null and raw_close <= 0) n_raw_close_nonpos, count(*) filter (where open is null or high is null or low is null) n_ohlc_null from bars group by 1 order by 1",
+   "note": "",
+   "seconds": 1.35,
+   "rows": 2,
+   "result": [
+    {
+     "win": "eval",
+     "n_rows": 5510001,
+     "n_volume_null": 0,
+     "n_volume_zero": 0,
+     "n_amount_null": 0,
+     "n_amount_nonpos": 0,
+     "n_vol0_amt0": 0,
+     "n_raw_close_null": 0,
+     "n_raw_close_nonpos": 0,
+     "n_ohlc_null": 0
+    },
+    {
+     "win": "warmup",
+     "n_rows": 928821,
+     "n_volume_null": 0,
+     "n_volume_zero": 0,
+     "n_amount_null": 0,
+     "n_amount_nonpos": 0,
+     "n_vol0_amt0": 0,
+     "n_raw_close_null": 0,
+     "n_raw_close_nonpos": 0,
+     "n_ohlc_null": 0
+    }
+   ]
+  },
+  "F1_2_zero_volume_by_year": {
+   "kind": "sql",
+   "sql": "select year(date) y, count(*) n_rows, count(*) filter (where volume = 0) n_zero, round(100.0 * count(*) filter (where volume = 0) / count(*), 4) pct_zero, count(distinct symbol) filter (where volume = 0) n_symbols_zero from bars group by 1 order by 1",
+   "note": "",
+   "seconds": 0.96,
+   "rows": 9,
+   "result": [
+    {
+     "y": 2018,
+     "n_rows": 596688,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2019,
+     "n_rows": 665688,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2020,
+     "n_rows": 712127,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2021,
+     "n_rows": 747893,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2022,
+     "n_rows": 760083,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2023,
+     "n_rows": 769678,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2024,
+     "n_rows": 769001,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2025,
+     "n_rows": 770721,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    },
+    {
+     "y": 2026,
+     "n_rows": 646943,
+     "n_zero": 0,
+     "pct_zero": 0.0,
+     "n_symbols_zero": 0
+    }
+   ]
+  },
+  "F1_3_zero_volume_flat": {
+   "kind": "sql",
+   "sql": "select count(*) n_zero_volume, count(*) filter (where open = high and high = low and low = close) n_flat_ohlc, count(*) filter (where amount is not null and amount > 0) n_with_amount from bars where volume = 0",
+   "note": "",
+   "seconds": 0.96,
+   "rows": 1,
+   "result": [
+    {
+     "n_zero_volume": 0,
+     "n_flat_ohlc": 0,
+     "n_with_amount": 0
+    }
+   ]
+  },
+  "F1_4_zero_volume_dates": {
+   "kind": "sql",
+   "sql": "select date, count(*) n_symbols from bars where volume = 0 group by 1 order by 2 desc limit 10",
+   "note": "",
+   "seconds": 0.94,
+   "rows": 0,
+   "result": []
+  },
+  "F1_5_gap_total": {
+   "kind": "sql",
+   "sql": "select count(*) n_missing_symbol_days, count(distinct symbol) n_symbols, (select count(*) from bars where date between '2019-07-01' and '2026-10-30') n_rows_eval from gap",
+   "note": "",
+   "seconds": 4.69,
+   "rows": 1,
+   "result": [
+    {
+     "n_missing_symbol_days": 14706,
+     "n_symbols": 1222,
+     "n_rows_eval": 5510001
+    }
+   ]
+  },
+  "F1_6_gap_runs": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis where date between '2019-07-01' and '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) as grp from gi), runs as (select symbol, grp, count(*) len, min(date) s, max(date) e from r group by 1,2) select case when len = 1 then '1' when len <= 5 then '2-5' when len <= 20 then '6-20' when len <= 60 then '21-60' when len <= 120 then '61-120' when len <= 250 then '121-250' else '>250' end bucket, count(*) n_runs, sum(len) n_symbol_days, max(len) max_len from runs group by 1 order by min(len)",
+   "note": "",
+   "seconds": 4.71,
+   "rows": 7,
+   "result": [
+    {
+     "bucket": "1",
+     "n_runs": 1424,
+     "n_symbol_days": 1424.0,
+     "max_len": 1
+    },
+    {
+     "bucket": "2-5",
+     "n_runs": 541,
+     "n_symbol_days": 2110.0,
+     "max_len": 5
+    },
+    {
+     "bucket": "6-20",
+     "n_runs": 537,
+     "n_symbol_days": 5385.0,
+     "max_len": 20
+    },
+    {
+     "bucket": "21-60",
+     "n_runs": 79,
+     "n_symbol_days": 2586.0,
+     "max_len": 55
+    },
+    {
+     "bucket": "61-120",
+     "n_runs": 1,
+     "n_symbol_days": 106.0,
+     "max_len": 106
+    },
+    {
+     "bucket": "121-250",
+     "n_runs": 5,
+     "n_symbol_days": 1044.0,
+     "max_len": 247
+    },
+    {
+     "bucket": ">250",
+     "n_runs": 6,
+     "n_symbol_days": 2051.0,
+     "max_len": 589
+    }
+   ]
+  },
+  "F1_6b_top_gaps": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis where date between '2019-07-01' and '2026-10-30'), gi as (select g.symbol, g.date, idx.i from gap g join idx using (date)), r as (select symbol, date, i, i - row_number() over (partition by symbol order by date) as grp from gi), runs as (select symbol, grp, count(*) len, min(date) s, max(date) e from r group by 1,2) select symbol, s gap_start, e gap_end, len trading_days_missing from runs order by len desc limit 15",
+   "note": "",
+   "seconds": 4.55,
+   "rows": 15,
+   "result": [
+    {
+     "symbol": "000670.SZ",
+     "gap_start": "2020-03-20T00:00:00.000",
+     "gap_end": "2022-08-19T00:00:00.000",
+     "trading_days_missing": 589
+    },
+    {
+     "symbol": "000995.SZ",
+     "gap_start": "2019-07-01T00:00:00.000",
+     "gap_end": "2020-12-15T00:00:00.000",
+     "trading_days_missing": 357
+    },
+    {
+     "symbol": "000792.SZ",
+     "gap_start": "2020-04-30T00:00:00.000",
+     "gap_end": "2021-08-09T00:00:00.000",
+     "trading_days_missing": 311
+    },
+    {
+     "symbol": "600610.SH",
+     "gap_start": "2019-07-01T00:00:00.000",
+     "gap_end": "2020-08-14T00:00:00.000",
+     "trading_days_missing": 276
+    },
+    {
+     "symbol": "002711.SZ",
+     "gap_start": "2020-04-30T00:00:00.000",
+     "gap_end": "2021-06-01T00:00:00.000",
+     "trading_days_missing": 263
+    },
+    {
+     "symbol": "600891.SH",
+     "gap_start": "2020-03-03T00:00:00.000",
+     "gap_end": "2021-03-18T00:00:00.000",
+     "trading_days_missing": 255
+    },
+    {
+     "symbol": "000760.SZ",
+     "gap_start": "2020-06-04T00:00:00.000",
+     "gap_end": "2021-06-09T00:00:00.000",
+     "trading_days_missing": 247
+    },
+    {
+     "symbol": "002359.SZ",
+     "gap_start": "2020-06-24T00:00:00.000",
+     "gap_end": "2021-06-09T00:00:00.000",
+     "trading_days_missing": 233
+    },
+    {
+     "symbol": "600614.SH",
+     "gap_start": "2020-06-23T00:00:00.000",
+     "gap_end": "2021-06-01T00:00:00.000",
+     "trading_days_missing": 228
+    },
+    {
+     "symbol": "600701.SH",
+     "gap_start": "2020-04-29T00:00:00.000",
+     "gap_end": "2021-03-12T00:00:00.000",
+     "trading_days_missing": 211
+    },
+    {
+     "symbol": "600634.SH",
+     "gap_start": "2020-11-25T00:00:00.000",
+     "gap_end": "2021-06-01T00:00:00.000",
+     "trading_days_missing": 125
+    },
+    {
+     "symbol": "002323.SZ",
+     "gap_start": "2019-07-01T00:00:00.000",
+     "gap_end": "2019-12-03T00:00:00.000",
+     "trading_days_missing": 106
+    },
+    {
+     "symbol": "001914.SZ",
+     "gap_start": "2019-07-01T00:00:00.000",
+     "gap_end": "2019-09-16T00:00:00.000",
+     "trading_days_missing": 55
+    },
+    {
+     "symbol": "000976.SZ",
+     "gap_start": "2024-05-06T00:00:00.000",
+     "gap_end": "2024-07-08T00:00:00.000",
+     "trading_days_missing": 45
+    },
+    {
+     "symbol": "600289.SH",
+     "gap_start": "2024-11-11T00:00:00.000",
+     "gap_end": "2025-01-13T00:00:00.000",
+     "trading_days_missing": 45
+    }
+   ]
+  },
+  "F1_7_gap_by_year": {
+   "kind": "sql",
+   "sql": "with yb as (select year(date) y, count(*) n_rows from bars group by 1), yg as (select year(date) y, count(*) n_missing, count(distinct symbol) n_symbols from gap group by 1) select yg.y, yg.n_missing, yg.n_symbols, yb.n_rows, round(100.0*yg.n_missing/yb.n_rows, 3) pct_of_year_rows from yg join yb using (y) order by 1",
+   "note": "",
+   "seconds": 4.61,
+   "rows": 8,
+   "result": [
+    {
+     "y": 2019,
+     "n_missing": 1068,
+     "n_symbols": 157,
+     "n_rows": 665688,
+     "pct_of_year_rows": 0.16
+    },
+    {
+     "y": 2020,
+     "n_missing": 3453,
+     "n_symbols": 390,
+     "n_rows": 712127,
+     "pct_of_year_rows": 0.485
+    },
+    {
+     "y": 2021,
+     "n_missing": 2479,
+     "n_symbols": 377,
+     "n_rows": 747893,
+     "pct_of_year_rows": 0.331
+    },
+    {
+     "y": 2022,
+     "n_missing": 2206,
+     "n_symbols": 305,
+     "n_rows": 760083,
+     "pct_of_year_rows": 0.29
+    },
+    {
+     "y": 2023,
+     "n_missing": 1089,
+     "n_symbols": 209,
+     "n_rows": 769678,
+     "pct_of_year_rows": 0.141
+    },
+    {
+     "y": 2024,
+     "n_missing": 1374,
+     "n_symbols": 224,
+     "n_rows": 769001,
+     "pct_of_year_rows": 0.179
+    },
+    {
+     "y": 2025,
+     "n_missing": 1759,
+     "n_symbols": 312,
+     "n_rows": 770721,
+     "pct_of_year_rows": 0.228
+    },
+    {
+     "y": 2026,
+     "n_missing": 1278,
+     "n_symbols": 272,
+     "n_rows": 646943,
+     "pct_of_year_rows": 0.198
+    }
+   ]
+  },
+  "F1_8_gap_vs_zero_volume": {
+   "kind": "sql",
+   "sql": "select (select count(*) from gap) n_gap_days, (select count(*) from bars where volume = 0 and date between '2019-07-01' and '2026-10-30') n_zero_volume_rows, (select count(*) from gap g join bars b on b.symbol=g.symbol and b.date=g.date) n_overlap",
+   "note": "",
+   "seconds": 8.19,
+   "rows": 1,
+   "result": [
+    {
+     "n_gap_days": 14706,
+     "n_zero_volume_rows": 0,
+     "n_overlap": 0
+    }
+   ]
+  },
+  "F1_9_pre_post_life": {
+   "kind": "sql",
+   "sql": "with ax as (select distinct date from bars where date between '2019-07-01' and '2026-10-30'), life as (select symbol, min(date) f, max(date) l from bars group by symbol) select count(*) filter (where ax.date < life.f) n_before_first_bar, count(*) filter (where ax.date > life.l) n_after_last_bar, count(*) filter (where ax.date > life.l and life.l < date '2026-09-30') n_after_last_bar_early from life cross join ax",
+   "note": "",
+   "seconds": 1.72,
+   "rows": 1,
+   "result": [
+    {
+     "n_before_first_bar": 345736,
+     "n_after_last_bar": 151472,
+     "n_after_last_bar_early": 151453
+    }
+   ]
+  },
+  "F1_10_gap_full_range": {
+   "kind": "sql",
+   "sql": "with ax as (select distinct date from bars), life as (select symbol, min(date) f, max(date) l from bars group by symbol), grid as (select life.symbol, ax.date from life join ax on ax.date between life.f and life.l) select count(*) n_missing_full_range, count(distinct symbol) n_symbols, round(100.0*count(*)/(select count(*) from bars), 3) pct_of_all_rows from grid g anti join bars b on b.symbol=g.symbol and b.date=g.date",
+   "note": "",
+   "seconds": 3.69,
+   "rows": 1,
+   "result": [
+    {
+     "n_missing_full_range": 34035,
+     "n_symbols": 1504,
+     "pct_of_all_rows": 0.529
+    }
+   ]
+  }
+ },
+ "F2_limit": {
+  "metrics": [
+   {
+    "id": "F2-0 面板行数（60*/00*，≤2026-10-30）",
+    "note": "载入耗时 6.1s",
+    "n_rows": 6422875
+   },
+   {
+    "id": "F2-1 limit_up_price 为 null 的行",
+    "note": "= 每只标的首根 bar（无昨收）+ 交易所无涨跌幅限制日",
+    "n_rows": 3932
+   },
+   {
+    "id": "F2-2 limit_down_price 为 null 的行",
+    "note": "",
+    "n_rows": 3932
+   },
+   {
+    "id": "F2-3 price_limit_pct 为 null 的行",
+    "note": "",
+    "n_rows": 0
+   },
+   {
+    "id": "F2-4 判为涨停的标的日",
+    "note": "",
+    "n_rows": 127457
+   },
+   {
+    "id": "F2-5 判为跌停的标的日",
+    "note": "",
+    "n_rows": 53653
+   },
+   {
+    "id": "F2-6 涨停且 raw_high==raw_low（全日一价，确定不可成交）",
+    "note": "",
+    "n_rows": 13359
+   },
+   {
+    "id": "F2-7 跌停且 raw_high==raw_low",
+    "note": "",
+    "n_rows": 10288
+   },
+   {
+    "id": "F2-8 涨停但日内有价格变动（需 raw_open/分钟线定可成交性）",
+    "note": "",
+    "n_rows": 114098
+   },
+   {
+    "id": "F2-9 全日一价但既非涨停也非跌停（冻结/停牌形态）",
+    "note": "",
+    "n_rows": 547
+   },
+   {
+    "id": "F2-10 raw_high 高于涨停价 0.006 以上（口径异常）",
+    "note": "",
+    "n_rows": 30
+   },
+   {
+    "id": "F2-11 raw_low 低于跌停价 0.006 以下（口径异常）",
+    "note": "",
+    "n_rows": 129
+   },
+   {
+    "id": "F2-12 面板内出现 20%/30% 档的行",
+    "note": "",
+    "n_rows": 0
+   },
+   {
+    "id": "F2-13 数据集中 raw_open 列数（0=缺）",
+    "note": "",
+    "n_rows": 0
+   },
+   {
+    "id": "F2-13b 复权因子变化日（除权除息，限价需特判）",
+    "note": "",
+    "n_rows": 1495654
+   }
+  ],
+  "price_limit_pct_crosstab": [
+   {
+    "st_flag": null,
+    "price_limit_pct": 0.1,
+    "after_2026_07_06": false,
+    "n_rows": 596688
+   },
+   {
+    "st_flag": false,
+    "price_limit_pct": 0.1,
+    "after_2026_07_06": false,
+    "n_rows": 5344390
+   },
+   {
+    "st_flag": false,
+    "price_limit_pct": 0.1,
+    "after_2026_07_06": true,
+    "n_rows": 241794
+   },
+   {
+    "st_flag": true,
+    "price_limit_pct": 0.05,
+    "after_2026_07_06": false,
+    "n_rows": 229867
+   },
+   {
+    "st_flag": true,
+    "price_limit_pct": 0.1,
+    "after_2026_07_06": true,
+    "n_rows": 10136
+   }
+  ],
+  "empirical_ret_vs_limit": [
+   {
+    "st_flag": null,
+    "price_limit_pct": 0.1,
+    "after": false,
+    "n": 594021,
+    "max_abs_ret": 0.8197001328525337,
+    "n_beyond_limit": 25
+   },
+   {
+    "st_flag": false,
+    "price_limit_pct": 0.1,
+    "after": false,
+    "n": 5343722,
+    "max_abs_ret": 4.884444444444444,
+    "n_beyond_limit": 315
+   },
+   {
+    "st_flag": false,
+    "price_limit_pct": 0.1,
+    "after": true,
+    "n": 241788,
+    "max_abs_ret": 1.7774038461538462,
+    "n_beyond_limit": 17
+   },
+   {
+    "st_flag": true,
+    "price_limit_pct": 0.05,
+    "after": false,
+    "n": 229824,
+    "max_abs_ret": 0.548951048951049,
+    "n_beyond_limit": 120
+   },
+   {
+    "st_flag": true,
+    "price_limit_pct": 0.1,
+    "after": true,
+    "n": 10136,
+    "max_abs_ret": 0.1071428571428572,
+    "n_beyond_limit": 1
+   }
+  ],
+  "next_day_entry": {
+   "id": "F2-14 涨停信号日的次日状态（T+1 开盘买入的可成交性）",
+   "n_signal_days": 127457,
+   "n_next_bar_missing": 61,
+   "n_next_bar_one_price": 9885,
+   "n_next_bar_at_limit": 34340,
+   "n_next_bar_missing_or_one_price": 9946
+  }
+ },
+ "F3_2_schemas": [
+  {
+   "id": "F3-2 instruments",
+   "table": "instruments",
+   "n_files": 1,
+   "columns": [
+    "as_of",
+    "code",
+    "exchange",
+    "float_shares",
+    "limit_down",
+    "limit_up",
+    "listing_date",
+    "name",
+    "region",
+    "symbol",
+    "tick_size",
+    "total_shares",
+    "type"
+   ]
+  },
+  {
+   "id": "F3-2 instruments_etf",
+   "table": "instruments_etf",
+   "n_files": 1,
+   "columns": [
+    "asset_type",
+    "code",
+    "name",
+    "symbol"
+   ]
+  },
+  {
+   "id": "F3-2 instruments_ext",
+   "table": "instruments_ext",
+   "n_files": 0,
+   "columns": []
+  },
+  {
+   "id": "F3-2 instruments_index",
+   "table": "instruments_index",
+   "n_files": 1,
+   "columns": [
+    "asset_type",
+    "code",
+    "name",
+    "symbol"
+   ]
+  }
+ ],
+ "F3_delisting": {
+  "F3_1_instruments_schema": {
+   "kind": "sql",
+   "sql": "describe select * from read_parquet('D:\\TSP\\data\\instruments\\instruments.parquet')",
+   "note": "",
+   "seconds": 0.0,
+   "rows": 13,
+   "result": [
+    {
+     "column_name": "symbol",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "name",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "code",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "exchange",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "region",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "type",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "listing_date",
+     "column_type": "VARCHAR",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "total_shares",
+     "column_type": "DOUBLE",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "float_shares",
+     "column_type": "DOUBLE",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "tick_size",
+     "column_type": "DOUBLE",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "limit_up",
+     "column_type": "INTEGER",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "limit_down",
+     "column_type": "INTEGER",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    },
+    {
+     "column_name": "as_of",
+     "column_type": "DATE",
+     "null": "YES",
+     "key": null,
+     "default": null,
+     "extra": null
+    }
+   ]
+  },
+  "F3_3_symbols_outside_instruments": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, min(date) f, max(date) l, count(*) n from bars group by symbol) select count(*) n_symbols_total, count(*) filter (where i.symbol is null) n_absent_from_instruments, count(*) filter (where i.symbol is not null) n_present from s left join instruments i using (symbol)",
+   "note": "",
+   "seconds": 0.71,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbols_total": 3385,
+     "n_absent_from_instruments": 0,
+     "n_present": 3385
+    }
+   ]
+  },
+  "F3_4_absent_by_last_bar_year": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, min(date) f, max(date) l from bars group by symbol) select year(s.l) last_bar_year, count(*) n_symbols, count(*) filter (where s.l >= '2019-07-01') n_last_bar_after_eval_start from s left join instruments i using (symbol) where i.symbol is null group by 1 order by 1",
+   "note": "",
+   "seconds": 0.71,
+   "rows": 0,
+   "result": []
+  },
+  "F3_5_absent_recent_bars": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, max(date) l from bars group by symbol) select count(*) n_absent_with_bar_after_2026_10, count(*) filter (where s.l = (select max(date) from bars)) n_absent_with_bar_on_last_day from s left join instruments i using (symbol) where i.symbol is null and s.l > '2026-10-01'",
+   "note": "",
+   "seconds": 1.51,
+   "rows": 1,
+   "result": [
+    {
+     "n_absent_with_bar_after_2026_10": 0,
+     "n_absent_with_bar_on_last_day": 0
+    }
+   ]
+  },
+  "F3_6_present_but_stale": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, max(date) l from bars group by symbol) select count(*) n_stale, count(*) filter (where s.l < '2025-10-30') n_stale_over_1y, min(s.l) earliest_last_bar from s join instruments i using (symbol) where s.l < '2026-10-30'",
+   "note": "",
+   "seconds": 0.86,
+   "rows": 1,
+   "result": [
+    {
+     "n_stale": 192,
+     "n_stale_over_1y": 171,
+     "earliest_last_bar": "2019-10-31T00:00:00.000"
+    }
+   ]
+  },
+  "F3_7_delist_proxy": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis), last_i as (select i from idx where date = '2026-10-30'), s as (select symbol, max(date) l from bars group by symbol), j as (select s.symbol, s.l, idx.i li, last_i.i lmax from s join idx on idx.date = s.l cross join last_i where s.l < date '2026-10-30') select count(*) n_symbols_last_bar_before_2026_10_30, count(*) filter (where lmax - li >= 250) n_ge_250_trading_days, count(*) filter (where lmax - li >= 120) n_ge_120_trading_days from j",
+   "note": "",
+   "seconds": 3.26,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbols_last_bar_before_2026_10_30": 192,
+     "n_ge_250_trading_days": 171,
+     "n_ge_120_trading_days": 177
+    }
+   ]
+  },
+  "F3_8_resumed_after_long_gap": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis), bb as (select bars.symbol, bars.date, idx.i as ix from bars join idx using (date)), r as (select symbol, date, ix, ix - row_number() over (partition by symbol order by date) grp from bb), runs as (select symbol, grp, count(*) n_bars, min(ix) s, max(ix) e from r group by 1,2), seq as (select symbol, grp, s, e, lag(e) over (partition by symbol order by s) prev_e from runs), gaps as (select symbol, prev_e + 1 gap_start, s - 1 gap_end, s - 1 - prev_e len from seq where prev_e is not null) select count(*) n_gaps_ge_120, count(*) filter (where len >= 250) n_gaps_ge_250 from gaps where len >= 120",
+   "note": "",
+   "seconds": 5.54,
+   "rows": 1,
+   "result": [
+    {
+     "n_gaps_ge_120": 32,
+     "n_gaps_ge_250": 7
+    }
+   ]
+  },
+  "F3_9_stale_st_cross": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis), s as (select symbol, max(date) l from bars group by symbol), last_i as (select i from idx where date = '2026-10-30'), j as (select s.symbol, s.l, last_i.i - idx.i lag_i from s join idx on idx.date = s.l cross join last_i), lf as (select j.symbol, j.l, j.lag_i, st.st_flag from j asof left join sth st on j.symbol = st.symbol and j.l >= st.flag_date) select count(*) n_stopped_all, count(*) filter (where lag_i >= 250) n_stopped_ge_250, count(*) filter (where lag_i >= 250 and st_flag) n_ge_250_st_true, count(*) filter (where lag_i >= 250 and not coalesce(st_flag, false)) n_ge_250_not_st from lf where lag_i >= 1",
+   "note": "",
+   "seconds": 3.77,
+   "rows": 1,
+   "result": [
+    {
+     "n_stopped_all": 192,
+     "n_stopped_ge_250": 171,
+     "n_ge_250_st_true": 66,
+     "n_ge_250_not_st": 105
+    }
+   ]
+  },
+  "F3_10_stale_samples": {
+   "kind": "sql",
+   "sql": "select symbol, l last_bar, (select count(*) from bars b where b.symbol = s.symbol) n_bars from (select symbol, max(date) l from bars group by symbol) s order by l limit 10",
+   "note": "",
+   "seconds": 1.46,
+   "rows": 10,
+   "result": [
+    {
+     "symbol": "002018.SZ",
+     "last_bar": "2019-10-31T00:00:00.000",
+     "n_bars": 3
+    },
+    {
+     "symbol": "002680.SZ",
+     "last_bar": "2019-11-26T00:00:00.000",
+     "n_bars": 21
+    },
+    {
+     "symbol": "002143.SZ",
+     "last_bar": "2019-11-28T00:00:00.000",
+     "n_bars": 23
+    },
+    {
+     "symbol": "600747.SH",
+     "last_bar": "2019-12-06T00:00:00.000",
+     "n_bars": 29
+    },
+    {
+     "symbol": "000043.SZ",
+     "last_bar": "2019-12-13T00:00:00.000",
+     "n_bars": 34
+    },
+    {
+     "symbol": "000018.SZ",
+     "last_bar": "2020-01-06T00:00:00.000",
+     "n_bars": 32
+    },
+    {
+     "symbol": "600240.SH",
+     "last_bar": "2020-01-23T00:00:00.000",
+     "n_bars": 41
+    },
+    {
+     "symbol": "600485.SH",
+     "last_bar": "2020-04-20T00:00:00.000",
+     "n_bars": 117
+    },
+    {
+     "symbol": "600677.SH",
+     "last_bar": "2020-04-29T00:00:00.000",
+     "n_bars": 123
+    },
+    {
+     "symbol": "600074.SH",
+     "last_bar": "2020-05-26T00:00:00.000",
+     "n_bars": 30
+    }
+   ]
+  },
+  "F3_11_first_bar_waves": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, min(date) f, max(date) l, count(*) nb from bars group by symbol) select s.f first_bar, count(*) n_symbols, count(*) filter (where s.l = date '2026-11-06') n_still_active, count(*) filter (where s.l < date '2026-10-30') n_stopped, count(*) filter (where i.ld < date '2018-01-08') n_listed_before_panel from s left join (select symbol, cast(listing_date as date) ld from instruments) i using(symbol) where s.f > date '2018-01-09' group by 1 order by 2 desc limit 6",
+   "note": "",
+   "seconds": 0.74,
+   "rows": 6,
+   "result": [
+    {
+     "first_bar": "2019-10-29T00:00:00.000",
+     "n_symbols": 149,
+     "n_still_active": 2,
+     "n_stopped": 147,
+     "n_listed_before_panel": 146
+    },
+    {
+     "first_bar": "2018-12-03T00:00:00.000",
+     "n_symbols": 35,
+     "n_still_active": 0,
+     "n_stopped": 35,
+     "n_listed_before_panel": 35
+    },
+    {
+     "first_bar": "2023-04-10T00:00:00.000",
+     "n_symbols": 10,
+     "n_still_active": 10,
+     "n_stopped": 0,
+     "n_listed_before_panel": 0
+    },
+    {
+     "first_bar": "2018-01-10T00:00:00.000",
+     "n_symbols": 6,
+     "n_still_active": 6,
+     "n_stopped": 0,
+     "n_listed_before_panel": 6
+    },
+    {
+     "first_bar": "2018-01-11T00:00:00.000",
+     "n_symbols": 4,
+     "n_still_active": 4,
+     "n_stopped": 0,
+     "n_listed_before_panel": 4
+    },
+    {
+     "first_bar": "2018-05-07T00:00:00.000",
+     "n_symbols": 4,
+     "n_still_active": 4,
+     "n_stopped": 0,
+     "n_listed_before_panel": 4
+    }
+   ]
+  },
+  "F3_12_truncated_start_effect": {
+   "kind": "sql",
+   "sql": "with b as (select symbol, date, row_number() over (partition by symbol order by date) ob from bars), s as (select symbol, min(date) f from bars group by symbol), i as (select symbol, cast(listing_date as date) ld from instruments) select count(*) n_symbol_days_ob_lt_120, count(distinct b.symbol) n_symbols from b join s using(symbol) join i using(symbol) where s.f in (date '2019-10-29', date '2018-12-03') and i.ld < s.f and b.ob < 120 and b.date between date '2019-07-01' and date '2026-10-30'",
+   "note": "",
+   "seconds": 2.16,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbol_days_ob_lt_120": 16835,
+     "n_symbols": 147
+    }
+   ]
+  }
+ },
+ "F4_listing": {
+  "F4_1_listing_coverage": {
+   "kind": "sql",
+   "sql": "select count(*) n_instruments, count(*) filter (where listing_date is null or trim(listing_date) = '') n_null, count(*) filter (where listing_date is not null and trim(listing_date) <> '' and try_cast(listing_date as date) is null) n_unparsable, min(try_cast(listing_date as date)) min_listing, max(try_cast(listing_date as date)) max_listing, max(as_of) snapshot_as_of from instruments",
+   "note": "",
+   "seconds": 0.01,
+   "rows": 1,
+   "result": [
+    {
+     "n_instruments": 5536,
+     "n_null": 3,
+     "n_unparsable": 0,
+     "min_listing": "1990-12-01T00:00:00.000",
+     "max_listing": "2026-11-03T00:00:00.000",
+     "snapshot_as_of": "2026-11-05T00:00:00.000"
+    }
+   ]
+  },
+  "F4_2_panel_coverage": {
+   "kind": "sql",
+   "sql": "with sym as (select distinct symbol from bars), i as (select symbol, try_cast(listing_date as date) ld from instruments) select count(*) n_panel_symbols, count(*) filter (where i.symbol is null) n_not_in_instruments, count(*) filter (where i.symbol is not null and i.ld is null) n_listing_null, count(*) filter (where i.ld > '2026-10-30') n_listing_after_eval_end, count(*) filter (where i.ld < '2018-01-08') n_listing_before_panel_start from sym left join i using (symbol)",
+   "note": "",
+   "seconds": 0.76,
+   "rows": 1,
+   "result": [
+    {
+     "n_panel_symbols": 3385,
+     "n_not_in_instruments": 0,
+     "n_listing_null": 0,
+     "n_listing_after_eval_end": 1,
+     "n_listing_before_panel_start": 2750
+    }
+   ]
+  },
+  "F4_3_first_bar_lag": {
+   "kind": "sql",
+   "sql": "with f as (select symbol, min(date) first_bar from bars group by symbol), i as (select symbol, try_cast(listing_date as date) ld from instruments) select count(*) filter (where i.ld is not null and f.first_bar = '2018-01-08' and i.ld < '2018-01-08') n_truncated_by_panel_start, count(*) filter (where i.ld is not null and f.first_bar > '2018-01-08' and date_diff('day', i.ld, f.first_bar) > 10) n_late_first_bar, count(*) filter (where i.ld is null) n_no_listing_date from f left join i using (symbol)",
+   "note": "",
+   "seconds": 0.78,
+   "rows": 1,
+   "result": [
+    {
+     "n_truncated_by_panel_start": 2422,
+     "n_late_first_bar": 329,
+     "n_no_listing_date": 0
+    }
+   ]
+  },
+  "F4_3b_late_first_bar_split": {
+   "kind": "sql",
+   "sql": "with f as (select symbol, min(date) first_bar from bars group by symbol), i as (select symbol, try_cast(listing_date as date) ld from instruments) select case when i.ld >= '2018-01-08' then 'listed_after_panel_start' else 'listed_before_panel_start' end grp, count(*) n_symbols, count(*) filter (where date_diff('day', i.ld, f.first_bar) > 10) n_late_first_bar, max(date_diff('day', i.ld, f.first_bar)) max_lag_days from f join i using (symbol) group by 1 order by 1",
+   "note": "",
+   "seconds": 0.77,
+   "rows": 2,
+   "result": [
+    {
+     "grp": "listed_after_panel_start",
+     "n_symbols": 635,
+     "n_late_first_bar": 1,
+     "max_lag_days": 651
+    },
+    {
+     "grp": "listed_before_panel_start",
+     "n_symbols": 2750,
+     "n_late_first_bar": 2744,
+     "max_lag_days": 10559
+    }
+   ]
+  },
+  "F4_4_observed_bars_120": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis), b as (select symbol, date, row_number() over (partition by symbol order by date) ob from bars), obs as (select symbol, min(date) d_obs120 from b where ob = 120 group by symbol), oidx as (select obs.symbol, idx.i obs_idx from obs join idx on idx.date = obs.d_obs120), i as (select symbol, try_cast(listing_date as date) ld from instruments), lidx as (select i.symbol, min(x.i) li_idx from i join idx x on x.date >= i.ld group by 1) select count(*) n_symbols_with_lag, round(avg(oidx.obs_idx - lidx.li_idx - 119), 2) mean_lag_trading_days, median(oidx.obs_idx - lidx.li_idx - 119) median_lag, max(oidx.obs_idx - lidx.li_idx - 119) max_lag, count(*) filter (where oidx.obs_idx - lidx.li_idx - 119 > 0) n_lag_positive, count(*) filter (where oidx.obs_idx - lidx.li_idx - 119 < 0) n_lag_negative from obs join oidx using (symbol) join lidx using (symbol)",
+   "note": "",
+   "seconds": 4.24,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbols_with_lag": 3358,
+     "mean_lag_trading_days": 28.24,
+     "median_lag": 0.0,
+     "max_lag": 687,
+     "n_lag_positive": 761,
+     "n_lag_negative": 0
+    }
+   ]
+  },
+  "F4_5_universe_disagreement": {
+   "kind": "sql",
+   "sql": "with idx as (select date, row_number() over (order by date) i from axis), b as (select symbol, date, row_number() over (partition by symbol order by date) ob from bars), i as (select symbol, try_cast(listing_date as date) ld from instruments), lidx as (select i.symbol, min(x.i) li_idx from i join idx x on x.date >= i.ld group by 1), j as (select b.symbol, b.date, b.ob, idx.i bi, lidx.li_idx from b join idx using (date) join lidx using (symbol)) select count(*) n_symbol_days, count(*) filter (where date between '2019-07-01' and '2026-10-30') n_eval_symbol_days, count(*) filter (where date < '2019-07-01') n_warmup_symbol_days, count(*) filter (where (ob >= 120) <> (bi - li_idx + 1 >= 120)) n_disagree, count(*) filter (where (ob >= 120) <> (bi - li_idx + 1 >= 120) and date between '2019-07-01' and '2026-10-30') n_disagree_eval, count(distinct symbol) filter (where (ob >= 120) <> (bi - li_idx + 1 >= 120)) n_disagree_symbols from j",
+   "note": "",
+   "seconds": 5.47,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbol_days": 6438822,
+     "n_eval_symbol_days": 5510001,
+     "n_warmup_symbol_days": 912874,
+     "n_disagree": 40717,
+     "n_disagree_eval": 17499,
+     "n_disagree_symbols": 772
+    }
+   ]
+  },
+  "F4_6_ob120_date_max": {
+   "kind": "sql",
+   "sql": "with b as (select symbol, date, row_number() over (partition by symbol order by date) ob from bars), i as (select symbol, try_cast(listing_date as date) ld from instruments) select max(b.date) latest_120th_bar, min(b.date) earliest_120th_bar from b join i using (symbol) where b.ob = 120 and i.ld < '2018-01-08'",
+   "note": "",
+   "seconds": 1.29,
+   "rows": 1,
+   "result": [
+    {
+     "latest_120th_bar": "2021-05-07T00:00:00.000",
+     "earliest_120th_bar": "2018-07-06T00:00:00.000"
+    }
+   ]
+  }
+ },
+ "F5_st": {
+  "F5_1_st_shape": {
+   "kind": "sql",
+   "sql": "select count(*) n_rows, count(distinct symbol) n_symbols, min(flag_date) min_flag_date, max(flag_date) max_flag_date, count(*) filter (where st_flag) n_true, count(*) filter (where not st_flag) n_false, count(distinct symbol) filter (where st_flag) n_symbols_ever_st from sth",
+   "note": "",
+   "seconds": 0.01,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 7758,
+     "n_symbols": 5817,
+     "min_flag_date": "2019-01-01T00:00:00.000",
+     "max_flag_date": "2026-10-29T00:00:00.000",
+     "n_true": 986,
+     "n_false": 6772,
+     "n_symbols_ever_st": 712
+    }
+   ]
+  },
+  "F5_2_st_by_year": {
+   "kind": "sql",
+   "sql": "select year(flag_date) y, count(*) n_rows, count(*) filter (where st_flag) n_st_true, count(distinct symbol) n_symbols from sth group by 1 order by 1",
+   "note": "",
+   "seconds": 0.01,
+   "rows": 8,
+   "result": [
+    {
+     "y": 2019,
+     "n_rows": 3964,
+     "n_st_true": 170,
+     "n_symbols": 3772
+    },
+    {
+     "y": 2020,
+     "n_rows": 560,
+     "n_st_true": 102,
+     "n_symbols": 558
+    },
+    {
+     "y": 2021,
+     "n_rows": 704,
+     "n_st_true": 73,
+     "n_symbols": 703
+    },
+    {
+     "y": 2022,
+     "n_rows": 585,
+     "n_st_true": 55,
+     "n_symbols": 583
+    },
+    {
+     "y": 2023,
+     "n_rows": 452,
+     "n_st_true": 62,
+     "n_symbols": 444
+    },
+    {
+     "y": 2024,
+     "n_rows": 256,
+     "n_st_true": 92,
+     "n_symbols": 249
+    },
+    {
+     "y": 2025,
+     "n_rows": 309,
+     "n_st_true": 119,
+     "n_symbols": 303
+    },
+    {
+     "y": 2026,
+     "n_rows": 928,
+     "n_st_true": 313,
+     "n_symbols": 422
+    }
+   ]
+  },
+  "F5_3_panel_uncovered": {
+   "kind": "sql",
+   "sql": "with sym as (select distinct symbol from bars), cov as (select distinct symbol from sth) select count(*) n_panel_symbols, count(*) filter (where cov.symbol is null) n_symbols_no_st_row, (select count(*) from bars b join sym s using(symbol) left join cov c using(symbol) where c.symbol is null and b.date between '2019-07-01' and '2026-10-30') n_eval_symbol_days_null from sym left join cov using (symbol)",
+   "note": "",
+   "seconds": 1.78,
+   "rows": 1,
+   "result": [
+    {
+     "n_panel_symbols": 3385,
+     "n_symbols_no_st_row": 1,
+     "n_eval_symbol_days_null": 0
+    }
+   ]
+  },
+  "F5_4_asof_null_days": {
+   "kind": "sql",
+   "sql": "with b as (select symbol, date from bars where date between '2019-07-01' and '2026-10-30') select count(*) n_rows, count(*) filter (where s.st_flag is null) n_null_flag, round(100.0*count(*) filter (where s.st_flag is null)/count(*), 4) pct_null from b asof left join sth s on b.symbol = s.symbol and b.date >= s.flag_date",
+   "note": "",
+   "seconds": 1.29,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 5510001,
+     "n_null_flag": 0,
+     "pct_null": 0.0
+    }
+   ]
+  },
+  "F5_5_asof_by_year": {
+   "kind": "sql",
+   "sql": "with b as (select symbol, date from bars) select year(b.date) y, count(*) n_rows, count(*) filter (where s.st_flag is null) n_null, count(*) filter (where s.st_flag) n_st_true, round(100.0*count(*) filter (where s.st_flag)/count(*), 3) pct_st from b asof left join sth s on b.symbol = s.symbol and b.date >= s.flag_date group by 1 order by 1",
+   "note": "",
+   "seconds": 1.47,
+   "rows": 9,
+   "result": [
+    {
+     "y": 2018,
+     "n_rows": 596688,
+     "n_null": 596688,
+     "n_st_true": 0,
+     "pct_st": 0.0
+    },
+    {
+     "y": 2019,
+     "n_rows": 665688,
+     "n_null": 0,
+     "n_st_true": 20553,
+     "pct_st": 3.087
+    },
+    {
+     "y": 2020,
+     "n_rows": 712127,
+     "n_null": 0,
+     "n_st_true": 42175,
+     "pct_st": 5.922
+    },
+    {
+     "y": 2021,
+     "n_rows": 747893,
+     "n_null": 0,
+     "n_st_true": 41433,
+     "pct_st": 5.54
+    },
+    {
+     "y": 2022,
+     "n_rows": 760083,
+     "n_null": 0,
+     "n_st_true": 31340,
+     "pct_st": 4.123
+    },
+    {
+     "y": 2023,
+     "n_rows": 769678,
+     "n_null": 0,
+     "n_st_true": 25128,
+     "pct_st": 3.265
+    },
+    {
+     "y": 2024,
+     "n_rows": 769001,
+     "n_null": 0,
+     "n_st_true": 23943,
+     "pct_st": 3.114
+    },
+    {
+     "y": 2025,
+     "n_rows": 770721,
+     "n_null": 0,
+     "n_st_true": 28361,
+     "pct_st": 3.68
+    },
+    {
+     "y": 2026,
+     "n_rows": 646943,
+     "n_null": 4,
+     "n_st_true": 27070,
+     "pct_st": 4.184
+    }
+   ]
+  },
+  "F5_6_pit_vs_current": {
+   "kind": "sql",
+   "sql": "with last_flag as ( select b.symbol, b.date, s.st_flag from (select symbol, max(date) as date from bars group by symbol) b asof left join sth s on b.symbol = s.symbol and b.date >= s.flag_date), ever_st as (select distinct symbol from sth where st_flag), cur as (select symbol, upper(name) like '%ST%' as name_has_st from (select *, row_number() over (partition by symbol order by as_of desc) rn from instruments) where rn = 1) select count(*) n_symbols, count(*) filter (where lf.st_flag and cur.name_has_st) n_st_flag_and_name_st, count(*) filter (where lf.st_flag and not cur.name_has_st) n_st_flag_name_clean, count(*) filter (where not lf.st_flag and cur.name_has_st) n_name_st_flag_false, count(*) filter (where lf.st_flag is null and cur.name_has_st) n_name_st_flag_null, count(*) filter (where lf.st_flag is null) n_flag_null, count(*) filter (where es.symbol is not null and not lf.st_flag) n_ever_st_but_clean_now from last_flag lf join cur using (symbol) left join ever_st es using (symbol)",
+   "note": "",
+   "seconds": 0.8,
+   "rows": 1,
+   "result": [
+    {
+     "n_symbols": 3385,
+     "n_st_flag_and_name_st": 72,
+     "n_st_flag_name_clean": 0,
+     "n_name_st_flag_false": 141,
+     "n_name_st_flag_null": 0,
+     "n_flag_null": 1,
+     "n_ever_st_but_clean_now": 511
+    }
+   ]
+  },
+  "F5_7_alters": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, flag_date, st_flag, lag(st_flag) over (partition by symbol order by flag_date) prev from sth) select count(*) n_rows, count(*) filter (where prev is not null) n_transitions, count(*) filter (where prev is not null and prev = st_flag) n_redundant_same_value, count(*) filter (where prev is null and not st_flag) n_first_row_false from s",
+   "note": "",
+   "seconds": 0.01,
+   "rows": 1,
+   "result": [
+    {
+     "n_rows": 7758,
+     "n_transitions": 1941,
+     "n_redundant_same_value": 0,
+     "n_first_row_false": 5806
+    }
+   ]
+  },
+  "F5_8_non_trading_flag_dates": {
+   "kind": "sql",
+   "sql": "select count(*) n_flag_rows, count(*) filter (where a.date is null) n_on_non_trading_day, round(100.0*count(*) filter (where a.date is null)/count(*), 2) pct from sth s left join (select distinct date from axis) a on a.date = s.flag_date",
+   "note": "",
+   "seconds": 2.5,
+   "rows": 1,
+   "result": [
+    {
+     "n_flag_rows": 7758,
+     "n_on_non_trading_day": 3911,
+     "pct": 50.41
+    }
+   ]
+  },
+  "F5_9_st_episodes": {
+   "kind": "sql",
+   "sql": "with s as (select symbol, flag_date, st_flag, lead(flag_date) over (partition by symbol order by flag_date) nxt from sth) select case when nxt is null then 'open-ended (to 2026-10-29)' when date_diff('day', flag_date, nxt) <= 7 then '<=7d' when date_diff('day', flag_date, nxt) <= 60 then '8-60d' when date_diff('day', flag_date, nxt) <= 365 then '61-365d' else '>365d' end bucket, count(*) n_episodes from s where st_flag group by 1 order by 1",
+   "note": "",
+   "seconds": 0.01,
+   "rows": 4,
+   "result": [
+    {
+     "bucket": "61-365d",
+     "n_episodes": 233
+    },
+    {
+     "bucket": "8-60d",
+     "n_episodes": 216
+    },
+    {
+     "bucket": ">365d",
+     "n_episodes": 517
+    },
+    {
+     "bucket": "open-ended (to 2026-10-29)",
+     "n_episodes": 20
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,334 @@
+{
+  "reachable_bound_v2": {
+    "rows_eval": 5510001,
+    "symbols": 3384,
+    "all_eq": true,
+    "detail": {
+      "ma20": {
+        "w_first_valid_index": 19,
+        "upper": 5497082,
+        "actual_nonnull": 5497082,
+        "eq": true,
+        "diff": 0
+      },
+      "ma60": {
+        "w_first_valid_index": 59,
+        "upper": 5470011,
+        "actual_nonnull": 5470011,
+        "eq": true,
+        "diff": 0
+      },
+      "boll_lower": {
+        "w_first_valid_index": 19,
+        "upper": 5497082,
+        "actual_nonnull": 5497082,
+        "eq": true,
+        "diff": 0
+      },
+      "boll_upper": {
+        "w_first_valid_index": 19,
+        "upper": 5497082,
+        "actual_nonnull": 5497082,
+        "eq": true,
+        "diff": 0
+      },
+      "sd20": {
+        "w_first_valid_index": 19,
+        "upper": 5497082,
+        "actual_nonnull": 5497082,
+        "eq": true,
+        "diff": 0
+      },
+      "prior_high_20": {
+        "w_first_valid_index": 20,
+        "upper": 5496401,
+        "actual_nonnull": 5496401,
+        "eq": true,
+        "diff": 0
+      },
+      "prior_low_10": {
+        "w_first_valid_index": 10,
+        "upper": 5503218,
+        "actual_nonnull": 5503218,
+        "eq": true,
+        "diff": 0
+      },
+      "prior_high_55": {
+        "w_first_valid_index": 55,
+        "upper": 5472715,
+        "actual_nonnull": 5472715,
+        "eq": true,
+        "diff": 0
+      },
+      "prior_vol_20": {
+        "w_first_valid_index": 20,
+        "upper": 5496401,
+        "actual_nonnull": 5496401,
+        "eq": true,
+        "diff": 0
+      },
+      "ma120": {
+        "w_first_valid_index": 119,
+        "upper": 5428988,
+        "actual_nonnull": 5428988,
+        "eq": true,
+        "diff": 0
+      },
+      "vol60": {
+        "w_first_valid_index": 60,
+        "upper": 5469335,
+        "actual_nonnull": 5469335,
+        "eq": true,
+        "diff": 0
+      },
+      "prior_high_250": {
+        "w_first_valid_index": 250,
+        "upper": 5332523,
+        "actual_nonnull": 5332523,
+        "eq": true,
+        "diff": 0
+      },
+      "prior_amount_20": {
+        "w_first_valid_index": 20,
+        "upper": 5496401,
+        "actual_nonnull": 5496401,
+        "eq": true,
+        "diff": 0
+      },
+      "ma200": {
+        "w_first_valid_index": 199,
+        "upper": 5371122,
+        "actual_nonnull": 5371122,
+        "eq": true,
+        "diff": 0
+      }
+    }
+  },
+  "author_n_vs_mine": {
+    "match_all": true,
+    "detail": {
+      "ma20": {
+        "author_n_both": 5497082,
+        "my_actual_nonnull": 5497082,
+        "match": true
+      },
+      "ma60": {
+        "author_n_both": 5470011,
+        "my_actual_nonnull": 5470011,
+        "match": true
+      },
+      "boll_lower": {
+        "author_n_both": 5497082,
+        "my_actual_nonnull": 5497082,
+        "match": true
+      },
+      "boll_upper": {
+        "author_n_both": 5497082,
+        "my_actual_nonnull": 5497082,
+        "match": true
+      },
+      "sd20": {
+        "author_n_both": 5497082,
+        "my_actual_nonnull": 5497082,
+        "match": true
+      },
+      "prior_high_20": {
+        "author_n_both": 5496401,
+        "my_actual_nonnull": 5496401,
+        "match": true
+      },
+      "prior_low_10": {
+        "author_n_both": 5503218,
+        "my_actual_nonnull": 5503218,
+        "match": true
+      },
+      "prior_high_55": {
+        "author_n_both": 5472715,
+        "my_actual_nonnull": 5472715,
+        "match": true
+      },
+      "prior_vol_20": {
+        "author_n_both": 5496401,
+        "my_actual_nonnull": 5496401,
+        "match": true
+      },
+      "ma120": {
+        "author_n_both": 5428988,
+        "my_actual_nonnull": 5428988,
+        "match": true
+      },
+      "vol60": {
+        "author_n_both": 5469335,
+        "my_actual_nonnull": 5469335,
+        "match": true
+      },
+      "prior_high_250": {
+        "author_n_both": 5332523,
+        "my_actual_nonnull": 5332523,
+        "match": true
+      },
+      "prior_amount_20": {
+        "author_n_both": 5496401,
+        "my_actual_nonnull": 5496401,
+        "match": true
+      },
+      "ma200": {
+        "author_n_both": 5371122,
+        "my_actual_nonnull": 5371122,
+        "match": true
+      }
+    }
+  },
+  "no_spurious_null_when_history_sufficient": {
+    "bad": [],
+    "clean": true
+  },
+  "matrix_provider_result": {
+    "overrides": false,
+    "n_none": 14,
+    "n_total": 14,
+    "routed_to": {
+      "ma20": "official.research-factor-pack-b0",
+      "ma60": "official.research-factor-pack-b0",
+      "boll_lower": "official.research-factor-pack-b0",
+      "boll_upper": "official.research-factor-pack-b0",
+      "sd20": "official.research-factor-pack-b0",
+      "prior_high_20": "official.research-factor-pack-b0",
+      "prior_low_10": "official.research-factor-pack-b0",
+      "prior_high_55": "official.research-factor-pack-b0",
+      "prior_vol_20": "official.research-factor-pack-b0",
+      "ma120": "official.research-factor-pack-b0",
+      "vol60": "official.research-factor-pack-b0",
+      "prior_high_250": "official.research-factor-pack-b0",
+      "prior_amount_20": "official.research-factor-pack-b0",
+      "ma200": "official.research-factor-pack-b0"
+    },
+    "detail": {
+      "ma20": "None",
+      "ma60": "None",
+      "boll_lower": "None",
+      "boll_upper": "None",
+      "sd20": "None",
+      "prior_high_20": "None",
+      "prior_low_10": "None",
+      "prior_high_55": "None",
+      "prior_vol_20": "None",
+      "ma120": "None",
+      "vol60": "None",
+      "prior_high_250": "None",
+      "prior_amount_20": "None",
+      "ma200": "None"
+    }
+  },
+  "matrix_coverage": {
+    "n_features": 60,
+    "covered": [
+      "boll_lower",
+      "boll_upper"
+    ],
+    "missing": [
+      "ma20",
+      "ma60",
+      "sd20",
+      "prior_high_20",
+      "prior_low_10",
+      "prior_high_55",
+      "prior_vol_20",
+      "ma120",
+      "vol60",
+      "prior_high_250",
+      "prior_amount_20",
+      "ma200"
+    ],
+    "coverage": "2/14"
+  },
+  "alias": {
+    "n_uf": 0,
+    "uf_ids": [],
+    "both_in_registry": {
+      "vol60": [
+        true,
+        false
+      ],
+      "ma120": [
+        true,
+        false
+      ],
+      "ma200": [
+        true,
+        false
+      ],
+      "prior_high_20": [
+        true,
+        false
+      ],
+      "prior_high_55": [
+        true,
+        false
+      ],
+      "prior_high_250": [
+        true,
+        false
+      ],
+      "prior_low_10": [
+        true,
+        false
+      ],
+      "prior_vol_20": [
+        true,
+        false
+      ]
+    },
+    "both_compile": {
+      "vol60": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "ma120": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "ma200": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "prior_high_20": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "prior_high_55": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "prior_high_250": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "prior_low_10": {
+        "pack_ok": true,
+        "uf_ok": false
+      },
+      "prior_vol_20": {
+        "pack_ok": true,
+        "uf_ok": false
+      }
+    },
+    "all_pair_both_present": false,
+    "all_pair_both_compile": false,
+    "uf_prior_amount_20_exists": false
+  },
+  "alias_production_materialize": {
+    "detail": {
+      "vol60": {
+        "ok": true,
+        "nonnull": 299
+      },
+      "uf_vol60": {
+        "ok": false,
+        "err": "ColumnNotFoundError: \"uf_vol60\" not found"
+      }
+    }
+  },
+  "elapsed_s": 15.3,
+  "generated_at": "2026-11-07T18:33:27"
+}

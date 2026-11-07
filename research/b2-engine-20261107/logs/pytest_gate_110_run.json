@@ -1,0 +1,36 @@
+{
+ "command": "cd C:/work/sourcecode/tick-stock-panel/backend && PYTHONUTF8=1 ./.venv/Scripts/python.exe -m pytest tests/test_factor_gate.py -q",
+ "argv": [
+  "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Scripts\\python.exe",
+  "-m",
+  "pytest",
+  "tests/test_factor_gate.py",
+  "-q"
+ ],
+ "started_at": "2026-11-07T22:39:12+08:00",
+ "finished_at": "2026-11-07T22:39:16+08:00",
+ "pytest_version": "9.2.0",
+ "python_version": "3.11.15",
+ "returncode": 0,
+ "stdout_tail": "........................................................                 [100%]\n============================== warnings summary ===============================\n.venv\\Lib\\site-packages\\anyio\\pytest_plugin.py:14\n  C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Lib\\site-packages\\anyio\\pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.\n  The CallSpec2 alias will be removed in pytest 10.\n  Update imports to use CallSpec instead.\n  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed\n    from _pytest.python import CallSpec2\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n56 passed, 1 warning in 2.45s\n",
+ "stderr_tail": "C:\\work\\sourcecode\\tick-stock-panel\\backend\\.venv\\Lib\\site-packages\\pytest_asyncio\\plugin.py:300: PytestDeprecationWarning: The configuration option \"asyncio_default_fixture_loop_scope\" is unset.\nThe event loop scope for asynchronous fixtures will default to the \"fixture\" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to \"function\" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: \"function\", \"class\", \"module\", \"package\", \"session\"\n\n  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))\n",
+ "test_files": [
+  {
+   "path": "backend/app/factors/gate.py",
+   "bytes": 25829,
+   "lines": 602,
+   "sha256": "39a9d9cf3a17f1a657400c4eb80a29b1cec474490298614286e6397485d62375",
+   "assert_statements": 0,
+   "mtime": "2026-11-07 21:40:12"
+  },
+  {
+   "path": "backend/tests/test_factor_gate.py",
+   "bytes": 18056,
+   "lines": 463,
+   "sha256": "84591d2a32c321d0d305b362543f0e0160c411fdfd9ab805dbe8b0a8c2ba6974",
+   "assert_statements": 89,
+   "mtime": "2026-11-07 21:40:32"
+  }
+ ],
+ "note": "gate.py 本批未接线: assert_factors_usable 的生产调用点 0 (只有自身 3 处 + 测试 6 处)。"
+}

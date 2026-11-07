@@ -1,0 +1,36 @@
+{
+  "A_preview_after_warmup": {
+    "ready_before_preview": true,
+    "preview_has_in_universe": true,
+    "preview_n": 193,
+    "after_get_factor_in_universe": true,
+    "providers": [
+      "official.cross-sectional-linkage",
+      "official.first-board-event-chain",
+      "official.research-factor-pack-b0",
+      "official.research-universe-pack-e3"
+    ]
+  },
+  "B_preview_as_first_touch": {
+    "ready_before_preview": false,
+    "preview_n": 108,
+    "preview_has_in_universe": true,
+    "preview_has_vol60": true,
+    "preview_has_prior_high_250": true,
+    "ready_after_preview": true,
+    "live_n": 162,
+    "live_has_in_universe": false,
+    "live_has_vol60": false,
+    "live_has_prior_high_250": false,
+    "get_factor_in_universe_is_none": true,
+    "get_factor_vol60_is_none": true,
+    "owners_in_universe": "official.research-universe-pack-e3",
+    "provider_for_in_universe": "official.research-universe-pack-e3",
+    "providers": [
+      "official.cross-sectional-linkage",
+      "official.first-board-event-chain",
+      "official.research-factor-pack-b0",
+      "official.research-universe-pack-e3"
+    ]
+  }
+}
