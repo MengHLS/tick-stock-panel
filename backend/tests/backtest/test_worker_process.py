@@ -226,6 +226,9 @@ def test_spawn_walkforward_reuses_shared_matrix_across_folds(tmp_path):
         step_days=2,
         # 1 天 OOS 段只产生 ~1 笔交易: 本测试验证矩阵复用, 显式关闭交易数门槛
         min_trades_oos=0,
+        # 本测试只验证 worker 复用共享矩阵, 窗口稀疏 (step>test) 与连续账户
+        # 的逐日衔接约束无关, 显式关闭连续账户以保留稀疏窗口。
+        continuous_account=False,
         overrides={"basic_filter": {"enabled": False}},
         backtest_kwargs={
             "matching": "close_t",
@@ -237,7 +240,7 @@ def test_spawn_walkforward_reuses_shared_matrix_across_folds(tmp_path):
 
     result = run_worker_task(make_worker_task("walkforward", data_dir, config))
 
-    assert result["n_folds"] == 2
+    assert result["n_folds"] == 3
     assert result["shared_market_data"] is True
     assert result["shared_market_data_bytes"] > 0
     assert all(fold["oos_stats"]["shared_market_data"] for fold in result["folds"])
@@ -518,7 +521,7 @@ def test_worker_accepts_delivered_result_when_child_exit_is_slow(monkeypatch, tm
     assert process.exitcode == -15
 
 
-def test_spawn_walkforward_skips_folds_before_available_matrix_data(tmp_path):
+def test_spawn_walkforward_starts_from_available_trading_days(tmp_path):
     configured_start = date(2024, 1, 1)
     market_start = configured_start + timedelta(days=4)
     data_dir = tmp_path / "data"
@@ -535,6 +538,7 @@ def test_spawn_walkforward_skips_folds_before_available_matrix_data(tmp_path):
         test_days=1,
         step_days=2,
         min_trades_oos=0,  # 同上: 1 天 OOS 段交易数天然不足, 本测试关注数据缺口跳折
+        continuous_account=False,  # 同上: 稀疏窗口只为构造跳折, 不构成连续账户
         overrides={"basic_filter": {"enabled": False}},
         backtest_kwargs={
             "matching": "close_t",
@@ -546,10 +550,10 @@ def test_spawn_walkforward_skips_folds_before_available_matrix_data(tmp_path):
 
     result = run_worker_task(make_worker_task("walkforward", data_dir, config))
 
-    assert result["n_planned_folds"] == 4
-    assert result["n_skipped"] == 1
-    assert result["skipped"][0]["reason"] == "训练区间无可用行情数据"
+    assert result["n_planned_folds"] == 3
+    assert result["n_skipped"] == 0
     assert result["n_folds"] == 3
+    assert result["folds"][0]["train_start"] == market_start.isoformat()
     assert result["worker"]["worker_exitcode"] == 0
 
 

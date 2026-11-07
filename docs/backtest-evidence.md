@@ -16,6 +16,16 @@
 
 这不是全时点无泄漏证明。检查不能证明供应商数据、复权历史修订、历史股票池、静态维表及外部 Python 导入满足 point-in-time；未触发的逻辑也可能未被覆盖。应结合公告时点验证、滚动样本外验证及模拟盘结果判断。
 
+## 滚动验证的额外边界
+
+WFO 训练、测试和步进均按本地 enriched 面板的实际交易日计数，预览与执行共用同一日期轴；测试区间与训练区间严格错开，`step_days < test_days` 显式拒绝。区间内交易日不足时 fail-closed，不再回退自然日。旧保存结果不会随修复重写。
+
+WFO 只接受 `position` 组合账户模式。`full` 独立候选曲线不是账户净值，API 在任务准入前拒绝。交易数不足的 OOS 折保留实际经济结果，并以 `statistically_insufficient` 标记，不再从汇总中删除。
+
+默认使用**连续账户**回放：折边界只切换策略参数与信号，现金、持仓、账户峰值、次日开盘买计划和挂起卖单延续到下一折；折末不强制平仓，账户权益、费用和回撤沿唯一时间线累计。`summary.continuous_account.stats` 是账户级指标，`summary.compounded_oos_return` 此时降级为“逐折独立账户收益拼接（诊断）”，两者不得混读。仍不能证明：边界日原始信号之外的所有撮合细节、停产/停牌标的在下一折矩阵缺失时按 fail-closed 中止、以及事后事件集合等策略层污染。
+
+连续回放只接受**逐日衔接**的窗口配置（`step_days == test_days`）：稀疏窗口与训练失败都会在账户时间线上留下未回放的交易日，此时回放停止并把缺口日期写入 `continuous_account.timeline.trading_day_gap` / `stopped_early`，`timeline.complete` 与 `invariants.timeline_covers_trading_days` 不会把缺日曲线判为完整。`continuous_account=false` 保留旧的逐折重置口径，仅用于对照；该模式下每折期末会结算持仓，跨折持仓的后续盈亏不进入任何一折，不能当作可投资账户收益。详见 [策略可靠性审计](research/strategy-reliability-20261106/RESULTS.md)。
+
 ## 版本追溯
 
 报告分别记录：

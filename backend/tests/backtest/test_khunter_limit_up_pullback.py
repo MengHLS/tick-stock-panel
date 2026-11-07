@@ -106,3 +106,4 @@ def test_daily_signal_uses_next_open_execution() -> None:
     assert strategy.meta["backtest_defaults"]["entry_fill"] == "open_t+1"
     assert strategy.meta["backtest_defaults"]["exit_fill"] == "open_t+1"
     assert policy.plan_at_signal_close is True
+    assert policy.score_tiers == ((0.0, 0.0), (0.55, 0.20), (0.72, 0.25))

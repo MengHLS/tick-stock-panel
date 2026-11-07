@@ -63,8 +63,9 @@ def test_valid_dates_still_accepted(client, monkeypatch, path, extra):
     monkeypatch.setattr(settings, "backtest_range_guard", True)
     params = {**extra, "start": "2020-01-01", "end": "2026-09-04"}
     if "walkforward" in path:
-        # walkforward 的 guard 作用于单折窗口, 不是总区间
-        params.update({"train_days": 400, "test_days": 400})
+        # walkforward 的 guard 作用于单折窗口, 不是总区间; step 必须等于 test,
+        # 否则连续账户的逐日衔接校验会先以 400 拒绝, 走不到范围保护。
+        params.update({"train_days": 400, "test_days": 400, "step_days": 400})
     resp = client.get(path, params=params)
     assert resp.status_code == 200, resp.text
     assert "event: error" in resp.text

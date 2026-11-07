@@ -1110,6 +1110,7 @@ async def optimize_robust_preview(
 
 @router.get("/walkforward/preview")
 async def walkforward_preview(
+    request: Request,
     start: str,
     end: str,
     train_days: int = 252,
@@ -1127,7 +1128,11 @@ async def walkforward_preview(
     if end_date < start_date:
         raise HTTPException(status_code=400, detail="结束日期不能早于起始日期")
     try:
-        folds = generate_folds(start_date, end_date, int(train_days), int(test_days), int(step_days))
+        trading_days = request.app.state.repo.list_enriched_dates(start_date, end_date)
+        folds = generate_folds(
+            start_date, end_date, int(train_days), int(test_days), int(step_days),
+            trading_days=trading_days,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     warnings: list[str] = []
@@ -1135,6 +1140,8 @@ async def walkforward_preview(
         warnings.append(f"折数 {len(folds)} < 3, 聚合统计意义不足, 建议扩大区间或减小 step")
     return {
         "n_folds": len(folds),
+        "window_basis": "trading_days",
+        "n_trading_days": len(trading_days),
         "folds": [
             {
                 "index": f.index,
@@ -1338,10 +1345,13 @@ def _make_wf_job_key(
     params=None,
     overrides=None,
     matrix_cache_max_mb=512,
+    min_trades_oos=10,
+    continuous_account=True,
 ) -> str:
     raw = (
         f"WF|{strategy_id}|{symbols}|{start}|{end}|{param_grid}|{objective}|"
         f"{direction}|{windows}|{bt_sig}|{params}|{overrides}|cache={matrix_cache_max_mb}"
+        f"|min_trades={min_trades_oos}|continuous={continuous_account}"
     )
     return hashlib.md5(raw.encode()).hexdigest()[:12]
 
@@ -1356,6 +1366,10 @@ async def walkforward_stream(
     train_days: int = 252,
     test_days: int = 63,
     step_days: int = 63,
+    min_trades_oos: int = 10,
+    # 连续账户: 折边界结转现金/持仓, 在唯一时间线上回放。默认开启;
+    # 关闭时只输出逐折复利诊断值 (不能当账户净值)。
+    continuous_account: bool = True,
     max_workers: int = 4,
     matrix_cache_max_mb: int = 512,
     params: str | None = None,       # JSON: 未扫描参数固定为用户当前值 (base_params)
@@ -1391,6 +1405,27 @@ async def walkforward_stream(
         validate_primary_objective(objective)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+    # 账户净值口径只在连续账户下成立: 唯一时间线必须是 position 组合账户。
+    # 关闭连续账户时 (逐折复利诊断, 不是账户净值) 保留调用方 mode, 不把契约收窄扩大到公共路径。
+    if continuous_account and mode != "position":
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "连续账户只支持 position 组合账户模式; full 独立候选曲线不是账户净值。"
+                "需要 mode=full 请传 continuous_account=false, 该口径只作逐折复利诊断。"
+            ),
+        )
+    if int(min_trades_oos) < 0:
+        raise HTTPException(status_code=400, detail="min_trades_oos 不能为负数")
+    if continuous_account and int(step_days) != int(test_days):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "连续账户要求样本外区间逐日衔接: step_days 必须等于 test_days "
+                f"(当前 step={step_days}, test={test_days}); "
+                "需要稀疏窗口请关闭连续账户 (该口径只作逐折复利诊断)。"
+            ),
+        )
 
     try:
         end_date = date.fromisoformat(end) if end else cn_today()
@@ -1420,6 +1455,8 @@ async def walkforward_stream(
         params,
         overrides,
         matrix_cache_max_mb,
+        min_trades_oos,
+        continuous_account,
     )
 
     # guard 作用于单折窗口 (每折训练/测试各是一次回测), 而非总区间 —— WF 总区间可长达数年,
@@ -1476,11 +1513,13 @@ async def walkforward_stream(
                     train_days=int(train_days),
                     test_days=int(test_days),
                     step_days=int(step_days),
+                    min_trades_oos=int(min_trades_oos),
                     max_workers=int(max_workers),
                     base_params=base_params if isinstance(base_params, dict) else {},
                     overrides=ov if isinstance(ov, dict) else None,
                     backtest_kwargs=bt_kwargs,
                     matrix_cache_max_mb=int(matrix_cache_max_mb),
+                    continuous_account=bool(continuous_account),
                 )
 
                 def _run_wf():

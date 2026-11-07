@@ -115,6 +115,12 @@ META = {
         "schema_version": 1,
         "entry_fill": "open_t+1",
         "exit_fill": "open_t+1",
+        "position_sizing": "score_tier",
+        "score_tiers": [
+            [0.0, 0.0],
+            [0.55, 0.20],
+            [0.72, 0.25],
+        ],
         "plan_at_signal_close": True,
     },
 }

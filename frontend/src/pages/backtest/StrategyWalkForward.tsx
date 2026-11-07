@@ -43,7 +43,7 @@ function fin(v: number | null | undefined): number | null {
   return v != null && Number.isFinite(v) ? v : null
 }
 
-/** OOS 拼接净值曲线 (逐折复利) — walk-forward 核心产出的极简 SVG 折线。 */
+/** OOS 逐折收益拼接曲线 — 每折独立账户，不是连续账户净值。 */
 function OosEquityChart({ curve }: { curve: { fold: number; date: string; value: number }[] }) {
   // 过滤非有限值: 零成交折等边界可能产出 NaN/Infinity, 混入会让坐标全 NaN → SVG 空白。
   const vals = curve.map(p => p.value).filter(v => Number.isFinite(v))
@@ -60,7 +60,7 @@ function OosEquityChart({ curve }: { curve: { fold: number; date: string; value:
   const up = last >= 1
   return (
     <div>
-      <div className="mb-1 text-xs font-medium text-secondary">OOS 拼接净值 (逐折复利)</div>
+      <div className="mb-1 text-xs font-medium text-secondary">OOS 逐折收益拼接 (诊断，非账户净值)</div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" preserveAspectRatio="none" style={{ height: 120 }}>
         <line x1={pad} y1={y(1)} x2={W - pad} y2={y(1)} stroke="currentColor" strokeWidth="0.5" className="text-border" strokeDasharray="3 3" />
         <path d={d} fill="none" stroke={up ? '#34d399' : '#f87171'} strokeWidth="1.5" />
@@ -83,10 +83,10 @@ export function StrategyWalkForward() {
   const [objective, setObjective] = useState('sortino')
   const [start, setStart] = useState(THREE_YEARS_AGO)
   const [end, setEnd] = useState(TODAY)
-  const [mode, setMode] = useState<'position' | 'full'>('position')
   const [trainDays, setTrainDays] = useState('252')
   const [testDays, setTestDays] = useState('63')
   const [stepDays, setStepDays] = useState('63')
+  const [minTradesOos, setMinTradesOos] = useState('10')
   const [applying, setApplying] = useState(false)
 
   // 折预览: 运行前实时显示折数/窗口切分 (不回测)
@@ -103,9 +103,14 @@ export function StrategyWalkForward() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 连续账户在唯一时间线上逐日回放, 步进必须等于测试窗, 否则中间交易日无人回放。
+  // 后端会 400 拒绝; 这里先在前端拦住, 免得用户白等一次请求。
+  const windowMismatch = Number(stepDays) > 0 && Number(testDays) > 0
+    && Number(stepDays) !== Number(testDays)
   const canRun = sweep.strategyId && sweep.combos > 0 && sweep.combos <= GRID_MAX_COMBINATIONS
     && !sweep.gridError
-    && Number(trainDays) > 0 && Number(testDays) > 0 && Number(stepDays) > 0 && !task?.isPending
+    && Number(trainDays) > 0 && Number(testDays) > 0 && Number(stepDays) > 0
+    && Number(minTradesOos) >= 0 && !windowMismatch && !task?.isPending
 
   const onRun = () => {
     if (!canRun) return
@@ -117,13 +122,14 @@ export function StrategyWalkForward() {
       train_days: Number(trainDays),
       test_days: Number(testDays),
       step_days: Number(stepDays),
+      min_trades_oos: Number(minTradesOos),
       // 未扫描参数固定为策略当前默认值; overrides 让 basic_filter/信号/风控按当前策略参与,
       // 否则 walk-forward 优化的策略与用户实际回测的不一致 (同 PR #82 优化器修复)。
       params: sweep.selected?.params_defaults,
       overrides: sweep.selected ? buildDefaultOverrides(sweep.selected) : undefined,
       start,
       end,
-      mode,
+      mode: 'position',
     })
   }
 
@@ -149,6 +155,8 @@ export function StrategyWalkForward() {
   // 汇总里的可空数值先归一: 零成交折等边界可能产出 NaN/Infinity,
   // 直接 toFixed 会渲染出 "NaN"; 这里把非有限值转 null, 下游统一走 '—' 降级。
   const compounded = fin(summary?.compounded_oos_return)
+  const continuous = summary?.continuous_account ?? null
+  const continuousReturn = fin(continuous?.stats?.total_return)
   const degradation = fin(summary?.degradation)
   const avgIs = fin(summary?.avg_is_objective)
   const avgOos = fin(summary?.avg_oos_objective)
@@ -195,10 +203,26 @@ export function StrategyWalkForward() {
             <input type="number" min={1} value={stepDays} onChange={e => setStepDays(e.target.value)} className={INPUT_CLS} />
           </div>
         </div>
+        {windowMismatch && (
+          <div className="text-[11px] text-red-400">
+            连续账户要求 步进 = 测试窗 ({stepDays} ≠ {testDays}), 否则中间交易日不会
+            进入账户时间线, 缺口内的止损/持有期无法管理。
+          </div>
+        )}
+        <div className="text-[11px] text-secondary">
+          账户净值口径固定 position 组合账户; full 独立候选曲线不是账户净值, 只作逐折复利诊断
+          (需以 continuous_account=false 单独调用)。本期收益按连续账户统计。
+        </div>
+        <div>
+          <label className="mb-1 block text-[11px] text-secondary">OOS 最少交易数</label>
+          <input type="number" min={0} value={minTradesOos} onChange={e => setMinTradesOos(e.target.value)} className={INPUT_CLS} />
+        </div>
 
         {foldPreview.data && foldPreview.data.folds.length > 0 && (
           <div className="rounded-input border border-border/60 bg-elevated/30 p-2">
-            <div className="mb-1 text-[11px] font-medium text-secondary">折预览 (共 {foldPreview.data.n_folds} 折)</div>
+            <div className="mb-1 text-[11px] font-medium text-secondary">
+              折预览 (共 {foldPreview.data.n_folds} 折 · {foldPreview.data.n_trading_days} 个交易日)
+            </div>
             <div className="max-h-28 space-y-0.5 overflow-y-auto">
               {foldPreview.data.folds.map(f => (
                 <div key={f.index} className="flex justify-between text-[10px] text-muted">
@@ -215,14 +239,6 @@ export function StrategyWalkForward() {
         {foldPreview.error && (
           <div className="text-[11px] text-red-400">折切分无效: {(foldPreview.error as Error)?.message ?? '请检查区间与窗口参数'}</div>
         )}
-
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-secondary">模式</label>
-          <select value={mode} onChange={e => setMode(e.target.value as any)} className={INPUT_CLS}>
-            <option value="position">组合仓位</option>
-            <option value="full">全量独立</option>
-          </select>
-        </div>
 
         <SweepParamList params={sweep.params} sweeps={sweep.sweeps} updateSweep={sweep.updateSweep} hiddenLabels={sweep.hiddenParamLabels} />
         <CombosHint show={!!sweep.strategyId} combos={sweep.combos} gridError={sweep.gridError} />
@@ -260,7 +276,7 @@ export function StrategyWalkForward() {
         {!result && !task?.isPending && (
           <EmptyState
             title="滚动样本外检验"
-            hint="每折在训练区间网格优化选最优参数，再在紧邻的测试区间做样本外(OOS)验证。样本内漂亮、样本外崩溃即过拟合。"
+            hint="按实际交易日切折，每折训练后紧接样本外验证；账户逐折重置，汇总仅作诊断。"
           />
         )}
 
@@ -273,21 +289,47 @@ export function StrategyWalkForward() {
           <div className="space-y-4">
             {/* 汇总卡 — 可空数值已在上游用 fin() 归一, NaN/Infinity 走 '—' 而非渲染 "NaN" */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <Stat label="OOS 复利收益" value={fmtPct(compounded)}
-                color={compounded != null && compounded >= 0 ? '#34d399' : '#f87171'} />
+              {continuous ? (
+                <Stat
+                  label={continuous.return_kind === 'partial_single_account_single_timeline' ? '部分区间账户收益' : '连续账户收益'}
+                  value={fmtPct(continuousReturn)}
+                  hint={
+                    `单账户单时间线 · ${continuous.n_folds_replayed} 折结转 ${continuous.n_boundaries_with_positions} 次持仓`
+                    + (continuous.return_kind === 'partial_single_account_single_timeline' ? ' · 未覆盖计划全区间, 见下方实际回放起止' : '')
+                  }
+                  color={continuousReturn != null && continuousReturn >= 0 ? '#34d399' : '#f87171'} />
+              ) : (
+                <Stat label="OOS 折收益拼接" value={fmtPct(compounded)}
+                  hint="逐折独立账户，非连续净值"
+                  color={compounded != null && compounded >= 0 ? '#34d399' : '#f87171'} />
+              )}
               <Stat label="IS→OOS 退化"
                 value={degradation != null ? degradation.toFixed(3) : '—'}
                 hint={degradation != null && degradation > 0 ? '样本外退化=过拟合' : '样本外未退化'}
                 color={degradation != null && degradation > 0 ? '#f87171' : '#34d399'} />
-              <Stat label="一致性" value={fmtPct(summary.consistency)} hint="OOS 盈利折占比" />
-              <Stat label="有效折" value={result.n_skipped > 0 ? `${result.n_folds} (跳过${result.n_skipped})` : String(result.n_folds)} />
+              <Stat label="一致性" value={fmtPct(summary.consistency)} hint={`全部已完成折；交易数达标折 ${fmtPct(summary.consistency_sufficient)}`} />
+              <Stat label="已完成折" value={result.n_skipped > 0 ? `${result.n_folds} (跳过${result.n_skipped})` : String(result.n_folds)}
+                hint={summary.n_insufficient_trades > 0 ? `${summary.n_insufficient_trades} 折交易数不足` : '交易数均达标'} />
             </div>
 
             <div className="text-xs text-secondary">
-              IS 目标均值 {avgIs != null ? avgIs.toFixed(3) : '—'} · OOS 目标均值 {avgOos != null ? avgOos.toFixed(3) : '—'} · 耗时 {(result.elapsed_ms / 1000).toFixed(1)}s
+              {result.window_basis === 'trading_days' ? `实际交易日 ${result.n_trading_days} 天` : result.window_basis}
+              {' · '}IS 目标均值 {avgIs != null ? avgIs.toFixed(3) : '—'} · OOS 目标均值 {avgOos != null ? avgOos.toFixed(3) : '—'} · 耗时 {(result.elapsed_ms / 1000).toFixed(1)}s
+              {continuous && (
+                <>
+                  {' · '}逐折拼接（诊断）{fmtPct(compounded)}
+                  {continuous.replay_span
+                    ? ` · 实际回放 ${continuous.replay_span.start ?? '—'} → ${continuous.replay_span.end ?? '—'}（${continuous.replay_span.n_trading_days} 个交易日）`
+                    : ''}
+                  {continuous.replay_span && !continuous.replay_span.covers_planned_span && continuous.replay_span.planned_start
+                    ? ` · 计划区间 ${continuous.replay_span.planned_start} → ${continuous.replay_span.planned_end ?? '—'}`
+                    : ''}
+                  {continuous.stopped_early ? ` · 回放提前停止: ${continuous.stopped_early}` : ''}
+                </>
+              )}
             </div>
 
-            {/* OOS 拼接净值曲线 (walk-forward 核心产出) */}
+            {/* OOS 逐折收益拼接 (不是连续账户净值) */}
             <OosEquityChart curve={summary.oos_equity_curve} />
 
             {/* 参数漂移轨迹: 各折最优参数逐参数序列 + 收敛徽章 */}
@@ -339,6 +381,7 @@ export function StrategyWalkForward() {
                     <th className="px-2 py-1.5 text-right">IS 目标</th>
                     <th className="px-2 py-1.5 text-right">OOS 目标</th>
                     <th className="px-2 py-1.5 text-right">OOS 收益</th>
+                    <th className="px-2 py-1.5 text-right">证据</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -360,6 +403,11 @@ export function StrategyWalkForward() {
                         </td>
                         <td className="px-2 py-1.5 text-right">
                           {f.oos_stats?.total_return != null ? fmtPct(f.oos_stats.total_return) : '—'}
+                        </td>
+                        <td className="px-2 py-1.5 text-right">
+                          {f.statistically_insufficient
+                            ? <span className="text-amber-400">交易数不足</span>
+                            : <span className="text-emerald-400">达标</span>}
                         </td>
                       </tr>
                     )

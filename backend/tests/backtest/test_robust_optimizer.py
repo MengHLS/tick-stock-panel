@@ -565,6 +565,23 @@ def _run(coro):
     return asyncio.run(coro)
 
 
+def _preview_request(start: str, end: str):
+    from datetime import date, timedelta
+    from types import SimpleNamespace
+
+    day, last = date.fromisoformat(start), date.fromisoformat(end)
+    dates = []
+    while day <= last:
+        if day.weekday() < 5:
+            dates.append(day)
+        day += timedelta(days=1)
+    return SimpleNamespace(
+        app=SimpleNamespace(state=SimpleNamespace(
+            repo=SimpleNamespace(list_enriched_dates=lambda _s, _e: dates),
+        )),
+    )
+
+
 def test_robust_preview_returns_windows():
     from app.api.backtest import optimize_robust_preview
 
@@ -604,6 +621,7 @@ def test_walkforward_preview_returns_folds():
     from app.api.backtest import walkforward_preview
 
     out = _run(walkforward_preview(
+        _preview_request("2024-01-01", "2024-12-31"),
         start="2024-01-01", end="2024-12-31", train_days=90, test_days=30, step_days=30,
     ))
     assert out["n_folds"] == len(out["folds"]) > 3
@@ -618,13 +636,15 @@ def test_walkforward_preview_warns_and_rejects():
     from app.api.backtest import walkforward_preview
 
     out = _run(walkforward_preview(
-        start="2024-01-01", end="2024-06-30", train_days=120, test_days=30, step_days=90,
+        _preview_request("2024-01-01", "2024-09-30"),
+        start="2024-01-01", end="2024-09-30", train_days=120, test_days=30, step_days=90,
     ))
     assert out["n_folds"] < 3
     assert any("统计意义不足" in w for w in out["warnings"])
 
     with pytest.raises(HTTPException) as ei:  # 放不下一折
         _run(walkforward_preview(
+            _preview_request("2024-01-01", "2024-02-01"),
             start="2024-01-01", end="2024-02-01", train_days=90, test_days=30, step_days=30,
         ))
     assert ei.value.status_code == 400

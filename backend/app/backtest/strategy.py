@@ -23,6 +23,7 @@ from app.backtest.engine import (
     BacktestEngine,
     FullExecutionCapabilities,
     MatcherConfig,
+    PortfolioCarryState,
     SimResult,
     SimulationOptions,
     full_execution_unsupported_message,
@@ -86,6 +87,17 @@ _EXECUTION_COLUMNS = frozenset({
 })
 _LIMIT_BASE_COLUMNS = frozenset({"raw_close", "raw_high", "raw_low"})
 _INSTRUMENT_COLUMNS = frozenset({"name", "total_shares", "float_shares"})
+
+
+def _with_carry(options: SimulationOptions, config: StrategyBacktestConfig) -> SimulationOptions:
+    """把连续账户结转选项并入本段撮合; 无结转时原样返回, 不改变单段行为。"""
+    if config.carry_state is None and not config.carry_out:
+        return options
+    return replace(
+        options,
+        carry_in=config.carry_state,
+        carry_out=bool(config.carry_out),
+    )
 
 
 def validate_minute_backtest_coverage(
@@ -724,6 +736,9 @@ class StrategyBacktestConfig:
     # 市场环境过滤: {"states": ["strong",...], "min_score": 60}。
     # 强制 T-1: regime[T-1] 决定 entry[T](防未来函数)。None=不过滤。
     regime_filter: dict | None = None
+    # 连续账户回放 (walk-forward 用): 以上一段结转状态起步, 段末不清算。
+    carry_state: PortfolioCarryState | None = None
+    carry_out: bool = False
 
     def __post_init__(self) -> None:
         if self.entry_fill is None:
@@ -773,6 +788,8 @@ class StrategyBacktestResult:
     # 运行时 provenance: 有效配置、策略指纹、版本与数据冻结信息, 供保存快照使用。
     provenance: dict | None = None
     evidence: dict | None = None
+    # 连续账户: 段末结转状态 (仅 carry_out=True 的段非空)。
+    carry_state: PortfolioCarryState | None = None
 
 
 @dataclass(frozen=True)
@@ -1959,7 +1976,9 @@ class StrategyBacktestService:
                 exit_time_mask[start_id:stop_id],
             )
             timing_ms["signals_score"] = round((time.perf_counter() - t_signal) * 1000, 1)
-            if not sim_signal_matrix.entry.any():
+            # 连续账户里空仓折也是合法的一段 (平线), 不能按"无买入信号"报错中止。
+            carrying_account = bool(config.carry_out or config.carry_state is not None)
+            if not sim_signal_matrix.entry.any() and not carrying_account:
                 return _err("在指定区间内未产生买入信号")
 
             raw_candidates = int(sim_signal_matrix.entry.sum())
@@ -2201,7 +2220,9 @@ class StrategyBacktestService:
             exit_range = self._date_range_mask(panel, config.start, load_end) if config.mode == "full" else formal_range
             exit_mask = raw_exit_mask & exit_range
             timing_ms["signals_score"] = round((time.perf_counter() - t_signal) * 1000, 1)
-            if not entry_mask.any():
+            if not entry_mask.any() and not (
+                config.carry_out or config.carry_state is not None
+            ):
                 return _err("在指定区间内未产生买入信号")
 
             sim_range = self._date_range_mask(panel, config.start, sim_end)
@@ -2278,7 +2299,7 @@ class StrategyBacktestService:
                 matcher_config,
                 progress_cb,
                 cancel_event,
-                result_policy.simulation_options(),
+                _with_carry(result_policy.simulation_options(), config),
             )
         else:
             result = self.engine.simulate_market_matrix(
@@ -2286,7 +2307,7 @@ class StrategyBacktestService:
                 matcher_config,
                 progress_cb,
                 cancel_event,
-                result_policy.simulation_options(),
+                _with_carry(result_policy.simulation_options(), config),
             )
         timing_ms["simulate"] = round((time.perf_counter() - t_sim) * 1000, 1)
         timing_ms["statistics"] = float(result.stats.pop("statistics_ms", 0.0))
@@ -2390,6 +2411,7 @@ class StrategyBacktestService:
                 if result_policy.include_per_symbol_stats
                 else []
             ),
+            carry_state=result.carry_state,
             strategy_info=strategy_info,
             factor_attribution=factor_attribution,
             elapsed_ms=round(elapsed, 1),
@@ -2671,7 +2693,7 @@ class StrategyBacktestService:
                 matcher_config,
                 progress_cb,
                 cancel_event,
-                result_policy.simulation_options(),
+                _with_carry(result_policy.simulation_options(), config),
             )
         timing_ms["simulate"] = round((time.perf_counter() - t_sim) * 1000, 1)
         timing_ms["statistics"] = float(result.stats.pop("statistics_ms", 0.0))
@@ -2763,6 +2785,7 @@ class StrategyBacktestService:
                 if result_policy.include_per_symbol_stats
                 else []
             ),
+            carry_state=result.carry_state,
             strategy_info=strategy_info,
             elapsed_ms=round(elapsed, 1),
             provenance=self._build_run_provenance(

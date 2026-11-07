@@ -20,17 +20,61 @@ export interface WFFold {
   is_score: number | null
   oos_objective: number | null
   oos_degraded: boolean | null
+  trade_gate_ok: boolean
+  statistically_insufficient: boolean
+  min_trades_oos: number
   oos_stats: Record<string, any>
 }
 
 export interface WFSummary {
   n_folds: number
+  n_sufficient_trades: number
+  n_insufficient_trades: number
   compounded_oos_return: number
+  return_kind: 'compounded_fold_returns_not_continuous_account'
+    | 'single_account_single_timeline'
+    | 'partial_single_account_single_timeline'
+  compounded_oos_return_is_diagnostic?: boolean
+  continuous_account?: WFContinuousAccount | null
   avg_is_objective: number | null
   avg_oos_objective: number | null
   degradation: number | null
   consistency: number
-  oos_equity_curve: { fold: number; date: string; value: number }[]
+  consistency_sufficient: number | null
+  oos_equity_curve: { fold: number; date: string; value: number; fold_return: number; statistically_insufficient: boolean }[]
+}
+
+export interface WFContinuousAccount {
+  enabled: boolean
+  return_kind: 'single_account_single_timeline' | 'partial_single_account_single_timeline'
+  /** 实际回放起止: stopped_early 时收益只覆盖这段, 与计划区间并列给出。 */
+  replay_span?: {
+    start: string | null
+    end: string | null
+    n_trading_days: number
+    planned_start: string | null
+    planned_end: string | null
+    covers_planned_span: boolean
+  } | null
+  initial_capital: number
+  final_equity: number
+  n_folds_replayed: number
+  n_boundaries_with_positions: number
+  duplicate_dates: number
+  stopped_early: string | null
+  boundaries: {
+    index: number
+    test_start: string
+    test_end: string
+    equity_start: number
+    equity_end: number
+    segment_return: number
+    carried_in_positions: number
+    carried_out_positions: number
+    params_changed: boolean
+  }[]
+  stats: Record<string, any>
+  equity_curve: { date: string; value: number; cash?: number; positions?: number; exposure?: number }[]
 }
 
 export interface WalkForwardResult {
@@ -39,6 +83,8 @@ export interface WalkForwardResult {
   n_folds: number
   n_skipped: number
   n_planned_folds: number
+  window_basis: 'trading_days'
+  n_trading_days: number
   folds: WFFold[]
   skipped: { index: number; test_start: string; test_end: string; reason: string }[]
   summary: WFSummary
@@ -60,12 +106,14 @@ export interface StartWalkForwardParams {
   train_days: number
   test_days: number
   step_days: number
+  min_trades_oos?: number
+  continuous_account?: boolean
   params?: Record<string, any> | null       // 未扫描参数固定为用户当前值
   overrides?: Record<string, any> | null     // 策略当前的 basic_filter/信号/风控覆盖
   symbols?: string[] | null
   start?: string | null
   end?: string | null
-  mode?: 'position' | 'full'
+  mode?: 'position'
 }
 
 let current: WalkForwardTask | null = null
@@ -225,6 +273,8 @@ export function startWalkForward(params: StartWalkForwardParams): void {
     train_days: params.train_days,
     test_days: params.test_days,
     step_days: params.step_days,
+    min_trades_oos: params.min_trades_oos,
+    continuous_account: params.continuous_account,
     params: params.params ? JSON.stringify(params.params) : undefined,
     overrides: params.overrides ? JSON.stringify(params.overrides) : undefined,
     symbols: params.symbols?.join(','),

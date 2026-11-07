@@ -8,10 +8,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
+from itertools import pairwise
 
 import pytest
 
+from app.backtest.engine import PortfolioCarryState
 from app.backtest.walkforward import (
     WalkForwardConfig,
     WalkForwardService,
@@ -31,7 +33,7 @@ def test_folds_rolling_windows():
     assert f0.train_start == date(2024, 1, 1)
     assert f0.train_end == date(2024, 3, 31)     # +90d (2024 闰年)
     assert f0.test_start == date(2024, 4, 1)     # train_end + 1天 (隔断前视泄漏)
-    assert f0.test_end == date(2024, 5, 1)       # +30d
+    assert f0.test_end == date(2024, 4, 30)
     # 滚动: 下一折训练起点 +step
     assert folds[1].train_start == date(2024, 1, 31)  # +30d
 
@@ -58,6 +60,66 @@ def test_folds_insufficient_span_raises():
 def test_folds_reject_nonpositive_windows():
     with pytest.raises(ValueError, match=r"必须为正"):
         generate_folds(date(2024, 1, 1), date(2024, 12, 31), train_days=0, test_days=30, step_days=30)
+
+
+def test_folds_default_step_does_not_reuse_oos_dates():
+    folds = generate_folds(
+        date(2024, 1, 1), date(2024, 12, 31),
+        train_days=90, test_days=30, step_days=30,
+    )
+    for previous, current in pairwise(folds):
+        assert previous.test_end < current.test_start
+    assert all((fold.test_end - fold.test_start).days + 1 == 30 for fold in folds)
+
+
+def test_folds_reject_overlapping_oos_windows():
+    with pytest.raises(ValueError, match="step_days"):
+        generate_folds(
+            date(2024, 1, 1), date(2024, 12, 31),
+            train_days=90, test_days=30, step_days=15,
+        )
+
+
+def test_folds_single_day_oos_window():
+    folds = generate_folds(
+        date(2024, 1, 1), date(2024, 1, 10),
+        train_days=2, test_days=1, step_days=1,
+    )
+    assert all(fold.test_start == fold.test_end for fold in folds)
+
+
+def test_folds_use_actual_trading_days_not_calendar_days():
+    trading_days = [
+        date(2024, 1, 2), date(2024, 1, 3), date(2024, 1, 4),
+        date(2024, 1, 8), date(2024, 1, 9), date(2024, 1, 10),
+        date(2024, 1, 11), date(2024, 1, 12),
+    ]
+    folds = generate_folds(
+        date(2024, 1, 1), date(2024, 1, 31),
+        train_days=3, test_days=2, step_days=2,
+        trading_days=trading_days,
+    )
+    assert folds[0].train_start == date(2024, 1, 2)
+    assert folds[0].train_end == date(2024, 1, 4)
+    assert folds[0].test_start == date(2024, 1, 8)
+    assert folds[0].test_end == date(2024, 1, 9)
+    assert folds[1].test_start == date(2024, 1, 10)
+    assert folds[1].test_end == date(2024, 1, 11)
+
+
+def test_folds_trading_day_window_counts_are_exact():
+    trading_days = [
+        date(2024, 1, 2) + timedelta(days=offset) for offset in range(20)
+    ]
+    folds = generate_folds(
+        date(2024, 1, 1), date(2024, 1, 31),
+        train_days=10, test_days=5, step_days=5,
+        trading_days=trading_days,
+    )
+    assert len(folds) == 2
+    assert len([d for d in trading_days if folds[0].train_start <= d <= folds[0].train_end]) == 10
+    assert len([d for d in trading_days if folds[0].test_start <= d <= folds[0].test_end]) == 5
+    assert folds[0].test_end < folds[1].test_start
 
 
 # ---------------------------------------------------------------
@@ -168,10 +230,15 @@ class _FakeService:
 
 
 def _wf_cfg(**kw):
+    trading_days = tuple(
+        date(2024, 1, 1) + timedelta(days=offset)
+        for offset in range((date(2024, 12, 31) - date(2024, 1, 1)).days + 1)
+    )
     base = dict(
         strategy_id="s", symbols=None, start=date(2024, 1, 1), end=date(2024, 12, 31),
         param_grid={"p": [1, 2]}, objective="sortino",
         train_days=90, test_days=30, step_days=30,
+        trading_days=trading_days,
     )
     base.update(kw)
     return WalkForwardConfig(**base)
@@ -220,18 +287,22 @@ def test_walkforward_cache_telemetry_computes_deltas():
     assert tel["load_panel_pct"] >= 0.0  # 扫盘耗时 / WF总耗时, 非负
 
 
-def test_walkforward_forces_position_mode_for_is_optimization():
-    """训练折(IS)强制 position 防前视泄漏(full 会用 OOS 区间 K 线平仓污染 IS);
-    OOS 回测保留用户所选 mode。"""
+def test_walkforward_rejects_full_independent_candidate_mode():
+    """full 样本曲线不是账户净值, 不得进入 WFO 复利汇总。"""
     opt, svc = _FakeOptimizer(), _FakeService()
     wf = WalkForwardService(opt, svc, strategy_engine=None)
-    wf.run(_wf_cfg(backtest_kwargs={"mode": "full"}))
+    with pytest.raises(ValueError, match="只支持 position"):
+        wf.run(_wf_cfg(backtest_kwargs={"mode": "full"}))
+    assert opt.train_ranges == []
+    assert svc.calls == []
 
-    assert len(opt.opt_kwargs) > 0 and len(svc.calls) > 0
-    # 用户选了 full, 但每折 IS 优化都被强制 position
-    assert all(kw["mode"] == "position" for kw in opt.opt_kwargs), "IS 优化未强制 position"
-    # OOS 回测保留用户的 full
-    assert all(c["mode"] == "full" for c in svc.calls), "OOS 未保留用户 mode"
+
+def test_walkforward_forces_position_for_is_and_oos():
+    opt, svc = _FakeOptimizer(), _FakeService()
+    wf = WalkForwardService(opt, svc, strategy_engine=None)
+    wf.run(_wf_cfg())
+    assert all(kw["mode"] == "position" for kw in opt.opt_kwargs)
+    assert all(c["mode"] == "position" for c in svc.calls)
 
 
 def test_walkforward_reports_degradation():
@@ -370,6 +441,38 @@ def test_wf_job_key_distinguishes_params_and_overrides():
         "s", None, None, None, '{"p":[1]}', "sortino", None, "252/63/63", "sig", params='{"x":1}')
 
 
+def test_wf_job_key_distinguishes_min_trades_gate():
+    from app.api.backtest import _make_wf_job_key
+    base = _make_wf_job_key("s", None, None, None, '{"p":[1]}', "sortino", None, "252/63/63", "sig")
+    assert base != _make_wf_job_key(
+        "s", None, None, None, '{"p":[1]}', "sortino", None, "252/63/63", "sig",
+        min_trades_oos=20,
+    )
+
+
+def test_walkforward_preview_uses_repository_trading_days():
+    import asyncio
+    from types import SimpleNamespace
+
+    from app.api.backtest import walkforward_preview
+
+    trading_days = [
+        date(2024, 1, 2) + timedelta(days=offset) for offset in range(20)
+    ]
+    repo = SimpleNamespace(
+        list_enriched_dates=lambda start, end: trading_days,
+    )
+    request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(repo=repo)))
+    out = asyncio.run(walkforward_preview(
+        request, "2024-01-01", "2024-01-31",
+        train_days=10, test_days=5, step_days=5,
+    ))
+    assert out["window_basis"] == "trading_days"
+    assert out["n_trading_days"] == 20
+    assert out["n_folds"] == 2
+    assert out["folds"][0]["test_start"] == "2024-01-12"
+
+
 def test_wf_cancel_by_echoed_key():
     import asyncio
 
@@ -397,17 +500,64 @@ def test_wf_cancel_by_echoed_key():
 # 每折 OOS 交易数门槛 (共享护栏 trades_ok, fail-closed)
 # ---------------------------------------------------------------
 
-def test_walkforward_oos_min_trades_gate_skips_thin_folds():
-    """OOS 段交易数不足的折 → 标记 skipped (原因可见), 不混入复利曲线。"""
+def test_walkforward_oos_min_trades_keeps_thin_folds_with_warning():
+    """OOS 交易数不足仍保留经济结果, 只标记统计证据不足。"""
     opt, svc = _FakeOptimizer(), _FakeService(n_trades=3)  # 3 < 默认 10
     wf = WalkForwardService(opt, svc, strategy_engine=None)
     out = wf.run(_wf_cfg())
 
     assert out["n_planned_folds"] > 0
-    assert out["n_folds"] == 0                    # 全部折被门槛拦下
-    assert out["n_skipped"] == out["n_planned_folds"]
-    assert all("OOS 交易数不足" in s["reason"] for s in out["skipped"])
-    assert out["skipped"][0]["best_params"] is not None  # 仍可诊断用了什么参数
+    assert out["n_folds"] == out["n_planned_folds"]
+    assert out["n_skipped"] == 0
+    assert all(fold["statistically_insufficient"] for fold in out["folds"])
+    assert out["summary"]["n_insufficient_trades"] == out["n_folds"]
+    assert out["summary"]["n_sufficient_trades"] == 0
+
+
+def test_aggregate_oos_includes_thin_fold_economic_return():
+    records = [
+        {"index": 0, "test_end": date(2024, 1, 1), "is_score": 1.0,
+         "oos_objective": 1.0, "statistically_insufficient": False,
+         "oos_stats": {"total_return": 0.10}},
+        {"index": 1, "test_end": date(2024, 2, 1), "is_score": 1.0,
+         "oos_objective": 1.0, "statistically_insufficient": True,
+         "oos_stats": {"total_return": -0.20}},
+    ]
+    summary = aggregate_oos(records, "sortino")
+    assert summary["n_folds"] == 2
+    assert summary["n_sufficient_trades"] == 1
+    assert summary["n_insufficient_trades"] == 1
+    assert summary["compounded_oos_return"] == round(1.10 * 0.80 - 1, 4)
+    assert summary["consistency"] == 0.5
+    assert summary["consistency_sufficient"] == 1.0
+    assert summary["return_kind"] == "compounded_fold_returns_not_continuous_account"
+
+
+def test_walkforward_resolves_actual_trading_days_from_repository():
+    class _Repo:
+        def list_enriched_dates(self, start, end, asset_type="stock"):
+            assert asset_type == "stock"
+            return [date(2024, 1, 2) + timedelta(days=offset) for offset in range(20)]
+
+    class _Engine:
+        repo = _Repo()
+        def cache_stats(self):
+            return dict(_ZERO_CACHE_STATS)
+
+    class _Service(_FakeService):
+        def __init__(self):
+            super().__init__()
+            self.engine = _Engine()
+
+    opt, svc = _FakeOptimizer(), _Service()
+    wf = WalkForwardService(opt, svc, strategy_engine=None)
+    out = wf.run(_wf_cfg(
+        start=date(2024, 1, 1), end=date(2024, 1, 31),
+        train_days=10, test_days=5, step_days=5, trading_days=(),
+    ))
+    assert out["window_basis"] == "trading_days"
+    assert out["n_trading_days"] == 20
+    assert out["n_planned_folds"] == 2
 
 
 def test_walkforward_oos_min_trades_gate_disabled_when_zero():
@@ -420,8 +570,8 @@ def test_walkforward_oos_min_trades_gate_disabled_when_zero():
     assert out["n_skipped"] == 0
 
 
-def test_walkforward_oos_missing_n_trades_fails_closed():
-    """stats 缺 n_trades 字段按不达标处理 (宁可误杀不让无交易折伪装有效)。"""
+def test_walkforward_oos_missing_n_trades_marks_insufficient():
+    """stats 缺 n_trades 字段按统计证据不足标记, 不剔除其经济结果。"""
     opt, svc = _FakeOptimizer(), _FakeService(n_trades=3)
     orig_run = svc.run
 
@@ -434,8 +584,9 @@ def test_walkforward_oos_missing_n_trades_fails_closed():
     wf = WalkForwardService(opt, svc, strategy_engine=None)
     out = wf.run(_wf_cfg())
 
-    assert out["n_folds"] == 0
-    assert all("交易数不足 (0 <" in s["reason"] for s in out["skipped"])
+    assert out["n_folds"] == out["n_planned_folds"]
+    assert out["n_skipped"] == 0
+    assert all(fold["statistically_insufficient"] for fold in out["folds"])
 
 
 def test_walkforward_stream_rejects_degenerate_objective():
@@ -454,3 +605,501 @@ def test_walkforward_stream_rejects_degenerate_objective():
         asyncio.run(walkforward_stream(_Req(), strategy_id="s", param_grid='{"p":[1]}', objective="win_rate"))
     assert ei.value.status_code == 400
     assert "退化" in str(ei.value.detail) or "不适合" in str(ei.value.detail)
+
+
+def test_walkforward_stream_rejects_full_mode_before_job_admission():
+    import asyncio
+
+    from fastapi import HTTPException
+
+    from app.api.backtest import walkforward_stream
+
+    class _Req:
+        app = None
+
+    with pytest.raises(HTTPException) as ei:
+        asyncio.run(walkforward_stream(
+            _Req(), strategy_id="s", param_grid='{"p":[1]}', mode="full",
+        ))
+    assert ei.value.status_code == 400
+    assert "position" in str(ei.value.detail)
+
+
+# ---------------------------------------------------------------
+# 连续账户 replay
+# ---------------------------------------------------------------
+
+@dataclass
+class _CarryResult:
+    stats: dict
+    equity_curve: list
+    drawdown_curve: list
+    trades: list
+    carry_state: PortfolioCarryState | None
+    error: str | None = None
+
+
+class _CarryService:
+    """按折返回递增权益, 记录每折收到的结转状态与 carry_out 标志。"""
+
+    def __init__(self, fail_on_call: int | None = None):
+        self.calls = []
+        self.engine = _FakeEngine()
+        self.fail_on_call = fail_on_call
+        self._equity = 100_000.0
+
+    def run(self, config, progress_cb=None, cancel_event=None):
+        self.calls.append({
+            "start": config.start,
+            "end": config.end,
+            "params": dict(config.params or {}),
+            "carry_in": config.carry_state,
+            "carry_out": config.carry_out,
+        })
+        if self.fail_on_call is not None and len(self.calls) == self.fail_on_call:
+            return _CarryResult(
+                stats={"error": "boom", "n_trades": 0},
+                equity_curve=[], drawdown_curve=[], trades=[],
+                carry_state=None, error="boom",
+            )
+        self._equity += 1_000.0
+        open_at_end = 0 if config.carry_out else 2
+        trades = []
+        for index in range(20):
+            is_open = index < open_at_end
+            trades.append({
+                "symbol": f"S{index}.SH",
+                "name": f"S{index}",
+                "entry_date": str(config.start),
+                "exit_date": "" if is_open else str(config.end),
+                "entry_price": 10.0,
+                "exit_price": 0.0 if is_open else 10.5,
+                "pnl_pct": 0.0 if is_open else 0.05,
+                "duration": 0 if is_open else 5,
+                "exit_reason": "end" if is_open else "signal",
+                "shares": 100.0, "lots": 1.0, "position_pct": 0.01,
+                "entry_value": 1_000.0, "exit_value": 0.0 if is_open else 1_050.0,
+                "pnl_amount": 0.0 if is_open else 50.0,
+                "entry_score": 1.0,
+                "entry_signal_date": str(config.start),
+                "exit_signal_date": None if is_open else str(config.end),
+                "blocked_exit_days": 0,
+                "open_at_end": is_open,
+                "entry_signal_id": None, "exit_signal_id": None,
+            })
+        carry = (
+            PortfolioCarryState(
+                cash=self._equity,
+                peak=self._equity,
+                positions=[{
+                    "symbol": "A", "asset_id": 0, "shares": 100, "entry_price": 10.0,
+                    "entry_date": str(config.start), "entry_value": 1_000.0,
+                    "position_pct": 0.01, "entry_score": 1.0, "max_high": 10.0,
+                    "max_close": 10.0, "risk_entry_price": 10.0, "hold_days": 1,
+                    "blocked_exit_days": 0, "cash_dividends": 0.0,
+                }],
+            )
+            if config.carry_out else None
+        )
+        return _CarryResult(
+            stats={
+                "total_return": 0.01, "sortino": 1.0, "n_trades": 20,
+                "final_equity": self._equity, "n_trades_ok": True,
+                "completed_trade_count": 20 - open_at_end,
+                "open_at_end_count": open_at_end,
+            },
+            equity_curve=[{
+                "date": str(config.end), "value": self._equity,
+                "cash": round(self._equity * 0.5, 2),
+                "positions": open_at_end, "exposure": 0.5,
+            }],
+            drawdown_curve=[{"date": str(config.end), "value": 0.0}],
+            trades=trades,
+            carry_state=carry,
+        )
+
+
+def test_continuous_account_carries_positions_across_folds():
+    opt, svc = _FakeOptimizer(), _CarryService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(_wf_cfg())
+
+    assert out["continuous_account"]["enabled"] is True
+    assert out["summary"]["return_kind"] == "single_account_single_timeline"
+    # 第一折没有结转, 中间折都从上一折持仓起步; 最后一折不再 carry_out。
+    assert svc.calls[0]["carry_in"] is None
+    assert svc.calls[0]["carry_out"] is True
+    assert svc.calls[1]["carry_in"] is not None
+    assert svc.calls[1]["carry_in"].positions[0]["symbol"] == "A"
+    assert svc.calls[-1]["carry_out"] is False
+    # 折边界持仓数被记录, 供审阅跨折是否真的延续。
+    assert out["continuous_account"]["n_boundaries_with_positions"] == len(svc.calls) - 1
+    assert out["continuous_account"]["duplicate_dates"] == 0
+    # 逐折复利值保留, 但明确标注为诊断口径。
+    assert out["summary"]["compounded_oos_return_is_diagnostic"] is True
+
+
+def test_continuous_account_disabled_keeps_fold_local_accounts():
+    opt, svc = _FakeOptimizer(), _CarryService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(
+        _wf_cfg(continuous_account=False)
+    )
+    assert out["continuous_account"] is None
+    assert out["summary"]["return_kind"] == "compounded_fold_returns_not_continuous_account"
+    assert all(call["carry_in"] is None for call in svc.calls)
+    assert all(call["carry_out"] is False for call in svc.calls)
+
+
+def test_continuous_account_stops_replay_when_a_fold_fails():
+    opt, svc = _FakeOptimizer(), _CarryService(fail_on_call=2)
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(_wf_cfg())
+
+    assert out["continuous_account"]["stopped_early"]
+    assert out["continuous_account"]["n_folds_replayed"] == 1
+    assert len(svc.calls) == 2  # 第三折不再用失真的起始状态继续
+    assert len(out["skipped"]) == 1
+
+
+def test_final_open_positions_come_from_last_fold_not_missing_carry_state():
+    """末折 carry_out=False 不产出 carry_state, 期末持仓必须取权益曲线末点。
+
+    旧报告把"末折无 carry 状态"写成 0 持仓, 却同时保留 5 笔未平仓, 两者矛盾;
+    本用例锁定最终头寸、现金、市值与未平仓交易数的一致性。
+    """
+    opt, svc = _FakeOptimizer(), _CarryService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(_wf_cfg())
+    account = out["continuous_account"]
+
+    assert account["final_positions"] == 2
+    assert account["boundaries"][-1]["carried_out_positions"] == 2
+    assert account["open_at_end_by_fold"][-1]["open_at_end"] == 2
+    assert all(
+        item["open_at_end"] == 0 for item in account["open_at_end_by_fold"][:-1]
+    )
+    assert account["trade_lifecycle"]["duplicate_trade_records"] == 0
+    assert account["invariants"]["final_positions_match_open_trades"] is True
+    assert account["invariants"]["open_trades_come_from_last_fold"] is True
+    assert account["invariants"]["equity_equals_cash_plus_market_value"] is True
+
+
+# ---------------------------------------------------------------
+# 连续账户: 时间线必须逐日衔接 (审核 R3)
+# ---------------------------------------------------------------
+
+def test_continuous_account_rejects_sparse_windows_before_running():
+    """step > test 会留下未回放的交易日, 连续账户必须拒绝而不是拼一条假曲线。"""
+    opt, svc = _FakeOptimizer(), _FakeService()
+    with pytest.raises(ValueError, match="step_days 必须等于 test_days"):
+        WalkForwardService(opt, svc, strategy_engine=None).run(
+            _wf_cfg(test_days=30, step_days=60)
+        )
+    assert svc.calls == []
+
+
+def test_sparse_windows_still_allowed_when_continuous_account_disabled():
+    """稀疏窗口只能用于逐折复利诊断; 关闭连续账户后不被误杀。"""
+    opt, svc = _FakeOptimizer(), _FakeService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(
+        _wf_cfg(test_days=30, step_days=60, continuous_account=False)
+    )
+    assert out["continuous_account"] is None
+    assert out["summary"]["return_kind"] == "compounded_fold_returns_not_continuous_account"
+    assert len(svc.calls) >= 2
+
+
+class _GapOptimizer(_FakeOptimizer):
+    """指定折的训练返回 no-best-params, 模拟中间折训练失败留下的时间缺口。"""
+
+    def __init__(self, fail_index: int):
+        super().__init__()
+        self.fail_index = fail_index
+
+    def optimize(self, cfg, progress_cb=None, cancel_event=None):
+        result = super().optimize(cfg, progress_cb, cancel_event)
+        if len(self.train_ranges) - 1 == self.fail_index:
+            return {"best_params": None, "best_score": None, "results": [], "n_completed": 0}
+        return result
+
+
+def test_continuous_account_stops_at_training_gap_instead_of_skipping_days():
+    """中间折训练失败 -> 缺口内无法回放, 停止并在报告里写明缺口日期。"""
+    opt, svc = _GapOptimizer(fail_index=1), _CarryService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(_wf_cfg())
+    account = out["continuous_account"]
+
+    assert account["stopped_early"] and "中断" in account["stopped_early"]
+    assert account["n_folds_replayed"] == 1
+    assert len(svc.calls) == 1  # 缺口之后的折不再用失真的起始状态继续
+    gap = account["timeline"]["trading_day_gap"]
+    assert gap["after_fold"] == 0 and gap["before_fold"] == 2
+    assert gap["missing_dates"][0] == "2024-04-30"
+    assert len(gap["missing_dates"]) == 30
+    assert account["timeline"]["complete"] is False
+    # 曲线自身覆盖了它回放过的日期, 所以"日期覆盖"为 True; 真正说明不完整的是
+    # timeline_complete —— 审核指出只看前面几项 invariants 会把断线当成完整账户。
+    assert account["invariants"]["timeline_covers_trading_days"] is True
+    assert account["invariants"]["timeline_complete"] is False
+    # 提前收尾: 收益只覆盖已回放的那段, 口径必须自报部分区间, 且并列给出实际起止。
+    assert account["return_kind"] == "partial_single_account_single_timeline"
+    assert account["invariants"]["return_kind_matches_timeline"] is True
+    span = account["replay_span"]
+    assert span["covers_planned_span"] is False
+    assert span["planned_end"] != span["end"]
+    assert span["n_trading_days"] >= 1
+    assert out["summary"]["return_kind"] == "partial_single_account_single_timeline"
+    assert out["summary"]["continuous_replay_span"] == span
+
+
+def test_continuous_account_reports_timeline_stopped_before_planned_end():
+    """末折训练失败: 账户时间线提前结束, 必须显式标注而不是当作完整区间。"""
+    folds = generate_folds(
+        date(2024, 1, 1), date(2024, 12, 31),
+        train_days=90, test_days=30, step_days=30,
+        trading_days=tuple(
+            date(2024, 1, 1) + timedelta(days=offset)
+            for offset in range((date(2024, 12, 31) - date(2024, 1, 1)).days + 1)
+        ),
+    )
+    opt, svc = _GapOptimizer(fail_index=len(folds) - 1), _CarryService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(_wf_cfg())
+    account = out["continuous_account"]
+
+    assert account["stopped_early"] and "其后 1 折" in account["stopped_early"]
+    assert account["timeline"]["trading_day_gap"] is None
+    assert account["timeline"]["complete"] is False
+    assert account["invariants"]["timeline_complete"] is False
+
+
+def test_continuous_account_reports_head_gap_when_early_folds_fail():
+    """首折训练失败: 账户从第二折才开始, 必须写明更早交易日未计入。"""
+    opt, svc = _GapOptimizer(fail_index=0), _CarryService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(_wf_cfg())
+    account = out["continuous_account"]
+    assert account["stopped_early"] and "开始" in account["stopped_early"]
+    assert account["boundaries"][0]["index"] == 1
+    assert account["timeline"]["complete"] is False
+    assert account["invariants"]["timeline_complete"] is False
+
+
+# ---------------------------------------------------------------
+# 真实 API 契约: continuous_account 必须可注入并贯通配置 (审核 R1)
+# ---------------------------------------------------------------
+
+def _stream_events(client, path, params, limit=40):
+    events = []
+    with client.stream("GET", path, params=params) as response:
+        assert response.status_code == 200, response.read()
+        for line in response.iter_lines():
+            if line.startswith("event: "):
+                events.append(line[len("event: "):].strip())
+            if events and events[-1] == "done":
+                break
+            if len(events) >= limit:
+                break
+    return events
+
+
+def test_walkforward_stream_injects_continuous_account_and_emits_done(monkeypatch):
+    """合法请求必须能建立 SSE 流 (旧缺陷: 未声明参数 -> NameError -> 500)。"""
+    import inspect
+
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    import app.backtest.worker as worker_module
+    from app.api import backtest as api
+
+    assert "continuous_account" in inspect.signature(api.walkforward_stream).parameters
+
+    captured = {}
+
+    def fake_make_worker_task(kind, data_dir, config):
+        captured["kind"] = kind
+        captured["config"] = config
+        return {"kind": kind}
+
+    def fake_run_worker_task(task, progress_cb, cancel_event):
+        return {"objective": "sortino", "n_folds": 0, "folds": [], "summary": {},
+                "continuous_account": None}
+
+    class _NullSlot:
+        def __call__(self, *args, **kwargs):
+            return self
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            return False
+
+    class _Limiter:
+        def slot(self, *args, **kwargs):
+            return _NullSlot()
+
+    import app.services.heavy_job_limiter as limiter_module
+
+    monkeypatch.setattr(worker_module, "make_worker_task", fake_make_worker_task)
+    monkeypatch.setattr(worker_module, "run_worker_task", fake_run_worker_task)
+    monkeypatch.setattr(limiter_module, "shared_heavy_job_limiter", _Limiter())
+    monkeypatch.setattr(api, "admit_request", lambda *args, **kwargs: True)
+    monkeypatch.setattr(api, "_daily_data_revisions", lambda: {})
+
+    app = FastAPI()
+    app.include_router(api.router)
+    path = next(
+        route.path for route in api.router.routes
+        if str(getattr(route, "path", "")).endswith("/walkforward/stream")
+    )
+    base = {
+        "strategy_id": "audit_dummy",
+        "param_grid": '{"p":[1]}',
+        "objective": "sortino",
+        "train_days": 5,
+        "test_days": 5,
+        "step_days": 5,
+        "start": "2025-01-01",
+        "end": "2025-12-31",
+        "mode": "position",
+    }
+
+    with TestClient(app) as client:
+        for flag, expected in [(None, True), ("true", True), ("false", False)]:
+            params = dict(base)
+            if flag is not None:
+                params["continuous_account"] = flag
+            events = _stream_events(client, path, params)
+            assert "job" in events
+            assert "done" in events, events
+            assert captured["kind"] == "walkforward"
+            assert captured["config"].continuous_account is expected
+
+
+def test_walkforward_stream_rejects_sparse_windows_for_continuous_account():
+    import asyncio
+
+    from fastapi import HTTPException
+
+    from app.api.backtest import walkforward_stream
+
+    class _Req:
+        app = None
+
+    with pytest.raises(HTTPException) as ei:
+        asyncio.run(walkforward_stream(
+            _Req(), strategy_id="s", param_grid='{"p":[1]}',
+            train_days=5, test_days=5, step_days=10,
+        ))
+    assert ei.value.status_code == 400
+    assert "step_days" in str(ei.value.detail)
+
+
+def test_wf_job_key_distinguishes_continuous_account():
+    from app.api.backtest import _make_wf_job_key
+
+    args = dict(
+        strategy_id="s", symbols="A", start="2025-01-01", end="2025-12-31",
+        param_grid='{"p":[1]}', objective="sortino", direction=None,
+        windows="5/5/5", bt_sig="bt", params=None, overrides=None,
+        matrix_cache_max_mb=512, min_trades_oos=10,
+    )
+    key_on = _make_wf_job_key(**args, continuous_account=True)
+    key_off = _make_wf_job_key(**args, continuous_account=False)
+    assert key_on != key_off
+
+# ---------------------------------------------------------------
+# 契约收窄范围: 账户净值口径只在连续账户下成立 (审核 P2)
+# ---------------------------------------------------------------
+
+def test_continuous_account_rejects_full_mode():
+    """连续账户 = 账户净值口径, 只接受 position; 拒绝发生在任何回放之前。"""
+    opt, svc = _FakeOptimizer(), _FakeService()
+    with pytest.raises(ValueError, match="连续账户只支持 position"):
+        WalkForwardService(opt, svc, strategy_engine=None).run(
+            _wf_cfg(backtest_kwargs={"mode": "full"})
+        )
+    assert svc.calls == []
+    assert opt.opt_kwargs == []
+
+
+def test_full_mode_still_allowed_when_continuous_account_disabled():
+    """关闭连续账户 (逐折复利诊断) 时 mode=full 不被误杀, 且 OOS 真的按 full 跑。"""
+    opt, svc = _FakeOptimizer(), _FakeService()
+    out = WalkForwardService(opt, svc, strategy_engine=None).run(
+        _wf_cfg(continuous_account=False, backtest_kwargs={"mode": "full"})
+    )
+
+    assert out["n_folds"] > 0
+    # 训练恒 position: full 的样本收益曲线不是账户净值, 且可能用正式窗口后的 K 线退出。
+    assert all(kw["mode"] == "position" for kw in opt.opt_kwargs)
+    # OOS 保留调用方 mode, 不被静默改写为 position。
+    assert all(call["mode"] == "full" for call in svc.calls)
+    # 结果必须自报口径, 不能冒充账户净值。
+    assert out["summary"]["return_kind"] == "compounded_fold_returns_not_continuous_account"
+
+
+def test_walkforward_stream_mode_guard_limited_to_continuous_account(monkeypatch):
+    """mode=full 只在连续账户下 400; 关闭连续账户后必须能入队且 mode 贯通配置。"""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    import app.backtest.worker as worker_module
+    from app.api import backtest as api
+
+    captured = {}
+
+    def fake_make_worker_task(kind, data_dir, config):
+        captured["config"] = config
+        return {"kind": kind}
+
+    def fake_run_worker_task(task, progress_cb, cancel_event):
+        return {"objective": "sortino", "n_folds": 0, "folds": [], "summary": {},
+                "continuous_account": None}
+
+    class _NullSlot:
+        def __call__(self, *args, **kwargs):
+            return self
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    class _Limiter:
+        def slot(self, *args, **kwargs):
+            return _NullSlot()
+
+    import app.services.heavy_job_limiter as limiter_module
+
+    monkeypatch.setattr(worker_module, "make_worker_task", fake_make_worker_task)
+    monkeypatch.setattr(worker_module, "run_worker_task", fake_run_worker_task)
+    monkeypatch.setattr(limiter_module, "shared_heavy_job_limiter", _Limiter())
+    monkeypatch.setattr(api, "admit_request", lambda *args, **kwargs: True)
+    monkeypatch.setattr(api, "_daily_data_revisions", lambda: {})
+
+    app = FastAPI()
+    app.include_router(api.router)
+    path = next(
+        route.path for route in api.router.routes
+        if str(getattr(route, "path", "")).endswith("/walkforward/stream")
+    )
+    base = {
+        "strategy_id": "audit_dummy",
+        "param_grid": '{"p":[1]}',
+        "objective": "sortino",
+        "train_days": 5,
+        "test_days": 5,
+        "step_days": 5,
+        "start": "2025-01-01",
+        "end": "2025-12-31",
+        "mode": "full",
+    }
+
+    with TestClient(app) as client:
+        # 默认连续账户: 账户净值口径, full 直接 400 并提示关闭口径。
+        rejected = client.get(path, params=base)
+        assert rejected.status_code == 400, rejected.text
+        assert "continuous_account=false" in rejected.text
+
+        # 关闭连续账户: 逐折复利诊断口径, 必须放行且 mode 不被静默改写。
+        events = _stream_events(client, path, {**base, "continuous_account": "false"})
+        assert "job" in events and "done" in events, events
+        assert captured["config"].continuous_account is False
+        assert captured["config"].backtest_kwargs["mode"] == "full"

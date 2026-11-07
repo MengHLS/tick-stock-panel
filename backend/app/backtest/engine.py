@@ -11,7 +11,7 @@ import threading
 import time
 from collections import OrderedDict
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Literal
@@ -26,7 +26,6 @@ from app.backtest.matrix import (
     MatrixCacheProfile,
     build_market_matrix,
     load_market_data_matrix_from_parquet,
-    valid_rolling_mean,
 )
 from app.config import settings
 from app.enriched_generation import EnrichedGenerationUnavailableError
@@ -48,6 +47,23 @@ def _round_half_up(value: float, decimals: int) -> float:
     """
     quantum = Decimal(1).scaleb(-decimals)
     return float(Decimal(value).quantize(quantum, rounding=ROUND_HALF_UP))
+
+
+def _last_valid_mean(values, window: int) -> float:
+    """最近 window 个有效 (有限且 > 0) 值的均值; 有效值不足时返回 NaN。
+
+    与 ``valid_rolling_mean`` 的口径一致: 只统计有效值, 且必须有满 window 个。
+    """
+    total = 0.0
+    count = 0
+    for value in reversed([float(v) for v in values]):
+        if not np.isfinite(value) or value <= 0:
+            continue
+        total += value
+        count += 1
+        if count == int(window):
+            return total / count
+    return float("nan")
 
 
 def _matrix_entry_score(matrix: MarketMatrix, time_id: int, asset_id: int) -> float:
@@ -428,6 +444,24 @@ class SimResult:
     trades: list[TradeRecord]
     per_symbol_stats: list[dict]
     stats: dict
+    # 连续账户模式下结转给下一段的期终状态; 单段回测保持 None。
+    carry_state: PortfolioCarryState | None = None
+
+
+@dataclass
+class PortfolioCarryState:
+    """跨回测段结转的账户状态, 以 symbol (而非矩阵列号) 为键。
+
+    每段回测各自构建 ``time x asset`` 矩阵, 列号不稳定; 结转时必须按代码
+    重新映射, 否则会把上一段的第 5 列误当成这一段的第 5 列。持仓中的
+    ``asset_id`` / 时间索引只在本段有效, 导入时统一重置为 -1。
+    """
+
+    cash: float
+    peak: float
+    positions: list[dict] = field(default_factory=list)
+    pending_buy_plans: list[dict] = field(default_factory=list)
+    last_close: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -439,6 +473,10 @@ class SimulationOptions:
     include_trades: bool = True
     include_per_symbol_stats: bool = True
     include_return_distribution: bool = True
+    # 连续账户: 以上一段的现金/持仓/峰值起步, 且不在段末强制平仓或落账。
+    carry_in: PortfolioCarryState | None = None
+    # 段末不清算, 把账户状态原样交给下一段 (跨折连续回放)。
+    carry_out: bool = False
 
 
 def _resolve_signal_id(panel: pl.DataFrame, idx: int, signal_ids: list[str] | None) -> str | None:
@@ -2511,7 +2549,29 @@ class BacktestEngine:
         options: SimulationOptions | None = None,
     ) -> SimResult:
         """Run the production Python matcher on a prebuilt MarketMatrix."""
-        if not matrix.entry.any():
+        carry_in = options.carry_in if options is not None else None
+        has_carry = bool(
+            carry_in is not None
+            and (carry_in.positions or carry_in.pending_buy_plans)
+        )
+        # 段末原始买点在单段内没有次日成交位, carry_out 时仍要进撮合器生成跨段计划。
+        carry_out_signal = bool(
+            options is not None
+            and options.carry_out
+            and matrix.source_entry is not None
+            and matrix.source_entry[-1].any()
+        )
+        continuous_segment = bool(options is not None and options.carry_out)
+        # 结转现金但空仓、本段又无新信号: 账户仍要逐日估值并继续结转, 不能
+        # 退化成"无数据"错误结果 (否则期末空仓的一折会让整个连续账户断线)。
+        carried_account = carry_in is not None
+        if (
+            not matrix.entry.any()
+            and not has_carry
+            and not carried_account
+            and not carry_out_signal
+            and not continuous_segment
+        ):
             return self._empty_result()
         return self._simulate_portfolio_matrix(matrix, config, progress_cb, cancel_event, options)
 
@@ -2600,6 +2660,57 @@ class BacktestEngine:
         if config.entry_prev_day_change_range is not None:
             execution_stats["buy_prev_day_change"] = 0
 
+        carry_in = options.carry_in
+        if carry_in is not None:
+            symbol_index = {str(sym): i for i, sym in enumerate(matrix.symbols)}
+            missing = sorted(
+                {
+                    str(pos.get("symbol") or "")
+                    for pos in carry_in.positions
+                    if str(pos.get("symbol") or "") not in symbol_index
+                }
+            )
+            if missing:
+                # 不许把找不到的持仓静默丢掉: 那会把亏损/盈利从账户里删除。
+                raise ValueError(
+                    "连续账户结转持仓在下一段行情矩阵中缺失: " + ", ".join(missing[:8])
+                )
+            cash = float(carry_in.cash)
+            peak = max(float(carry_in.peak), cash)
+            for carry_pos in carry_in.positions:
+                pos = dict(carry_pos)
+                pos["asset_id"] = symbol_index[str(pos["symbol"])]
+                # 上一段的 time id 在本段没有意义; -1 明确表示"无本段信号行"。
+                # 累计交易日年龄走 hold_days (随持仓结转), 不再依赖本段 time_id。
+                pos["entry_signal_time"] = -1
+                pos["entry_time_id"] = -1
+                if "hold_session_age" not in pos:
+                    # 兼容旧快照: 缺失时按 hold_days (成交日后的整会话数) 补一次。
+                    pos["hold_session_age"] = int(pos.get("hold_days", 0)) + 1
+                # 延展判定历史的可变列表按持仓深拷贝, 避免回写上一段的 carry 快照。
+                if isinstance(pos.get("hold_high_history"), list):
+                    pos["hold_high_history"] = list(pos["hold_high_history"])
+                if isinstance(pos.get("hold_close_history"), list):
+                    pos["hold_close_history"] = list(pos["hold_close_history"])
+                positions[next_position_id] = pos
+                next_position_id += 1
+            for carry_plan in carry_in.pending_buy_plans:
+                symbol = str(carry_plan.get("symbol") or "")
+                if symbol not in symbol_index:
+                    # 次日开盘计划落在本段没有行情的标的上: 拒买并留痕, 不跨段乱指。
+                    execution_stats["buy_invalid_price"] = (
+                        execution_stats.get("buy_invalid_price", 0) + 1
+                    )
+                    continue
+                plan = dict(carry_plan)
+                plan["asset_id"] = symbol_index[symbol]
+                plan["signal_time"] = -1
+                pending_buy_plans.append(plan)
+            for symbol, close in (carry_in.last_close or {}).items():
+                asset = symbol_index.get(str(symbol))
+                if asset is not None and np.isfinite(close) and close > 0:
+                    last_close[asset] = float(close)
+
         minute_cache: dict = {}
         if config.minute_fill:
             trigger_times, trigger_assets = np.nonzero(matrix.entry | matrix.exit)
@@ -2613,17 +2724,28 @@ class BacktestEngine:
                 minute_cache = {key: value for key, value in loaded.items() if value is not None and len(value) > 0}
 
         hold_policy = config.hold_extension_policy
-        hold_ma5: np.ndarray | None = None
-        hold_ma10: np.ndarray | None = None
+        # 延展判定用到的收盘价序列: 有原始执行价时与旧实现一致地取复权收盘。
+        hold_close_series: np.ndarray | None = None
         if hold_policy is not None:
-            ma_close = (
+            hold_close_series = (
                 matrix.close
                 if raw_execution is not None
                 else execution_close
             )
-            close_valid = np.isfinite(ma_close) & (ma_close > 0)
-            hold_ma5 = valid_rolling_mean(ma_close, close_valid, 5)
-            hold_ma10 = valid_rolling_mean(ma_close, close_valid, 10)
+
+        def _hold_seed_highs(time_id: int, asset_id: int, window: int) -> list[float]:
+            """成交日之前最近 window 根 K 线的高点, 供跨折延续 runner 判定窗口。"""
+            if hold_policy is None or window <= 0 or time_id <= 0:
+                return []
+            start = max(0, time_id - int(window))
+            return [float(v) for v in execution_high[start:time_id, asset_id]]
+
+        def _hold_seed_closes(time_id: int, asset_id: int) -> list[float]:
+            """成交日之前最近 10 根 K 线的收盘, 供跨折延续 MA5/MA10 口径。"""
+            if hold_close_series is None or time_id <= 0:
+                return []
+            start = max(0, time_id - 10)
+            return [float(v) for v in hold_close_series[start:time_id, asset_id]]
 
         def _count(key: str) -> None:
             execution_stats[key] = execution_stats.get(key, 0) + 1
@@ -3280,7 +3402,13 @@ class BacktestEngine:
                 "asset_id": asset_id,
                 "entry_date": date_text,
                 "entry_signal_time": signal_time,
-                "entry_signal_date": matrix.timestamp_labels[source_time][:10],
+                # 跨段结转的次日开盘计划没有本段信号行 (signal_time=-1):
+                # 沿用上一段记录的信号日期, 不能用负索引回绕到本段末行。
+                "entry_signal_date": (
+                    matrix.timestamp_labels[source_time][:10]
+                    if source_time >= 0
+                    else str(plan.get("signal_date") or date_text)
+                ),
                 "entry_time_id": time_id,
                 "entry_signal_id": _signal_id(int(plan["signal_code"]), matrix.entry_signal_ids),
                 "entry_price": price,
@@ -3297,8 +3425,22 @@ class BacktestEngine:
                 "max_raw_high_scale": 0.0,
                 "max_raw_close_scale": 0.0,
                 "hold_days": 1,
+                # 持有会话年龄: 成交日=1, 之后每个交易日 +1。随 carry_state 结转,
+                # 折边界不清零 —— 延展决策日与到期日必须按累计会话数判定。
+                "hold_session_age": 1,
                 "hold_plan": None,
                 "hold_limit_days": None,
+                # 与矩阵原生入场一致: 延展判定的前序窗口随持仓跨折延续。
+                "hold_high_history": _hold_seed_highs(
+                    time_id,
+                    asset_id,
+                    (
+                        hold_policy.runner_new_high_days
+                        if hold_policy is not None
+                        else 0
+                    ),
+                ),
+                "hold_close_history": _hold_seed_closes(time_id, asset_id),
                 "next_open_exit_reason": None,
                 "next_open_exit_signal_date": None,
                 "pending_exit_reason": None,
@@ -3317,7 +3459,10 @@ class BacktestEngine:
             cash_available: float | None = None,
         ) -> None:
             nonlocal pending_buy_plans
-            if time_id >= time_count - 1 or max_positions <= 0:
+            if max_positions <= 0:
+                return
+            # 普通单段回测末行没有次日成交位; 连续账户则把末行计划结转到下一段开盘。
+            if time_id >= time_count - 1 and not options.carry_out:
                 return
             source = matrix.source_entry
             if source is None:
@@ -3424,11 +3569,13 @@ class BacktestEngine:
                     continue
                 plans.append({
                     "asset_id": asset_id,
+                    "symbol": str(matrix.symbols[asset_id]),
                     "score": score,
                     "budget": budget,
                     "shares": shares,
                     "equity": equity,
                     "signal_time": time_id,
+                    "signal_date": matrix.timestamp_labels[time_id][:10],
                     "signal_code": int(matrix.entry_signal_code[time_id, asset_id]),
                 })
             pending_buy_plans = plans
@@ -3602,8 +3749,22 @@ class BacktestEngine:
                             "max_raw_high_scale": 0.0,
                             "max_raw_close_scale": 0.0,
                             "hold_days": 0,
+                            # 成交日记第 1 个持有会话 (与旧 time_id-entry_time_id+1 同口径)。
+                            "hold_session_age": 1,
                             "hold_plan": None,
                             "hold_limit_days": None,
+                            # 延展判定的前序行情随持仓跨折结转: 否则新段首日只能
+                            # 看到本段 K 线, runner 新高与 MA5/MA10 结论会改变。
+                            "hold_high_history": _hold_seed_highs(
+                                time_id,
+                                asset_id,
+                                (
+                                    hold_policy.runner_new_high_days
+                                    if hold_policy is not None
+                                    else 0
+                                ),
+                            ),
+                            "hold_close_history": _hold_seed_closes(time_id, asset_id),
                             "next_open_exit_reason": None,
                             "next_open_exit_signal_date": None,
                             "risk_exit_reason": None,
@@ -3683,6 +3844,8 @@ class BacktestEngine:
             blocked_today.clear()
             for pos in positions.values():
                 pos["hold_days"] += 1
+                # 已过夜持仓进入新交易日 = 多持有 1 个会话; 当日新建仓不在此累加。
+                pos["hold_session_age"] = int(pos.get("hold_session_age", 1)) + 1
 
             # 执行顺序按真实可见时点: 开盘(挂单重试/跳空越止损/计划开盘卖出) →
             # 日内(high/low 风控) → 收盘(卖点计划/持仓延展/到期)。开盘可成交的
@@ -3777,7 +3940,9 @@ class BacktestEngine:
             # same-open risk exits. The original engine submits planned orders
             # before evaluating intraday/open stop triggers, so an open stop
             # does not free cash for a buy that was already planned.
-            if config.plan_at_signal_close and pending_buy_plans:
+            # 计划只会在收盘计划模式或跨段结转时存在; 有就必须在当日开盘执行,
+            # 不能因为本段不是 plan_at_signal_close 而让结转计划永久挂起。
+            if pending_buy_plans:
                 plans, pending_buy_plans = pending_buy_plans, []
                 for plan in plans:
                     _buy_planned(time_id, date_text, plan, sold_today)
@@ -3822,10 +3987,13 @@ class BacktestEngine:
 
             # 非计划 open_t+1 建仓在开盘阶段完成: 只能使用开盘时点已释放的
             # 现金与仓位, 不能使用当日日内/收盘卖出后才释放的资金。
+            # 段末交易日: 单段回测末行没有"次日"可继续持有, 故不建仓; 但连续
+            # 账户 (carry_out) 的末行开盘成交就发生在本书段内, 跳过会整笔吞掉
+            # 该委托 (及其后续止损/持有期), 使同一笔交易在拆段后消失。
             if (
                 not config.plan_at_signal_close
                 and config.entry_fill == "open_t+1"
-                and time_id < time_count - 1
+                and (time_id < time_count - 1 or options.carry_out)
                 and max_positions > 0
             ):
                 _process_entries(time_id, date_text, sold_today)
@@ -4000,15 +4168,16 @@ class BacktestEngine:
                     reason = "signal"
                     signal_date = date_text
                 elif hold_policy is not None:
-                    # Count market sessions from the actual fill, including
-                    # entry day, regardless of the entry phase's counter update.
-                    holding_day = time_id - int(pos["entry_time_id"]) + 1
+                    # 累计交易日年龄: 成交日计第 1 天, 之后每个交易日 +1。
+                    # hold_session_age 随 carry_state 结转, 折边界不再清零; 旧实现用
+                    # 本段 time_id - entry_time_id 计算, 结转后 entry_time_id=-1, 会把
+                    # 决策日/延展到期日推到切分点之后的错误交易日。
+                    holding_day = int(pos.get("hold_session_age", 1))
                     plan = pos.get("hold_plan")
                     if not plan and holding_day == hold_policy.decision_days:
-                        prior_highs = execution_high[
-                            max(0, time_id - hold_policy.runner_new_high_days) : time_id,
-                            asset_id,
-                        ]
+                        prior_highs = np.asarray(
+                            pos.get("hold_high_history") or [], dtype=np.float64
+                        )
                         current_high = float(execution_high[time_id, asset_id])
                         finite_prior_highs = prior_highs[np.isfinite(prior_highs)]
                         runner = (
@@ -4023,16 +4192,19 @@ class BacktestEngine:
                             current_close = float(
                                 execution_close[time_id, asset_id]
                             )
-                            fast = (
-                                float(hold_ma5[time_id, asset_id])
-                                if hold_ma5 is not None
-                                else np.nan
+                            close_window = [
+                                float(v)
+                                for v in (pos.get("hold_close_history") or [])
+                            ]
+                            # 历史窗口与 MA 同尺度 (raw 模式下为复权收盘), 不能把
+                            # 原始执行价直接混进来, 否则快慢线尺度错位。
+                            close_window.append(
+                                float(hold_close_series[time_id, asset_id])
+                                if hold_close_series is not None
+                                else current_close
                             )
-                            slow = (
-                                float(hold_ma10[time_id, asset_id])
-                                if hold_ma10 is not None
-                                else np.nan
-                            )
+                            fast = _last_valid_mean(close_window, 5)
+                            slow = _last_valid_mean(close_window, 10)
                             if raw_execution is not None:
                                 adjusted_close = float(
                                     matrix.close[time_id, asset_id]
@@ -4070,7 +4242,11 @@ class BacktestEngine:
                         pos["next_open_exit_signal_date"] = date_text
                 elif config.max_hold_days is not None and pos["hold_days"] >= config.max_hold_days:
                     reason = "max_hold"
-                elif time_id == time_count - 1 and not config.finalize_open_at_end:
+                elif (
+                    time_id == time_count - 1
+                    and not config.finalize_open_at_end
+                    and not options.carry_out
+                ):
                     reason = "end"
                 if reason:
                     _try_sell(
@@ -4131,6 +4307,23 @@ class BacktestEngine:
                             if raw_high >= float(pos.get("max_raw_high", 0.0)):
                                 pos["max_raw_high"] = raw_high
                                 pos["max_raw_high_scale"] = current_raw_scale
+            if hold_policy is not None:
+                # 收盘后把当日行情并入延展判定历史 (只含已完成 K 线, 不含未来)。
+                high_window = int(hold_policy.runner_new_high_days)
+                for pos in positions.values():
+                    asset = int(pos["asset_id"])
+                    highs = pos.get("hold_high_history")
+                    if isinstance(highs, list):
+                        highs.append(float(execution_high[time_id, asset]))
+                        if high_window <= 0:
+                            highs.clear()
+                        elif len(highs) > high_window:
+                            del highs[: len(highs) - high_window]
+                    closes = pos.get("hold_close_history")
+                    if isinstance(closes, list) and hold_close_series is not None:
+                        closes.append(float(hold_close_series[time_id, asset]))
+                        if len(closes) > 10:
+                            del closes[: len(closes) - 10]
             valid_closes = np.isfinite(execution_close[time_id]) & (
                 execution_close[time_id] > 0
             )
@@ -4162,7 +4355,49 @@ class BacktestEngine:
         # T74 原始执行模型则保留为 openAtEnd — 只按最后收盘价估值，不伪造卖出
         # 成交、不计已实现盈亏或卖出费用。
         pending_exit_count = sum(1 for pos in positions.values() if pos.get("pending_exit_reason"))
-        if config.finalize_open_at_end:
+        carry_state: PortfolioCarryState | None = None
+        if options.carry_out:
+            # 连续账户: 本段不结算, 现金/持仓/峰值/待执行计划原样交给下一段。
+            # 段末原始信号在单段回测里没有"次日"可成交, 必须显式转成跨段计划:
+            # 次日开盘买入计划 / 次日开盘卖出挂单, 否则折边界会吞掉一天信号。
+            last_time = time_count - 1
+            last_date = matrix.timestamp_labels[last_time][:10]
+            if config.entry_fill == "open_t+1" and max_positions > 0:
+                _plan_buys(last_time, last_date, set())
+            if config.exit_fill == "open_t+1":
+                for pos in positions.values():
+                    if pos.get("pending_exit_reason"):
+                        continue
+                    asset = int(pos["asset_id"])
+                    if not _exit_signal_at(last_time, asset, pos):
+                        continue
+                    if not _exit_signal_profit_armed(last_time, asset, pos):
+                        continue
+                    pos["pending_exit_reason"] = "signal"
+                    pos["pending_exit_signal_date"] = last_date
+                    pos["pending_exit_signal_id"] = _signal_id(
+                        int(matrix.exit_signal_code[last_time, asset]),
+                        matrix.exit_signal_ids,
+                    )
+                    pos["pending_exit_next_open"] = True
+            carry_state = PortfolioCarryState(
+                cash=float(cash),
+                peak=float(peak),
+                positions=[
+                    {**pos, "symbol": str(matrix.symbols[int(pos["asset_id"])])}
+                    for pos in positions.values()
+                ],
+                pending_buy_plans=[
+                    {**plan, "symbol": str(matrix.symbols[int(plan["asset_id"])])}
+                    for plan in pending_buy_plans
+                ],
+                last_close={
+                    str(matrix.symbols[i]): float(value)
+                    for i, value in enumerate(last_close)
+                    if np.isfinite(value) and value > 0
+                },
+            )
+        elif config.finalize_open_at_end:
             for position_id in list(positions):
                 pos = positions.pop(position_id)
                 asset_id = int(pos["asset_id"])
@@ -4243,6 +4478,7 @@ class BacktestEngine:
                 else []
             ),
             stats=stats,
+            carry_state=carry_state,
         )
 
     def simulate_portfolio_legacy(
