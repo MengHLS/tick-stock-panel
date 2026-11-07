@@ -1,0 +1,493 @@
+{
+  "script": "research/gate-fa43-20261108/evidence_attribution_20261108.py",
+  "started_at": "2026-11-08 01:07:13",
+  "python": "3.11.15",
+  "head": "286c1c86",
+  "note": "归属用 patch_task2.py 的字面量 + mtime 指纹判定；必要性用 pydantic 边界量；越界面用逐行对照量。",
+  "attribution": {
+    "edits": [
+      {
+        "edit": "A-auction-fixture",
+        "file": "backend/tests/test_auction_factor_pack.py",
+        "old_in_HEAD": 1,
+        "new_in_worktree": 1,
+        "old_in_worktree": 0,
+        "ok": true
+      },
+      {
+        "edit": "B-auction-restore",
+        "file": "backend/tests/test_auction_factor_pack.py",
+        "old_in_HEAD": 1,
+        "new_in_worktree": 1,
+        "old_in_worktree": 0,
+        "ok": true
+      },
+      {
+        "edit": "C-matrix-in-universe",
+        "file": "backend/tests/backtest/test_matrix_strategy.py",
+        "old_in_HEAD": 1,
+        "new_in_worktree": 0,
+        "old_in_worktree": 0,
+        "ok": true,
+        "supersede_chain": [
+          {
+            "supersede_edit": "M1-helper",
+            "v1_new_is_v2_old": false,
+            "v2_old_in_worktree": 0,
+            "v2_new_in_worktree": 1
+          },
+          {
+            "supersede_edit": "M2-names",
+            "v1_new_is_v2_old": true,
+            "v2_old_in_worktree": 0,
+            "v2_new_in_worktree": 1
+          }
+        ],
+        "note": "第一版修法已被 patch_matrix_v2.py 覆盖（不属于本行改动链）"
+      },
+      {
+        "edit": "D-matrix-constant",
+        "file": "backend/tests/backtest/test_matrix_strategy.py",
+        "old_in_HEAD": 1,
+        "new_in_worktree": 0,
+        "old_in_worktree": 1,
+        "ok": true,
+        "supersede_chain": [
+          {
+            "supersede_edit": "M1-helper",
+            "v1_new_is_v2_old": false,
+            "v2_old_in_worktree": 0,
+            "v2_new_in_worktree": 1
+          },
+          {
+            "supersede_edit": "M2-names",
+            "v1_new_is_v2_old": false,
+            "v2_old_in_worktree": 0,
+            "v2_new_in_worktree": 1
+          }
+        ],
+        "note": "第一版修法已被 patch_matrix_v2.py 覆盖（不属于本行改动链）"
+      },
+      {
+        "edit": "E-batch-cap",
+        "file": "backend/app/api/backtest.py",
+        "old_in_HEAD": 1,
+        "new_in_worktree": 1,
+        "old_in_worktree": 0,
+        "ok": true
+      }
+    ],
+    "timeline": [
+      {
+        "path": "research\\gate-fa43-20261108\\patch_gate.py",
+        "mtime": "2026-11-08 00:38:05",
+        "mtime_ns": 1794069485027158500,
+        "bytes": 11649,
+        "role": "script"
+      },
+      {
+        "path": "research\\gate-fa43-20261108\\patch_task2.py",
+        "mtime": "2026-11-08 00:38:43",
+        "mtime_ns": 1794069523243329500,
+        "bytes": 5069,
+        "role": "script"
+      },
+      {
+        "path": "backend\\tests\\test_auction_factor_pack.py",
+        "mtime": "2026-11-08 00:38:50",
+        "mtime_ns": 1794069530696187500,
+        "bytes": 9369,
+        "role": "target"
+      },
+      {
+        "path": "backend\\app\\api\\backtest.py",
+        "mtime": "2026-11-08 00:38:50",
+        "mtime_ns": 1794069530698187500,
+        "bytes": 64729,
+        "role": "target"
+      },
+      {
+        "path": "research\\gate-fa43-20261108\\patch_tests.py",
+        "mtime": "2026-11-08 00:40:22",
+        "mtime_ns": 1794069622732508600,
+        "bytes": 14936,
+        "role": "script"
+      },
+      {
+        "path": "research\\gate-fa43-20261108\\patch_matrix_v2.py",
+        "mtime": "2026-11-08 00:45:16",
+        "mtime_ns": 1794069916591249900,
+        "bytes": 3849,
+        "role": "script"
+      },
+      {
+        "path": "backend\\tests\\backtest\\test_matrix_strategy.py",
+        "mtime": "2026-11-08 00:45:22",
+        "mtime_ns": 1794069922933473200,
+        "bytes": 45780,
+        "role": "target"
+      }
+    ],
+    "gaps": [
+      {
+        "from": "research\\gate-fa43-20261108\\patch_gate.py",
+        "to": "research\\gate-fa43-20261108\\patch_task2.py",
+        "delta_ms": 38216.2,
+        "from_role": "script",
+        "to_role": "script"
+      },
+      {
+        "from": "research\\gate-fa43-20261108\\patch_task2.py",
+        "to": "backend\\tests\\test_auction_factor_pack.py",
+        "delta_ms": 7452.9,
+        "from_role": "script",
+        "to_role": "target"
+      },
+      {
+        "from": "backend\\tests\\test_auction_factor_pack.py",
+        "to": "backend\\app\\api\\backtest.py",
+        "delta_ms": 2.0,
+        "from_role": "target",
+        "to_role": "target"
+      },
+      {
+        "from": "backend\\app\\api\\backtest.py",
+        "to": "research\\gate-fa43-20261108\\patch_tests.py",
+        "delta_ms": 92034.3,
+        "from_role": "target",
+        "to_role": "script"
+      },
+      {
+        "from": "research\\gate-fa43-20261108\\patch_tests.py",
+        "to": "research\\gate-fa43-20261108\\patch_matrix_v2.py",
+        "delta_ms": 293858.7,
+        "from_role": "script",
+        "to_role": "script"
+      },
+      {
+        "from": "research\\gate-fa43-20261108\\patch_matrix_v2.py",
+        "to": "backend\\tests\\backtest\\test_matrix_strategy.py",
+        "delta_ms": 6342.2,
+        "from_role": "script",
+        "to_role": "target"
+      }
+    ]
+  },
+  "necessity": {
+    "catalog": 110,
+    "head_cap": 96,
+    "rejected_at_head": {
+      "type": "too_long",
+      "loc": [
+        "factor_names"
+      ],
+      "msg": "List should have at most 96 items after validation, not 110",
+      "ctx": {
+        "field_type": "List",
+        "max_length": 96,
+        "actual_length": 110
+      }
+    },
+    "over_201": "too_long"
+  },
+  "scope": {
+    "constraint_lines": [
+      [
+        86,
+        "    symbols: list[str] = Field(..., min_length=1)"
+      ],
+      [
+        144,
+        "    factor_name: str = Field(..., min_length=1, max_length=64)"
+      ],
+      [
+        205,
+        "    factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量"
+      ],
+      [
+        273,
+        "    name: str = Field(..., min_length=1, max_length=80)"
+      ],
+      [
+        274,
+        "    source_id: str = Field(..., min_length=1, max_length=120)"
+      ],
+      [
+        282,
+        "    name: str | None = Field(None, min_length=1, max_length=80)"
+      ],
+      [
+        473,
+        "    run_id: str = Field(min_length=1, max_length=64)"
+      ],
+      [
+        474,
+        "    name: str | None = Field(default=None, max_length=120)"
+      ]
+    ],
+    "diffs": [
+      {
+        "line": 205,
+        "head": "    factor_names: list[str] = Field(..., min_length=1, max_length=96)  # 目录 86 + 自定义余量",
+        "work": "    factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量"
+      }
+    ],
+    "diff_plus": [
+      "+    factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量"
+    ],
+    "diff_minus": [
+      "-    factor_names: list[str] = Field(..., min_length=1, max_length=96)  # 目录 86 + 自定义余量"
+    ]
+  },
+  "target": {
+    "path": "backend\\app\\api\\backtest.py",
+    "mtime": "2026-11-08 00:38:50",
+    "mtime_ns": 1794069530698187500,
+    "bytes": 64729
+  },
+  "target_sha256": "cebd2dbffdf4a4bf4f34a70806bd34915aab8cbaba1ccdcc6b7133a3c0322bdc",
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "check": "归属/A1 逐条编辑的三元判据（old∈HEAD ×1, new∈工作区 ×1, old∉工作区；被 v2 覆盖的两处按覆盖链判）",
+      "ok": true,
+      "detail": [
+        {
+          "edit": "A-auction-fixture",
+          "file": "backend/tests/test_auction_factor_pack.py",
+          "old_in_HEAD": 1,
+          "new_in_worktree": 1,
+          "old_in_worktree": 0,
+          "ok": true
+        },
+        {
+          "edit": "B-auction-restore",
+          "file": "backend/tests/test_auction_factor_pack.py",
+          "old_in_HEAD": 1,
+          "new_in_worktree": 1,
+          "old_in_worktree": 0,
+          "ok": true
+        },
+        {
+          "edit": "C-matrix-in-universe",
+          "file": "backend/tests/backtest/test_matrix_strategy.py",
+          "old_in_HEAD": 1,
+          "new_in_worktree": 0,
+          "old_in_worktree": 0,
+          "ok": true,
+          "supersede_chain": [
+            {
+              "supersede_edit": "M1-helper",
+              "v1_new_is_v2_old": false,
+              "v2_old_in_worktree": 0,
+              "v2_new_in_worktree": 1
+            },
+            {
+              "supersede_edit": "M2-names",
+              "v1_new_is_v2_old": true,
+              "v2_old_in_worktree": 0,
+              "v2_new_in_worktree": 1
+            }
+          ],
+          "note": "第一版修法已被 patch_matrix_v2.py 覆盖（不属于本行改动链）"
+        },
+        {
+          "edit": "D-matrix-constant",
+          "file": "backend/tests/backtest/test_matrix_strategy.py",
+          "old_in_HEAD": 1,
+          "new_in_worktree": 0,
+          "old_in_worktree": 1,
+          "ok": true,
+          "supersede_chain": [
+            {
+              "supersede_edit": "M1-helper",
+              "v1_new_is_v2_old": false,
+              "v2_old_in_worktree": 0,
+              "v2_new_in_worktree": 1
+            },
+            {
+              "supersede_edit": "M2-names",
+              "v1_new_is_v2_old": false,
+              "v2_old_in_worktree": 0,
+              "v2_new_in_worktree": 1
+            }
+          ],
+          "note": "第一版修法已被 patch_matrix_v2.py 覆盖（不属于本行改动链）"
+        },
+        {
+          "edit": "E-batch-cap",
+          "file": "backend/app/api/backtest.py",
+          "old_in_HEAD": 1,
+          "new_in_worktree": 1,
+          "old_in_worktree": 0,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "check": "归属/A2 patch_task2.py 的两个目标文件 mtime 相距 < 10 ms（同一次写盘循环）",
+      "ok": true,
+      "detail": {
+        "pair": [
+          {
+            "from": "backend\\tests\\test_auction_factor_pack.py",
+            "to": "backend\\app\\api\\backtest.py",
+            "delta_ms": 2.0,
+            "from_role": "target",
+            "to_role": "target"
+          }
+        ],
+        "timeline": [
+          {
+            "path": "research\\gate-fa43-20261108\\patch_gate.py",
+            "mtime": "2026-11-08 00:38:05",
+            "mtime_ns": 1794069485027158500,
+            "bytes": 11649,
+            "role": "script"
+          },
+          {
+            "path": "research\\gate-fa43-20261108\\patch_task2.py",
+            "mtime": "2026-11-08 00:38:43",
+            "mtime_ns": 1794069523243329500,
+            "bytes": 5069,
+            "role": "script"
+          },
+          {
+            "path": "backend\\tests\\test_auction_factor_pack.py",
+            "mtime": "2026-11-08 00:38:50",
+            "mtime_ns": 1794069530696187500,
+            "bytes": 9369,
+            "role": "target"
+          },
+          {
+            "path": "backend\\app\\api\\backtest.py",
+            "mtime": "2026-11-08 00:38:50",
+            "mtime_ns": 1794069530698187500,
+            "bytes": 64729,
+            "role": "target"
+          },
+          {
+            "path": "research\\gate-fa43-20261108\\patch_tests.py",
+            "mtime": "2026-11-08 00:40:22",
+            "mtime_ns": 1794069622732508600,
+            "bytes": 14936,
+            "role": "script"
+          },
+          {
+            "path": "research\\gate-fa43-20261108\\patch_matrix_v2.py",
+            "mtime": "2026-11-08 00:45:16",
+            "mtime_ns": 1794069916591249900,
+            "bytes": 3849,
+            "role": "script"
+          },
+          {
+            "path": "backend\\tests\\backtest\\test_matrix_strategy.py",
+            "mtime": "2026-11-08 00:45:22",
+            "mtime_ns": 1794069922933473200,
+            "bytes": 45780,
+            "role": "target"
+          }
+        ]
+      }
+    },
+    {
+      "check": "归属/A3 目标行：HEAD 是 96，工作区是 200，且与 E-batch-cap 的 old/new 同字节",
+      "ok": true,
+      "detail": {
+        "head_line": "factor_names: list[str] = Field(..., min_length=1, max_length=96)  # 目录 86 + 自定义余量",
+        "work_line": "factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量",
+        "edit": {
+          "edit": "E-batch-cap",
+          "file": "backend/app/api/backtest.py",
+          "old_in_HEAD": 1,
+          "new_in_worktree": 1,
+          "old_in_worktree": 0,
+          "ok": true
+        }
+      }
+    },
+    {
+      "check": "必要性/B1 因子目录长度",
+      "ok": true,
+      "detail": {
+        "len": 110,
+        "unique": 110
+      }
+    },
+    {
+      "check": "必要性/B2 工作区模型接受整份目录（110 名）",
+      "ok": true,
+      "detail": {
+        "len": 110
+      }
+    },
+    {
+      "check": "必要性/B3 HEAD 上限（96）拒绝整份目录（110 名）",
+      "ok": true,
+      "detail": {
+        "head_cap": 96,
+        "rejected": {
+          "type": "too_long",
+          "loc": [
+            "factor_names"
+          ],
+          "msg": "List should have at most 96 items after validation, not 110",
+          "ctx": {
+            "field_type": "List",
+            "max_length": 96,
+            "actual_length": 110
+          }
+        }
+      }
+    },
+    {
+      "check": "必要性/B4 新上限 200 仍兜底（201 名被拒）",
+      "ok": true,
+      "detail": {
+        "rejected_type": "too_long"
+      }
+    },
+    {
+      "check": "必要性/B5 既有测试用整份目录构造请求（未被改动）",
+      "ok": true,
+      "detail": {
+        "lines": [
+          "    factor_names = [item[\"id\"] for item in FACTOR_COLUMNS]"
+        ]
+      }
+    },
+    {
+      "check": "越界面/C1 8 处 min/max_length 中只有 1 处变（第 205 行）",
+      "ok": true,
+      "detail": {
+        "worktree_lines": 8,
+        "head_lines": 8,
+        "diffs": [
+          {
+            "line": 205,
+            "head": "    factor_names: list[str] = Field(..., min_length=1, max_length=96)  # 目录 86 + 自定义余量",
+            "work": "    factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量"
+          }
+        ]
+      }
+    },
+    {
+      "check": "越界面/C2 该文件整份 diff = +1/-1 行",
+      "ok": true,
+      "detail": {
+        "plus": 1,
+        "minus": 1,
+        "plus_lines": [
+          "+    factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量"
+        ],
+        "minus_lines": [
+          "-    factor_names: list[str] = Field(..., min_length=1, max_length=96)  # 目录 86 + 自定义余量"
+        ]
+      }
+    }
+  ]
+}

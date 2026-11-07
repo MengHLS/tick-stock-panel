@@ -5,15 +5,23 @@ Reads:
   docs/factors/evidence/f_class_registry.json           (machine-readable ledger)
   docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md
                                                         (section 7.1 - frozen authority)
-  docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md
-                                                        (section 7.1 - live numbered revision;
-                                                         check [4] binds BOTH: either differs
-                                                         -> FAIL, and both sha256 are printed)
+  docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md
+                                                        (section 7.1 - READ SOURCE ONLY: the
+                                                         version number is not binding; check
+                                                         [4] reads this file's 7.1 block and
+                                                         matches it against the registered
+                                                         block hash)
   docs/factors/F_CLASS_REGISTRATION_20261107.md         (human ledger)
 
 Prints one line per check with its violation count, plus a per-factor table,
 then compares the computed counts with the numbers recorded in the JSON
 `self_check` block. Exits 1 if any violation or any recorded/computed mismatch.
+
+Binding (v5.9): the judgment object is the SECTION 7.1 BLOCK, not the whole version file.
+Both contracts must carry a 7.1 block whose sha256 equals the registered constant in BOTH
+calibers -- LF-normalized (2,514 chars / 6d3db013...) and raw CRLF (2,541 chars / a8e88134...).
+Binding a whole-file hash let a rewrite of 7.1 inside any numbered revision pass silently;
+binding the block does not. The version number is provenance, never a judgment input.
 
 Run from anywhere (paths are resolved from this file):
     python docs/factors/evidence/scripts/check_f_class_ledger.py
@@ -35,17 +43,26 @@ LF = bytes((10,))
 REPO = Path(__file__).resolve().parents[4]
 REGISTRY = REPO / "docs" / "factors" / "evidence" / "f_class_registry.json"
 LEDGER = REPO / "docs" / "factors" / "F_CLASS_REGISTRATION_20261107.md"
-# Dual binding (v5.4). The FROZEN v0.3 archive is the immutable authority; the numbered live
-# revision is the wording the team actually cites, and since 2026-11-07T17:16:36 that is v0.6
-# (the revision R6 froze). Measured this round: the section 7.1 block is byte-identical in the
-# archive, v0.4, v0.5 and v0.6 (2,541 chars incl. trailing newline / sha256 a8e88134...), so
-# moving the pointer from v0.5 to v0.6 cannot flip any check result. Binding both still costs
-# nothing -- and any future edit to either one now trips check [4] instead of passing silently
-# (binding the archive alone would have missed a live-file edit). v0.5 is printed as
-# non-binding evidence that the block has not drifted across revisions. The un-numbered live
-# file docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md is deliberately NOT bound: it has
-# several writers and is rewritten repeatedly during the day, so a green run could not be
-# attributed to any single revision (it is a staging file, not a revision).
+
+# --- registered section 7.1 block hash (v5.9) ------------------------------
+# Binding object = the section 7.1 BLOCK, not the whole version file. The block is the same
+# text in the frozen v0.3 archive and in every numbered revision (v0.4 .. v0.12), so its hash
+# is the stable object while the version number is only provenance. Two calibers, BOTH must
+# match:
+#   1) LF normalized  (CRLF collapsed to LF)   2,514 chars / 6d3db013...
+#   2) raw CRLF kept  (original line endings)  2,541 chars / a8e88134...
+# They differ by exactly 27 characters = one CR per line of the 27-line block; the text is
+# identical. A citation must name its caliber: the two digests are different, so "the 7.1
+# hash" with no caliber is ambiguous.
+S71_LF_CHARS = 2514
+S71_LF_SHA256 = "6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8"
+S71_CRLF_CHARS = 2541
+S71_CRLF_SHA256 = "a8e88134f60b504c5bb7e6280e419e05b1c05afc13ae5abc1fd028dd1db737ef"
+
+# Dual binding, kept: (1) the immutable frozen archive, (2) one current revision used only as
+# a READ SOURCE. Neither file's whole-file hash is a judgment input any more -- only the 7.1
+# block hash is (S71_*). So moving this pointer to a later revision cannot flip a result by
+# itself, and rewriting 7.1 inside any revision can no longer pass silently.
 CONTRACT = (
     REPO
     / "docs"
@@ -57,15 +74,7 @@ CONTRACT_LIVE = (
     REPO
     / "docs"
     / "architecture"
-    / "FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md"
-)
-# Non-binding: previous numbered revision, printed only as evidence that section 7.1 has not
-# drifted between revisions (v0.4 / v0.5 / v0.6 / archive all carry the same block today).
-CONTRACT_PREV = (
-    REPO
-    / "docs"
-    / "architecture"
-    / "FACTOR_ENGINE_CONTRACTS_20261107_v0.5.md"
+    / "FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md"
 )
 
 # research_name, uf_ id, warmup_bars -- fixed by the contract F-A1 and the task brief.
@@ -131,6 +140,19 @@ def lf_normalized_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes().replace(CRLF, LF)).hexdigest()
 
 
+def rel(path: Path) -> str:
+    """Repo-relative label when the file is inside the repo, absolute path otherwise.
+
+    Both bound contracts normally live in the repo, but a negative test may point at a copy
+    outside it. That case must print a usable label and FAIL on the block hash -- never raise
+    ValueError from relative_to() and turn a negative test into a traceback with no verdict.
+    """
+    try:
+        return str(path.relative_to(REPO))
+    except ValueError:
+        return str(path)
+
+
 def fingerprint(label: str, path: Path) -> str:
     """One report line: LF-normalized sha256 plus size / line / CRLF counts."""
     raw = path.read_bytes()
@@ -158,17 +180,27 @@ def contract_section_71(path: Path) -> tuple[list[str], int, int]:
     return text, start, end
 
 
-def section_71_digest(path: Path) -> tuple[str, str, int]:
-    """(sha256, text, chars) of the section 7.1 block; line endings normalized to LF.
+def section_71_block(path: Path) -> dict:
+    """Section 7.1 of one contract file, hashed in BOTH registered calibers.
 
-    The block includes its trailing newline: that is the caliber the team cites (2,541 chars /
-    a8e88134...). Dropping the trailing newline gives the same block at 2,513 chars /
-    e9ed2b10... -- either way every bound revision carries identical text.
+    The block includes its trailing newline. Both calibers are returned because both are
+    registered constants and both must match: LF-normalized (2,514 chars) and raw CRLF
+    (2,541 chars). They hash differently on purpose -- same text, different line endings.
     """
     text, start, end = contract_section_71(path)
-    block = "\n".join(text[start:end]) + "\n"
-    return hashlib.sha256(block.encode("utf-8")).hexdigest(), block, len(block)
-
+    lines = text[start:end]
+    nl = chr(10)
+    lf = nl.join(lines) + nl
+    crlf = (chr(13) + nl).join(lines) + chr(13) + nl
+    return {
+        "path": path,
+        "text": lf,
+        "n_lines": len(lines),
+        "lf_chars": len(lf),
+        "lf_sha256": hashlib.sha256(lf.encode("utf-8")).hexdigest(),
+        "crlf_chars": len(crlf),
+        "crlf_sha256": hashlib.sha256(crlf.encode("utf-8")).hexdigest(),
+    }
 
 def parse_contract_rows(block: str) -> dict[str, dict]:
     """Extract the 8 rows of one section 7.1 block (name -> formula/warmup/deps)."""
@@ -192,10 +224,10 @@ def main() -> int:
         raise SystemExit(f"FATAL: missing {REGISTRY}")
     data = load_json(REGISTRY)
     factors = data["factors"]
-    digest_a, block_a, chars_a = section_71_digest(CONTRACT)
-    digest_l, block_l, chars_l = section_71_digest(CONTRACT_LIVE)
-    contract = parse_contract_rows(block_a)
-    contract_live = parse_contract_rows(block_l)
+    s71_arch = section_71_block(CONTRACT)
+    s71_live = section_71_block(CONTRACT_LIVE)
+    contract = parse_contract_rows(s71_arch["text"])
+    contract_live = parse_contract_rows(s71_live["text"])
     ledger_text = LEDGER.read_text(encoding="utf-8") if LEDGER.exists() else ""
 
     checks: list[dict] = []
@@ -277,14 +309,41 @@ def main() -> int:
 
     # --- 4. formula_text verbatim vs contract section 7.1 -----------------
     v = []
-    # Dual binding: both bound files must carry the same 8 rows AND the same section 7.1 text.
-    # Either one differing is a FAIL, and both digests are printed (here and in BINDING).
-    if digest_a != digest_l:
+    # Block-hash binding (v5.9). Judgment inputs: the section 7.1 BLOCK of each bound file,
+    # in BOTH registered calibers. Whole-file hashes and version numbers are NOT judged, so a
+    # 7.1 rewrite inside any numbered revision trips this check instead of passing silently.
+    registered = {
+        "LF": (S71_LF_CHARS, S71_LF_SHA256),
+        "CRLF": (S71_CRLF_CHARS, S71_CRLF_SHA256),
+    }
+    for label, blk in (("archive", s71_arch), ("contract", s71_live)):
+        where = rel(blk["path"])
+        for caliber, (chars, digest) in registered.items():
+            got_chars = blk["lf_chars"] if caliber == "LF" else blk["crlf_chars"]
+            got_digest = blk["lf_sha256"] if caliber == "LF" else blk["crlf_sha256"]
+            if got_chars != chars:
+                v.append(
+                    f"{label} ({where}): section 7.1 {caliber} {got_chars} chars "
+                    f"!= registered constant {chars} chars"
+                )
+            if got_digest != digest:
+                v.append(
+                    f"{label} ({where}): section 7.1 {caliber} sha256 {got_digest} "
+                    f"!= registered constant {digest}"
+                )
+    if s71_arch["lf_sha256"] != s71_live["lf_sha256"]:
         v.append(
-            "section 7.1 differs between the two bound contracts: "
-            f"archive {digest_a} ({chars_a} chars) vs live {digest_l} ({chars_l} chars)"
+            "section 7.1 LF sha256 differs between the two bound files: "
+            f"archive {s71_arch['lf_sha256']} ({s71_arch['lf_chars']} chars) vs "
+            f"contract {s71_live['lf_sha256']} ({s71_live['lf_chars']} chars)"
         )
-    for label, rows in (("frozen v0.3 archive", contract), ("live v0.6", contract_live)):
+    if s71_arch["crlf_sha256"] != s71_live["crlf_sha256"]:
+        v.append(
+            "section 7.1 CRLF sha256 differs between the two bound files: "
+            f"archive {s71_arch['crlf_sha256']} ({s71_arch['crlf_chars']} chars) vs "
+            f"contract {s71_live['crlf_sha256']} ({s71_live['crlf_chars']} chars)"
+        )
+    for label, rows in (("frozen v0.3 archive", contract), ("current revision", contract_live)):
         if len(rows) != len(EXPECTED):
             v.append(f"{label}: parsed {len(rows)} rows from 7.1, expected {len(EXPECTED)}")
         for f in factors:
@@ -306,9 +365,12 @@ def main() -> int:
                 v.append(f"{name}: dependencies {deps} != {label} {ref['deps']}")
     add(
         "formula_verbatim_vs_contract",
-        "formula_text/warmup/deps are byte-identical to section 7.1 of BOTH bound contracts "
-        "(frozen v0.3 archive + live numbered revision v0.6), and those two 7.1 blocks are "
-        "identical; either differing -> FAIL, with both sha256 printed",
+        "formula_text/warmup_bars/dependencies are identical to section 7.1 of BOTH bound "
+        "contracts (frozen v0.3 archive + one current revision, read source only); each file's "
+        "7.1 BLOCK hash must equal the registered constant in BOTH calibers (LF 2,514 chars / "
+        "6d3db013... and raw CRLF 2,541 chars / a8e88134...), and the two blocks must be equal "
+        "in both calibers; the contract VERSION NUMBER is not a judgment input, but any block "
+        "rewrite -> FAIL with both hashes printed",
         v,
     )
 
@@ -583,20 +645,14 @@ def main() -> int:
     print(f"  registry : {REGISTRY.relative_to(REPO)}")
     print(f"  ledger   : {LEDGER.relative_to(REPO)}")
     print(f"  contract : {CONTRACT.relative_to(REPO)}  (frozen v0.3 archive, read-only)")
-    print(f"  contract2: {CONTRACT_LIVE.relative_to(REPO)}  (live numbered revision, dual-bound)")
-    print(f"  s7.1 archive: {chars_a} chars  sha256 {digest_a}")
-    print(f"  s7.1 live   : {chars_l} chars  sha256 {digest_l}")
-    print(f"  s7.1 identical: {digest_a == digest_l}")
-    print(f"  s7.1 caliber: block INCLUDES its trailing newline (LF-normalized {chars_a} chars);"
-          f" without it the same block is 2,513 chars / e9ed2b10...")
-    raw_block = "\r\n".join(block_a.split("\n"))
-    print(f"  s7.1 caliber: hashed in its RAW CRLF form incl trailing newline: "
-          f"{len(raw_block)} chars / {hashlib.sha256(raw_block.encode('utf-8')).hexdigest()[:8]}..."
-          f"  (this is the a8e88134f60b504c figure quoted in team notes)")
-    if CONTRACT_PREV.exists():
-        digest_p, _, chars_p = section_71_digest(CONTRACT_PREV)
-        print(f"  s7.1 v0.5 (non-binding evidence): {chars_p} chars  sha256 {digest_p}"
-              f"  same={digest_p == digest_a}")
+    print(f"  contract2: {rel(CONTRACT_LIVE)}  (current revision, read source only)")
+    print("  s7.1 binding: BLOCK hash, not the whole-file hash; version number not judged")
+    print(f"  s7.1 archive LF/CRLF: {s71_arch['lf_chars']}/{s71_arch['crlf_chars']} chars  "
+          f"sha256 {s71_arch['lf_sha256'][:8]}... / {s71_arch['crlf_sha256'][:8]}...")
+    print(f"  s7.1 contract LF/CRLF: {s71_live['lf_chars']}/{s71_live['crlf_chars']} chars  "
+          f"sha256 {s71_live['lf_sha256'][:8]}... / {s71_live['crlf_sha256'][:8]}...")
+    print(f"  s7.1 registered: LF {S71_LF_CHARS} chars / {S71_LF_SHA256[:8]}...  "
+          f"CRLF {S71_CRLF_CHARS} chars / {S71_CRLF_SHA256[:8]}...  (both must match)")
     print(f"  factors  : {len(factors)}   contract rows parsed: {len(contract)} / {len(contract_live)}")
     print()
     print("per-factor:")
@@ -637,19 +693,31 @@ def main() -> int:
             mismatch += 1
     print(f"RECORD MISMATCHES: {mismatch}")
 
-    # --- binding: LF-normalized sha256 of the files this run actually checked ---
-    print("BINDING (LF-normalized sha256 = sha256 over bytes with CRLF collapsed to LF;")
-    print("         immune to line-ending rewrites, LF-only by policy)")
-    for label, path in (
-        ("registry", REGISTRY),
-        ("ledger", LEDGER),
-        ("contract", CONTRACT),
-        ("contract2", CONTRACT_LIVE),
-    ):
+    # --- binding ---------------------------------------------------------
+    # Two kinds of line, never mixed up:
+    #   registry / ledger  : whole-file LF-normalized sha256 (housekeeping fingerprint)
+    #   archive / contract : section 7.1 BLOCK sha256 in both registered calibers (the judgment)
+    print("BINDING")
+    print("  whole files (LF-normalized sha256 = sha256 over bytes with CRLF collapsed to LF;")
+    print("               immune to line-ending rewrites, LF-only by policy):")
+    for label, path in (("registry", REGISTRY), ("ledger", LEDGER)):
         if path.exists():
             print(fingerprint(label, path))
         else:
             print(f"  {label:<9}: MISSING {path}")
+    print("  section 7.1 block (the binding object; the contract version number is NOT binding):")
+    for label, blk in (("archive", s71_arch), ("contract", s71_live)):
+        print(f"  {label:<9}: {rel(blk['path'])}")
+        print(f"             LF   sha256 {blk['lf_sha256']}  ({blk['lf_chars']} chars)")
+        print(f"             CRLF sha256 {blk['crlf_sha256']}  ({blk['crlf_chars']} chars)")
+    ok_lf = all(blk["lf_chars"] == S71_LF_CHARS and blk["lf_sha256"] == S71_LF_SHA256
+                for blk in (s71_arch, s71_live))
+    ok_crlf = all(blk["crlf_chars"] == S71_CRLF_CHARS and blk["crlf_sha256"] == S71_CRLF_SHA256
+                  for blk in (s71_arch, s71_live))
+    print(f"  caliber LF  : {S71_LF_CHARS} chars / {S71_LF_SHA256}"
+          f"  == registered constant, both files: {ok_lf}")
+    print(f"  caliber CRLF: {S71_CRLF_CHARS} chars / {S71_CRLF_SHA256}"
+          f"  == registered constant, both files: {ok_crlf}")
     print()
 
     ok = total == 0 and mismatch == 0

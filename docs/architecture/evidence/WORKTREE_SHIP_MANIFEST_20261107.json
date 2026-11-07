@@ -1,642 +1,439 @@
 {
-  "schema": "worktree_ship_manifest/1",
-  "generated_at": "2026-11-07T21:46:05+08:00",
-  "repo": "C:/work/sourcecode/tick-stock-panel",
-  "branch": "dev",
-  "head": "65c6e42f1fcd6362e72699afb118bdbcb247b3d3",
-  "discipline": "no commit / no deploy / no restart; this file is delivery-surface evidence only",
-  "scope": "backend/ + docs/ (modified + untracked); research/ excluded; __pycache__ excluded",
-  "git_status": {
-    "modified": [
-      "backend/app/api/factors.py",
-      "backend/app/factors/dsl.py",
-      "backend/app/factors/store.py",
-      "backend/tests/test_factor_registry.py",
-      "backend/tests/test_factor_store.py",
-      "research/strategy-search-20261107/REPORT.md",
-      "research/strategy-search-20261107/results/registry.csv",
-      "research/strategy-search-20261107/results/registry.json",
-      "research/strategy-search-20261107/results/registry_table.md",
-      "research/strategy-search-20261107/scripts/make_report.py"
-    ],
-    "untracked": [
-      "backend/app/factors/gate.py",
-      "backend/scripts/build_referenced_factor_inventory.py",
-      "backend/tests/test_factor_gate.py",
-      "docs/INDEX_20261107.md",
-      "docs/architecture/",
-      "docs/factors/",
-      "docs/research/caliber-decisions-20261107.md",
-      "docs/research/factor-audit-20261107/",
-      "research/_intake/",
-      "research/arch-build-20261107/",
-      "research/b0-correction-20261107/",
-      "research/b2-engine-20261107/",
-      "research/e3-data-availability-20261107/",
-      "research/factor-registration-20261107/",
-      "research/factor-registration-b2-20261107/",
-      "research/factor-registration-fa5b-20261107/",
-      "research/gate-core-20261107/",
-      "research/independent-review-20261106/_b0report_final.md",
-      "research/independent-review-20261107/",
-      "research/jiaogedan-review-20261107/",
-      "research/mgr-verify-20261107/",
-      "research/pattern-review-20261107/",
-      "research/referenced-factor-inventory-20261107/",
-      "research/referenced-factor-inventory-v3-1-20261107/",
-      "research/referenced-factor-inventory-v3-20261107/",
-      "research/strategy-search-20261107/FACTOR_MAP_v1.md",
-      "research/strategy-search-20261107/RULE-CHANGE-20261107.md",
-      "research/strategy-search-20261107/factor_map_v1.json",
-      "research/strategy-search-20261107/results/e2_caliber_check_20261107.json",
-      "research/strategy-search-20261107/scripts/factor_map_build.py",
-      "research/tmp_sources.txt",
-      "research/trade-ledger-20261107/"
-    ],
-    "staged": [
-      "backend/app/custom/research_factor_pack/__init__.py",
-      "backend/app/custom/research_factor_pack/factor_provider.py",
-      "backend/app/custom/research_factor_pack/factor_specs.py",
-      "backend/app/custom/research_universe_pack/__init__.py",
-      "backend/app/custom/research_universe_pack/factor_provider.py",
-      "backend/app/custom/research_universe_pack/universe.py"
-    ],
-    "porcelain_lines": 48
+ "manifest": "WORKTREE_SHIP_MANIFEST_20261107",
+ "version": "v4.1",
+ "collected_at": "2026-11-08 00:14:49",
+ "repo": "C:/work/sourcecode/tick-stock-panel",
+ "branch": "dev",
+ "head": "286c1c862631042a2e9a43c57e9762c122e21f7f",
+ "head_short": "286c1c86",
+ "git_status": {
+  "rows": 19,
+  "A": 0,
+  "M_staged": 0,
+  "M_unstaged": 7,
+  "untracked": 12,
+  "expanded_rows": 19,
+  "index_mtime": "2026-11-07 23:58:38"
+ },
+ "A_note": {
+  "count": 0,
+  "all_under_research": true,
+  "A_in_backend_docs": 0,
+  "trigger": "23:30:21 .git/index 被批量更新，research/ 下 630 个文件进入暂存区",
+  "staged_is_not_committed": "暂存不产生版本，可 git reset 全额退回；登记人未参与"
+ },
+ "former_staged_A": [
+  {
+   "path": "backend/app/custom/research_calendar_pack/__init__.py",
+   "bytes": 502,
+   "sha256": "00b36dbd40739a324550049725afffc932c60d4f265db3f38f3bc1ea640a0017",
+   "mtime": "2026-11-07 21:57:34",
+   "vs_head": "BYTE_EQUAL",
+   "head_bytes": 502,
+   "head_sha256": "00b36dbd40739a324550049725afffc932c60d4f265db3f38f3bc1ea640a0017",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
   },
-  "modified_files": [
-    {
-      "path": "backend/app/api/factors.py",
-      "bytes": 24629,
-      "sha256": "b17228b3dcdfab26be21057c262ce43919a8f2d0904adf6addfb43d13e274ac0",
-      "mtime": "16:33:57"
-    },
-    {
-      "path": "backend/app/factors/dsl.py",
-      "bytes": 36785,
-      "sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b",
-      "mtime": "21:50:12"
-    },
-    {
-      "path": "backend/app/factors/store.py",
-      "bytes": 19502,
-      "sha256": "de77eae6815adecd5e6f75a97329967752bd6b3fe52208a412a88c5641701199",
-      "mtime": "16:33:52"
-    },
-    {
-      "path": "backend/tests/test_factor_registry.py",
-      "bytes": 27642,
-      "sha256": "de3ce0ad9e310f2af284d83b96a1eef1575ac3d4023f2eb55ac6b075219f7403",
-      "mtime": "20:48:59"
-    },
-    {
-      "path": "backend/tests/test_factor_store.py",
-      "bytes": 6793,
-      "sha256": "07cf3dc26288f7e0aa04bd26e997e2f2bf163f8dcc96439a7100912bc84e1df2",
-      "mtime": "20:48:59"
-    }
-  ],
-  "modified_files_out_of_scope": [
-    "research/strategy-search-20261107/REPORT.md",
-    "research/strategy-search-20261107/results/registry.csv",
-    "research/strategy-search-20261107/results/registry.json",
-    "research/strategy-search-20261107/results/registry_table.md",
-    "research/strategy-search-20261107/scripts/make_report.py"
-  ],
-  "untracked_files": [
-    {
-      "path": "backend/app/custom/research_factor_pack/__init__.py",
-      "bytes": 272,
-      "sha256": "29a156cdfa78aa4985a4900edec4f1786e17ad62fed73a3fd14f8bbfffe95902",
-      "mtime": "14:33:08"
-    },
-    {
-      "path": "backend/app/custom/research_factor_pack/factor_provider.py",
-      "bytes": 4553,
-      "sha256": "7ea31aadbb54453790b45af04db90075cbca73d58259eb81436f19b0a1687b0a",
-      "mtime": "14:34:01"
-    },
-    {
-      "path": "backend/app/custom/research_factor_pack/factor_specs.py",
-      "bytes": 4396,
-      "sha256": "4411ca96b4c7e4e60556817886b5cce9cde9f026843026054b5f1e923c3ed109",
-      "mtime": "14:42:21"
-    },
-    {
-      "path": "backend/app/custom/research_universe_pack/__init__.py",
-      "bytes": 371,
-      "sha256": "b2b210631907ab92635fd7848a5f4ea8b1ddde621c7a9101a9b71d4bed180653",
-      "mtime": "18:48:21"
-    },
-    {
-      "path": "backend/app/custom/research_universe_pack/factor_provider.py",
-      "bytes": 4894,
-      "sha256": "90dbc6ca46f3f5b892f9a9fba0b49d8169596c40ce68d2e2130bbe99a21f69e8",
-      "mtime": "18:50:42"
-    },
-    {
-      "path": "backend/app/custom/research_universe_pack/universe.py",
-      "bytes": 11957,
-      "sha256": "c45d0bcc26c730e0cdcd399581e1e91b2a7e231b8fbaab0e1cc3ad88841cf06d",
-      "mtime": "18:54:36"
-    },
-    {
-      "path": "backend/app/factors/gate.py",
-      "bytes": 25829,
-      "sha256": "39a9d9cf3a17f1a657400c4eb80a29b1cec474490298614286e6397485d62375",
-      "mtime": "21:40:12"
-    },
-    {
-      "path": "backend/scripts/build_referenced_factor_inventory.py",
-      "bytes": 64975,
-      "sha256": "b96f25a01d4f18d0046dd7dc18be091202b5b266f8a53aef35a6814f8413a45f",
-      "mtime": "19:23:04"
-    },
-    {
-      "path": "backend/tests/test_factor_gate.py",
-      "bytes": 18056,
-      "sha256": "84591d2a32c321d0d305b362543f0e0160c411fdfd9ab805dbe8b0a8c2ba6974",
-      "mtime": "21:40:32"
-    },
-    {
-      "path": "docs/INDEX_20261107.md",
-      "bytes": 45782,
-      "sha256": "0583affec11bea3ce14f1badfb5175a89c20def345ce68394393aaa27d214c41",
-      "mtime": "21:26:30"
-    },
-    {
-      "path": "docs/architecture/ARCH_DECISION_FACTOR_ID_CANONICAL_20261107.md",
-      "bytes": 28028,
-      "sha256": "caa957bffae31fe1caec5298fb85b9d985bee294d4ea6f437ce46469ffb64eab",
-      "mtime": "16:55:29"
-    },
-    {
-      "path": "docs/architecture/B0_ACCEPTANCE_AND_V07_REVIEW_20261107.md",
-      "bytes": 28213,
-      "sha256": "6d906751cca1c2da60826706deaa8d3bdf5d9282d86ea9cdeb84e8dd37d2fc38",
-      "mtime": "18:40:26"
-    },
-    {
-      "path": "docs/architecture/B2_ACCEPTANCE_20261107.md",
-      "bytes": 18442,
-      "sha256": "bb1a8fa82503ba6cf06f5f01229706edf5cb7dcf87c559825e31e0d9411981b2",
-      "mtime": "21:03:36"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVIEW_20261107.md",
-      "bytes": 44221,
-      "sha256": "cbea72b24c5483fa088874dd88bb5fd92e65824b52ef15daeb90ee1aa5940553",
-      "mtime": "16:38:05"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R2_20261107.md",
-      "bytes": 29801,
-      "sha256": "151d9b2f8d4b4fe2752768566c2f205f569b0998de93f4492abf01aa74dc822e",
-      "mtime": "15:51:33"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R3_20261107.md",
-      "bytes": 22451,
-      "sha256": "bfb149fc880d61ab7fd50196ad5b76cb64bdf222b352025961629789f8ee3bde",
-      "mtime": "16:19:05"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R4_20261107.md",
-      "bytes": 16721,
-      "sha256": "f2ef6446f33e2b706652864fbd43f33b024b886534c19ffaba062c1fb3a36f9f",
-      "mtime": "16:40:16"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R5_20261107.md",
-      "bytes": 17945,
-      "sha256": "a2c0bdd7b89dcab0046714ee9b8fc2df9855152109638e1fc572a9fa48829cfa",
-      "mtime": "16:52:39"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R6_20261107.md",
-      "bytes": 11382,
-      "sha256": "1f7b7e5d6e6492fa8511f9928cd396d8f3aa4d0c0710cf3c4826d880f81fee11",
-      "mtime": "17:16:36"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R7_20261107.md",
-      "bytes": 50328,
-      "sha256": "8fc0cdbd13f0ad0bf608389c390abfd193fbbadd875c1c40df8716799eea988c",
-      "mtime": "18:04:34"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R8_20261107.md",
-      "bytes": 20119,
-      "sha256": "1da9c9182138c2eff5696d4811c9c8b1089fa7ee89bf6a814e93c83b9cf80174",
-      "mtime": "21:04:09"
-    },
-    {
-      "path": "docs/architecture/CONTRACT_REVISION_R9_20261107.md",
-      "bytes": 24466,
-      "sha256": "09310c162fdbd567cc904a58a6ff1021ddda98fa31fc159ba7803790148542a2",
-      "mtime": "21:39:09"
-    },
-    {
-      "path": "docs/architecture/DELIVERY_SCHEDULE_20261107.md",
-      "bytes": 15410,
-      "sha256": "cff2d789e5384088fbd27e8576ede97d250f5e171bf6df158f63ec4ace43391f",
-      "mtime": "21:30:55"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md",
-      "bytes": 128007,
-      "sha256": "5bd81a7472f10509dd3b000cabcd7ccaa1c1d8faa3a8edd303120edd58ec5531",
-      "mtime": "16:40:09"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.10.md",
-      "bytes": 244093,
-      "sha256": "8a3115aaf0e8c5162e8b5aa15f70affd34e342e3288018dec412cd3e08b5a007",
-      "mtime": "21:39:53"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.5.md",
-      "bytes": 138729,
-      "sha256": "c7740508c358a2c0748aa87fb14c60c8a37f6f721b3f917a7fff7b67c0c4a21a",
-      "mtime": "16:52:31"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md",
-      "bytes": 162361,
-      "sha256": "946a1d8675de6e4e945dc587f65b94ba0ce91922be338774b46b72022a616810",
-      "mtime": "17:16:36"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.7.md",
-      "bytes": 193586,
-      "sha256": "5a87d4b090d996abf28f45cce9f1b5bc6c97c7505371e512b12fe89c1f8723e8",
-      "mtime": "18:03:23"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.8.md",
-      "bytes": 206608,
-      "sha256": "2cf85ccbaaf1fed7e5316bf2c83c73b5193fc02f3aadf3b3e453600aabaedd2f",
-      "mtime": "21:04:09"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.9.md",
-      "bytes": 228478,
-      "sha256": "5d0abbb59636ae9c38929ed04d35899b0a2b11727a99d2c2a84ef601bc8b4b0c",
-      "mtime": "21:14:03"
-    },
-    {
-      "path": "docs/architecture/FACTOR_ENGINE_INTEGRATION_MAP_20261107.md",
-      "bytes": 15006,
-      "sha256": "55955ebc13221b1ae96c4cce2e8b00a399b292fd1c0fb8b8aec111553f486eac",
-      "mtime": "15:45:18"
-    },
-    {
-      "path": "docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md",
-      "bytes": 89833,
-      "sha256": "5eb9772411f723576b657f85af7c0aa26427137a41fb53b5774b935942565903",
-      "mtime": "16:11:32"
-    },
-    {
-      "path": "docs/architecture/evidence/referenced_factor_inventory.json",
-      "bytes": 186343,
-      "sha256": "df5e1a63e98f8834e95517bbdde556a2550bb901d865ba09c1ac7f4040b32e49",
-      "mtime": "19:23:57"
-    },
-    {
-      "path": "docs/architecture/evidence/referenced_factor_inventory.json.sha256",
-      "bytes": 99,
-      "sha256": "45bd3dbaedf58a26c41b06f0ccb02f4ecc202e37a2d2433780de0cc65fc5f755",
-      "mtime": "19:23:57"
-    },
-    {
-      "path": "docs/factors/B2_IMPLEMENTATION_20261107.md",
-      "bytes": 20067,
-      "sha256": "c12f016230995a56961f4860a9c4e26d4dd44bdee025c462859417d7e61b2bc4",
-      "mtime": "21:52:41"
-    },
-    {
-      "path": "docs/factors/E3_DATA_AVAILABILITY_20261107.md",
-      "bytes": 14520,
-      "sha256": "7f6f44fd846a911adf025ba32449191fc581cdc870cb6ee32d9d4593181033a1",
-      "mtime": "17:27:48"
-    },
-    {
-      "path": "docs/factors/FACTOR_ENTRY_RULE_20261107.md",
-      "bytes": 58349,
-      "sha256": "d19719887b93409807f1b2e618643b148e35c2470032b987d1e0234ad82d15a4",
-      "mtime": "18:08:15"
-    },
-    {
-      "path": "docs/factors/FACTOR_GAP_SPEC_20261107.md",
-      "bytes": 35298,
-      "sha256": "092a78461c4fc51304b989f0a06bd82689b34fdeb3ddb2a22d5a1535d889738e",
-      "mtime": "17:29:17"
-    },
-    {
-      "path": "docs/factors/FACTOR_REGISTRY_CORE_93_20261107.md",
-      "bytes": 36306,
-      "sha256": "1410bf2944883c38b4d0e096e7c4280bbc57d49e6f629c68ca28c4da87a68f47",
-      "mtime": "13:43:53"
-    },
-    {
-      "path": "docs/factors/F_CLASS_REGISTRATION_20261107.md",
-      "bytes": 115537,
-      "sha256": "9f7fc90f51a2d2b1118e70137dc810bfe39dba682876731c1c6f53900de85d0a",
-      "mtime": "19:37:46"
-    },
-    {
-      "path": "docs/factors/README.md",
-      "bytes": 27854,
-      "sha256": "ddc9610f17544f4b242468d625703bdec6bf4c6d61d2c8b472893740fad20ecd",
-      "mtime": "21:55:51"
-    },
-    {
-      "path": "docs/factors/REGISTRATION_B0_20261107.md",
-      "bytes": 20873,
-      "sha256": "d474fcc8a31a595bfbc7bab438e1d3658483e3306af0adfa3b0380286cea802e",
-      "mtime": "20:53:26"
-    },
-    {
-      "path": "docs/factors/STRATEGY_INPUT_FACTOR_MAP_20261107.md",
-      "bytes": 17613,
-      "sha256": "09213723d33660d9ed3384d1c31741cb25560b3fdff88b2d43054c0624b04f5c",
-      "mtime": "13:49:23"
-    },
-    {
-      "path": "docs/factors/XS_RANK_POOL_SPEC_20261107.md",
-      "bytes": 25536,
-      "sha256": "5cd6ed39f57ae02e555563288befd8eb53047360c1480a30137742b2b26fdd66",
-      "mtime": "17:22:17"
-    },
-    {
-      "path": "docs/factors/evidence/E3_DATA_AVAILABILITY_20261107.md",
-      "bytes": 48555,
-      "sha256": "719c78cb00679316f039d3962f4e2c42fdf9534ac6c5034490200e343af539a5",
-      "mtime": "15:18:41"
-    },
-    {
-      "path": "docs/factors/evidence/F_CLASS_PARITY_20261107.json",
-      "bytes": 12007,
-      "sha256": "e37071d11f270e40a8a3f182f679f477a99d82465384f9214205a167c96598da",
-      "mtime": "15:25:43"
-    },
-    {
-      "path": "docs/factors/evidence/F_CLASS_PARITY_20261107.md",
-      "bytes": 9036,
-      "sha256": "f3260f53ff77598efc42fa78e8690a390f02e4bf5110bc163a6551cf800cc1b1",
-      "mtime": "14:37:18"
-    },
-    {
-      "path": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json",
-      "bytes": 11378,
-      "sha256": "3d8ab8780650a88c8e74db2d354c5da4012ab3ca3450d8e9e7a30d8737d47887",
-      "mtime": "16:25:21"
-    },
-    {
-      "path": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.md",
-      "bytes": 6047,
-      "sha256": "f56dcfa425af8d15bed2244850b086af4996faf5752c720ec1926f75acaaeeee",
-      "mtime": "16:25:35"
-    },
-    {
-      "path": "docs/factors/evidence/REFERENCED_FACTOR_INVENTORY_EXPECTED_20261107.md",
-      "bytes": 12216,
-      "sha256": "8b9d78e69e1a0de74b6f61d4cb9879ebe2ed56ea569e84fc66204130a0325f7d",
-      "mtime": "19:18:19"
-    },
-    {
-      "path": "docs/factors/evidence/compare_stats.json",
-      "bytes": 40611,
-      "sha256": "b10d32b089a8e6fab53e2b4d98c8ab8a4d82c95f83ac47f737c40fb0f242091b",
-      "mtime": "13:48:24"
-    },
-    {
-      "path": "docs/factors/evidence/e3_b2_fixtures_20261107.json",
-      "bytes": 74023,
-      "sha256": "e75106a9aa1b66b394d8803ef308cef2950b48a4978d7f4fdaa86345e9ca236e",
-      "mtime": "18:02:41"
-    },
-    {
-      "path": "docs/factors/evidence/e3_data_availability_20261107.json",
-      "bytes": 33346,
-      "sha256": "45d61859ea13f573e1919a99bc085f88e4dc938bd1fd13c7b52faabaf2279b8a",
-      "mtime": "17:27:23"
-    },
-    {
-      "path": "docs/factors/evidence/f_class_registry.json",
-      "bytes": 119029,
-      "sha256": "56d3092873145335ed40612d617442cbc4db876dd9570c9ea35656940b15c5a8",
-      "mtime": "19:37:15"
-    },
-    {
-      "path": "docs/factors/evidence/factors_inventory.json",
-      "bytes": 110813,
-      "sha256": "afcd5455dc7022c77fb6d11a471eb0d8e97e43f5b1f0c99e567ddf538d1069fb",
-      "mtime": "13:48:24"
-    },
-    {
-      "path": "docs/factors/evidence/factors_inventory_core93_20261107.csv",
-      "bytes": 41701,
-      "sha256": "9c98ca60a2e6ddd602970fa1a7d8d7fac9095b5514f8bb7fc80ee7ab607b7fba",
-      "mtime": "13:43:53"
-    },
-    {
-      "path": "docs/factors/evidence/referenced_factor_inventory_expected_20261107.json",
-      "bytes": 99935,
-      "sha256": "184dcdf9ef2a545ddd0fc942b6534797b102b9ff6e6cefa6a241b5dd7c5596af",
-      "mtime": "19:27:39"
-    },
-    {
-      "path": "docs/factors/evidence/registration_b0_20261107.json",
-      "bytes": 21959,
-      "sha256": "5873de40e438f0d0480e03fafb328ca605adade6257f32c42f95a67b8519f7f8",
-      "mtime": "14:48:41"
-    },
-    {
-      "path": "docs/factors/evidence/scripts/check_f_class_ledger.py",
-      "bytes": 29356,
-      "sha256": "3e4b677ee9a281ff3086847c6b62bf2f9b224f8c04c5e7cf23af36a0ead1d496",
-      "mtime": "21:34:11"
-    },
-    {
-      "path": "docs/factors/evidence/scripts/f_class_parity.py",
-      "bytes": 15841,
-      "sha256": "1c45e0dfe112b3e8064a2a1e153a3b88c23bb291615be543cd67f9136ad22565",
-      "mtime": "14:36:36"
-    },
-    {
-      "path": "docs/factors/evidence/scripts/f_class_rank_parity.py",
-      "bytes": 10352,
-      "sha256": "79fcd61e658a89bfb83d7c638d40a9f4c87bd5c706ec69aa2abf88c5df5af0f0",
-      "mtime": "16:24:58"
-    },
-    {
-      "path": "docs/factors/evidence/strategy_factor_map.json",
-      "bytes": 17950,
-      "sha256": "ee75671cb96154903f69ba02513c128460f2984ff47959c44d9aad021c5ac7ac",
-      "mtime": "13:49:23"
-    },
-    {
-      "path": "docs/factors/evidence/xs_rank_family_specs_20261107.json",
-      "bytes": 8272,
-      "sha256": "d72b296bd294bc48c961ea149cb3513415dac0ead654343f02a9c60fb85fa9fd",
-      "mtime": "14:32:46"
-    },
-    {
-      "path": "docs/factors/evidence/xs_rank_stats.json",
-      "bytes": 2614,
-      "sha256": "cd9b07bc11a327abe27d776c8bfacf05b5ee1b5f035970fa469a650c830d501f",
-      "mtime": "13:48:24"
-    },
-    {
-      "path": "docs/research/caliber-decisions-20261107.md",
-      "bytes": 69796,
-      "sha256": "588eea1098aa8b3d8eb75b620c60d5c33d34b4986f106f9f3644671788e8204f",
-      "mtime": "20:53:48"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/FACTOR_GAP_SPEC_20261107.md",
-      "bytes": 25276,
-      "sha256": "cc27dfe3b664660d5d8844e1e56c6b68015708761095652e3abd21cb9c752b7e",
-      "mtime": "13:49:23"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/compare_stats.json",
-      "bytes": 40611,
-      "sha256": "b10d32b089a8e6fab53e2b4d98c8ab8a4d82c95f83ac47f737c40fb0f242091b",
-      "mtime": "13:36:48"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/factors_inventory.csv",
-      "bytes": 41701,
-      "sha256": "9c98ca60a2e6ddd602970fa1a7d8d7fac9095b5514f8bb7fc80ee7ab607b7fba",
-      "mtime": "13:36:53"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/factors_inventory.json",
-      "bytes": 110813,
-      "sha256": "afcd5455dc7022c77fb6d11a471eb0d8e97e43f5b1f0c99e567ddf538d1069fb",
-      "mtime": "13:36:53"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/run_compare.log",
-      "bytes": 114,
-      "sha256": "e6aff4efa2bde052af5bbb09a555ab569808df2ce04503d48bc576b708ce9172",
-      "mtime": "13:36:52"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/scripts/audit_compare.py",
-      "bytes": 14634,
-      "sha256": "a0dd2c9b5699fac8101b78b95bb615f46510e1e267687a8fe88b47b705ceb926",
-      "mtime": "13:37:22"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/scripts/audit_xs_rank.py",
-      "bytes": 8519,
-      "sha256": "288df8320afd59cc88d1199a321f2f3de7ce89259cacffb669ebe3852ff29645",
-      "mtime": "13:42:06"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/scripts/build_inventory.py",
-      "bytes": 26419,
-      "sha256": "42559de8c0d0b06e6ba12be53981f688bcdc0483a9cb8efc6ad51b0c91399ea6",
-      "mtime": "13:36:46"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/scripts/build_strategy_map.py",
-      "bytes": 21250,
-      "sha256": "0fe6279064838a8553b8085aa0f8da212778572a7d68d81dc695c6c2de2f8114",
-      "mtime": "13:49:23"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/scripts/render_inventory_md.py",
-      "bytes": 9417,
-      "sha256": "5c4f5b13f4a0ecb2be4f1ba1a87ef1abf579927115c5c01337ff17ddca20f965",
-      "mtime": "13:43:48"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/strategy_factor_map.json",
-      "bytes": 17950,
-      "sha256": "ee75671cb96154903f69ba02513c128460f2984ff47959c44d9aad021c5ac7ac",
-      "mtime": "13:49:23"
-    },
-    {
-      "path": "docs/research/factor-audit-20261107/xs_rank_stats.json",
-      "bytes": 2614,
-      "sha256": "cd9b07bc11a327abe27d776c8bfacf05b5ee1b5f035970fa469a650c830d501f",
-      "mtime": "13:42:29"
-    }
-  ],
-  "untracked_file_count": 77,
-  "untracked_total_bytes": 3587863,
-  "pycache_files_excluded": 7,
-  "clean_checkout_missing": {
-    "packs": [
-      "backend/app/custom/research_factor_pack/",
-      "backend/app/custom/research_universe_pack/"
-    ],
-    "docs": [
-      "docs/architecture/",
-      "docs/factors/"
-    ],
-    "scripts": [
-      "backend/scripts/build_referenced_factor_inventory.py"
-    ],
-    "gate": [
-      "backend/app/factors/gate.py",
-      "backend/tests/test_factor_gate.py"
-    ]
+  {
+   "path": "backend/app/custom/research_calendar_pack/calendar_axis.py",
+   "bytes": 7943,
+   "sha256": "1c865c209ae4fc0072d44a825771b3e94dfd32527231579e17bcb78a9afe8a83",
+   "mtime": "2026-11-07 21:57:34",
+   "vs_head": "BYTE_EQUAL",
+   "head_bytes": 7943,
+   "head_sha256": "1c865c209ae4fc0072d44a825771b3e94dfd32527231579e17bcb78a9afe8a83",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
   },
-  "known_impact": {
-    "builtin_expected": 108,
-    "builtin_now": 108,
-    "builtin_clean_checkout_estimate": 93,
-    "removed_by_packs": {
-      "research_factor_pack": 14,
-      "research_universe_pack": 1
-    },
-    "red_tests_in_clean_checkout": "6（独立审核 B-2 结论；文档管理员未复现）"
+  {
+   "path": "backend/app/custom/research_calendar_pack/factor_provider.py",
+   "bytes": 4829,
+   "sha256": "60bc50644634ebc3a9a9545f72063e9e90c0695d1829ea3fdde0a8a11dbd4649",
+   "mtime": "2026-11-07 21:57:34",
+   "vs_head": "BYTE_EQUAL",
+   "head_bytes": 4829,
+   "head_sha256": "60bc50644634ebc3a9a9545f72063e9e90c0695d1829ea3fdde0a8a11dbd4649",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
   },
-  "total_bytes": 3703214,
-  "registered_total_bytes_fixed": "首版 untracked_total_bytes 被误当作登记总体积（缺已修改 5 个 115,351 B），本次已按 未跟踪+已修改 重算",
-  "reverified_at": "2026-11-07T21:54+0800",
-  "reverified_note": "82 条指纹逐条复算：80 条逐字节一致；docs/factors/README.md（本人写入索引）与 docs/factors/B2_IMPLEMENTATION_20261107.md（他人 21:52:41 改写）已重钉。git status 由 44 行变 48 行：6 个 pack 文件被暂存（A）。",
-  "staged_files": [
-    {
-      "path": "backend/app/custom/research_factor_pack/__init__.py",
-      "bytes": 272,
-      "sha256": "29a156cdfa78aa4985a4900edec4f1786e17ad62fed73a3fd14f8bbfffe95902",
-      "mtime": "14:33:08"
-    },
-    {
-      "path": "backend/app/custom/research_factor_pack/factor_provider.py",
-      "bytes": 4553,
-      "sha256": "7ea31aadbb54453790b45af04db90075cbca73d58259eb81436f19b0a1687b0a",
-      "mtime": "14:34:01"
-    },
-    {
-      "path": "backend/app/custom/research_factor_pack/factor_specs.py",
-      "bytes": 4396,
-      "sha256": "4411ca96b4c7e4e60556817886b5cce9cde9f026843026054b5f1e923c3ed109",
-      "mtime": "14:42:21"
-    },
-    {
-      "path": "backend/app/custom/research_universe_pack/__init__.py",
-      "bytes": 371,
-      "sha256": "b2b210631907ab92635fd7848a5f4ea8b1ddde621c7a9101a9b71d4bed180653",
-      "mtime": "18:48:21"
-    },
-    {
-      "path": "backend/app/custom/research_universe_pack/factor_provider.py",
-      "bytes": 4894,
-      "sha256": "90dbc6ca46f3f5b892f9a9fba0b49d8169596c40ce68d2e2130bbe99a21f69e8",
-      "mtime": "18:50:42"
-    },
-    {
-      "path": "backend/app/custom/research_universe_pack/universe.py",
-      "bytes": 11957,
-      "sha256": "c45d0bcc26c730e0cdcd399581e1e91b2a7e231b8fbaab0e1cc3ad88841cf06d",
-      "mtime": "18:54:36"
-    }
+  {
+   "path": "backend/app/custom/research_factor_pack/__init__.py",
+   "bytes": 272,
+   "sha256": "29a156cdfa78aa4985a4900edec4f1786e17ad62fed73a3fd14f8bbfffe95902",
+   "mtime": "2026-11-07 14:33:08",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 267,
+   "head_sha256": "73408831a7aac3ee0acc2949f61be8da770db743359dea729fe61e96c3d574a4",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/custom/research_factor_pack/factor_provider.py",
+   "bytes": 4553,
+   "sha256": "7ea31aadbb54453790b45af04db90075cbca73d58259eb81436f19b0a1687b0a",
+   "mtime": "2026-11-07 14:34:01",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 4453,
+   "head_sha256": "aabb29c209f6a88411d0272a29de81ecc2ed14701da41f1595461b0b2ca21e10",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/custom/research_factor_pack/factor_specs.py",
+   "bytes": 5284,
+   "sha256": "a7e71b399b72dc7c66722d25d2c4e49c222f8d20b857eac4e56de8802d274ed6",
+   "mtime": "2026-11-07 23:08:47",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 5163,
+   "head_sha256": "9ab493adca12d950697b4cd1b555010166d84f95ec17ef52f261961422db78ed",
+   "last_commit": "0542bef4|2026-11-07 23:32:19|MengHLS",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/custom/research_universe_pack/__init__.py",
+   "bytes": 371,
+   "sha256": "b2b210631907ab92635fd7848a5f4ea8b1ddde621c7a9101a9b71d4bed180653",
+   "mtime": "2026-11-07 18:48:21",
+   "vs_head": "BYTE_EQUAL",
+   "head_bytes": 371,
+   "head_sha256": "b2b210631907ab92635fd7848a5f4ea8b1ddde621c7a9101a9b71d4bed180653",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/custom/research_universe_pack/factor_provider.py",
+   "bytes": 4894,
+   "sha256": "90dbc6ca46f3f5b892f9a9fba0b49d8169596c40ce68d2e2130bbe99a21f69e8",
+   "mtime": "2026-11-07 18:50:42",
+   "vs_head": "BYTE_EQUAL",
+   "head_bytes": 4894,
+   "head_sha256": "90dbc6ca46f3f5b892f9a9fba0b49d8169596c40ce68d2e2130bbe99a21f69e8",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/custom/research_universe_pack/universe.py",
+   "bytes": 11957,
+   "sha256": "c45d0bcc26c730e0cdcd399581e1e91b2a7e231b8fbaab0e1cc3ad88841cf06d",
+   "mtime": "2026-11-07 18:54:36",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 11689,
+   "head_sha256": "a217b886af00b100272258abacacd4744d76ddc58c7441097cb0b19193576f15",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/factors/gate.py",
+   "bytes": 27570,
+   "sha256": "39068c37a58321251dd4e9d8f87be5bd8eb9bf3e583ceeb053a1909bceaf1ecc",
+   "mtime": "2026-11-07 23:08:35",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 26935,
+   "head_sha256": "b1f661b1444f2e03fba296c4e6b3ba8e9d35130602e132bfd070bc364cc5e6fc",
+   "last_commit": "0542bef4|2026-11-07 23:32:19|MengHLS",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/tests/test_factor_gate.py",
+   "bytes": 25329,
+   "sha256": "de1dbb986ec1baa10254bb91cb462afeb73614dabb1969db208379c991750ecd",
+   "mtime": "2026-11-07 23:11:07",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 24708,
+   "head_sha256": "fc675edfecf9442f5dcdffc9a47bf50d0f9d137cb019bd153fd4e72e131dda57",
+   "last_commit": "0542bef4|2026-11-07 23:32:19|MengHLS",
+   "intro_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  }
+ ],
+ "former_modified_M_backend": [
+  {
+   "path": "backend/app/api/factors.py",
+   "bytes": 24629,
+   "sha256": "b17228b3dcdfab26be21057c262ce43919a8f2d0904adf6addfb43d13e274ac0",
+   "mtime": "2026-11-07 16:33:57",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 24065,
+   "head_sha256": "f2347781032ea609cd3b36af9780bfb5a42910f31faba947beaa6b9fc37f03d3",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/factors/dsl.py",
+   "bytes": 36785,
+   "sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b",
+   "mtime": "2026-11-07 22:11:19",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 35935,
+   "head_sha256": "5d7fe0216d574988cad8d517b7cedb83b4a2c9c4dccf6b9559c032282ffc87ae",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/app/factors/store.py",
+   "bytes": 21104,
+   "sha256": "f6f3ffa82758e25aa025785a442e674a9cca761661583969c2c47c94306e3f88",
+   "mtime": "2026-11-07 23:08:05",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 20667,
+   "head_sha256": "fde5bb75a79b1ffa97d9440017f6ca5174087e7d6570444394087db149bc5a4e",
+   "last_commit": "0542bef4|2026-11-07 23:32:19|MengHLS",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/tests/test_factor_registry.py",
+   "bytes": 28187,
+   "sha256": "81e4b1f9803642e77281249cfa0f3a8ec46e30008d7b91144aa545a5b5c2507d",
+   "mtime": "2026-11-07 22:01:47",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 27787,
+   "head_sha256": "1ff868ceff30c8ae7f05e2aca675af5da1726aed14f93682035aa81768ce74b6",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  },
+  {
+   "path": "backend/tests/test_factor_store.py",
+   "bytes": 6793,
+   "sha256": "79de1eca6cc65522e8ed83b51c6dbb5c9fc74637faa1ac817b561dcc81a7dd9e",
+   "mtime": "2026-11-07 22:01:47",
+   "vs_head": "CRLF_ONLY",
+   "head_bytes": 6622,
+   "head_sha256": "beccbf0a688ca6462edfc9530ef307be9efee561da59932241e220a94a544747",
+   "last_commit": "79bd04ee|2026-11-07 22:59:50|dev-manager",
+   "status_in_worktree": "CLEAN"
+  }
+ ],
+ "worktree_backend_docs": {
+  "modified": [
+   {
+    "path": "docs/INDEX_20261107.md",
+    "bytes": 62563,
+    "sha256": "83f0fad31908ff7d0fe9665e93b4a42cffb2d02e5ce9fec0ddca065f65690ef3",
+    "mtime": "2026-11-07 23:44:34",
+    "xy": "M"
+   },
+   {
+    "path": "docs/architecture/CLAUSE_NAMESPACE_COLLISION_20261107.md",
+    "bytes": 24535,
+    "sha256": "8f5560527a5fa233a02f1005c316cc45f8d2c57f881476c6c572a2176e08bdf4",
+    "mtime": "2026-11-07 23:06:45",
+    "xy": "M"
+   },
+   {
+    "path": "docs/architecture/CONTRACT_REVISION_R11_20261107.md",
+    "bytes": 22063,
+    "sha256": "c8bb82407a026202d462faf89b7ec262798677c553debc87bc2e0da38c5409fa",
+    "mtime": "2026-11-07 23:20:35",
+    "xy": "M"
+   },
+   {
+    "path": "docs/research/caliber-decisions-20261107.md",
+    "bytes": 99914,
+    "sha256": "be2b1d2ace7222b1069d8ca73893500897150200f1e0f04b1fabfe7ae852c60b",
+    "mtime": "2026-11-07 23:15:02",
+    "xy": "M"
+   }
   ],
-  "staged_note": "复核时（21:53）发现 6 个 pack 文件已被 git add 进索引；未提交（HEAD 未变）。字节与采集时刻相同，性质从 ?? 变为 A。是否保留暂存由开发经理裁定，本人未做任何 git 操作。"
+  "untracked": [
+   {
+    "path": "docs/architecture/CONTRACT_REVISION_R12_20261107.md",
+    "bytes": 24194,
+    "sha256": "a92aa22662e48595e687fb852cd611303cb8031a1d2f0bc8698fb382a37dd06a",
+    "mtime": "2026-11-07 23:33:02",
+    "xy": "??"
+   },
+   {
+    "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md",
+    "bytes": 269092,
+    "sha256": "d7df40ffa284d9961e83b9fb074dc4e5263bab9299969b3d0387a020df1c1ce6",
+    "mtime": "2026-11-07 23:11:30",
+    "xy": "??"
+   },
+   {
+    "path": "docs/research/AUDIT_R3_20261107.md",
+    "bytes": 32372,
+    "sha256": "67d7d87e6ea177ddb21f91c87863e8a7efd86868ab3bbcaa395ba013f396771f",
+    "mtime": "2026-11-07 23:34:50",
+    "xy": "??"
+   }
+  ],
+  "total_files": 7,
+  "total_bytes": 534733,
+  "modified_bytes": 209075,
+  "modified_count": 4,
+  "untracked_bytes": 325658,
+  "untracked_count": 3,
+  "excludes": [
+   "docs/architecture/evidence/WORKTREE_SHIP_MANIFEST_20261107.md",
+   "docs/architecture/evidence/WORKTREE_SHIP_MANIFEST_20261107.json"
+  ],
+  "excludes_note": "排除本清单两份；排除 __pycache__/*.pyc；不覆盖 research/"
+ },
+ "clean_checkout": {
+  "commit": "42ac6b17",
+  "pack_files": 9,
+  "gate_py": 27570,
+  "test_factor_gate": 25329,
+  "test_factor_provider_discovery": 7759,
+  "factor_4files": "87 passed, 1 warning",
+  "factor_3files": "80 passed",
+  "full_suite": "49 failed, 5113 passed, 16 skipped, 1 xfailed (479.85s)",
+  "full_suite_factor_failures": {
+   "test_factor_registry.py": 5,
+   "test_factor_gate.py": 2,
+   "test_factor_store.py": 1
+  },
+  "root_cause_measured": "全量跑时 all_factors() 返回 93，断言 110；同用例单跑 1 passed。判为测试顺序污染（进程内状态未隔离），非实现缺因子",
+  "b2_gap": "CLOSED - pack/gate/gate tests 均在 HEAD 内",
+  "all_green": "NOT CLAIMED - 全量 49 failed",
+  "quote_limit": "AUDIT_R2 B-3-b 未结；DELIVERY_SCHEDULE v7 §2 令修完前不得把 passed 数当稳定结论对外引用"
+ },
+ "policy": {
+  "no_commit_without_written_consent": true,
+  "no_commit_consent_status": "ALREADY BREACHED 4 times: 0542bef4/6eda98bb/42ac6b17/286c1c86 by MengHLS 23:32-23:55",
+  "no_deploy": true,
+  "no_restart": true,
+  "writer": "文档管理员：只写本文件与同名 json，未做任何 git 写操作"
+ },
+ "conflicts": [
+  {
+   "id": "C1",
+   "claim": "11 files still staged, uncommitted",
+   "fact": "all 11 in HEAD, no status rows",
+   "evidence": "git log --diff-filter=A -1"
+  },
+  {
+   "id": "C2",
+   "claim": "reverting to ?? reopens B-2 gap",
+   "fact": "gap closed; clean checkout has 9 packs + gate + tests; 87 passed",
+   "evidence": "section 4"
+  },
+  {
+   "id": "C3",
+   "claim": "all work in worktree, no version to replay",
+   "fact": "7 commits exist: 79bd04ee/484f81f3/200238ec (dev-manager 22:59-23:01, 3) + 0542bef4/6eda98bb/42ac6b17/286c1c86 (MengHLS 23:32-23:55, 4)",
+   "evidence": "git log -10"
+  },
+  {
+   "id": "C4",
+   "claim": "no one may commit",
+   "fact": "breached 4 times by MengHLS",
+   "evidence": "git log %an"
+  },
+  {
+   "id": "C5",
+   "claim": "brief: M 10 / A 11 / ?? 31, HEAD 65c6e42f",
+   "fact": "A=0 M_staged=0 M_unstaged=7 ??=12 HEAD=286c1c86",
+   "evidence": "section 1"
+  }
+ ],
+ "open_questions_for_dev_manager": [
+  "纪律被绕开 4 次，是否需要事后追认或书面说明？改写历史需 git reset，登记人不做。",
+  "裁定一「保留暂存态」已无对象可保；11 个文件在 HEAD 内。是否改述为「79bd04ee 版本不得回退」由开发经理判断。",
+  "research/ 630 文件整批入库（6eda98bb: 635 files / +221,859），是否符合本单交付面定义？"
+ ],
+ "replaces": "v3 (23:25:13, 20,587 B / 266 lines / 8f5f10b7...)",
+ "differences_from_v3": [
+  "HEAD 200238ec -> 286c1c86",
+  "A 0 -> 0 (23:30:21 批量暂存 research/)",
+  " M 19 -> 7",
+  "?? 34 -> 12",
+  "登记 15 个/611,945 B -> 7 个/534,733 B",
+  "11 个原 A 中 3 个由 0542bef4 重新入库，判据由 DIFF 改为 CRLF_ONLY",
+  "干净检出由 74 passed 更正为「因子面单跑 87 passed，全量 49 failed」"
+ ],
+ "self": {
+  "md": {
+   "path": "docs/architecture/evidence/WORKTREE_SHIP_MANIFEST_20261107.md",
+   "bytes": 24715,
+   "sha256": "07412bbf9bf8b2962fb4b5e8167b423ce6811283d6eecf9cf66ff3eeda790092",
+   "lines": 311,
+   "mtime": "2026-11-08 00:21:21"
+  },
+  "json": {
+   "path": "docs/architecture/evidence/WORKTREE_SHIP_MANIFEST_20261107.json",
+   "note": "size/lines/sha256/mtime in delivery receipt (cannot self-hash)"
+  }
+ },
+ "reverify": {
+  "at": "2026-11-08 00:21:21",
+  "md_rows": 23,
+  "json_rows": 23,
+  "drift": 0,
+  "volume_check": {
+   "modified_bytes": 209075,
+   "untracked_bytes": 325658,
+   "sum": 534733,
+   "total_bytes": 534733,
+   "ok": true
+  },
+  "count_check": {
+   "modified": 4,
+   "untracked": 3,
+   "sum": 7,
+   "total_files": 7,
+   "ok": true
+  },
+  "git_status_rows": 19,
+  "A": 0,
+  "M_staged": 0,
+  "M_unstaged": 7,
+  "untracked": 12,
+  "head": "286c1c862631042a2e9a43c57e9762c122e21f7f",
+  "index_mtime": "2026-11-07 23:58:38",
+  "post_collect_drift": "none: HEAD / counts / index mtime unchanged since 00:14:49",
+  "v4_1_changes": [
+   "§1.1 标题与分布/触发两行措辞校正（A=0 的真实含义：暂存区当前为空，630 个已由 6eda98bb 入库），未动任何数字",
+   "新增 §10 复核回执（本次 0 漂移复核）",
+   "四处内部计数自相矛盾对齐：§0 引言「三笔」、§0 表「新增」漏 286c1c86、§1.1 脚注「两笔」、§6「5 笔提交」、§9 C3「6 笔」→ 统一为 4 笔 MengHLS + 3 笔 dev-manager = 7 笔（据 git log）",
+   "json conflicts.C3 由『6 commits』(列 7 个 SHA) 对齐为 7 笔，与 md §9 C3 一致"
+  ],
+  "unchanged": "v4 的 23 条记录与指纹、§2/§3 逐条指纹、dsl.py 注记、§4 干净检出实测、§9 裁定与冲突标记一字未改"
+ },
+ "commit_ledger": {
+  "dev_manager": [
+   [
+    "79bd04ee",
+    "2026-11-07 22:59:50"
+   ],
+   [
+    "484f81f3",
+    "2026-11-07 22:59:59"
+   ],
+   [
+    "200238ec",
+    "2026-11-07 23:01:57"
+   ]
+  ],
+  "MengHLS": [
+   [
+    "0542bef4",
+    "2026-11-07 23:32:19"
+   ],
+   [
+    "6eda98bb",
+    "2026-11-07 23:32:34"
+   ],
+   [
+    "42ac6b17",
+    "2026-11-07 23:36:17"
+   ],
+   [
+    "286c1c86",
+    "2026-11-07 23:55:49"
+   ]
+  ],
+  "total": 7,
+  "note": "git log -10 实测；前 3 笔在 22:59–23:01，后 4 笔在 23:32–23:55"
+ }
 }

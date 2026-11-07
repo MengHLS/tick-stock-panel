@@ -1,0 +1,397 @@
+{
+  "script": "research/gate-fa43-20261108/evidence_route_20261108.py",
+  "started_at": "2026-11-08 01:04:51",
+  "python": "3.11.15",
+  "gate_py": {
+    "bytes": 32611,
+    "sha256": "6b59f7990ba5b336c0587de5879eb47c5ce7496132650cdb2ab9bbd0d322d5cb"
+  },
+  "note": "路由层证据用 TestClient 在进程内打 ASGI，未起服务；探针 app/handler 只在本脚本内，未落 backend/app/**。",
+  "static_wiring": {
+    "calls": {
+      "total": 0,
+      "files": {}
+    },
+    "gate_error_refs": {
+      "total": 0,
+      "files": {}
+    },
+    "handlers": {
+      "total": 6,
+      "files": {
+        "backend\\app\\main.py": 6
+      }
+    }
+  },
+  "type_facts": {
+    "GateError_is_Exception": true,
+    "GateError_is_fastapi_HTTPException": false,
+    "GateError_is_starlette_HTTPException": false,
+    "mro": [
+      "GateError",
+      "Exception",
+      "BaseException",
+      "object"
+    ]
+  },
+  "route_probe": {
+    "unmapped": {
+      "gate_error": 500,
+      "runtime_error": 500
+    },
+    "mapped": {
+      "gate_error_status": 400,
+      "gate_error_detail": {
+        "code": "FS04",
+        "mode": "production",
+        "submitted_id": "vol60",
+        "resolved_id": "vol60",
+        "canonical_id": "vol60",
+        "table_row": null,
+        "message": "同一策略内混用同口径两个 id: vol60 / uf_vol60 都指向 vol60",
+        "dual_ids": [
+          "vol60",
+          "uf_vol60"
+        ]
+      },
+      "runtime_error_status": 500
+    }
+  },
+  "write_surface": {
+    "open( 任意形态": {
+      "count": 0,
+      "lines": []
+    },
+    "open( 写模式": {
+      "count": 0,
+      "lines": []
+    },
+    "write_text": {
+      "count": 0,
+      "lines": []
+    },
+    "write_bytes": {
+      "count": 0,
+      "lines": []
+    },
+    "json.dump": {
+      "count": 0,
+      "lines": []
+    },
+    "save_one": {
+      "count": 0,
+      "lines": []
+    },
+    "save_definition": {
+      "count": 0,
+      "lines": []
+    },
+    "upsert_definition": {
+      "count": 0,
+      "lines": []
+    },
+    "mkdir": {
+      "count": 1,
+      "lines": [
+        226
+      ]
+    },
+    "os.remove / unlink": {
+      "count": 0,
+      "lines": []
+    },
+    "shutil": {
+      "count": 0,
+      "lines": []
+    },
+    "touch": {
+      "count": 0,
+      "lines": []
+    }
+  },
+  "readonly_15": {
+    "files": 15,
+    "ids": 15,
+    "unchanged": true,
+    "before": {
+      "cf_auction_resonance.json": {
+        "bytes": 638,
+        "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191",
+        "mtime_ns": 1793441996359659300
+      },
+      "uf_auction_post0920_match_growth.json": {
+        "bytes": 461,
+        "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582",
+        "mtime_ns": 1793441996355662200
+      },
+      "uf_auction_tail_imbalance.json": {
+        "bytes": 503,
+        "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7",
+        "mtime_ns": 1793441996353661800
+      },
+      "uf_auction_tail_match_growth.json": {
+        "bytes": 438,
+        "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0",
+        "mtime_ns": 1793441996354661300
+      },
+      "uf_auction_volume_surprise.json": {
+        "bytes": 469,
+        "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a",
+        "mtime_ns": 1793441996358660000
+      },
+      "uf_auction_volume_vs_prev.json": {
+        "bytes": 500,
+        "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d",
+        "mtime_ns": 1793441996356663700
+      },
+      "uf_dist_prior_high_250.json": {
+        "bytes": 756,
+        "sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+        "mtime_ns": 1794038820278336300
+      },
+      "uf_ma120.json": {
+        "bytes": 369,
+        "sha256": "6888719342e385be56975e90ec32c808d6a5eef38d9ef9a2145868db55d01855",
+        "mtime_ns": 1794065637132505200
+      },
+      "uf_ma200.json": {
+        "bytes": 369,
+        "sha256": "040c2f7c7a2a19b4c524ea1f17b10bbde33f7614bad4d5bfe192e77a5a818c25",
+        "mtime_ns": 1794065637138675800
+      },
+      "uf_prior_high_20.json": {
+        "bytes": 491,
+        "sha256": "072c6e960ca4c8c75557b4ab084c73cbeeead97bf295dbe86741acad68e6e663",
+        "mtime_ns": 1794065637145843600
+      },
+      "uf_prior_high_250.json": {
+        "bytes": 439,
+        "sha256": "075dcbe1d68bae794bcfd1de3a0338e2daa216d7b5da9891fe0f76dc864d9119",
+        "mtime_ns": 1794065637158697800
+      },
+      "uf_prior_high_55.json": {
+        "bytes": 435,
+        "sha256": "2ca7aa05ad38b877661147dcfcb4a005529b88ad20f18d419ee0934aa6a433e2",
+        "mtime_ns": 1794065637151558100
+      },
+      "uf_prior_low_10.json": {
+        "bytes": 433,
+        "sha256": "85662909fb31066b30de337af6a80a34dda75f6ebdb3854400740e28a9b98789",
+        "mtime_ns": 1794065637164849500
+      },
+      "uf_prior_vol_20.json": {
+        "bytes": 473,
+        "sha256": "44c80d95c921f23e273e8d0fa12e33fcea349cdeca7b7465e9fe1cacb8b80ba2",
+        "mtime_ns": 1794065637171849100
+      },
+      "uf_vol60.json": {
+        "bytes": 546,
+        "sha256": "3eb0631053f627eb4ffe7ae20c36d82b34ab52ac0c05b5b06c7152b4ce4b7e9e",
+        "mtime_ns": 1794065637123810400
+      }
+    },
+    "after": {
+      "cf_auction_resonance.json": {
+        "bytes": 638,
+        "sha256": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191",
+        "mtime_ns": 1793441996359659300
+      },
+      "uf_auction_post0920_match_growth.json": {
+        "bytes": 461,
+        "sha256": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582",
+        "mtime_ns": 1793441996355662200
+      },
+      "uf_auction_tail_imbalance.json": {
+        "bytes": 503,
+        "sha256": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7",
+        "mtime_ns": 1793441996353661800
+      },
+      "uf_auction_tail_match_growth.json": {
+        "bytes": 438,
+        "sha256": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0",
+        "mtime_ns": 1793441996354661300
+      },
+      "uf_auction_volume_surprise.json": {
+        "bytes": 469,
+        "sha256": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a",
+        "mtime_ns": 1793441996358660000
+      },
+      "uf_auction_volume_vs_prev.json": {
+        "bytes": 500,
+        "sha256": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d",
+        "mtime_ns": 1793441996356663700
+      },
+      "uf_dist_prior_high_250.json": {
+        "bytes": 756,
+        "sha256": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+        "mtime_ns": 1794038820278336300
+      },
+      "uf_ma120.json": {
+        "bytes": 369,
+        "sha256": "6888719342e385be56975e90ec32c808d6a5eef38d9ef9a2145868db55d01855",
+        "mtime_ns": 1794065637132505200
+      },
+      "uf_ma200.json": {
+        "bytes": 369,
+        "sha256": "040c2f7c7a2a19b4c524ea1f17b10bbde33f7614bad4d5bfe192e77a5a818c25",
+        "mtime_ns": 1794065637138675800
+      },
+      "uf_prior_high_20.json": {
+        "bytes": 491,
+        "sha256": "072c6e960ca4c8c75557b4ab084c73cbeeead97bf295dbe86741acad68e6e663",
+        "mtime_ns": 1794065637145843600
+      },
+      "uf_prior_high_250.json": {
+        "bytes": 439,
+        "sha256": "075dcbe1d68bae794bcfd1de3a0338e2daa216d7b5da9891fe0f76dc864d9119",
+        "mtime_ns": 1794065637158697800
+      },
+      "uf_prior_high_55.json": {
+        "bytes": 435,
+        "sha256": "2ca7aa05ad38b877661147dcfcb4a005529b88ad20f18d419ee0934aa6a433e2",
+        "mtime_ns": 1794065637151558100
+      },
+      "uf_prior_low_10.json": {
+        "bytes": 433,
+        "sha256": "85662909fb31066b30de337af6a80a34dda75f6ebdb3854400740e28a9b98789",
+        "mtime_ns": 1794065637164849500
+      },
+      "uf_prior_vol_20.json": {
+        "bytes": 473,
+        "sha256": "44c80d95c921f23e273e8d0fa12e33fcea349cdeca7b7465e9fe1cacb8b80ba2",
+        "mtime_ns": 1794065637171849100
+      },
+      "uf_vol60.json": {
+        "bytes": 546,
+        "sha256": "3eb0631053f627eb4ffe7ae20c36d82b34ab52ac0c05b5b06c7152b4ce4b7e9e",
+        "mtime_ns": 1794065637123810400
+      }
+    }
+  },
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "check": "F-A47-静态/1 assert_factors_usable 生产调用点（backend/app 排除 gate.py）",
+      "ok": true,
+      "detail": {
+        "total": 0,
+        "files": {}
+      }
+    },
+    {
+      "check": "F-A47-静态/2 GateError 在 backend/app 其它文件的引用数",
+      "ok": true,
+      "detail": {
+        "total": 0,
+        "files": {}
+      }
+    },
+    {
+      "check": "F-A47-静态/3 现有 exception_handler 注册（其它文件）",
+      "ok": true,
+      "detail": {
+        "total": 6,
+        "files": {
+          "backend\\app\\main.py": 6
+        }
+      }
+    },
+    {
+      "check": "F-A47-静态/4 把 GateError 注册成 handler 的行",
+      "ok": true,
+      "detail": {
+        "total": 0,
+        "files": {}
+      }
+    },
+    {
+      "check": "F-A47-2 (F-A47-2) gate.py 内 raise NotImplementedError 条数",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "F-A47-类型/1 GateError 是否是 HTTP 异常（决定 FastAPI 是否自动 400）",
+      "ok": true,
+      "detail": {
+        "GateError_is_Exception": true,
+        "GateError_is_fastapi_HTTPException": false,
+        "GateError_is_starlette_HTTPException": false,
+        "mro": [
+          "GateError",
+          "Exception",
+          "BaseException",
+          "object"
+        ]
+      }
+    },
+    {
+      "check": "F-A47-路由/1 无 handler 时 GateError 的 HTTP 状态（今日 app 若接线就是这个数）",
+      "ok": true,
+      "detail": "GateError -> 500；RuntimeError -> 500"
+    },
+    {
+      "check": "F-A47-1 (F-A47-1 判定式) 有 handler 时 GateError -> 400 + detail.code",
+      "ok": true,
+      "detail": "status=400 code='FS04'"
+    },
+    {
+      "check": "F-A47-1b detail.dual_ids 集合 == {vol60, uf_vol60} 且 table_row is None",
+      "ok": true,
+      "detail": {
+        "dual_ids": [
+          "vol60",
+          "uf_vol60"
+        ],
+        "table_row": null
+      }
+    },
+    {
+      "check": "F-A47-3 (F-A47-3 判定式) RuntimeException 不被洗成 400，仍是 500",
+      "ok": true,
+      "detail": "RuntimeError -> 500"
+    },
+    {
+      "check": "F-A47-写盘/1 gate.py 内写盘调用数（open/write_text/write_bytes/json.dump/save_*/upsert_*/mkdir/unlink/touch）",
+      "ok": true,
+      "detail": {
+        "open( 任意形态": 0,
+        "open( 写模式": 0,
+        "write_text": 0,
+        "write_bytes": 0,
+        "json.dump": 0,
+        "save_one": 0,
+        "save_definition": 0,
+        "upsert_definition": 0,
+        "mkdir": 1,
+        "os.remove / unlink": 0,
+        "shutil": 0,
+        "touch": 0
+      }
+    },
+    {
+      "check": "F-A47-写盘/2 唯一命中的 mkdir 是注释而不是调用",
+      "ok": true,
+      "detail": {
+        "mkdir": {
+          "count": 1,
+          "lines": [
+            226
+          ]
+        }
+      }
+    },
+    {
+      "check": "F-A47-只读/1 闸门全量跑后 15 个生产 json 字节/mtime 未变",
+      "ok": true,
+      "detail": {
+        "files": 15,
+        "changed": [],
+        "ids": 15
+      }
+    }
+  ]
+}

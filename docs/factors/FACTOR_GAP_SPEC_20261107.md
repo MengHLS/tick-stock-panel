@@ -1,4 +1,4 @@
-# 因子缺口规格 v1.2（2026-11-07）
+# 因子缺口规格 v1.4（2026-11-07；v1.3 于 2026-11-08 00:40 追加 §9 准入载体缺口；v1.4 于 2026-11-08 01:10 把 §9 G4 升为裁定并订正 G5 的常量处数，§0–§8 一字未改）
 
 状态：**规格草案；按项分别 —— E2 已定：接口与验收判据由契约 v0.3 §3 冻结（2026-11-07 15:51），判据 `XS-A1`–`XS-A8`（策略可用 id `xs_rank_pool`；`xs_rank_pct` 仅诊断，`xs_rank_market` 为现网 `rank` 别名），此处「已定」指接口与判据已冻结，不代表已实现或已验收；其余各项（D1–D3、F1–F7、E1、E3、E4、X1–X2、G1–G3）仍待总体规划负责人排期、系统架构师定接口**。作者：因子工程师。
 本文件只做四件事：给需求、定口径、写验收判据、估量级与影响面。**不含实现代码，不含收益数字**。
@@ -311,3 +311,51 @@ cd C:\work\sourcecode\tick-stock-panel\backend
 - `ext_*` 85 个扩展数据因子未审计（G2）。
 - `vol60`/`ma120`/`prior_*` 的「逐位相同」目前只有同族等价证据（`change_pct` ≡ `ret1`、`ma20`/`ma60` 已实测 0 差）与 DSL 编译通过；**其余必须在注册后按各自验收标准实测**，在此之前不得写成「已证」。
 - X1 的接口契约、成本假设与影子运行口径需架构师与复盘工程师共同定，本文件只给判据。
+
+---
+## 9. 准入载体缺口（v1.3，2026-11-08 追加；§0–§8 未动）
+
+这三个缺口是本批（F 类 8 只 status 升 `active`）跑闸门时**实测暴露**的，不是推测。判据一律来自 `mode="production"` + `RegistryFacts(data_dir=settings.data_dir)` 的实跑。
+
+### G4 非 `uf_` 前缀的策略引用因子没有 `status` 载体 — P0
+
+- **需求**：让 pack 单侧件 `ma20` / `ma60` / `sd20` / `boll_lower` / `boll_upper` / `prior_amount_20` 能在 `production` 入口被判为可用。
+- **口径（为什么现在做不到，实测）**：`status` 只从盘上定义 JSON 读（`backend/app/factors/gate.py#_definition_status`），而盘上定义的 id 必须匹配 `^uf_[a-z0-9_]{1,40}$`（`backend/app/factors/store.py:17`、`to_spec()` :73-85）。这 6 个 id 不带 `uf_` 前缀 → **没有任何合法载体能承载它们的 status**。`FactorSpec` 数据类无 `status` 字段（`backend/app/factors/registry.py:33-68`）。
+- **实测**：6 只逐只 `assert_factors_usable([id], mode="production", facts=RegistryFacts(data_dir=D:/TSP/data))` → 全部 **`FS01`**，`detail.status = None`，`message` = 「因子 X 的 status=None 不允许在 production 模式使用」。
+- **契约依据**：`docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md` §7.15.3「登记 P2 ①：为 `FactorSpec` 增 `status`（或为 provider 注册路径显式给 `status`），使 14 只可从 `draft` 走 §7.11 的 V3 闸门升 `active`」——原定「不阻塞 B2、不进本批验收」，本批到期未落地。
+- **验收判据**：①6 只在 `mode="production"` 不再出 `FS01`；②每只的 status 可追到证据行（V3 `max_abs_diff` / B0 保真 / 该口径自身的验收判据），禁止批量写 `active`；③schema 增字段不改变既有 110 只的任何数值面（用 V3 对账复跑证 `max_abs_diff` 不变）。
+- **量级**：S（字段 + provider 传参 + 单测），但改的是契约 §7.2 的字段表，须走「架构契约 → 开发实现 → 独立审核」。
+- **影响面**：策略经理引用这 6 个 id 的策略在 `production` 全部被拒（当前实测：全部 `FS01`）。不解除则「策略只经因子表达」在这些策略上无法落地到可运行。
+- **裁定（v5.12 立 P0）**：本缺口升为**裁定**，锁定三条不做：①不补 `status`（无合法载体）；②不建 `uf_*` 双胞胎（§7.15.1 第 14 行；双胞胎会触发 §7.16.6 的 `FS04`）；③**不按 id 开白名单放行**（`EXEMPT_KINDS={base,virtual}` 是黑名单语义、按 `kind` 不按 id）。任何人要求「把这 6 个名字加白名单放行」，**必须先回来改本裁定**并留改判依据与实测，不得在闸门里按 id 开小门 —— 闸门是「策略只经因子表达」的唯一执行点。裁定全文见台账 `docs/factors/F_CLASS_REGISTRATION_20261107.md` §17；机器可读版 `docs/factors/evidence/f_class_registry.json#admission_carrier_rulings.g4_p0_ruling_v5_12`。
+- **4 个撞名名字的 400 归因（v5.12 实测，2 命名面 × 6 只）**：`ma20` / `ma60` / `boll_lower` / `boll_upper` 同时在 `_column_universe()`（68 名）内 —— **当因子引用**（`namespace="factor"`，缺省）→ `FS01` → **400**（契约 §7.7.5 / `F-A47`；**不是** `FS03`，这 4 只 `alias_of=None`）；**当列引用**（`namespace="column"`，§7.17.2 / `F-A43-2`）→ **0 码放行**；`sd20` / `prior_amount_20` 不在列宇宙 → column 面是 `FS02`。**今日这 4 个名字在 7 条活信号里是列**（`D:/TSP/data/user_data/custom_signals`：`ma20_breakout` / `ma20_breakdown` / `ma_dead_5_20` / `ma_golden_5_20` / `ma_golden_20_60` / `boll_breakout_upper` / `boll_breakdown_lower`，逐条 `enabled=true`、`kind="both"`）→ 走 column 面，**今天不会被打成 400**；400 只在被当因子引用时出现。实测脚本 `research/factor-ledger-20261108/probe_namespace_v511.py`（输出同名 `.json`）。
+
+### G5 `market_breadth` 没有登记载体（不是「没实现」）— P0
+
+- **需求**：让 `market_breadth` 成为可被策略引用的已登记因子（策略经理已裁定：**单侧、不建 `uf_market_breadth` 双胞胎**，理由同 `prior_amount_20`）。
+- **计算面已完成，登记面为零（实测）**：
+  - 计算：`docs/factors/B2_IMPLEMENTATION_20261107.md` §4 全部 PASS —— 1,770 个交易日两侧均非 null、`max_abs_diff=0.0`、`mean_abs_diff=0.0`、超 1e-12 天数 0；9 个 null 日 = `st_unknown_window` 8 天（2026-10-20…10-29）+ `beyond_coverage` 1 天（2026-10-30）；`warmup=120`。
+  - 登记：`grep -rn "market_breadth" backend/app --include=*.py` → **0 命中**；`all_factors()` 无此 id；闸门判 **`FS02`（未登记）**。
+- **两条载体路都不通（实测）**：①store 盘上 JSON —— id 正则 `^uf_` 拒绝，`store.to_spec({"id":"market_breadth",…})` 抛 `ValueError: id 必须匹配 ^uf_[a-z0-9_]{1,40}$`；②目录计数 —— `all_factors()` = `_CATALOG`(77) + provider(33) = **110**（`backend/tests/test_factor_registry.py:289` 快照，实测 1 passed），要 110→111 必须新增一个 `FactorSpec`，即 `backend/app/**` 代码。
+- **验收判据**：①`get_factor("market_breadth")` 非空；②`assert_factors_usable(["market_breadth"], mode="production")` 0 码；③目录计数 110→111，且 `test_catalog_counts_and_kinds` / `test_factor_store.py` 的 110 快照同步更新（否则测试红）；④若还要 `compile_formula("market_breadth")` 也通过 —— **不需要额外的层，登记即通过**（v5.10 更正：本行原写「须额外打通『已注册因子 id → DSL 标识符』，现盘上这一层本来就不成立」，并把 `compile_formula("uf_vol60")` 的 `E001` 当对照；那是**没走启动期装载的裸进程**里的假象）。实测同一 venv：裸进程 `compile_formula("uf_vol60")` → `ok=False / E001`（`get_factor` 为 None）；`store.load_all(data_dir)` + `register_factor(store.to_spec(d))` 之后同一表达式 → `ok=True / warmup_bars=61`。读代码一致：`backend/app/factors/dsl.py:676/690` 先查 `BASE_COLUMNS` 再 `get_factor(name)`，启动期由 `backend/app/main.py:217-221` / `backend/backtest/worker.py:234-236` 的 `load_into_registry` 装载。故验收只按 ①–③；另附一条可编译性事实：它的口径表达式今天就能编 —— `compile_formula("xs_mean(close > ma60, in_universe)")` → `ok=True`、`warmup_bars=120`，与 E1 声明的 120 一致。
+- **量级**：M（新增 provider/`FactorSpec` + 目录快照同步 + 可选 DSL 标识符解析 + 独立审核）。
+- **影响面**：所有引用 `market_breadth` 的策略（S12 择时闸门：宽度 < 0.5 当月不建仓）在 `production` 一律被拒。
+
+**实现门票（v5.11 追加，2026-11-08 00:58）**：登记字段值已由策略经理裁定并逐项冻结在台账 `docs/factors/F_CLASS_REGISTRATION_20261107.md` §16.4（`id` / `formula_text` / `semantics` / `cross_sectional` / `warmup_bars=120` / `dependencies={close,ma60,in_universe}` / `strategy_usable=true` / 「禁止再套截面算子」），**验收判据见 §16.5（5 条，可机械判定）**，连带风险见 §16.6（`semantics`/`cross_sectional` 无消费者 → 允许两步走，但登记行必须写明该约束尚未被执行）。开发侧照 §16.4 实现即可，不需要再回头问口径。
+
+- **状态（v5.12）**：**已派、未交付**。开发经理已于 2026-11-08 01:10 派系统开发工程师；写作时实测 `grep -rn "market_breadth" backend/app --include=*.py` 仍 **0 命中**、`all_factors()` 仍 110。登记参数（`§16.4` 门票）一字未改，只改状态写法。
+
+**实现时必须同步改的 4 处（v5.12 订正：v1.3 写「两行」会留 2 条红）**：`backend/tests/test_factor_registry.py:289` `assert len(specs) == 110` → `111`；`backend/tests/test_factor_registry.py:290` `assert len({spec.id for spec in specs}) == 110  # id 唯一` → `111`；`backend/tests/test_factor_registry.py:329` `assert len(stock) == 110` → `111`；`backend/tests/test_factor_registry.py:377` `assert len(factors) == 110` → `111`（`grep -n "110"` 恰 4 命中，文件 403 行）。若走 provider 路线，`factor_provider_status()["factor_count"]` 会 33 → 34，须全量跑 `tests/` 确认没有以 33 为常量的断言。
+
+### G6 `FactorSpec` 无 `semantics` / `cross_sectional` 字段 — P2
+
+- **需求**：把「按日聚合、按标的广播」这类语义写进因子元数据，并让闸门/物化/回测真的读它；尤其是 `market_breadth` 必须随身携带「**禁止对其再做任何截面算子或排名**」这条约束（否则等于 3,000 倍重复计数）。
+- **事实**：`backend/app/factors/registry.py:33-68` 的 `FactorSpec` 字段表共 23 项（含本批新用的 `alias_of` / `strategy_usable`），**没有** `semantics`、**没有** `cross_sectional`。批次要求「`semantics = market_aggregate_daily`、`cross_sectional = true`」在当前 schema **无处可写**。
+- **口径**：本批**拒绝**两种假落地——①把这两个键写进盘上 JSON 但没有读者（store 的 `to_spec()` 不消费，等于装饰）；②用 `kind` 或 `group` 字符串冒充语义（不可被机械判定）。
+- **验收判据**：①两个字段进契约 §7.2 字段表并有明确消费者（闸门对 `cross_sectional=true` 的因子在「再套截面算子」时 fail-closed）；②缺省值不改变既有 110 只任何行为（全量测试 + V3 复跑证）。
+- **量级**：M（契约 + 消费方 + 单测）。
+- **备注**：与 G5 同批做最省，但 G5 不依赖 G6（先登记后补语义是可行的两步）。
+
+### 9.4 本节的边界
+
+- 本节只给**需求 / 口径 / 验收判据 / 量级 / 影响面**，不含实现方案，也不含任何代码改动。
+- 未在本文写「近似因子」替代方案：G4 的 6 只与 G5 的 `market_breadth` 都不能用别的已注册因子近似表达（`ma20`/`ma60`/`sd20` 是均价/标准差本身，`market_breadth` 是全市场聚合，`limit_up_count_20d` 之类的单标的滚动计数不可替代，见 §3 E1）。

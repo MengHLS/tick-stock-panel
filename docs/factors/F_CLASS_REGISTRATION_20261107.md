@@ -1,6 +1,6 @@
 # F 类表达式因子注册台账（8 只）—— 批一：只登记，不注册
 
-状态：**台账 v5.8（2026-11-07 22:36 修订；v5.6 于 19:21、v5.5 于 18:57、v5.4 于 17:36、v5.3 于 17:11、v5.2 于 16:57、v5.1 于 16:47、v5 于 16:40、v4 于 16:20、v3 于 16:14、v2 于 16:10、v1 于 14:37）**。本文件只登记台账与映射：不注册、不复算数值、不写实现。v1 的几处状态描述已按实测与裁定更正 —— ①8 只 `uf_*` **已由系统开发工程师落盘并注册**（2026-11-07T14:30:24 写入 `D:/TSP/data/user_data/custom_factors/`，启动期 `load_into_registry` 装载，§2.10）；②`prior_amount_20` **已以研究名 + pack provider 注册**（§4.1）；③**数值对账已由系统开发工程师完成、独立审核已复核**，证据在 `docs/factors/evidence/F_CLASS_PARITY_20261107.*`，本文只引用、不重算（§7）；④`dist_prior_high_250` **已由系统开发工程师以 `uf_dist_prior_high_250` 注册并逐位对账**（2026-11-07T16:07 落库、16:09 报告，`max_abs_diff = 0.0`，§4.2）；⑤`rsi_14_pct` 的「base 列」路线**实测不可行**（`max_abs_diff = 28.8984`，须改 `pipeline.py` Pass 5 三处，§4.3）；⑥**v4：同口径双 id 事实按裁定更正为 8 组**（含 `prior_amount_20` / `uf_dist_prior_high_250` 两条**单侧例外**；§1.2 K8 与新增 §2.1b 逐行给 `canonical_id` / `aliases[]` / `canonical_reason` / `replaced_by`）；⑦**v4：V3 补充对账落盘**（F-A3 全量 8 只 × 20 symbol × 近 250 交易日逐值 + 末交易日截面名次漂移），证据 `docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json`，8 对 `rank_change_max` 全 0（§7 第 17 行）；⑧**v5：`replaced_by` 写法统一** —— 已注册目标一律写 canonical id（`uf_prior_high_55` / `uf_prior_low_10` / `uf_dist_prior_high_250`），未注册目标 `rsi_14_pct` 改写 **`replaced_by = null`** + `replaced_by_declared_name` + `target_registered = false`；任何非 `uf_*`/`cf_*` 的研究原名不得留在 `replaced_by` 字段（§2.1b 读表须知 2）；⑨**v5.1：`replaces` 逆关系补齐** —— `uf_prior_low_10.replaces = ['low_60d']`（原为 `[]`，与 `low_60d.replaced_by = uf_prior_low_10` 不成逆），并把 §2.1b 第 5/7 行「本因子不取代别人」这条错述改为显式 `replaces`；8 条 `factors[]` 的 `replaces`/`replaced_by` 已逐条核为互为逆。⑩**v5.2：指纹口径与公式权威同时改绑** —— 行尾在 16:45:33、16:49:20 被第三方两次改写（内容一字未变），raw 字节 sha256 失效，故**指纹一律改记 LF 归一化 sha256**（§0.1）；自检脚本的公式权威由活契约改读**归档冻结副本** `docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md`（检查 4），并在 RESULT 前打印所校验三文件的 LF 归一化 sha256；`single_sided_exceptions[0]`（`prior_amount_20`）补 `replaces: []` 与第 10 行对齐。⑪**v5.4：[4] 指针改指 v0.6 + 两条裁定入账** —— ①自检 `[4]` 的 `contract2` 由 v0.5 改指 **v0.6**（R6 于 17:16:36 冻结的现行编号修订）；实测 §7.1 块在归档 v0.3 / v0.4 / v0.5 / v0.6 **四处逐字节相同**（原始 CRLF 2,541 字符 / `a8e88134…`；LF 归一化 2,514 / `6d3db013…`；去尾换行 2,513 / `e9ed2b10…`），改指针零结论翻转；②`meta.revision_note` 里过期的契约哈希（110,944 B / `6b8fb14c…`〔作废：中途态，盘上无对应文件，见 ⑫〕）改为三份契约逐份现行指纹（raw + LF 两种口径）；③登记本轮两条裁定：**(a) 伴生记录形态**（主 false/allow/column，伴生 true/exempt/factor，靠 `record_kind` 区分，契约 v0.6 §7.12.2）+ **(b) `path_scope=history` 由 N4 固化为代码事实**（§7.10.3，`custom_signals.py:646-647`），收回此前期望表的 `both`，见新增 §12。**因子数字、组数、公式、warmup 一律未动。**⑫**v5.5：三处口径收尾（不改结论、不改数字）** —— ①`110,944 B / 6b8fb14c…` 就地标**【作废：中途态，盘上无对应文件】**，并按「size + sha + 读取时刻」一起引（读取时刻 2026-11-07T18:23+0800；该刻盘上无此尺寸契约文件，同刻实数：未编号活暂存 128,007 B / raw `5bd81a74…`、v0.5 138,729 B / raw `c7740508…`、v0.6 162,361 B / raw `946a1d86…`）；同族另两个中途态 109,914 B / `5c1264…`、正文前缀 110,098 B / `11bfe51f…` 一并标注（JSON `meta.sources[0].hash_note_v3/v4/v5`）；②「`[4]` 绑的是哪一份」两处措辞统一为 **v0.6** —— JSON `meta.sources[0].binding` 与 `self_check.checks[3].rule` 原写「活修订 v0.5」，改为 v0.6，与脚本 `contract2` 行、`meta.contract_binding.bound[1]`、本节 §12.3 指同一对象；v0.5 仅留作非绑定旁证；③§7.1 块口径统一为**脚本实算值** 2,514 字符 / `6d3db013…`（LF 归一化含尾换行），2,513 / `e9ed2b10…` 降为同一块的另一种量法，2,541 / `a8e88134…` 只作团队通报值；④`side_key` **未涉及实质引用**：契约 v0.6 §7.10.2 定其为**可选、不参与判据**；v5.4 基线上本台账与 JSON 对该字段 0 次引用，故无需改口径；v5.5 起出现的字样（本台账 2 处 / JSON 3 处）全部是对「是否引用」的元陈述。
+状态：**台账 v5.13（2026-11-08 01:19 修订；v5.12 于 01:10、v5.11 于 00:56、v5.10 于 00:52、v5.9 于 00:40（含 00:46 的 §7.1 块哈希改绑）、v5.8 于 22:36、v5.6 于 19:21、v5.5 于 18:57、v5.4 于 17:36、v5.3 于 17:11、v5.2 于 16:57、v5.1 于 16:47、v5 于 16:40、v4 于 16:20、v3 于 16:14、v2 于 16:10、v1 于 14:37）**。本文件只登记台账与映射：不注册、不复算数值、不写实现。v1 的几处状态描述已按实测与裁定更正 —— ①8 只 `uf_*` **已由系统开发工程师落盘并注册**（2026-11-07T14:30:24 写入 `D:/TSP/data/user_data/custom_factors/`，启动期 `load_into_registry` 装载，§2.10）；②`prior_amount_20` **已以研究名 + pack provider 注册**（§4.1）；③**数值对账已由系统开发工程师完成、独立审核已复核**，证据在 `docs/factors/evidence/F_CLASS_PARITY_20261107.*`，本文只引用、不重算（§7）；④`dist_prior_high_250` **已由系统开发工程师以 `uf_dist_prior_high_250` 注册并逐位对账**（2026-11-07T16:07 落库、16:09 报告，`max_abs_diff = 0.0`，§4.2）；⑤`rsi_14_pct` 的「base 列」路线**实测不可行**（`max_abs_diff = 28.8984`，须改 `pipeline.py` Pass 5 三处，§4.3）；⑥**v4：同口径双 id 事实按裁定更正为 8 组**（含 `prior_amount_20` / `uf_dist_prior_high_250` 两条**单侧例外**；§1.2 K8 与新增 §2.1b 逐行给 `canonical_id` / `aliases[]` / `canonical_reason` / `replaced_by`）；⑦**v4：V3 补充对账落盘**（F-A3 全量 8 只 × 20 symbol × 近 250 交易日逐值 + 末交易日截面名次漂移），证据 `docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json`，8 对 `rank_change_max` 全 0（§7 第 17 行）；⑧**v5：`replaced_by` 写法统一** —— 已注册目标一律写 canonical id（`uf_prior_high_55` / `uf_prior_low_10` / `uf_dist_prior_high_250`），未注册目标 `rsi_14_pct` 改写 **`replaced_by = null`** + `replaced_by_declared_name` + `target_registered = false`；任何非 `uf_*`/`cf_*` 的研究原名不得留在 `replaced_by` 字段（§2.1b 读表须知 2）；⑨**v5.1：`replaces` 逆关系补齐** —— `uf_prior_low_10.replaces = ['low_60d']`（原为 `[]`，与 `low_60d.replaced_by = uf_prior_low_10` 不成逆），并把 §2.1b 第 5/7 行「本因子不取代别人」这条错述改为显式 `replaces`；8 条 `factors[]` 的 `replaces`/`replaced_by` 已逐条核为互为逆。⑩**v5.2：指纹口径与公式权威同时改绑** —— 行尾在 16:45:33、16:49:20 被第三方两次改写（内容一字未变），raw 字节 sha256 失效，故**指纹一律改记 LF 归一化 sha256**（§0.1）；自检脚本的公式权威由活契约改读**归档冻结副本** `docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md`（检查 4），并在 RESULT 前打印所校验三文件的 LF 归一化 sha256；`single_sided_exceptions[0]`（`prior_amount_20`）补 `replaces: []` 与第 10 行对齐。⑪**v5.4：[4] 指针改指 v0.6 + 两条裁定入账** —— ①自检 `[4]` 的 `contract2` 由 v0.5 改指 **v0.6**（R6 于 17:16:36 冻结的现行编号修订）；实测 §7.1 块在归档 v0.3 / v0.4 / v0.5 / v0.6 **四处逐字节相同**（原始 CRLF 2,541 字符 / `a8e88134…`；LF 归一化 2,514 / `6d3db013…`；去尾换行 2,513 / `e9ed2b10…`），改指针零结论翻转；②`meta.revision_note` 里过期的契约哈希（110,944 B / `6b8fb14c…`〔作废：中途态，盘上无对应文件，见 ⑫〕）改为三份契约逐份现行指纹（raw + LF 两种口径）；③登记本轮两条裁定：**(a) 伴生记录形态**（主 false/allow/column，伴生 true/exempt/factor，靠 `record_kind` 区分，契约 v0.6 §7.12.2）+ **(b) `path_scope=history` 由 N4 固化为代码事实**（§7.10.3，`custom_signals.py:646-647`），收回此前期望表的 `both`，见新增 §12。**因子数字、组数、公式、warmup 一律未动。**⑫**v5.5：三处口径收尾（不改结论、不改数字）** —— ①`110,944 B / 6b8fb14c…` 就地标**【作废：中途态，盘上无对应文件】**，并按「size + sha + 读取时刻」一起引（读取时刻 2026-11-07T18:23+0800；该刻盘上无此尺寸契约文件，同刻实数：未编号活暂存 128,007 B / raw `5bd81a74…`、v0.5 138,729 B / raw `c7740508…`、v0.6 162,361 B / raw `946a1d86…`）；同族另两个中途态 109,914 B / `5c1264…`、正文前缀 110,098 B / `11bfe51f…` 一并标注（JSON `meta.sources[0].hash_note_v3/v4/v5`）；②「`[4]` 绑的是哪一份」两处措辞统一为 **v0.6** —— JSON `meta.sources[0].binding` 与 `self_check.checks[3].rule` 原写「活修订 v0.5」，改为 v0.6，与脚本 `contract2` 行、`meta.contract_binding.bound[1]`、本节 §12.3 指同一对象；v0.5 仅留作非绑定旁证；③§7.1 块口径统一为**脚本实算值** 2,514 字符 / `6d3db013…`（LF 归一化含尾换行），2,513 / `e9ed2b10…` 降为同一块的另一种量法，2,541 / `a8e88134…` 只作团队通报值；④`side_key` **未涉及实质引用**：契约 v0.6 §7.10.2 定其为**可选、不参与判据**；v5.4 基线上本台账与 JSON 对该字段 0 次引用，故无需改口径；v5.5 起出现的字样（本台账 2 处 / JSON 3 处）全部是对「是否引用」的元陈述。
 
 本文作者未改任何代码、未改 `backend/**`、未改 `docs/research/`、未改 `docs/architecture/`、未改 `research/*`、未改 `docs/factors/` 下他人文件。作者：因子工程师。日期：2026-11-07。
 
@@ -8,13 +8,13 @@
 
 **口径**：把 CRLF 折叠成 LF 后对全文取 sha256。行尾被第三方改写时**这个值不变**（raw 字节 sha256 会变），因此在无 git 历史的目录里仍可复算。**行尾策略：`docs/factors/` 两个台账文件统一 LF。**
 
-| 文件 | size | 行 | 行尾 | 文件 mtime（盘面） | LF 归一化 sha256（v5.8 实测） | raw 字节 sha256（同刻实测） |
+| 文件 | size | 行 | 行尾 | 文件 mtime（盘面） | LF 归一化 sha256（v5.9 实测） | raw 字节 sha256（同刻实测） |
 | --- | --- | --- | --- | --- | --- | --- |
-| `docs/factors/evidence/f_class_registry.json` | 124,794 B | 2164 | LF（CRLF 0） | 2026-11-07T22:35:18 | `9bfbb0207ed118ad9df3a6cff4fb37d78f04d2d96b391990f0d93278a6db64a3` | `9bfbb0207ed118ad9df3a6cff4fb37d78f04d2d96b391990f0d93278a6db64a3` |
-| `docs/factors/evidence/scripts/check_f_class_ledger.py` | 29,356 B | 661 | LF（CRLF 0） | 2026-11-07T21:34:11 | `3e4b677ee9a281ff3086847c6b62bf2f9b224f8c04c5e7cf23af36a0ead1d496` | `3e4b677ee9a281ff3086847c6b62bf2f9b224f8c04c5e7cf23af36a0ead1d496` |
+| `docs/factors/evidence/f_class_registry.json` | 180,303 B | 3123 | LF（CRLF 0） | 2026-11-08T01:19 | `6d5802aedb7bf49b56df82a37481cf2705be57f56db00b65665248926cde6a45` | `6d5802aedb7bf49b56df82a37481cf2705be57f56db00b65665248926cde6a45` |
+| `docs/factors/evidence/scripts/check_f_class_ledger.py` | 33,261 B | 729 | LF（CRLF 0） | 2026-11-08T00:44:53 | `5a2460ab4ae6a060c7b7b6fe410b4566b7047c6c123fccdbc27963585164beae` | `5a2460ab4ae6a060c7b7b6fe410b4566b7047c6c123fccdbc27963585164beae` |
 | `docs/factors/F_CLASS_REGISTRATION_20261107.md`（本文件） | 自指，不记 | — | LF（CRLF 0） | 自指，即本行写入时刻（v5.8） | 自指，不记：每次运行由自检脚本 BINDING 段打印 | 自指，不记（同上） |
 
-**行数口径（v5.8 补）**：本表「行」= 文件内换行符（LF）个数（末行无换行符时不计入），与自检脚本 `BINDING` 段打印的 `lines` 同口径；registry 124,794 B 即 2,164 个换行符 = 2,165 个内容行（`wc -l` 同得 2,164，`splitlines()` 得 2,165）。
+**行数口径（v5.8 补；v5.13 数值同步为 180,303 B / 3123 个换行符）**：本表「行」= 文件内换行符（LF）个数（末行无换行符时不计入），与自检脚本 `BINDING` 段打印的 `lines` 同口径；registry 124,794 B 即 2,164 个换行符 = 2,165 个内容行（`wc -l` 同得 2,164，`splitlines()` 得 2,165）。
 
 ## 0.2 定稿声明（v5.5 起；v5.6 按本条另立版本）
 
@@ -26,12 +26,24 @@
 
 > **v5.8（2026-11-07 22:29）：记账修复，数字一律不动** —— 三处真缺陷：①自检 `REAL_EXIT=1 / RESULT: FAIL / RECORD MISMATCHES: 2`：脚本 21:34:11 那版已实现 `[10] freeze_declaration_version_agree` 与 `[11] md_fingerprint_matches_registry`，但 JSON `self_check.checks` 只登记 9 条 → 「按台账里写的数必须是跑出来的数」把我判 FAIL；这两条 violations 本身都是 0，坏的是登记。②签认三元组此前只以散文存在（`v5_6_changes.basis` / `v5_7_changes.basis` 的句子里），JSON 全树 walk `signature*` **0 命中** → 新增顶层结构化 `signature` 块（`canonical_digest` / `schema_version` / `scanned_sources` / `recipe` / `signed_at` / `signed_object` / `byte_instances_observed[]`），按 **recipe 1** 填 `aefdf528…2d1a` / `"2"` / `67`，**不预填 recipe 2 任何值**（产物无 `canonical_digest_recipe` 字段，且 R8 的 recipe 2 已被独立审核退回）。③期望表 md 仍 `v3.3`（正文写着「机器可读副本 97,062 B / 8366cdb2」）、json 已 `v3.4`（99,935 B / `184dcdf9…`），两边错位 → md 同步到 v3.4。**v5.7 名下已存在两种字节（19:37:46 与 19:37:15 之前那一版），同一版本号对应两种字节不可签，故 v5.7 的两个字节态均不得被引用**，一律以 v5.8 为准。**8 只公式、warmup、deps、shift、双 id 三列与 `alias_side`、`replaced_by` 四条、K1–K12 一律未动。**（同轮一处纯键名修订：签认块内说明键 `recipe_2_note` 改名为 `unspecified_value_note`，正文含义不变，只为避免机械 walk 把键名误读成「已填 recipe 2 的值」；registry 字节随之再变，§0.1 registry 行指纹同步重测为 124,794 B / 2164 行 / `9bfbb020…`，`canonical_digest` 仍 `aefdf528…2d1a` / `"2"` / `67`。）
 
+> **v5.9（2026-11-08 00:40）：准入载体批，公式与数值一律不动** —— 本批四项：①8 只 `uf_*` 的盘上 `status` 由 `draft` 升 `active`（逐只带三条实测：V3 全量 `pass_1e12=true`、V3 末交易日全市场截面 `rank_change_max=0.0`、B0 保真 `max_abs_diff=0.0`）；②8 组双 id 的 alias 侧 `alias_of` / `strategy_usable=false` 载体核验（在 pack，不在盘上 JSON）；③`market_breadth` 与 6 个 pack 单侧件的登记缺口**如实记成缺口**，不用「近似因子」或伪造字段糊过去。**8 只公式、`warmup_bars`、`dependencies`、`shift`、双 id 三列、`replaced_by` 四条、K1–K12 一字未动**；`signature` 三元组（`aefdf528…2d1a` / `"2"` / `67`）不动。详见新增 §15。registry 字节随之变化，§0.1 registry 行指纹重测为 145,985 B / 2500 行 / `7029c912…`。④自检 `[4]` 与 `BINDING` 段的**判据对象由「版本文件全文」改为「§7.1 块哈希」**（断言＝两份块的 LF 归一化 2,514 字符 / `6d3db013…` 与原始 CRLF 2,541 字符 / `a8e88134…` 都必须等于登记常量，且两份块在两口径上彼此相等；契约版本号不再参与判定，读取来源改指 v0.12）——原因、口径与负样本见 §12.3。**除 `[4]` 的绑定对象外，其余 10 条判据、全部数字、公式、warmup、`signature` 块与 K1–K12 一字未动。**
+> **v5.10（2026-11-08 00:52）：勘误批，公式与数值一律不动** —— 三处台账自洽缺陷，全部是 v5.9 留下的，逐条有实测：①**8 只的 `strategy_usable_note` 与同行 `status` 相反**（v5.9 残留「status 仍 draft / usable_now=false」，而同行已是 `status=active` / `usable_now=true`）→ 逐只改写为引用本行 `admission_evidence_v5_9` 的现行结论，并新增 `status_carrier` 记载体路径（`D:/TSP/data/user_data/custom_factors/uf_*.json#status`）与写入时刻 `2026-11-07T23:33:57`。②**§15.5 把 G5 写大了一格**：原文称「`compile_formula('market_breadth')` 要成立还需打通注册因子 id → DSL 标识符这一层」，并以 `compile_formula('uf_vol60')` 同样 `E001` 作对照 —— 该对照是**假象**：同一 venv 里先 `store.load_all` + `register_factor` 后，`compile_formula('uf_vol60')` → `ok=True` / `warmup_bars=61`，即 id→标识符解析本来就在（`backend/app/factors/dsl.py:676/690` 走 `get_factor`，启动期由 `backend/app/main.py:217-221` / `backend/backtest/worker.py:234-236` 的 `load_into_registry` 装载）→ G5 的验收④降为「登记即通过」。③**6 个 pack 单侧件「补 status 还是闸门豁免」原本没有落笔** → 明确裁定**不豁免**（`gate.py:74` `EXEMPT_KINDS={base,virtual}`；§7.8.4 末行「provider 注册且无 status 按 draft 处理」），也不鼓吹补 status（无合法载体），交 G4；逐条记在 registry 新增顶层 `admission_carrier_rulings`。**并发写入登记**：本轮与另一条会话（「台账 BINDING 改绑 §7.1 块哈希」）在 00:44–00:46 同时写过本文件与 registry —— 脚本 00:44:53 改写、registry 与 md 于 00:45–00:46 各写一次；本版把两侧改动合并后重报三文件指纹（registry `158,382 B / 093f44c9…`），并以本次自检 `RESULT: PASS` 为唯一有效签认。**8 只公式、`warmup_bars`、`dependencies`、`shift`、双 id 三列、`replaced_by` 四条、K1–K12、`signature` 三元组一律未动。** 详见新增 §15.7。
+
+> **v5.11（2026-11-08 00:56）：证据出处批，公式与数值一律不动** —— 三处，全部只补「能不能被第三方复算」与「缺口门票」：①done_when ② 的闸门证据由临时 here-doc 换成仓库内可复跑脚本 `research/b0b-20261107/verify_fs03_realdisk.py`：**9/9 PASS**（`P0`–`P2` + `A1`–`A6`），日志 `research/b0b-20261107/logs/fs03_realdisk.json`（8,245 B / `1e00af39…1f7e` / 2026-11-08T00:51:05），其中 `A6.disk_status_snapshot_info` 记 8 只 `status=active`；②**done_when ③ 未达成，如实记为未达成**：`market_breadth` 仍 `E001`（`grep backend/app` 0 命中）、目录计数仍 **110**，原因不是缺证据而是**没有登记载体**（登记=新增 `FactorSpec`=`backend/app/**` 代码），按 G5+G6 给实现门票；③把「110 怎么数出来的、变 111 要动哪两行测试常量」落成整表（`backend/tests/test_factor_registry.py:289-290`）。**【v5.12 就地订正：不是两行，是 4 处 —— `:289` / `:290` / `:329` / `:377`；按两行改会留 2 条红，见 §16.5 第 4 条】****8 只公式、`warmup_bars`、`dependencies`、`shift`、双 id 三列、`replaced_by` 四条、K1–K12、`signature` 三元组一律未动。** 详见新增 §15.8；registry 指纹重测见 §0.1。
+
+> **v5.12（2026-11-08 01:10）：订正批（开发经理派单），公式与数值一律不动** —— 五件：①**门票订正**：v5.11 写「`market_breadth` 登记须同步改 `backend/tests/test_factor_registry.py:289`–`:290` 两处常量」，实测是 **4 处**（`:289` / `:290` / `:329` `assert len(stock) == 110` / `:377` `assert len(factors) == 110`；`grep -n "110"` 恰 4 命中、文件 403 行），按两处改会留 2 条红；②`market_breadth` 状态由「缺载体、待研究侧登记」改为 **已派、未交付**（已派系统开发工程师；本文写作时 `grep -rn "market_breadth" backend/app --include=*.py` 仍 **0 命中**）；③**G4 立 P0 并写成裁定**（新增 §17）：6 个单侧件不补 `status`、不建 `uf_*` 双胞胎、**不按 id 开豁免口**，任何「加白名单放行」的要求必须先回来改这条裁定；④**4 个撞名名字的 400 归因按实际命名面分开写**（新增 §17.4）：当因子引用是 `FS01` → 400（§7.7.5 / `F-A47`，不是 `FS03`），当列引用是 0 码放行（§7.17.2 / `F-A43-2`），故今天 7 条活信号（走 column 面）**不会**被打成 400；⑤**8 只 `active` 的生效留痕**（新增 §18）：生效时刻 `2026-11-07T23:33:57`（8/8 同一秒）、改前 `draft` 改后 `active`、盘上 `version` 仍 1、逐只 V3/截面/B0 指针，并实测「canonical 侧不再出 `FS01`、alias 侧仍出 `FS03`」。**8 只公式、`warmup_bars`、`dependencies`、`shift`、双 id 三列、`replaced_by` 四条、K1–K12、`signature` 三元组一律未动。**
+
+> **v5.13（2026-11-08 01:19）：两处精度订正，公式与数值一律不动** —— ①§17.4 把「这 4 个名字在活信号里」的写法写成一律带 `field:` 前缀，**以偏概全**：实测 7 条活信号共 **14 处引用**，其中 **12 处带 `field:`、2 处是裸名**（`ma_golden_20_60` 两个条件的 `left` 都写裸 `ma20`，`right` 是 `field:ma60`）；两种写法在本 DSL 里**都是列引用、都不是因子引用**，结论不变，但写法必须能对着盘面读 → 新增 §17.6。②「列面 0 码放行」是**工作树未提交**实现的实测：`git show HEAD:backend/app/factors/gate.py` 的 `assert_factors_usable` 签名（HEAD `:467`–`:477`）**没有** `namespace`，HEAD 全文 `grep -n namespace` 只有 `:592` 一处注释命中；故「今天这 7 条信号不会被打成 400」的真实理由是 **§17.5 那条「闸门生产调用点 = 0」**，**不是**「列面已上线所以安全」。**8 只公式、`warmup_bars`、`dependencies`、`shift`、双 id 三列、`replaced_by` 四条、K1–K12、`signature` 三元组一律未动。**
 - **唯一例外**：第三方直写造成的字节修复。修复须另立版本号、重报三文件指纹，不得静默覆盖。
 - **定稿失效条件**：再出现任何第三方直写（行尾改写、字段增删、`indent=2` 重排皆算），本定稿立即失效；须以该刻盘面字节重算指纹并重新签认，**不得沿用本条或 §0.1 的任何指纹**。
 - **可验证判据**：本 registry 的 LF 归一化 sha256 必须等于 §0.1 表所列值；本 md 的自指值只以 `docs/factors/evidence/scripts/check_f_class_ledger.py` 的 `BINDING` 段实跑打印为准（自指不入文件，见 §0.1 末条）。机器可读版同一句话记在 `meta.freeze_declaration.text`，`declared_at = 2026-11-07T19:21+0800`（v5.6）。
 - **范围**：只覆盖 F 类 8 只台账三文件（本文 + registry + 自检脚本）。`docs/architecture/**`、`backend/**`、`docs/research/**`、`research/**` 与 `docs/factors/` 下他人文件不在本声明内。
 
-**绑定对象（与 JSON `meta.contract_binding` / `meta.sources[0].binding` / `self_check.checks[3].rule` 同一对象）**：自检 `[4]` 双绑 **① 归档冻结副本** `docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md`（89,833 B / 914 行 / LF 归一化 `4105c08d…`，不可变权威）与 **② 现行编号活修订** `docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md`（162,361 B / 1,454 行 / LF 归一化 `a8334fea…`，2026-11-07T17:16:36 由 R6 冻结）；两份 §7.1 块须逐字节相同（脚本实算 2,514 字符 / `6d3db013…`），任一不同即 FAIL。**v0.5（138,729 B / `c7740508…`）自 v5.4 起降为非绑定旁证**，只由脚本打印「块未漂移」，不参与判定；未编号活暂存 `FACTOR_ENGINE_CONTRACTS_20261107.md`（128,007 B / `5bd81a74…`）多路写入、无法归因，不绑。
+**绑定对象（与 JSON `meta.contract_binding` / `meta.sources[0].binding` / `self_check.checks[3].rule` 同一对象；**v5.9 起判据对象是 §7.1 块，不是任何版本文件的全文**）**：自检 `[4]` 双绑 **① 归档冻结副本** `docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md`（89,833 B / 914 行 / 全文 LF 归一化 `4105c08d…`，不可变权威）与 **② 一份现行修订** `docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md`（269,092 B / 2,248 行 / 全文 raw `d7df40ff…`、LF 归一化 `aa3679c4…`），后者**只作读取来源，版本号不参与判定**。断言三条：每份的 §7.1 块在两套口径下都等于登记常量；两份块在两口径上彼此相等；8 只的 `formula_text` / `warmup_bars` / `dependencies` 与两份逐字一致。任一不成立即 FAIL，并打印两处块的两种 sha。
+
+**§7.1 块哈希的两套口径（引用时必须写明是哪一套）**：①**LF 归一化**（`CRLF`→`LF`，含块尾换行）**2,514 字符 / `6d3db0139a45f54c…`** —— 自检脚本实算、**判定用值**；②**保留原始 CRLF**（不折行，含块尾换行）**2,541 字符 / `a8e88134f60b504c…`** —— 团队通报用值。两者差 27 字符 = 27 行各一个 `CR`，**块文本一字不差**；所以引用「§7.1 块哈希」而不写口径即为歧义：写 `6d3db013…` 要带「LF 归一化 / 2,514」，写 `a8e88134…` 要带「原始 CRLF / 2,541」。第三种量法 2,513 / `e9ed2b10…`（同一块去尾换行）是 v5.3 曾用值，现已不用。
+
+**为什么把「版本全文」换成「§7.1 块」（v5.9）**：v5.4–v5.8 的双绑实际只覆盖**指针所指的那一版**（归档 v0.3 + v0.6）；指针停在哪一版，就只有那一版的 §7.1 进比对视野 —— v0.7–v0.12 里 §7.1 被改写或漂移，自检一句都不会说，这是**漏拦**。改绑块哈希后，块本身成为**登记常量**：任何被指向的文件都必须携带同一块，改一个数字即 FAIL 并打印两处哈希（负样本实测见 §12.3）。**未编号活暂存 `FACTOR_ENGINE_CONTRACTS_20261107.md` 仍不绑**：多路写入、无法归因，无法把一次绿跑归因到任何一版。
 
 **复算**（任一文件）：`python -c "import hashlib,sys;b=open(sys.argv[1],'rb').read().replace(bytes([13,10]),bytes([10]));print(hashlib.sha256(b).hexdigest())" <file>`
 
@@ -430,20 +442,18 @@ cd C:\work\sourcecode\tick-stock-panel
 python docs/factors/evidence/scripts/check_f_class_ledger.py
 ```
 
-实跑输出（本次 v5.5 修订后、对**两份绑定契约**重跑：归档 `archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md` 89,833 B / 914 行；现行编号活修订 `FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md` 162,361 B / 1,454 行。两份 §7.1 块逐字相同 —— 同一块文本三种口径：原始 CRLF 含尾换行 2,541 字符 / `a8e88134…`（团队通报用值）、LF 归一化 2,514 / `6d3db013…`（脚本实算值）、LF 去尾换行 2,513 / `e9ed2b10…`（v5.3 曾用值）；脚本先比两份 §7.1 的 sha，再逐只比 formula/warmup/deps，任一不同即 FAIL 并打印两处 sha。v0.5 只作**非绑定旁证**打印（证明块未漂移）。输出为 ASCII，以便任何控制台编码都能读：
+实跑输出（**v5.9 修订后重跑，2026-11-08 00:44**；判据对象已由「版本全文」改为 **§7.1 块哈希**：归档 `archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md` 89,833 B / 914 行 + 现行读取来源 `FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md` 269,092 B / 2,248 行；两份 §7.1 块在两套口径下都等于登记常量 —— LF 归一化 2,514 字符 / `6d3db013…`（判定用值）、原始 CRLF 2,541 字符 / `a8e88134…`（通报用值）；契约版本号不参与判定。脚本先比块的两种 sha，再逐只比 formula/warmup/deps，任一不同即 FAIL 并打印两处 sha。输出为 ASCII，以便任何控制台编码都能读；`BINDING` 段含本文件自指哈希，按 §0.1 末条不抄进正文，改为实跑现打印）：
 
 ```text
 F-class ledger self-check (read-only)
   registry : docs\factors\evidence\f_class_registry.json
   ledger   : docs\factors\F_CLASS_REGISTRATION_20261107.md
   contract : docs\architecture\archive\FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md  (frozen v0.3 archive, read-only)
-  contract2: docs\architecture\FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md  (live numbered revision, dual-bound)
-  s7.1 archive: 2514 chars  sha256 6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8
-  s7.1 live   : 2514 chars  sha256 6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8
-  s7.1 identical: True
-  s7.1 caliber: block INCLUDES its trailing newline (LF-normalized 2514 chars); without it the same block is 2,513 chars / e9ed2b10...
-  s7.1 caliber: hashed in its RAW CRLF form incl trailing newline: 2541 chars / a8e88134...  (this is the a8e88134f60b504c figure quoted in team notes)
-  s7.1 v0.5 (non-binding evidence): 2514 chars  sha256 6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8  same=True
+  contract2: docs\architecture\FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md  (current revision, read source only)
+  s7.1 binding: BLOCK hash, not the whole-file hash; version number not judged
+  s7.1 archive LF/CRLF: 2514/2541 chars  sha256 6d3db013... / a8e88134...
+  s7.1 contract LF/CRLF: 2514/2541 chars  sha256 6d3db013... / a8e88134...
+  s7.1 registered: LF 2514 chars / 6d3db013...  CRLF 2541 chars / a8e88134...  (both must match)
   factors  : 8   contract rows parsed: 8 / 8
 
 per-factor:
@@ -588,6 +598,9 @@ python -c "import json;d=json.load(open('docs/factors/evidence/compare_stats.jso
 | v5.6 | 2026-11-07 19:21 | **只更新期望表版本与指纹，台账数字零改动**：①§12.1 末行期望表指纹由 v3.2（`91,709 B / f21494f9…`）改为 **v3.3**（`97,062 B / 8366cdb2…`），并写明 v3.3 的重签对象（18:05:22 / 186,343 B / `b661c8cd…`）与独立复算值 `canonical_digest = aefdf528…2d1a`、表外差异 OD-1（14 条伴生 `note`，§7.10.2 未列该字段）；②依 §0.2 定稿声明另立版本号并重报三文件指纹。**8 只公式、warmup、deps、双 id 三列、`replaced_by`、K10/K11/K12 一律未动** | 因子工程师（按开发经理派单）|
 | v5.7 | 2026-11-07 19:28 | **只改签认对象与指纹，台账数字零改动**：①产物在 19:23:57 重跑，只改 `generated_at`（186,343 B / `df5e1a63…`，`canonical_digest` 仍 `aefdf528…2d1a`）；②按契约 §7.12.4 把期望表 v3.3→**v3.4**，签认对象由「字节 sha256」改为「三元组」，字节实例降为观测记录（`byte_instances_observed`）；③§12.1 末行期望表指纹 v3.3（`97,062 B / 8366cdb2…`）→ **v3.4**（`99,935 B / 184dcdf9…`）；④依 §0.2 定稿声明另立版本号并重报三文件指纹。**8 只公式、warmup、deps、双 id 三列、`replaced_by`、K10/K11/K12 一律未动** | 因子工程师（按开发经理派单）|
 | v5.8 | 2026-11-07 22:29 | **记账修复，数字一律不动**：①自检 `self_check.checks` 由 9 条补到 **11 条**（`[10] freeze_declaration_version_agree` / `[11] md_fingerprint_matches_registry` 按既有结构 id+rule+violations+violation_detail 登记，`check_count` 9→11，`total_violations` 保持 0）——此前脚本已实现、台账只登记 9 条，故 `RECORD MISMATCHES: 2`、`RESULT: FAIL`；②JSON 新增顶层结构化 **`signature`** 块（recipe 1：`aefdf528…2d1a` / `"2"` / `67`，本轮独立复算，非转抄产物字段），此前三元组只在散文里、walk `signature*` 0 命中；③期望表 md v3.3 → **v3.4** 同步（`99,935 B / 184dcdf9…`），消除 md/json 版本错位；④`meta.version` 5.7→**5.8**、`freeze_declaration.status` → `FROZEN at v5.8`，`revised_at`/`declared_at`/`self_check.generated_at` 取实际写入分钟；⑤§0.1 指纹表按实测重报 registry 与自检脚本两行。**8 只公式、warmup(61/121/201/21/56/251/11/21)、deps、shift、双 id 三列与 `alias_side`、`replaced_by` 四条、K1–K12 一律未动** | 因子工程师（按开发经理派单）|
+| v5.9 | 2026-11-08 00:40 | **准入载体批（R12），公式与数值一律不动**：①8 只 `uf_*` 盘上 `status` 由 `draft` 升 `active`（逐只带三条实测：V3 全量 `pass_1e12=true`、V3 末交易日全市场截面 `rank_change_max=0.0`、B0 保真 `max_abs_diff=0.0`；写入时刻 2026-11-07T23:33:57，盘上 `version` 仍 1 —— 直写路径不经 upsert 的版本+1 分支，不回写、不伪造）；②8 组双 id 的 alias 侧 `alias_of` / `strategy_usable=false` **载体在 pack 不在盘上 JSON**（`backend/app/custom/research_factor_pack/factor_specs.py:71-79` + `_spec()`），盘上 15 个定义 JSON 含 `alias_of` 的 0/15 是**正确态**（canonical 行必须为 None，§7.16.5）；③`market_breadth` 与 6 个 pack 单侧件（`ma20`/`ma60`/`sd20`/`boll_lower`/`boll_upper`/`prior_amount_20`）的登记缺口**如实记成缺口**（G4/G5/G6），不用近似因子或伪造字段糊；④闸门 `mode=production` 实测：8 个 alias 全 `FS03`、8 只 canonical 全 PASS、6 个单侧件全 `FS01`、`market_breadth` `FS02`。**8 只公式、warmup、deps、shift、双 id 三列、`replaced_by` 四条、K1–K12、`signature` 三元组一律未动**；新增 §15 | 因子工程师（按开发经理派单）|
+| v5.9（§7.1 改绑部分） | 2026-11-08 00:46 | **只改自检 `[4]` / `BINDING` 的绑定对象，数字与公式零改动**：①`[4]` 与 `BINDING` 段的判据对象由「版本文件全文」改为「§7.1 块」，登记常量两套口径（LF 归一化 2,514 / `6d3db013…`、原始 CRLF 2,541 / `a8e88134…`），读取来源 v0.6→**v0.12**，**版本号退出判据**；②删除 `CONTRACT_PREV`（v0.5 旁证），新增 `rel()`：绑定文件在仓库外时打印绝对路径并正常 FAIL，不再由 `relative_to` 抛异常；③负样本（v0.12 副本改 §7.1 一个窗口数字，长度不变）：`[4]` 违例 **5** / `RESULT: FAIL` / exit **1**，原版 PASS / exit 0；④§0.1 补两套口径与引用规则、指纹表脚本行重测为 33,261 B / 729 行 / `5a2460ab…`；§6 输出按 v5.9 实跑重抄。**8 只公式、`warmup_bars`、`dependencies`、shift、双 id 三列、`replaced_by` 四条、`signature` 块、K1–K12 一字未动** | 因子工程师（按开发经理派单）|
+| v5.10 | 2026-11-08 00:52 | **勘误批（三处自洽缺陷 + 并发写入登记），公式与数值一律不动**：①8 只 `strategy_usable_note` 仍是「status 仍 draft / usable_now=false」的 v5.9 残留、与同行 `status=active` 相反 → 逐只改写并新增 `status_carrier`（载体路径 + 写入时刻 + 盘上 version）；②§15.5 把 G5 写大一格（称还需「注册因子 id → DSL 标识符」层，以 `uf_vol60` 也 `E001` 作对照）→ 该对照是没走启动期 `load_into_registry` 的假象，实测装载后 `compile_formula('uf_vol60')` `ok=True/warmup=61`，G5 验收④降为「登记即通过」；③6 个单侧件「补 status 还是豁免」明确裁定**不豁免**（`gate.py:74` `EXEMPT_KINDS` + §7.8.4 末行），交 G4；④**并发写入登记**：与另一条会话「台账 BINDING 改绑 §7.1 块哈希」在 00:44–00:46 同写三文件，本版合并后重报指纹，以本次 `RESULT: PASS` 为唯一有效签认。另修 §15.4 表格末行缺尾 `\|`。**8 只公式、warmup、deps、shift、双 id 三列、`replaced_by`、K1–K12、`signature` 未动** | 因子工程师（按开发经理派单）|
 
 **本文件（v5.5）没做的事**：没注册/没注销任何因子、没写实现代码、没改引擎、没改 `backend/**`、没改 `docs/research/`、没改 `docs/architecture/`、没改 `research/*`、没改 `docs/factors/` 下他人文件、没提交、没部署、没重启服务。
 
@@ -691,8 +704,386 @@ python -c "import json;d=json.load(open('docs/factors/evidence/compare_stats.jso
 **v5.5 口径统一**：JSON 侧 `meta.sources[0].binding` 与 `self_check.checks[3].rule` 原仍写「活修订 v0.5」，与脚本 `contract2` 行、`meta.contract_binding.bound[1]` 不一致；现已一并改为 **v0.6**，并把该两处引用的块指纹由 2,513 / `e9ed2b10…` 改为脚本实算口径 2,514 / `6d3db013…`。**v0.5 只在 `meta.contract_binding.non_binding_evidence` 出现**，作用仅是「块未漂移」旁证，不参与判据。
 **负样本**（只改 v0.6 副本的 `ts_mean(close, 120)` → `121`，归档不动）：`[4]` 违例 **2** 条、打印 `archive 6d3db013… vs live 6b7273cc…`、`RESULT: FAIL`、exit **1**。
 
+**v5.9 改绑（判据对象：版本文件全文 → §7.1 块；其余 10 条判据、全部数字与公式不动）**：v5.4–v5.8 的双绑只覆盖「指针所指的那一版」；指针停在 v0.6 期间，v0.7–v0.12 的 §7.1 有没有被改写根本不进比对视野。v5.9 起：判定对象＝§7.1 块；登记常量两套口径（LF 归一化 2,514 字符 / `6d3db013…`；原始 CRLF 2,541 字符 / `a8e88134…`）；两份绑定文件（归档 v0.3 + 现行修订 v0.12，仅作读取来源）每份都必须两口径等于常量，且两份块彼此相等；**契约版本号不再是判据输入**，换版不翻转结论。脚本里 `CONTRACT_PREV`（v0.5 旁证打印）随之删除，v0.5 / v0.6 降为 JSON `meta.contract_binding.non_binding_evidence` 的历史旁证。另修一处只在异常路径暴露的缺陷：原写 `blk["path"].relative_to(REPO)`，绑定文件位于仓库外时抛 `ValueError`（负样本会变成 traceback、拿不到判定），改为 `rel()` —— 仓库外打印绝对路径并正常 FAIL，判据对象与阈值不变。
+**v5.9 负样本（本轮实跑，不碰仓库文件）**：把 v0.12 复制到 `C:/Users/A/AppData/Local/Temp/fa72/neg/contract_v0.12_mutated.md`，只把 §7.1 里 `ts_mean(close, 120)` 的窗口 `120` 改成 `121`（长度不变：副本仍 269,092 B，块仍 2,514 / 2,541 字符，**只动 sha**），再把脚本的 `CONTRACT_LIVE` 指向该副本跑 → `[4]` **违例 5 条**（LF 块 `6b7273cc…` ≠ 常量；CRLF 块 `e309b0ed…` ≠ 常量；两份块 LF 不同；两份块 CRLF 不同；`ma120` 的 `formula_text` 不同）、`RESULT: FAIL`、exit **1**；同一命令跑原版 → 违例 0 / `RESULT: PASS` / exit 0。**拦住它的确实是块哈希，不是文件长度、也不是版本号。**
+
 ### 12.4 本轮发现的一处契约文本错数（不改判据，只报）
 
 契约 v0.6 §7.12.1 写「期望表保留字面量 `field:ma60`（79 条中 **38 条**带前缀）」。
 **实测是 36 条**：22 条活配置里带 `field:` 前缀的字面量恰好 36 条（全部在右值）；产物 17:10 版的活配置**主记录** `side=R:field` 也正好 **36** 条（另 12 条属伴生记录，合计 48）。
 判据不受影响：F-A37 只断言 `ma_golden_20_60.json:11` 必须是 `field:ma60`，不依赖这个总数。**建议把 §7.12.1 的 38 改为 36**（契约文本不归我改）。
+
+---
+## 15. 准入载体批（v5.9，2026-11-08）：status / alias_of / market_breadth
+
+本节只登记**载体事实**，不改任何公式、`warmup_bars`、`dependencies`、`shift`、双 id 三列与 `replaced_by`。
+
+### 15.1 改前 / 改后逐 id 对照（8 只 canonical）
+
+改前基线：全部 `status=draft`（契约 v0.12 §7.15.3 于 2026-11-07 17:4x 实测「15 个盘上文件都是 `"status": "draft"`」）。改后：`status=active`，且每只都带自己的三条实测，无一只靠「批量写 active」放行。
+
+| # | 研究名 | canonical id | 改前 status | 改后 status | 改后 `alias_of` | 改后 `strategy_usable` | V3 `max_abs_diff`（n_both_nonnull） | V3 末交易日全市场 `rank_change_max` | B0 保真 `max_abs_diff` | production 闸门 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | `vol60` | `uf_vol60` | `draft` | `active` | `null` | `true` | `1.1102230246251565e-16`（5,469,335） | `0.0` | `0.0` | PASS（0 码） |
+| 2 | `ma120` | `uf_ma120` | `draft` | `active` | `null` | `true` | `0.0`（5,428,988） | `0.0` | `0.0` | PASS |
+| 3 | `ma200` | `uf_ma200` | `draft` | `active` | `null` | `true` | `0.0`（5,371,122） | `0.0` | `0.0` | PASS |
+| 4 | `prior_high_20` | `uf_prior_high_20` | `draft` | `active` | `null` | `true` | `0.0`（5,496,401） | `0.0` | `0.0` | PASS |
+| 5 | `prior_high_55` | `uf_prior_high_55` | `draft` | `active` | `null` | `true` | `0.0`（5,472,715） | `0.0` | `0.0` | PASS |
+| 6 | `prior_high_250` | `uf_prior_high_250` | `draft` | `active` | `null` | `true` | `0.0`（5,332,523） | `0.0` | `0.0` | PASS |
+| 7 | `prior_low_10` | `uf_prior_low_10` | `draft` | `active` | `null` | `true` | `0.0`（5,503,218） | `0.0` | `0.0` | PASS |
+| 8 | `prior_vol_20` | `uf_prior_vol_20` | `draft` | `active` | `null` | `true` | `0.0`（5,496,401） | `0.0` | `0.0` | PASS |
+
+证据出处（逐条可复算，本文只引用不重算）：
+
+| 列 | 文件 | JSON 路径 |
+| --- | --- | --- |
+| V3 `max_abs_diff` / `n_both_nonnull` | `docs/factors/evidence/F_CLASS_PARITY_20261107.json` | `#factor_parity.<canonical id>`（`tol=1e-12`、`n_over_tol=0` 全部 8/8） |
+| V3 截面 `rank_change_max` | `docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json` | `#pairs.<research name>.rank_last_day_full_market.rank_change_max` |
+| B0 保真 | `docs/factors/evidence/registration_b0_20261107.json` | `#fidelity.per_factor.<research name>.max_abs_diff` |
+| 闸门实测 | 本文 §15.3 的命令 | `assert_factors_usable([id], mode="production", facts=RegistryFacts(data_dir=settings.data_dir))` |
+
+**`vol60` 的单列说明**：V3 全量 `max_abs_diff = 1.11e-16`（4,214,876 行非零、`n_over_tol = 0`），按 §7.15.2 的口径记为「`max_abs_diff < 1e-12` 判过」，**不得**写成「逐位相同」。其余 7 只实测 `0.0`，可写「逐位相同」。
+
+**为什么不用 B2 的 E1/E2/E3 判据做依据**：E1/E2/E3 是 `market_breadth`、`xs_rank_*`、`in_universe` 三类载体的判据（`docs/factors/B2_IMPLEMENTATION_20261107.md` §2–§4），**不覆盖** F 类 8 只表达式因子。这 8 只的适配证据只能是 V3 全量 + V3 截面名次 + B0 保真这三份。
+
+### 15.2 alias 侧 `alias_of` 的载体在 pack，不在盘上 JSON
+
+| # | alias（研究原名） | `alias_of` | `strategy_usable` | 载体 | 盘上 JSON |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `vol60` | `uf_vol60` | `false` | pack | 无（也不需要） |
+| 2 | `ma120` | `uf_ma120` | `false` | pack | 无 |
+| 3 | `ma200` | `uf_ma200` | `false` | pack | 无 |
+| 4 | `prior_high_20` | `uf_prior_high_20` | `false` | pack | 无 |
+| 5 | `prior_high_55` | `uf_prior_high_55` | `false` | pack | 无 |
+| 6 | `prior_high_250` | `uf_prior_high_250` | `false` | pack | 无 |
+| 7 | `prior_low_10` | `uf_prior_low_10` | `false` | pack | 无 |
+| 8 | `prior_vol_20` | `uf_prior_vol_20` | `false` | pack | 无 |
+
+- 载体位置：`backend/app/custom/research_factor_pack/factor_specs.py:71-79`（`_ALIAS_OF` 8 条，逐行照抄契约 §7.15.1 第 1–8 行）+ `:106-107`（`_spec()` 把 `alias_of` 与 `strategy_usable` 写进 `FactorSpec`）。字段名与 `backend/app/factors/registry.py:61-65` 一致，未自造字段。
+- **为什么不能写盘上 JSON**：`backend/app/factors/store.py:17` `CUSTOM_ID_PATTERN = re.compile(r"^uf_[a-z0-9_]{1,40}$")`，`store.to_spec()`（`store.py:73-85`）对不匹配的 id 直接 `ValueError`。8 个研究原名都不带 `uf_` 前缀，写进去既不能注册也不合法。契约 §7.15.1「载体」列本身就写着「store（canonical）+ pack（alias）」。
+- **「盘上 15 个定义 JSON 含 `alias_of` 的 0/15」不是缺陷**：这 15 个文件全是 canonical 侧（8 个 `uf_*` + `uf_dist_prior_high_250` + 5 个 `uf_auction_*`）加 `cf_auction_resonance`；按 §7.16.5，canonical 行的 `alias_of` **必须**为 `None`。0/15 是正确态。
+
+### 15.3 闸门实测（done_when ②）
+
+```bash
+cd C:/work/sourcecode/tick-stock-panel/backend
+./.venv/Scripts/python.exe - <<'EOF'
+import sys; sys.path.insert(0,'.')
+from app.config import settings
+from app.factors.gate import assert_factors_usable, GateError, RegistryFacts
+F = RegistryFacts(data_dir=settings.data_dir)
+for i in ["vol60","ma120","ma200","prior_high_20","prior_low_10","prior_high_55","prior_vol_20","prior_high_250",
+          "uf_vol60","uf_ma120","uf_ma200","uf_prior_high_20","uf_prior_low_10","uf_prior_high_55","uf_prior_vol_20","uf_prior_high_250"]:
+    try: assert_factors_usable([i], mode="production", facts=F); print(i, "PASS")
+    except GateError as e: print(i, e.code)
+EOF
+```
+
+实测结果（2026-11-08 00:29）：
+
+| 组 | 结果 |
+| --- | --- |
+| 8 个 alias（`vol60`/`ma120`/`ma200`/`prior_high_20`/`prior_low_10`/`prior_high_55`/`prior_vol_20`/`prior_high_250`） | **8/8 `FS03`**，`message` = 「生产入口不允许 alias，请改用 canonical id `uf_*`」 |
+| 8 只 canonical（`uf_*`） | **8/8 PASS（0 码）** |
+| 16 个 id 一次送入 | `FS04`（`ma120`/`uf_ma120` 混用同口径两 id）— §7.16.6 的设计行为，不是缺陷 |
+
+**一个必须写清的读法**：只用 `RegistryFacts()`（不传 `data_dir`）时，8 只 canonical 与 `market_breadth` 全报 **`FS02`（未登记）**——那是「闸门没接盘上定义」的读法，与 `status` 无关。本批所有结论一律用 `RegistryFacts(data_dir=settings.data_dir)`（`settings.data_dir = D:\TSP\data`）。
+
+**v5.11 起改引仓库内可复跑脚本（上面那段 here-doc 只作口径说明保留）**：`research/b0b-20261107/verify_fs03_realdisk.py` 把同一条判据做成落盘产物——
+
+```bash
+cd C:/work/sourcecode/tick-stock-panel/backend
+PYTHONUTF8=1 ./.venv/Scripts/python.exe ../research/b0b-20261107/verify_fs03_realdisk.py
+```
+
+2026-11-08T00:51 实跑 **9/9 PASS / 0 FAIL**，日志 `research/b0b-20261107/logs/fs03_realdisk.json`（8,245 B / `1e00af393632f488…1f7e`）：
+
+| 检查项 | 它证的是什么 | 结果 |
+| --- | --- | --- |
+| `P0.alias_table_matches` | pack 的 `_ALIAS_OF` 与 §7.15.1 第 1–8 行逐对相同（不是第二份权威） | PASS |
+| `P1.providers_ready` | 5 个 pack 装载就绪（`factor_count=33`） | PASS |
+| `P2.canonical_on_disk` | 8 只 canonical 的定义 JSON 都在盘上 | PASS |
+| `A1.eight_aliases_all_FS03` | 8/8 alias `error_code=FS03`（`failing: []`） | PASS |
+| `A2.eight_canonicals_no_FS03` | 8/8 canonical 不含 FS03（`failing: []`） | PASS |
+| `A3.diagnostic_does_not_reject_alias` | diagnostic 模式不拦 alias（8 个 `None`） | PASS |
+| `A4.spec_carrier` | `FactorSpec.alias_of` 载体真进了对象（逐只打印） | PASS |
+| `A5.disk_json_has_no_alias_of` | 15 个盘上 JSON 全无 `alias_of`（canonical 的正确态） | PASS |
+| `A6.disk_status_snapshot_info` | 8 只盘上 `status=active` 的快照（本批写入后的现状） | PASS |
+
+**读这 8 个 alias 的 `blocked_codes` 要注意**：它们同时带 `FS03` 与 `FS01`。`FS03` 是契约 §7.16.2 C2 的 alias 判据（生产入口不许用 alias，改用 `uf_*`）；`FS01` 是 alias 自身的 pack `FactorSpec` 没有 `status` 载体（同 G4 的根因）。**判据只认 `error_code == FS03`**，`FS01` 不构成新缺口。
+
+
+### 15.4 仍然被拒的 7 个 id（如实记缺口，不糊）
+
+| id | 码 | `detail.status` | 载体 | 缺什么 |
+| --- | --- | --- | --- | --- |
+| `ma20` | `FS01` | `None` | pack（唯一载体） | 该 id 没有 `status` 载体：pack provider 注册的 `FactorSpec` 数据类无 `status` 字段；store 的 id 正则不收非 `uf_` 前缀，盘上 JSON 无法承载 |
+| `ma60` | `FS01` | `None` | pack | 同上 |
+| `sd20` | `FS01` | `None` | pack | 同上 |
+| `boll_lower` | `FS01` | `None` | pack | 同上 |
+| `boll_upper` | `FS01` | `None` | pack | 同上 |
+| `prior_amount_20` | `FS01` | `None` | pack | 同上；且 §7.15.1 第 14 行明令不得新建 `uf_prior_amount_20`，不能靠「建双胞胎」绕 |
+| `market_breadth` | `FS02` | `None` | 无 | 登记面为零：`grep -rn "market_breadth" backend/app --include=*.py` **0 命中**、`all_factors()` 无此 id；store 走不通（id 正则），pack 走通需要新增 `FactorSpec`（即 `backend/app/**` 代码） | |
+
+**这两类缺口都不是「写个近似因子」「把 status 硬写进没人读的 JSON」能解决的**，按缺口规格交开发经理排期：`docs/factors/FACTOR_GAP_SPEC_20261107.md` §9（G4 / G5 / G6）。
+
+#### 15.4.1 二选一的裁定（补 v5.9 未落笔的那一步，v5.10）
+
+派单要求「6 个单侧 id 要么补 `status`，要么在台账里明确写『由闸门豁免，依据 X』，二者选一」。**裁定：不豁免，也不补 status —— 两条都做不到，交 G4。** 逐条依据（全部实测/读代码，非推理）：
+
+| 选项 | 能不能做 | 依据 |
+| --- | --- | --- |
+| 闸门豁免（按 id 名单开小门） | **不能，且不允许** | 闸门的豁免集是 `EXEMPT_KINDS = frozenset({"base","virtual"})`（`backend/app/factors/gate.py:74`），黑名单语义：其余 kind 一律进判定；这 6 只 `kind=custom`。§7.8.4 末行明令「Provider 注册且无 `status` 的按 `draft` 处理」——**漏填必须失败**。按 id 名单豁免会直接把「策略只经因子表达」这条规则的执行点打开一个后门，且无任何契约条款可引。 |
+| 补 `status`（盘上 JSON） | **不能** | 盘上 `status` 只能由 store 承载：`CUSTOM_ID_PATTERN = ^uf_[a-z0-9_]{1,40}$`（`backend/app/factors/store.py:17`）+ `to_spec()` 抛 `ValueError`；这 6 个 id 不带 `uf_`，**没有合法载体**。 |
+| 补 `status`（建 `uf_` 双胞胎） | **不能** | pack provider 注册的 `FactorSpec` 数据类无 `status` 字段（`backend/app/factors/registry.py`）；且 §7.15.1 第 14 行明令不得新建 `uf_prior_amount_20`；建双胞胎还会把「同口径两 id」的 FS04 混用问题引进来。 |
+
+**结论**：这 6 只在 `production` 今天是 `FS01`（`detail.status=None`），这是**设计行为，不是放行缺口**；解除必须走 G4（`status` 进 `FactorSpec` / provider 注册路径显式给值，量级 S，须走契约→实现→独立审核）。机器可读版：registry 顶层 `admission_carrier_rulings.ruling_single_sided_6`。
+
+### 15.5 目录计数口径（done_when ③ 的一半）
+
+| 口径 | 值 | 怎么算的 |
+| --- | --- | --- |
+| 现盘进程内 `all_factors()` | **195** | `_CATALOG` 77 + provider 33 + 其它动态注册 85；本机 5 个 pack 全装（`factor_provider_status()`：`packages_scanned=14`、`modules_loaded=5`、`factor_count=33`） |
+| pytest 快照口径（`backend/tests/test_factor_registry.py:289`） | **110** | `_CATALOG`(77) + provider 的 33 = 110；实测 `pytest tests/test_factor_registry.py::test_catalog_counts_and_kinds` **1 passed** |
+| 本批之后 | **仍 110** | `market_breadth` **未登记**，因此没有 110→111。要变 111 必须新增一个 `FactorSpec`，属实现工作（G5） |
+
+`compile_formula` 面（**v5.10 更正，v5.9 此处写错了一格**）：`compile_formula("market_breadth")` 现在返回 `E001 未知标识符: market_breadth`，原因只有一个 —— 它**未登记**。v5.9 原文接着写「已注册的因子 id 本来也不是 DSL 标识符（对照 `compile_formula("uf_vol60")` 同样 `E001`），所以要成立还得打通『注册因子 id → DSL 标识符』这一层」，**该对照是假象**：它只在没有启动期装载的裸进程里成立。
+
+实测（同一 venv，`backend/.venv/Scripts/python.exe`，2026-11-08 00:47）：
+
+| 步骤 | `compile_formula("uf_vol60")` | 说明 |
+| --- | --- | --- |
+| 裸进程（未装载 store） | `ok=False` / `E001` | `get_factor("uf_vol60")` 为 `None` —— 只是没装载，不是解析层缺失 |
+| `store.load_all(settings.data_dir)` + 逐条 `register_factor(store.to_spec(d))`（15 条里 9 条可注册，其余 6 条因依赖 `ext_*` 未装载而跳过） | `ok=True` / `warmup_bars=61` | 装载后同一表达式立即通过 |
+
+读代码同样成立：`backend/app/factors/dsl.py:676` / `:690` 对每个标识符先查 `BASE_COLUMNS`、再 `get_factor(name)`；启动期由 `backend/app/main.py:217-221`（`store.load_into_registry`）与 `backend/backtest/worker.py:234-236` 把盘上 `uf_*` 装进注册表。**所以「注册因子 id → DSL 标识符」这一层本来就存在，不需要新建。**
+
+**对 G5 的影响（把缺口写小，不是放水）**：`market_breadth` 一旦成为 `FactorSpec`（并随启动期进入注册表），`compile_formula("market_breadth")` 会自动通过；G5 的验收④由「额外打通标识符解析层」降为「登记即通过」。派单 done_when ③ 里「可 `compile_formula("market_breadth")` 通过」这一条**今天仍不成立**，唯一原因仍是**未登记**。
+
+与此同时仍成立的是：它的**口径表达式**今天就能编译 —— `compile_formula("xs_mean(close > ma60, in_universe)")` → `ok=True`、`warmup_bars=120`，与 E1 声明的 120 一致。
+
+### 15.6 本批没做的事
+
+- 没有改 `backend/**`、没有改任何公式/`warmup_bars`/`dependencies`/`shift`、没有提交、没有部署。
+- 没有为 6 个 pack 单侧件伪造盘上定义（会因为 id 正则失败并污染启动期装载日志）。
+- 没有为 `market_breadth` 造 `semantics` / `cross_sectional` 字段：`backend/app/factors/registry.py:33-68` 的 `FactorSpec` 字段表里**没有**这两个字段，写了也没有读者（G6）。
+- `xs_mean` 的「按日聚合、按标的广播」语义本身已实现（B2 §3 表格：池外行同值广播、池内无有效样本 → null），缺的是**登记**与**语义字段载体**，不是计算能力。
+
+### 15.7 v5.10 勘误记录与并发写入登记
+
+**三处勘误**（逐条见 §0.2 的 v5.10 段与 registry 顶层 `v5_10_changes`）：①8 只 `strategy_usable_note` 与同行 `status` 相反 → 改写并新增 `status_carrier`；②§15.5 的 G5 口径写大一格 → 已改正（标识符解析层本来就存在）；③6 个单侧件的「豁免 or 补 status」二选一未落笔 → §15.4.1 明确裁定「都不行，交 G4」。
+
+**并发写入登记（必须记，不遮）**：本文件与 registry 在 2026-11-08 00:44–00:46 被**两条会话同时写入** —— 另一条会话在做「台账 BINDING 改绑 §7.1 块哈希」（脚本 `check_f_class_ledger.py` 00:44:53 改写、md 00:46:14 写入），本条会话在做「准入载体批勘误」（registry 00:45:29 写入）。后果是**混合态**：registry 的 `meta.version=5.10` 与 md 状态行的 `v5.9` 一度不一致，自检因此报 `TOTAL VIOLATIONS: 2 / RESULT: FAIL`（`[10]` 版本不符、`[11]` §0.1 指纹过期）。
+
+**处置**：以「后写者合并前写者」的方式收口 —— 本版把两侧改动合并到同一份 md + registry 上，重报三文件指纹（registry `158,382 B / 093f44c9…`；脚本 `33,261 B / 5a2460ab…`），并以本次自检 `RESULT: PASS` 为唯一有效签认；`v5.9` 与 `v5.10` 两次写的内容都在盘上，没有一方被静默覆盖。
+
+**这条为什么值得写进台账**：§0.2 的定稿声明把「第三方直写」列为定稿失效条件，而本次不是第三方 —— 是**同一角色的两条会话**。若不加约束，两条会话各自 `read → 改 → write` 会互相覆盖，而 `[11]` 只能发现「指纹过期」，发现不了「某一段结论被对方版覆盖」。建议：`docs/factors/` 三文件同一时刻只允许一条会话持有写权（派单或串行化），本条作为机制缺口的证据。
+
+**本节没做的事**：没有改 `backend/**`、没有改盘上因子定义、没有提交、没有部署；`signature` 三元组未动。
+
+## 16. done_when ③ 的现状与 market_breadth 实现门票（v5.11）
+
+派单 done_when ③ 是三格：「`compile_formula("market_breadth")` 通过」「目录计数 110 → 111 并说明口径」「台账 md + registry 自检 exit 0」。**第一、二格本批未达成，第三格达成**。以下每一格都给实测，不写推断。
+
+### 16.1 三格现状
+
+| done_when ③ | 现状 | 实测 |
+| --- | --- | --- |
+| `compile_formula("market_breadth")` 通过 | **未达成** | `E001 未知标识符: market_breadth`；`grep -rn "market_breadth" backend/app --include=*.py` → **0 命中**；`all_factors()` 无此 id |
+| 目录计数 110 → 111 并说明口径 | **未达成，仍是 110** | `pytest tests/test_factor_registry.py::test_catalog_counts_and_kinds` → 1 passed（`len(specs) == 110`、id 唯一 110、virtual 61、pit 7 全过） |
+| 台账两文件自检 exit 0 | **达成** | `docs/factors/evidence/scripts/check_f_class_ledger.py` → `TOTAL VIOLATIONS: 0` / `RECORD MISMATCHES: 0` / `RESULT: PASS` / exit 0（11 项全登记） |
+
+**登记状态（v5.12）**：`market_breadth` = **已派、未交付**。开发经理 2026-11-08 01:10 已派系统开发工程师；本文写作时 `grep -rn "market_breadth" backend/app --include=*.py` 仍 **0 命中**、`all_factors()` 仍 110、`compile_formula("market_breadth")` 仍 `E001`。交付判据见 §16.5 五条 —— 本格从「缺载体、待登记」改为「已派、未交付」，**不改**任何登记参数。
+
+### 16.2 110 这个数怎么来的（口径，逐项可复算）
+
+| 组成 | 数量 | 出处 |
+| --- | --- | --- |
+| `_CATALOG`（代码内建的 base + virtual） | 77 | `backend/app/factors/registry.py` 的 `_CATALOG` 常量 |
+| provider（5 个 pack 装载后贡献） | 33 | `factor_provider_status()`：`packages_scanned=14` / `modules_loaded=5` / `factor_count=33`；含 8 个 alias 与 6 个单侧件 |
+| **合计（pytest 快照口径）** | **110** | `backend/tests/test_factor_registry.py:289` `assert len(specs) == 110` |
+
+**两个数不许互相「更正」**：进程内 `all_factors()` 另有 85 只动态注册（撞名条款 F-A44 的那批等），裸进程读数是 **195**；**110 是 pytest 快照口径**（77+33），不是 195。§15.5 已记过这条，此处再钉一次，因为 G5 的验收要拿 110/111 说话。
+
+### 16.3 为什么我做不到把 110 变 111（不是时间问题，是没有载体）
+
+登记 = 新增一个 `FactorSpec`。三条落点，逐条实测：
+
+| 落点 | 能不能用 | 依据 |
+| --- | --- | --- |
+| `_CATALOG` 硬编码 | 不能（不是我的活） | `backend/app/factors/registry.py`，属 `backend/app/**`；本角色不写实现代码 |
+| provider / pack 的 `factor_specs.py` | 不能（同上） | `backend/app/extensions/factors.py#ensure_factor_providers` 只发现 `app.custom` 下的 Python 包；pack 是 `backend/app/custom/research_factor_pack/factor_specs.py` |
+| store 盘上定义 JSON | **不能（载体本身不允许）** | `CUSTOM_ID_PATTERN = ^uf_[a-z0-9_]{1,40}$`（`store.py:17`）+ `to_spec()` `ValueError`；实测 `to_spec({"id":"market_breadth",…})` → `ValueError: id 必须匹配 ^uf_[a-z0-9_]{1,40}$` |
+
+**所以这一步只能由系统开发工程师实现，我出的是实现门票。** 这也是 BOTH「策略必须经因子表达」与「因子工程师不写实现代码」两条规则的交叉点：**登记面归我判定，实现面归开发。**
+
+### 16.4 实现门票（G5）：登记参数逐项照抄策略经理裁定，不许改口径
+
+| 字段 | 值 | 说明 |
+| --- | --- | --- |
+| `id` | `market_breadth` | 单侧，**不建 `uf_market_breadth` 双胞胎**（理由同 `prior_amount_20`；若出现双胞胎，§7.16.6 的 FS04 会把同口径两 id 判为混用） |
+| `formula_text` | `xs_mean(close > ma60, in_universe)` | 今日即可编译：`compile_formula` → `ok=True`、`warmup_bars=120` |
+| `semantics` | `market_aggregate_daily` | **今日无字段载体**（G6）：`FactorSpec` 23 项字段里没有 `semantics` |
+| `cross_sectional` | `true` | 同上（G6）：无 `cross_sectional` 字段 |
+| `warmup_bars` | `120` | 与 E1 声明一致 |
+| `dependencies` | `{close, ma60, in_universe}` | `ma60` / `in_universe` 均在 pack 侧已注册 |
+| `strategy_usable` | `true` | 单侧件，不是 alias |
+| 强制约束 | **禁止对其再做任何截面算子或排名** | 否则按标的广播后重复计数，约 3,000 倍 |
+| 状态（v5.12） | **已派、未交付** | 已派系统开发工程师；本文写作时 `backend/app` 仍 0 命中。门票本身不变，只改状态写法 |
+
+### 16.5 实现完成后的验收（5 条，可机械判定）
+
+1. `get_factor("market_breadth")` 非空，且 `warmup_bars == 120`、`dependencies == frozenset({"close","ma60","in_universe"})`。
+2. `compile_formula("market_breadth")` → `ok=True`（登记即通过，**不需要**额外打通「id → DSL 标识符」层，见 §15.5 的 v5.10 更正）。
+3. `assert_factors_usable(["market_breadth"], mode="production", facts=RegistryFacts(settings.data_dir))` → **0 码**（不得是 FS01/FS02）。
+4. `pytest tests/test_factor_registry.py::test_catalog_counts_and_kinds` → 111；**必须同步改 4 处，不是 2 处**（v5.12 订正：v5.11 只列了 `:289`–`:290`，按两处改会留 2 条红）：
+   - `backend/tests/test_factor_registry.py:289` `assert len(specs) == 110`
+   - `backend/tests/test_factor_registry.py:290` `assert len({spec.id for spec in specs}) == 110  # id 唯一`
+   - `backend/tests/test_factor_registry.py:329` `assert len(stock) == 110`
+   - `backend/tests/test_factor_registry.py:377` `assert len(factors) == 110`
+   实测：`grep -n "110" backend/tests/test_factor_registry.py` → **恰 4 命中**（`:289` / `:290` / `:329` / `:377`；文件 403 行）。四条缺一条就红一条。若 `market_breadth` 进 provider，还要看 `factor_provider_status()["factor_count"]` 从 33 变 34 会不会撞别的常量 —— 实现时须**全量跑** `tests/`。
+5. 既有判据不动：`research/b0b-20261107/verify_fs03_realdisk.py` 仍 **9/9 PASS**（8 个 alias 出 FS03、8 只 canonical 不出）。
+
+### 16.6 连带风险（实现时必须在同批想清，不许留给「以后再补」）
+
+- **`semantics` / `cross_sectional` 今天没有消费者**（G6，P2/M）。若只求 §16.5 的 1–4 成立，**不必**等 G6 —— 登记与语义字段可以两步走。但「禁止再套截面算子」这条约束若只写在 `formula_text` / `label` 里，是没有消费者的文字：闸门拦不住 `xs_rank(market_breadth)` 这类再聚合。**我的口径：可以两步走，但登记那一行必须写明「该约束尚未被执行」，不许当已落实。**
+- **「按日聚合、按标的广播」的语义本身已实现**（B2 §3：池外行同值广播、池内无有效样本 → null），缺的是登记与语义字段载体，**不是计算能力**。这条别写反。
+- `market_breadth` 若走 pack，会出现在 `factor_provider_status()` 的 33 里；若走 `_CATALOG`，则 77 变 78。**两条路都改 110→111，但改的测试不一样**：走 `_CATALOG` 要一并看 `test_catalog_counts_and_kinds` 里 `virtual == 61` / `pit == 7` 是否受影响（`market_breadth` 不是 virtual、不是 pit，故这两条应不变，但要实跑证明）。
+
+### 16.7 本节没做的事
+
+没有改 `backend/**`、没有改盘上因子定义、没有为 `market_breadth` 造任何 JSON 或装饰字段、没有提交、没有部署；`signature` 三元组未动。**没有用「近似因子」代替 `market_breadth`**：全市场宽度是跨标的聚合，任何单标的滚动计数（如 `limit_up_count_20d`）都不可替代（§3 E1 已论证）。
+
+---
+
+## 17. G4 立 P0：6 个单侧件不补 status、不按 id 开豁免口（v5.12）
+
+开发经理派单（2026-11-08 01:02）要求把 G4 从「缺口编号」升为**裁定**。本节就是这条裁定，含三条不可绕过的约束，以及一张新测的 2 命名面 × 6 只实测表。**本节不改任何公式、不改任何因子定义。**
+
+### 17.1 裁定
+
+- **G4 = P0**（缺口原文与验收判据见 `docs/factors/FACTOR_GAP_SPEC_20261107.md` §9 G4；量级 S；路径「架构契约 → 开发实现 → 独立审核」）。
+- 6 只：`ma20` / `ma60` / `sd20` / `boll_lower` / `boll_upper` / `prior_amount_20`。在 `mode="production"`、`namespace="factor"`（缺省面）下 **6/6 `FS01`**、`detail.status = None`。
+- **这是设计行为，不是残留缺陷**：`status` 只从盘上定义 JSON 读，而盘上 id 必须匹配 `^uf_[a-z0-9_]{1,40}$`（`backend/app/factors/store.py:17`）；这 6 个 id 不带 `uf_` 前缀 → **没有任何合法载体承载它们的 `status`**。`FactorSpec` 数据类也没有 `status` 字段（`backend/app/factors/registry.py`）。
+- 因此本裁定明确**不做**三件事：①不补 `status`（无载体）；②不建 `uf_*` 双胞胎（§7.15.1 第 14 行明令不得新建 `uf_prior_amount_20`；其余同理，双胞胎会触发 §7.16.6 的 `FS04`）；③**不按 id 开白名单放行**。
+
+### 17.2 豁免口：不得开（硬约束）
+
+- 豁免集是 `EXEMPT_KINDS = {base, virtual}`（`backend/app/factors/gate.py:74`）——**黑名单语义、按 `kind` 判、不按 id 判**。
+- 若有任何一方（策略经理 / 开发经理 / 独立审核 / 研究侧）要求「把这 6 个名字加白名单放行」，**必须先回来改本节这条裁定**，并在台账留改判依据与实测；**不得在闸门里按 id 开小门**。
+- 理由：闸门是「策略只经因子表达」的**唯一执行点**。按 id 白名单在这个执行点上开后门，同一份名单随后就会被用来放行 `draft` 因子；而按 id 的名单无法机械判定「这只该放、那只不该放」。
+- 若真要解除，正确路径是 **G4 本身**：`FactorSpec` 增 `status`（或 provider 注册路径显式给 `status`），再逐只走 §7.11 的 V3 闸门升 `active`，**禁止批量写 `active`**（§7.5-5 / `F-A21` / `F-A30`）。
+
+### 17.3 实测：2 个命名面 × 6 只（v5.12 新测）
+
+脚本 `research/factor-ledger-20261108/probe_namespace_v511.py`（只读真盘：`store.load_into_registry(D:/TSP/data)` + `ensure_factor_providers()` + `gate.RegistryFacts(D:/TSP/data)`），原始输出 `probe_namespace_v511.json`：
+
+| id | `namespace="factor"`（缺省） | `namespace="column"` | 在 `_column_universe()`（68 名）内 |
+| --- | --- | --- | --- |
+| `ma20` | **FS01** | 0 码 | 是 |
+| `ma60` | **FS01** | 0 码 | 是 |
+| `sd20` | **FS01** | **FS02** | **否** |
+| `boll_lower` | **FS01** | 0 码 | 是 |
+| `boll_upper` | **FS01** | 0 码 | 是 |
+| `prior_amount_20` | **FS01** | **FS02** | **否** |
+
+对照组（证明真盘 `status` 读取本身是通的、alias 判据也没坏）：`uf_vol60` → **0 码**、`fact_status=active`；`vol60` → **`FS03`**（`blocked_codes=[FS03, FS01]`，判据只认 `FS03`）。
+
+### 17.4 4 个撞名名字的 400 归因（订正一处：只对 factor 面成立）
+
+- 「4 个撞名名字」= `ma20` / `ma60` / `boll_lower` / `boll_upper` —— 恰是上表里在 `_column_universe()` 内的那 4 只（`sd20` / `prior_amount_20` 不在列宇宙，故 column 面是 `FS02` 而不是 0 码）。
+- **当因子引用**（`namespace="factor"`，缺省）→ `FS01` → **400**。依据：契约 §7.7.5 错误码表「`FS01` … 400；`detail` 含 `factor_id` / `status` / `mode`」，`F-A47` 规定错误面唯一且是 400。**不是 `FS03`**：`FS03` 只在 alias→canonical 时出，而这 4 只 `alias_of=None`（不是 alias；对照实测 `vol60` → `FS03`）。
+- **当列引用**（`namespace="column"`，§7.17.2 / `F-A43-2`「column 面直接 allow」）→ 这 4 只 **0 码放行**。
+- **今日现状（别读成「今天这 7 条信号已经坏了」）**：这 4 个名字今天在活信号里是**列**（`field:ma20` / `field:ma60` / `field:boll_lower` / `field:boll_upper`；**写法订正见 §17.6.1**：7 条信号 14 处引用里 12 处带 `field:`、2 处是裸名 `ma20`），走 column 面 → **今天不会被打成 400**。400 只在「被当因子引用」时出现。
+- 7 条活信号实测（`D:/TSP/data/user_data/custom_signals/*.json`，逐条核过 `enabled=true`，`kind` 全为 `"both"`）：`ma20_breakout`（`field:ma20`）、`ma20_breakdown`（`field:ma20`）、`ma_dead_5_20`（`field:ma20`）、`ma_golden_5_20`（`field:ma20`）、`ma_golden_20_60`（`field:ma60`）、`boll_breakout_upper`（`field:boll_upper`）、`boll_breakdown_lower`（`field:boll_lower`）。`grep -l "ma20\|ma60\|boll_lower\|boll_upper" *.json` → **恰 7 个文件**（该目录共 21 个信号文件）。
+
+### 17.5 今天闸门的生产调用点 = 0（400 是契约面，不是已接线行为）
+
+- `grep -rn "assert_factors_usable" backend/app --include=*.py` → 只命中 `backend/app/factors/gate.py` 自身（定义与 docstring），**无任何生产调用点**；`GateError` 也没有 `exception_handler`（`backend/app/main.py` 的 6 个 handler 里没有它）。
+- 所以「接线后 400」是 §7.7.5 / `F-A47` 的**既定行为**，不是今天已发生的事实。本批不接线（接线归实现批 + 独立审核）。
+
+### 17.5.1 本节没做的事（§17 全节）
+
+没有改 `backend/**`、没有改盘上因子定义、没有为这 6 只造任何字段或 JSON、没有开任何豁免、没有提交、没有部署；`signature` 三元组未动。
+
+## 17.6 v5.13 两处精度订正（只改写法，不改任何裁定）
+
+复核脚本：`research/factor-ledger-20261108/probe_collision_faces.py`；原始输出 `probe_collision_faces.json`（2,663 B / LF `dfa42a020a0fc0f9…`）。两处都由这一个脚本一次跑出。
+
+### 17.6.1 活信号的引用写法：12 处 `field:` + 2 处裸名
+
+| 信号（`enabled` 全 `true`、`kind` 全 `both`） | 引用写法 |
+| --- | --- |
+| `boll_breakdown_lower` | `right='field:boll_lower'` |
+| `boll_breakout_upper` | `right='field:boll_upper'` |
+| `ma20_breakdown` / `ma20_breakout` / `ma_dead_5_20` / `ma_golden_5_20` | `right='field:ma20'`（每条两条件的 `right`） |
+| `ma_golden_20_60` | **`left='ma20'`（裸名，两条件各一）** + `right='field:ma60'` |
+
+- 合计 **14 处**引用：**12 处带 `field:` 前缀、2 处裸名**；`field:` 前缀与裸名在本 DSL 里**都是列引用**，都不是因子引用 → 都走 column 面。
+- §17.4 那句「是列（`field:ma20` / `field:ma60` / `field:boll_lower` / `field:boll_upper`）」按此更正；**§17.4 的结论（当因子引用 → `FS01` → 400；当列引用 → 0 码）不变**。
+
+### 17.6.2 `namespace` 是工作树未提交实现，HEAD 上没有
+
+- HEAD：`git show HEAD:backend/app/factors/gate.py` 的 `assert_factors_usable` 签名（`:467`–`:477`）参数为 `factor_ids / mode / allow_non_active / allow_retired / require_status / shadow / entry / facts` —— **没有 `namespace`**；HEAD 全文 `grep -n namespace` → **仅 `:592` 一处注释**命中。
+- 工作树：`backend/app/factors/gate.py` 现有 `namespace` keyword-only 参数（`:570`）与 `_namespace_faces`（`:336`），但该文件 `git status` 为 ` M`（**未提交**）。
+- 实测（`probe_collision_faces.json`）：`gate.assert_factors_usable.__code__.co_varnames` 含 `namespace` = **True**；4 名 **factor 面 4/4 `FS01`**、**column 面 4/4 `[]`（0 码）**。
+- 读法：**HEAD 上按因子面引用这 4 个名字仍是 `FS01` → 400**（不是 `FS03`）；「列面 0 码」只在工作树成立。
+- **「今天 7 条信号不被打成 400」的真实理由是 §17.5：闸门的生产调用点 = 0。** 不许读成「列面已上线、所以安全」。
+
+### 17.6.3 本节没做的事
+
+未改任何公式 / `warmup_bars` / `dependencies` / `shift` / 双 id 三列 / `replaced_by` / K1–K12 / `signature`；未改 `market_breadth` 门票任何参数；未改 §17.1–§17.3 的裁定文本；未改 `backend/**`（`gate.py` 的未提交改动**不是我改的、我也没动它**）；未提交、未部署。
+
+---
+
+## 18. 8 只 `active` 的生效留痕（v5.12）
+
+本节只补**生效这件事的留痕**（时刻、迁移、逐只证据指针、生效后的闸门事实）。公式、窗口、依赖一律不在此节、也未动。
+
+### 18.1 生效时刻与状态迁移
+
+| 项 | 值 | 出处（可复算） |
+| --- | --- | --- |
+| 生效时刻 | **2026-11-07T23:33:57** | 8 只盘上 JSON 的 `updated_at`，逐只同一秒（8/8 实测） |
+| 改前 | `status = "draft"` | 契约 v0.12 §7.15.3：17:4x 实测「15 个文件都是 `"status": "draft"`」 |
+| 改后 | `status = "active"` | `D:/TSP/data/user_data/custom_factors/uf_*.json#status` |
+| 盘上 `version` | 仍 **1**（未 +1） | 直写路径不经 upsert 的版本 +1 分支；**不回写、不伪造** |
+| 改的键 | 仅 `status` 与 `updated_at` 两个 | 逐只对照 §7.1 块登记的 `formula_text` / `warmup_bars` / `dependencies`，一字未变 |
+
+### 18.2 逐只证据指针（一 id 一行）
+
+| # | canonical id | 研究名 | `status` | `updated_at` | `version` | V3 全量 `max_abs_diff`（n） | V3 截面 `rank_change_max` | B0 保真 `max_abs_diff` |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | `uf_vol60` | `vol60` | `active` | `2026-11-07T23:33:57` | `1` | `1.1102230246251565e-16（5,469,335）` | `0.0` | `0.0` |
+| 2 | `uf_ma120` | `ma120` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,428,988）` | `0.0` | `0.0` |
+| 3 | `uf_ma200` | `ma200` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,371,122）` | `0.0` | `0.0` |
+| 4 | `uf_prior_high_20` | `prior_high_20` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,496,401）` | `0.0` | `0.0` |
+| 5 | `uf_prior_high_55` | `prior_high_55` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,472,715）` | `0.0` | `0.0` |
+| 6 | `uf_prior_high_250` | `prior_high_250` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,332,523）` | `0.0` | `0.0` |
+| 7 | `uf_prior_low_10` | `prior_low_10` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,503,218）` | `0.0` | `0.0` |
+| 8 | `uf_prior_vol_20` | `prior_vol_20` | `active` | `2026-11-07T23:33:57` | `1` | `0.0（5,496,401）` | `0.0` | `0.0` |
+
+三条指针的 JSON 路径（与 §15.1 末表同一对象，本文只引用不重算）：
+
+| 列 | 文件 | JSON 路径 |
+| --- | --- | --- |
+| V3 全量 | `docs/factors/evidence/F_CLASS_PARITY_20261107.json` | `#factor_parity.<canonical id>`（`tol=1e-12`、`n_over_tol=0`，8/8） |
+| V3 截面 | `docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json` | `#pairs.<研究名>.rank_last_day_full_market.rank_change_max` |
+| B0 保真 | `docs/factors/evidence/registration_b0_20261107.json` | `#fidelity.per_factor.<研究名>.max_abs_diff` |
+
+**`vol60` 的单列说明**（照抄 §15.1，不许改口径）：V3 `max_abs_diff = 1.11e-16 < 1e-12`，记为「判过」，**不得**写成「逐位相同」；其余 7 只实测 `0.0`，可写「逐位相同」。
+
+### 18.3 生效后的闸门事实（v5.12 实测）
+
+| 侧 | 结果 | 证据 |
+| --- | --- | --- |
+| canonical（8 只 `uf_*`） | **8/8 0 码**、`fact_status=active` → **不再出 `FS01`** | `research/factor-ledger-20261108/probe_active8_v512.py` → `probe_active8_v512.json` |
+| alias（8 个研究原名） | **8/8 `FS03`**（`blocked_codes` 另含 `FS01`，判据只认 `FS03`） | `research/b0b-20261107/verify_fs03_realdisk.py` → 9/9 PASS |
+
+两行合起来的读法：**canonical 可进生产，alias 不可进生产** —— 这正是本批要做成的事。alias 那个 `FS01` 是 alias 自身 pack `FactorSpec` 无 `status` 载体（同 §17 的 G4 根因），不构成新缺口。
+
+### 18.4 本节没做的事
+
+未改任何公式 / `warmup_bars` / `dependencies` / `shift` / 双 id 三列 / `replaced_by`；未改盘上 `version`；未提交、未部署；闸门的生产调用点仍为 **0**（§17.5）。
+
+---

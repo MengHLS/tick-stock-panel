@@ -1,0 +1,598 @@
+{
+  "generated_at": "2026-11-08 00:54:15",
+  "contract": "FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md §7.17",
+  "files": [
+    {
+      "path": "backend\\app\\factors\\gate.py",
+      "bytes": 32611,
+      "lines": 758,
+      "sha256": "6b59f7990ba5b336c0587de5879eb47c5ce7496132650cdb2ab9bbd0d322d5cb",
+      "mtime": "2026-11-08 00:38:09"
+    },
+    {
+      "path": "backend\\tests\\test_factor_gate.py",
+      "bytes": 39708,
+      "lines": 924,
+      "sha256": "08d46aac2026173fb4b4a11eb0aaa44c723fed3438caf2c024083eebeae7b875",
+      "mtime": "2026-11-08 00:50:19"
+    }
+  ],
+  "signature": [
+    {
+      "name": "factor_ids",
+      "kind": "POSITIONAL_OR_KEYWORD",
+      "default": "<empty>",
+      "annotation": "Iterable[str] | str"
+    },
+    {
+      "name": "mode",
+      "kind": "POSITIONAL_OR_KEYWORD",
+      "default": "<empty>",
+      "annotation": "str"
+    },
+    {
+      "name": "allow_non_active",
+      "kind": "KEYWORD_ONLY",
+      "default": "False",
+      "annotation": "bool"
+    },
+    {
+      "name": "allow_retired",
+      "kind": "KEYWORD_ONLY",
+      "default": "False",
+      "annotation": "bool"
+    },
+    {
+      "name": "require_status",
+      "kind": "KEYWORD_ONLY",
+      "default": "True",
+      "annotation": "bool"
+    },
+    {
+      "name": "shadow",
+      "kind": "KEYWORD_ONLY",
+      "default": "False",
+      "annotation": "bool"
+    },
+    {
+      "name": "entry",
+      "kind": "KEYWORD_ONLY",
+      "default": "None",
+      "annotation": "str | None"
+    },
+    {
+      "name": "facts",
+      "kind": "KEYWORD_ONLY",
+      "default": "None",
+      "annotation": "FactsSource | None"
+    },
+    {
+      "name": "namespace",
+      "kind": "KEYWORD_ONLY",
+      "default": "'factor'",
+      "annotation": "str | Mapping[str, str]"
+    }
+  ],
+  "constants": {
+    "EXEMPT_KINDS": [
+      "base",
+      "virtual"
+    ],
+    "_NAMESPACES": [
+      "factor",
+      "column"
+    ],
+    "column_universe_size": 68,
+    "not_implemented_error_raises": 0,
+    "fs09_literal_count": 10,
+    "production_importers_of_assert_factors_usable": []
+  },
+  "live_ids": [
+    "boll_lower",
+    "boll_upper",
+    "close",
+    "high",
+    "high_60d",
+    "limit_down_price",
+    "limit_up_price",
+    "low_60d",
+    "ma10",
+    "ma20",
+    "ma5",
+    "ma60",
+    "macd_dea",
+    "macd_dif",
+    "open",
+    "raw_close",
+    "raw_high",
+    "raw_low",
+    "vol_ratio_5d"
+  ],
+  "per_name": [
+    {
+      "id": "boll_lower",
+      "kind": "custom",
+      "status": null,
+      "lang": "dsl",
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": [
+        null,
+        "FS01"
+      ],
+      "factor_face_research": [
+        null,
+        "FS01"
+      ]
+    },
+    {
+      "id": "boll_upper",
+      "kind": "custom",
+      "status": null,
+      "lang": "dsl",
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": [
+        null,
+        "FS01"
+      ],
+      "factor_face_research": [
+        null,
+        "FS01"
+      ]
+    },
+    {
+      "id": "close",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "high",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "high_60d",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "limit_down_price",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "limit_up_price",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "low_60d",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "ma10",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "ma20",
+      "kind": "custom",
+      "status": null,
+      "lang": "dsl",
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": [
+        null,
+        "FS01"
+      ],
+      "factor_face_research": [
+        null,
+        "FS01"
+      ]
+    },
+    {
+      "id": "ma5",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "ma60",
+      "kind": "custom",
+      "status": null,
+      "lang": "dsl",
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": [
+        null,
+        "FS01"
+      ],
+      "factor_face_research": [
+        null,
+        "FS01"
+      ]
+    },
+    {
+      "id": "macd_dea",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "macd_dif",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "open",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "raw_close",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "raw_high",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "raw_low",
+      "kind": "base",
+      "status": null,
+      "lang": null,
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    },
+    {
+      "id": "vol_ratio_5d",
+      "kind": "base",
+      "status": null,
+      "lang": "dsl",
+      "registered": true,
+      "column_face": null,
+      "factor_face_production": null,
+      "factor_face_research": null
+    }
+  ],
+  "signals": [
+    {
+      "signal": "boll_breakdown_lower",
+      "ids": [
+        "boll_lower",
+        "close"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "boll_lower",
+          null,
+          "FS01"
+        ]
+      ]
+    },
+    {
+      "signal": "boll_breakout_upper",
+      "ids": [
+        "boll_upper",
+        "close"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "boll_upper",
+          null,
+          "FS01"
+        ]
+      ]
+    },
+    {
+      "signal": "ma20_breakdown",
+      "ids": [
+        "close",
+        "ma20"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "ma20",
+          null,
+          "FS01"
+        ]
+      ]
+    },
+    {
+      "signal": "ma20_breakout",
+      "ids": [
+        "close",
+        "ma20"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "ma20",
+          null,
+          "FS01"
+        ]
+      ]
+    },
+    {
+      "signal": "ma_dead_5_20",
+      "ids": [
+        "ma20",
+        "ma5"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "ma20",
+          null,
+          "FS01"
+        ]
+      ]
+    },
+    {
+      "signal": "ma_golden_20_60",
+      "ids": [
+        "ma20",
+        "ma60"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "ma20",
+          null,
+          "FS01"
+        ],
+        [
+          "ma60",
+          null,
+          "FS01"
+        ]
+      ]
+    },
+    {
+      "signal": "ma_golden_5_20",
+      "ids": [
+        "ma20",
+        "ma5"
+      ],
+      "column_blocked": [],
+      "factor_blocked": [
+        [
+          "ma20",
+          null,
+          "FS01"
+        ]
+      ]
+    }
+  ],
+  "store": [
+    {
+      "file": "cf_auction_resonance.json",
+      "bytes": 638,
+      "sha256_now": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191",
+      "sha256_before": "70d20540a7f384a7e6f025a5de427ccb30696cfb12330e218d65fbb175f0e191",
+      "identical": true,
+      "mtime": "2026-10-31 18:19:56"
+    },
+    {
+      "file": "uf_auction_post0920_match_growth.json",
+      "bytes": 461,
+      "sha256_now": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582",
+      "sha256_before": "840c65e4cfa7d0b07d5075a4f7a77886259fbb03322cca411528cd06b68f8582",
+      "identical": true,
+      "mtime": "2026-10-31 18:19:56"
+    },
+    {
+      "file": "uf_auction_tail_imbalance.json",
+      "bytes": 503,
+      "sha256_now": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7",
+      "sha256_before": "1bdc6e8d288f8fcce170ad27bbca2648cfc933017fbb17d600603e7f567699f7",
+      "identical": true,
+      "mtime": "2026-10-31 18:19:56"
+    },
+    {
+      "file": "uf_auction_tail_match_growth.json",
+      "bytes": 438,
+      "sha256_now": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0",
+      "sha256_before": "6c8f04a6c525e7c9ffd63a78b0dfd3018dced74a8edee440bc997e7a1a9402c0",
+      "identical": true,
+      "mtime": "2026-10-31 18:19:56"
+    },
+    {
+      "file": "uf_auction_volume_surprise.json",
+      "bytes": 469,
+      "sha256_now": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a",
+      "sha256_before": "19957bcd78d9e5dc031ee122a202281ad2d96b5d467b13d96fa52cc1692f290a",
+      "identical": true,
+      "mtime": "2026-10-31 18:19:56"
+    },
+    {
+      "file": "uf_auction_volume_vs_prev.json",
+      "bytes": 500,
+      "sha256_now": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d",
+      "sha256_before": "8dc6abc6a45155dfb16386bd5eef70e0f9e61ee95c57c0b780093aae49a4272d",
+      "identical": true,
+      "mtime": "2026-10-31 18:19:56"
+    },
+    {
+      "file": "uf_dist_prior_high_250.json",
+      "bytes": 756,
+      "sha256_now": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+      "sha256_before": "7c8163e44571d95ebb88f54a38f971eae743485ceab0003cebd839270fe404f5",
+      "identical": true,
+      "mtime": "2026-11-07 16:07:00"
+    },
+    {
+      "file": "uf_ma120.json",
+      "bytes": 369,
+      "sha256_now": "6888719342e385be56975e90ec32c808d6a5eef38d9ef9a2145868db55d01855",
+      "sha256_before": "3ddb904acc7277d4195e870f1b7b0cca232932316d69f11e584ea131cdfcbefe",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_ma200.json",
+      "bytes": 369,
+      "sha256_now": "040c2f7c7a2a19b4c524ea1f17b10bbde33f7614bad4d5bfe192e77a5a818c25",
+      "sha256_before": "cf96176f8458dca2827e5f9c27e31ede4d462f7a91533c1ff5076fa3af579bc2",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_prior_high_20.json",
+      "bytes": 491,
+      "sha256_now": "072c6e960ca4c8c75557b4ab084c73cbeeead97bf295dbe86741acad68e6e663",
+      "sha256_before": "e3070878b5472b1aab4fdd5d0253487397b0a943e742a97b6be1577ebac23e86",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_prior_high_250.json",
+      "bytes": 439,
+      "sha256_now": "075dcbe1d68bae794bcfd1de3a0338e2daa216d7b5da9891fe0f76dc864d9119",
+      "sha256_before": "9f95286b8f97ab4047ff4a0bf2a61c7b48e1c618acd3982fbb1afd2b2446b9f8",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_prior_high_55.json",
+      "bytes": 435,
+      "sha256_now": "2ca7aa05ad38b877661147dcfcb4a005529b88ad20f18d419ee0934aa6a433e2",
+      "sha256_before": "1f0ce5c6d8365da34a3d0aa22ed86f4665e5d4685334ba3b148b5bb4bbd6e59c",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_prior_low_10.json",
+      "bytes": 433,
+      "sha256_now": "85662909fb31066b30de337af6a80a34dda75f6ebdb3854400740e28a9b98789",
+      "sha256_before": "e5885f47f4356043d7ec7826f4cf6d043c6ae290037f6b581127d9d05e140fe3",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_prior_vol_20.json",
+      "bytes": 473,
+      "sha256_now": "44c80d95c921f23e273e8d0fa12e33fcea349cdeca7b7465e9fe1cacb8b80ba2",
+      "sha256_before": "fa8667bc5e6f61323f33a357cb24d4bcb37658bba279688b78cabd297ed22563",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    },
+    {
+      "file": "uf_vol60.json",
+      "bytes": 546,
+      "sha256_now": "3eb0631053f627eb4ffe7ae20c36d82b34ab52ac0c05b5b06c7152b4ce4b7e9e",
+      "sha256_before": "c9041ba4930ac9c2ece17adbd05f25a4c37e4693e0e223ccd3e55b7e5b7430bb",
+      "identical": false,
+      "mtime": "2026-11-07 23:33:57"
+    }
+  ],
+  "symbols": {
+    "added": [
+      "_NAMESPACES",
+      "_column_verdict",
+      "_invalid_argument",
+      "_namespace_faces"
+    ],
+    "removed": [],
+    "kept": [
+      "AliasResolutionError",
+      "DEFAULT_INVENTORY_PATH",
+      "EXEMPT_KINDS",
+      "FactorFacts",
+      "FactsSource",
+      "GateError",
+      "GateReport",
+      "LiveConfigAllowlist",
+      "MAX_ALIAS_HOPS",
+      "MODES",
+      "MappingFacts",
+      "RegistryFacts",
+      "STATUSES",
+      "_COLUMN_UNIVERSE",
+      "_Verdict",
+      "_column_universe",
+      "_definition_status",
+      "_detail",
+      "_guard_dual_id",
+      "_judge",
+      "_message",
+      "_normalise_ids",
+      "assert_factors_usable",
+      "check_ledger_consistency",
+      "load_live_config_allowlist",
+      "resolve_alias"
+    ]
+  }
+}

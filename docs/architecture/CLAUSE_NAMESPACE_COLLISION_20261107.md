@@ -2,7 +2,7 @@
 
 - 日期：2026-11-07（本机 22:5x 实测）
 - 作者：系统架构师
-- 状态：**条款草案，未生效。** 本文件不在任何契约正文里；v0.11 正文除 §10.3 banner 外逐字节等于 v0.10，因此 `namespace` 入参**当前不存在**，闸门对 19 个活配置名仍拦 4 个（§1.3 实测）。并入 v0.12 后才生效（并入点见 §6.4）。
+- 状态：**已交付、未生效（条款草案，待 v0.12 并入）。** 本文件不在任何契约正文里；v0.11 正文除 §10.3 banner 外逐字节等于 v0.10，因此 `namespace` 入参**当前不存在**（`gate.py` 21:39 已落盘、纯新增、**生产侧 0 个调用点**），闸门对 19 个活配置名仍拦 4 个（§1.3 实测）。并入 v0.12 后才生效（并入点见 §6.4）。R11 §7 指向本文件。
 - 对象：`backend/app/factors/gate.py#assert_factors_usable`（§7.7.2 / §7.16.3 的单一实现点）
 - 边界：只出条款，不写实现（实现 → 系统开发工程师，验收 → 独立审核工程师）。未改 `backend/**`。
 
@@ -112,7 +112,7 @@ assert_factors_usable(
 ) -> GateReport
 ```
 
-- **位置参数一个不动**（`factor_ids, mode` 顺序与 §7.7.2 `:908` / §7.16.3 `:1634` 逐字相同），新参数**追加在最后**且 keyword-only ⇒ 现有 9 个调用点与 `backend/tests/test_factor_gate.py` **0 改动**。
+- **位置参数一个不动**（`factor_ids, mode` 顺序与 §7.7.2 `:908` / §7.16.3 `:1634` 逐字相同），新参数**追加在最后**且 keyword-only ⇒ **按 §7.7.3 接线后的 6 个接入点（表 5 行；策略保存/更新占 `POST /config` 与 `PATCH /config` 两个路由）与 `backend/tests/test_factor_gate.py` 的 7 个调用行 0 改动**。一处必须说清的现状：今日 `backend/app` 内 `assert_factors_usable(` 的生产调用点为 **0**（`grep` 只命中 `gate.py:24` 文件头注释与 `:435` 的 `def`），闸门尚未接线 —— 本文件凡说「调用点」，一律指**按 §7.7.3 接线后的**接入点，不是盘上已有的调用。
 - **默认 `"factor"` = 今日行为**（fail-closed 方向的缺省：不声明就按因子面判，宁可误拦不可漏放）。
 
 ### 2.3 语义（S1–S6，机械可判）
@@ -144,7 +144,7 @@ assert_factors_usable(
 2. **把「谁在用」压成「名字巧合」**：`namespace=column` 的正确依据是**引用来自列面**（`field:X` 命中 `ALLOWED_FIELDS`），不是**名字恰好也叫列**。两者在 4 个冲突名上重合，在其他名字上不重合。今天重合，明天有人造一个 `ma20` = 「20 日均线的变化率」，它会静默继承列的免检身份 —— 而 §7.8.4 的硬规则正是「误放行比判死更危险」。
 3. **判据不可分**：`F-A29` 要求「同名因子 id 的信号 → verdict 必须 allow」，§7.8.4 要求「Provider 注册无 status → FS01」。column-first 让同一次调用两条都「成立」，实际靠的是分支顺序 —— 那不是判据，是巧合。
 
-而 (b) 的代价也是真的，写在这里：9 个调用点必须逐个传 `namespace`，**漏传不报错**，只会回到 fail-closed 的因子面 → 那 4 条重新出现。这不是缺陷，是**可探测性**：L1 影子里「block 集合逐 id 相等」（§7.10.4）会立刻把漏传变成一条可指认的差异。反过来，column-first 的漏配是**静默的**（7 条信号恒 `null`、不报错、不告警，§7.10.5 已写明）。
+而 (b) 的代价也是真的，写在这里：§7.7.3 的 6 个接入点必须逐个传 `namespace`，**漏传不报错**，只会回到 fail-closed 的因子面 → 那 4 条重新出现。这不是缺陷，是**可探测性**：L1 影子里「block 集合逐 id 相等」（§7.10.4）会立刻把漏传变成一条可指认的差异。反过来，column-first 的漏配是**静默的**（7 条信号恒 `null`、不报错、不告警，§7.10.5 已写明）。
 
 ## 3. 判据（新编号，`F-A43` 起；不重号）
 
@@ -175,7 +175,7 @@ assert_factors_usable(
 | # | 判据 | 度量 |
 | --- | --- | --- |
 | `F-A45-1` | 不传 `namespace` | 19 名 `production` → `blocked` 集合 == §1.3 实测的 4 名；`research` / `research+allow_non_active` / `diagnostic` 三组的 `ok`、`non_active`、`unknown` 逐项等于 §1.3 表 |
-| `F-A45-2` | 现有测试 0 改动 | `backend/tests/test_factor_gate.py` 一个字不改，全部通过（今日 8 处 `assert_factors_usable` 调用点均不传新参数） |
+| `F-A45-2` | 现有测试 0 改动 | `backend/tests/test_factor_gate.py` 一个字不改，全部通过（今日 `test_factor_gate.py` 7 个调用行均不传新参数；`backend/app` 侧 0 个生产调用点，无回归面） |
 
 ### 3.4 关于「19 正 / 4 负」的一处消歧（必须写，否则要求自相矛盾）
 
@@ -192,7 +192,7 @@ assert_factors_usable(
 
 - 变的部分：`namespace: str | Mapping[str, str] = "factor"`，追加在 `facts` 之后。
 - 不变的部分：位置参数顺序、全部既有 keyword-only 参数名/缺省/语义。
-- 兼容性：现有 9 个调用点（§7.7.3 表）与 `test_factor_gate.py` 零改动。
+- 兼容性：按 §7.7.3 接线后的 6 个接入点（表 5 行，策略保存/更新占 2 个路由）与 `test_factor_gate.py` 的 7 个调用行零改动。今日生产侧 0 个调用点，所以「现有调用点被破坏」这一风险当前为空集。
 
 ### 4.2 §7.4 允许面是否扩大？→ **不扩大**（这条要更正一处常见误读）
 
@@ -219,7 +219,7 @@ assert_factors_usable(
 
 §7.10.3 **N1** 原文有一句：「命中 → `namespace=column`，**不进入因子闸门**」。本条款让 column 面的 id **进入**闸门（然后直接 allow），与这句字面不同，理由三条：
 
-1. **分类逻辑不该复制到每个入口**。§7.7.2 的裁定是「闸门放在消费入口、单一实现、禁止各入口各写一遍」。让调用方先过滤掉列、只把因子丢进闸门，等于把「什么算列」这条判定复制到 9 个入口 —— 与「单一实现」直接冲突。
+1. **分类逻辑不该复制到每个入口**。§7.7.2 的裁定是「闸门放在消费入口、单一实现、禁止各入口各写一遍」。让调用方先过滤掉列、只把因子丢进闸门，等于把「什么算列」这条判定复制到 6 个接入点 —— 与「单一实现」直接冲突。
 2. **拆成两次调用会断掉 FS04**。§7.16.6 的 `FS04`（同一策略内 alias 与 canonical 并存）必须看**整组** id。先按面拆成两次调用，跨面的双 id 就再也检不出来。
 3. **「进入但不判」与「不进入」在结论上等价，在可观测性上更好**：闸门可以如实报告「这个 id 我按列面放过了」，而「根本没进来」在报告里什么都不留。
 
@@ -235,7 +235,7 @@ assert_factors_usable(
 | --- | --- | --- |
 | `backend/app/factors/gate.py` | `assert_factors_usable` 加 `namespace` 参数；新增面解析（S1–S5）；`_judge` 增加「面」入参或在调用前短路为 base | 不改 `GateReport` 六字段；不改 `FS01`–`FS06`/`FS10` 任何码的含义；不改 `_column_universe()` 的内容 |
 | `backend/app/strategy/custom_signals.py` | 解析 `field:X` 时**先列后因子**（N1 的显式排序），把逐 id 的 `namespace` 传给闸门 | 不改 `ALLOWED_FIELDS` 本身；不改 `materialize_factor_columns` 的补算行为 |
-| 9 个调用点（§7.7.3 表） | 传 `namespace` | `mode` 一个都不改；`shadow` 在 L1 期间保持 True |
+| 6 个接入点（§7.7.3 表 5 行；策略保存/更新占 2 个路由） | 传 `namespace` | `mode` 一个都不改；`shadow` 在 L1 期间保持 True |
 
 ### 6.2 不许做的四件事
 
@@ -258,7 +258,7 @@ assert_factors_usable(
 **未确证**
 
 - 「19 名在 column 面全过」是**按实现逻辑推出来的**，不是跑出来的：今天的 `gate.py` 没有 `namespace` 入参，无法执行这个调用。能跑的是它的等价物（`shadow=True` + 把 4 名从输入集合里剔除，得到 `ok=True`），但**剔除不等于声明** —— `F-A44-1` 必须等实现落地才算实测。
-- `custom_signals` 那一侧「先列后因子」我**只读了 `allowed_fields()` 的并集事实（`:103`），没有读遍 9 个调用点**的表达式构造路径，所以「解析侧要改哪几行」本文件不写死。
+- `custom_signals` 那一侧「先列后因子」我**只读了 `allowed_fields()` 的并集事实（`:103`），没有读遍 6 个接入点**的表达式构造路径，所以「解析侧要改哪几行」本文件不写死。
 - 7 条活信号的 `max_abs_diff == 0`（`F-A44-4`）本轮**未实跑**，它是接线后的验收项，不是今天的实测。
 - 「4 名在 pack 里 `status=None`」是从 `RegistryFacts` 读出来的；**pack 的 JSON 文件本体我没有逐个打开核对**（`D:/TSP/data` 是可写数据目录，我只读）。
 
@@ -271,3 +271,11 @@ assert_factors_usable(
 ## 8. 一句话
 
 **拦的不是 4 个名字，是「闸门不知道这条引用来自哪个面」。** 补一个 keyword-only、带缺省、fail-closed 的 `namespace` 入参，4 名在列面全过、在因子面仍拒，15 名一个不动，`F-A43`–`F-A45` 把这三件事分别钉住。
+
+## 9. 本文件自身
+
+- 路径：`docs/architecture/CLAUSE_NAMESPACE_COLLISION_20261107.md`（R11 §7 与 §9 转交栏指向此文件名）。
+- 性质：**条款草案，不参与任何判据绑定**；并入 v0.12 的 §7.17 之后才成为契约文本。在此之前，按 `F-A43`–`F-A45` 判实现，判到的是「未实现」而非「不合规」。
+- 四元组（size / 行 / 全文 sha256）**不由本文件自指**，见交付回执；复算口径与 R10 §1.2 / R11 §2 相同（`sha256` 全文，行数按 `\n` 计数）。
+- 取证脚本：`research/arch-build-20261107/probe_collision_20261107.py`（只读，不写盘；把「4 名被拦」作为自断言，失败即退出非 0）。
+- 复核记录（2026-11-07 23:1x，架构师本机重跑）：`records 93 = primary 79 + companion 14`、`sources 22`、19 个去重 id；`_column_universe()` = **68**（`BASE_COLUMNS` 9）；`ALLOWED_FIELDS` = **54**；`production` / `research` 各拦 **4**（`boll_lower` `boll_upper` `ma20` `ma60`，全 `FS01`）；`research+allow_non_active` 与 `diagnostic` 均 `ok=True`、`non_active=4`；`inspect.signature` 无 `namespace`。

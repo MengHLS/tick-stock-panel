@@ -1,0 +1,2759 @@
+{
+  "meta": {
+    "title": "F 类表达式因子注册台账（8 只，机器可读）",
+    "version": "5.11",
+    "date": "2026-11-07",
+    "revised_at": "2026-11-08T00:54+0800",
+    "revised_by": "因子工程师",
+    "revision_note": "v4：按架构裁定 ID-CANON-1 与契约 v0.4 §7.8.2 A-1，给 8 组同口径双 id 逐组补 canonical_id / aliases[] / superseded_by / canonical_reason （新增顶层 double_id_rulings 与 column_semantics_v4；prior_amount_20 为单 id 例外，canonical = 研究原名）；replaced_by 语义收紧为「只表跨口径取代」；自检新增 3 项（canonical_alias_rules / double_id_group_coverage / md_canonical_columns），并把上述四列并入必填字段检查，防止【6】假通过；契约来源哈希更新为 110,944 B / 6b8fb14c…（正文前缀 110,098 B / 11bfe51f…，与其 footer 自述一致） ——【作废：中途态，盘上无对应文件】连同 size + sha + 读取时刻一起引：110,944 B / 6b8fb14c…（正文前缀 110,098 B / 11bfe51f…），读取时刻 2026-11-07T18:23+0800；该刻盘上不存在此尺寸的契约文件（同刻实数：未编号活暂存 128,007 B / raw 5bd81a74… / LF 60598fb2…；v0.5 138,729 B / raw c7740508…；v0.6 162,361 B / raw 946a1d86…）。它是 16:18 之后、§7.4 冻结为 v0.4 之前的中途态；现行三份契约指纹见本条 v5.4 段】 v5：replaced_by 写法统一 —— 已注册目标写 canonical id（uf_prior_high_55 / uf_prior_low_10 / uf_dist_prior_high_250），未注册目标 rsi_14_pct 改写 replaced_by = null + replaced_by_declared_name + target_registered=false；single_sided_exceptions 第 10 行的 replaced_by 反向记录改为 replaced_by [] + replaces；因子数字、组数、公式一律未动 v5.2：指纹口径改为 LF 归一化 sha256（行尾被第三方两次改写已把 raw 字节 hash 打掉，而内容未变）；公式权威改绑归档冻结副本 docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md（89,833 B / 914 行 / LF 归一化 4105c08d…），自检 [4] 同步改为读该副本并在 RESULT 前打印所校验三文件的 LF 归一化 sha256；single_sided_exceptions[0]（prior_amount_20）补 replaces: [] 与第 10 行结构对齐；meta.sources[*].sha256 全部按新口径重算并附 hash_note_v5 v5.3（2026-11-07）：①时间标注与盘面一致化 —— v5.2 行原写 17:05，而盘面 mtime 为 md 16:57:47 / json 16:57:41，改写为真实时间；②自检 [4] 由「只绑归档 v0.3」改为**双绑**归档 v0.3 与活修订 v0.5（§7.1 两处逐字相同：2,513 字符 / sha256 e9ed2b10…），任一不同即 FAIL 并打印两处 sha；③meta.contract_binding 记双绑对象。因子数字、公式、组数一律未动。 v5.4（2026-11-07）：①自检 [4] 的 contract2 指针由 v0.5 改指 **v0.6**（R6 于 17:16:36 冻结的现行编号修订）——指针必须对，否则按编号取判据会取错版本；实测 §7.1 块在归档 v0.3 / v0.4 / v0.5 / v0.6 **四处逐字节相同**，原始 CRLF 口径 2,541 字符 / sha256 a8e88134…、LF 归一化 2,514 / 6d3db013…、去尾换行 2,513 / e9ed2b10…（同一块文本，三种行尾/边界口径），故改指针不翻转任何结论；v0.5 仍由脚本以**非绑定证据行**打印，用于证明块未漂移。②本条 revision_note 里「契约来源哈希更新为 110,944 B / 6b8fb14c…」是 16:18 之后、§7.4 冻结为 v0.4 之前的**中途态**【作废：中途态，盘上无对应文件；读取时刻 2026-11-07T18:23+0800】（v3 时代值是 109,914 B / 5c1264…，两者都不是盘上现行值），改为按**现行三份契约逐份重记**：v0.4 活暂存 FACTOR_ENGINE_CONTRACTS_20261107.md — 128,007 B / 1,226 行 / raw sha256 5bd81a7472f10509dd3b000cabcd7ccaa1c1d8faa3a8edd303120edd58ec5531 / LF 归一化 60598fb2f2711da8b6dcb3c30fd67a78e939d606865e63600d3ee0894c381378；v0.5 — 138,729 B / 1,298 行 / raw c7740508c358a2c0748aa87fb14c60c8a37f6f721b3f917a7fff7b67c0c4a21a / LF 7542375a1b1f3e88b81af3ac37aca408106f729187e6a01e13d3c1b7b9c393bb；v0.6 — 162,361 B / 1,454 行 / raw 946a1d8675de6e4e945dc587f65b94ba0ce91922be338774b46b72022a616810 / LF a8334fea9696c2ef5a639726af4a57b753017521edcc3054acea630b0cf9dc28（现行绑定对象）。活暂存文件内容即 v0.4，仍**不绑**（多路写入无法归因）。上述三份的 size 与 sha 均于 2026-11-07T18:23+0800 由我逐份复读，读数与写入时一致（未漂移）。③登记本轮两条裁定：**(a) 伴生记录形态** —— 主记录 both_collision=false / verdict=allow / ref_namespace=column，伴生记录 record_kind=companion / both_collision=true / verdict=exempt / ref_namespace=factor / class=custom_dsl / resolved_id=pack id，两者共用 (source_path, evidence, side, ref_name) 元组，**靠 record_kind 区分**（契约 v0.6 §7.12.2 + §7.10.2 字段表）；**(b) path_scope=history 已由 N4 固化为代码事实** —— custom_signals.py:646-647 对非 intraday 直接 continue，21 条日线源只走历史路径、1 条 monitor_rule 为 intraday、both 计数 0、path_divergence 全 false，此前的 both 是推断、已撤回（契约 v0.6 §7.10.3 N4）。**因子数字、公式、双 id 组数、warmup 一律未动。** v5.5（2026-11-07）：**只做三处口径收尾，不改任何结论、不改任何数字**——①`110,944 B / 6b8fb14c…` 就地标**【作废：中途态，盘上无对应文件】**，并按「size + sha + 读取时刻」一起引（读取时刻 2026-11-07T18:23+0800；同刻全库无该尺寸契约文件）；同族的两个中途态 109,914 B / 5c1264… 与正文前缀 110,098 B / 11bfe51f… 一并标注（见 meta.sources[0].hash_note_v3/v4/v5）；②「[4] 绑的是哪一份」两处措辞统一为 **v0.6**：meta.sources[0].binding 与 self_check.checks[3].rule 原写「活修订 v0.5」，改为 v0.6，与脚本 BINDING 段 contract2 行、meta.contract_binding.bound[1] 指同一对象（v0.6 于 2026-11-07T17:16:36 由 R6 冻结）；v0.5 只留在 meta.contract_binding.non_binding_evidence 作「块未漂移」旁证；③§7.1 块口径统一为**脚本实算值**：LF 归一化含尾换行 2,514 字符 / 6d3db013…（原 checks[3].rule 写 2,513 / e9ed2b10…，那是同一块去尾换行的另一种量法）；原始 CRLF 2,541 / a8e88134… 仍只作团队通报值；④`side_key` **未涉及实质引用**：契约 v0.6 §7.10.2 定其为**可选、不参与判据**；v5.4 基线上本 registry 与 md 台账对该字段 0 次引用，故无需改任何口径；v5.5 起出现的字样（JSON 3 处 / md 2 处）全部是对「是否引用」的说明性元陈述，不含把它当判据的用法；⑤self_check.generated_at 刷新为本轮实跑时刻 2026-11-07T18:57+0800。**因子数、公式、双 id 组数、warmup、§7.1 八行原文、9 项判据一律未动。** v5.9（2026-11-08）：自检 [4] 与 BINDING 段的绑定对象由「契约版本文件全文哈希」改为「§7.1 块哈希」，两套口径都必须是登记常量且两份绑定文件逐口径相等（LF 归一化 2,514 字符 / 6d3db013…；保留 CRLF 2,541 字符 / a8e88134…）；契约版本号不再参与判定，现行契约 v0.12 只作读取来源（原文如此：改版本号不可能翻转结论，改 §7.1 一定被拦）。因子数字、公式、warmup、双 id 三列、replaced_by 四条、K1–K12 与 signature 块一律未动。",
+    "author": "因子工程师",
+    "batch": "批一：只登记台账与映射；不注册进运行库、不写实现、不改引擎、不改 research/*",
+    "batch_correction": "v2 更正：8 只 uf_* 已由系统开发工程师于 2026-11-07T14:30:24 落盘并可在启动期装载（本台账本身未走 POST API）；数值对账已由系统开发工程师完成、独立审核已复核（见 registry_state_verified 与 boundary.numeric_note） v3 追加：uf_dist_prior_high_250 由系统开发工程师于 2026-11-07T16:07 落库，16:09 报告给逐位对账 max_abs_diff=0.0；本台账不参与、只引用。",
+    "md_ledger": "docs/factors/F_CLASS_REGISTRATION_20261107.md",
+    "self_check_script": "docs/factors/evidence/scripts/check_f_class_ledger.py",
+    "formula_authority": "docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md#§7.1（formula_text 逐字复制，不做任何改写或顺手优化；读归档冻结副本，不读活文件）",
+    "id_authority": "契约 §7.6 F-A1 与任务书逐字给定的 8 个 id",
+    "fingerprint": {
+      "sha256_caliber": "LF 归一化 sha256：把 CRLF 折叠为 LF 后对全文取 sha256。行尾被第三方改写时此值不变，raw 字节 sha256 会变",
+      "applies_to": "meta 下所有 sha256 字段（sources[*].sha256 与本块）",
+      "line_ending_policy": "两个台账文件（本 JSON 与 md 台账）统一 LF",
+      "why": "docs/factors/ 未入 git，没有历史可复算；本 JSON 与 md 台账的行尾在 2026-11-07 16:45:33 与 16:49:20 被第三方两次改写（CRLF→LF），raw 字节 sha256 在几分钟内失效而内容一字未变。绑定因此改用 LF 归一化 hash",
+      "recompute": "python -c \"import hashlib,sys;b=open(sys.argv[1],'rb').read().replace(bytes([13,10]),bytes([10]));print(hashlib.sha256(b).hexdigest())\" <file>",
+      "self_hash_note": "文件不能记录自身归一化 hash（自指）。本 registry 的 LF 归一化 sha256 记在 md 台账 §0.1 指纹块，并由 check_f_class_ledger.py 的 BINDING 段每次现算打印；md 台账自身的值只由该脚本打印",
+      "checked_by": "docs/factors/evidence/scripts/check_f_class_ledger.py（BINDING 段）",
+      "as_of": "2026-11-07T17:28+08:00",
+      "live_contract_observed": {
+        "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md",
+        "size_bytes": 128007,
+        "crlf": 1226,
+        "raw_sha256": "5bd81a7472f10509dd3b000cabcd7ccaa1c1d8faa3a8edd303120edd58ec5531",
+        "lf_sha256": "60598fb28f1b9c07dc1a07ab5e26de0ca7e5f5bc1e5c2ba5cbfc1d6e18ae7f7a",
+        "note": "活契约不被绑：多路写入，同日多次重写（16:40:09 为 128,007 B，16:50 又生成 v0.5 草案）"
+      }
+    },
+    "sources": [
+      {
+        "path": "docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md",
+        "sections": [
+          "§1 G1-G8",
+          "§7.1",
+          "§7.2",
+          "§7.3",
+          "§7.5",
+          "§7.6",
+          "§7.8.1",
+          "§7.8.2"
+        ],
+        "sha256": "4105c08da2de7ec400e8794513e7dd80986187d1cebf702d57a9dfb56378e907",
+        "sha256_caliber": "LF-normalized sha256 (CRLF collapsed to LF; immune to line-ending rewrites)",
+        "binding": "frozen v0.3 archive (immutable) + one current revision v0.12 (READ SOURCE ONLY)：自检 [4] 从两份契约各取 §7.1 块，断言每份的块哈希等于登记常量且两口径都过（LF 归一化 2,514 字符 / 6d3db013…；保留 CRLF 2,541 字符 / a8e88134…），再逐只比 formula_text / warmup_bars / dependencies；任一块被改写即 FAIL 并打印两处哈希。契约版本号不是判据输入：v0.12 只是当前读取来源，换成任何一版都不改判定；只有 §7.1 块本身变了才 FAIL。口径常量随 v5.9 一并登记在脚本 S71_* 与本文 contract_binding.section_7_1_binding。",
+        "size_bytes": 89833,
+        "hash_note_v5": "v5.2 起公式权威改为归档冻结副本，不再绑多路写入的活文件。活文件 docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md 在 v5.2 写入时实读 128,007 B / 1,226 CRLF（raw sha256 5bd81a74…，LF 归一化 60598fb2…），归档副本 §7.1 在 L680、§7.2 在 L707，8 行公式逐字一致；旧记 6b8fb14c…（110,944 B）为活文件 16:18 的中途态，不是任何一版 v0.4 的定稿 ——【作废：中途态，盘上无对应文件】（110,944 B / 6b8fb14c…，读取时刻 2026-11-07T18:23+0800）",
+        "hash_note_v4": "v3 记的 5c1264…（109,914 B）已被系统架构师于 16:18 再次更新：110,944 B / 1050 行；正文前缀 head -c 110098 的 sha256 = 11bfe51f… ——【作废：中途态，盘上无对应文件】（109,914 B / 5c1264… 与 110,944 B / 6b8fb14c… 均无对应文件；读取时刻 2026-11-07T18:23+0800）",
+        "hash_note_v3": "v2 记的哈希属契约 v0.3 之前的版本；文件已由系统架构师于 2026-11-07T16:13:21 更新为 v0.4（109,914 B） ——【作废：中途态，盘上无对应文件】（109,914 B / 5c1264…，读取时刻 2026-11-07T18:23+0800）"
+      },
+      {
+        "path": "docs/research/caliber-decisions-20261107.md",
+        "sections": [
+          "§1.1",
+          "§1.2",
+          "§1.3",
+          "§1.4",
+          "§1.5",
+          "§2.1",
+          "§4.1",
+          "§4.2"
+        ],
+        "sha256": "bc23e90823d5d258454e349ec17d2559e2745f6350e10a4c656acf276182b9d1",
+        "hash_note_v5": "v5.2 复算：文件已被其作者更新，现 51088 B / 0 CRLF，LF 归一化 sha256 = 5c5edc3ccbf3c7298b975f4612aff17149c63ca6887cdbdebf214d8c5012b817；旧记 d95551c187547d1f74f23ce2d9aa35b007823d78961cbe373c9878a282712adb 失效（该文件当前 raw 字节 sha256 = 5c5edc3ccbf3c7298b975f4612aff17149c63ca6887cdbdebf214d8c5012b817）",
+        "numbering": "编号以本文件为准：D1=prior_* 口径、D2=rsi_14 涨跌幅、D3 并入本文件 §1.5",
+        "hash_note_v3": "v2 记的哈希属策略经理 §8 之前的版本；现行文件 2026-11-07T15:27:40（46,605 B，含 §8 v1.3）",
+        "sha256_verified_at": "2026-11-07T17:28+08:00",
+        "size_bytes": 59112,
+        "hash_note_v5_4": "v5.4 复算：该文件已被其作者更新（旧记 5c5edc3c…），现 59112 B / 0 CRLF，LF 归一化 sha256 = bc23e90823d5d258454e349ec17d2559e2745f6350e10a4c656acf276182b9d1；本条只改哈希与大小，不改引用内容。"
+      },
+      {
+        "path": "docs/factors/FACTOR_GAP_SPEC_20261107.md",
+        "sections": [
+          "§0 总表",
+          "§2 F1-F7"
+        ],
+        "sha256": "bc2fc2f6b9db2fd347de853ce5056c02a4dc25c961498fed5bd26ed039eacc98",
+        "hash_note_v5": "v5.2 口径切换：文件内容未变（raw 字节 sha256 仍为 7c93d4f2ba9ad782614663e76e9d2e4e86039effce7255dff6ec47898f7deec3），本条改记 LF 归一化值 bd297d8bdf1355c9031b55a2210972670ee92462bed29afa8c53b1538a010eba（29333 B / 304 CRLF）",
+        "numbering": "本文件 D1/D2/D3 与 caliber-decisions 的编号不同，勿混用",
+        "hash_note_v3": "v2 记的哈希属本文件 16:05 重写前的一版；现行 29,333 B",
+        "sha256_verified_at": "2026-11-07T17:28+08:00",
+        "size_bytes": 35147,
+        "hash_note_v5_4": "v5.4 复算：该文件已被其作者更新（旧记 bd297d8b…），现 35147 B / 313 CRLF，LF 归一化 sha256 = bc2fc2f6b9db2fd347de853ce5056c02a4dc25c961498fed5bd26ed039eacc98；本条只改哈希与大小，不改引用内容。"
+      },
+      {
+        "path": "research/strategy-search-20261107/scripts/common.py",
+        "lines": "119-141（add_indicators）",
+        "sha256": "523986f1223fb3b44b0b26f02b491b5db96c7b291df9570e473ab18bd59cde09"
+      },
+      {
+        "path": "docs/factors/evidence/compare_stats.json",
+        "sha256": "3c86d85da2f85ed0dfbaa5fbad8e39d5f2347495afa9dcf5ba492254f6ae630b",
+        "hash_note_v5": "v5.2 口径切换：文件内容未变（raw 字节 sha256 仍为 b10d32b089a8e6fab53e2b4d98c8ab8a4d82c95f83ac47f737c40fb0f242091b），本条改记 LF 归一化值 3c86d85da2f85ed0dfbaa5fbad8e39d5f2347495afa9dcf5ba492254f6ae630b（40611 B / 1331 CRLF）",
+        "meta": {
+          "rows": 6422875,
+          "symbols": 3384,
+          "eval_start": "2019-07-01",
+          "date_max": "2026-10-30",
+          "eval_rows": 5510001
+        }
+      },
+      {
+        "path": "docs/factors/STRATEGY_INPUT_FACTOR_MAP_20261107.md",
+        "sections": [
+          "§2 S01-S12",
+          "§3 横向输入",
+          "§4 可落地结论"
+        ],
+        "sha256": "2b617493a3ba321c5674d3cfbfcfbf8384eaec96c7221cd9dfba3111d6067dac",
+        "hash_note_v5": "v5.2 口径切换：文件内容未变（raw 字节 sha256 仍为 09213723d33660d9ed3384d1c31741cb25560b3fdff88b2d43054c0624b04f5c），本条改记 LF 归一化值 2b617493a3ba321c5674d3cfbfcfbf8384eaec96c7221cd9dfba3111d6067dac（17613 B / 171 CRLF）",
+        "sha256_verified_at": "2026-11-07T16:15:13+08:00"
+      },
+      {
+        "path": "research/factor-registration-b2-20261107/REPORT_20261107.md",
+        "sections": [
+          "§2 uf_dist_prior_high_250 注册与逐位对账",
+          "§3 rsi_14 base 列可行性",
+          "§5 未覆盖"
+        ],
+        "sha256": "fcae57b168224c929c88125b4ff55904a54235d36a6a6dbd4404d52a2f2f17e0",
+        "used_for": "§4.2 / §4.3 / K10 / K11"
+      },
+      {
+        "path": "docs/architecture/ARCH_DECISION_FACTOR_ID_CANONICAL_20261107.md",
+        "sections": [
+          "§1 事实（8 组）",
+          "§1.2 prior_amount_20 单 id",
+          "§2.2 台账写法与 replaced_by 禁忌",
+          "§2.3 例外理由",
+          "§6 ID-CANON-1"
+        ],
+        "sha256": "befd0816e7411da595ac3db7c0bfdee3ea51614f4bc550eebe3fae1575eef805",
+        "hash_note_v5": "v5.2 复算：文件已被其作者更新，现 28028 B / 197 CRLF，LF 归一化 sha256 = befd0816e7411da595ac3db7c0bfdee3ea51614f4bc550eebe3fae1575eef805；旧记 b8373c191c3b8c8087d930932a17e3d05d276a2e9f0b9a121b315b2a5de60e40 失效（该文件当前 raw 字节 sha256 = caa957bffae31fe1caec5298fb85b9d985bee294d4ea6f437ce46469ffb64eab）",
+        "size_bytes": 17473,
+        "used_for": "§2.11 / K8 / double_id_rulings / prior_amount_20 例外",
+        "sha256_verified_at": "2026-11-07T16:22:00+08:00"
+      }
+    ],
+    "boundary": {
+      "registered_to_runtime": false,
+      "registered_note": "本台账未调用 POST /api/factors/custom。8 个 uf_*.json 由系统开发工程师于 2026-11-07T14:30:24 写入 D:/TSP/data/user_data/custom_factors/；uf_dist_prior_high_250.json 于 16:07 写入（批二，不在本批 8 只内）。启动期 load_into_registry 装载 15 条磁盘定义后注册表 207 条，8/8 与 uf_dist_prior_high_250 全部可取。运行中的服务未重启 → 线上进程未加载（见 registry_state_verified）",
+      "numeric_reconciliation_v3": false,
+      "numeric_note": "V3/F-A3 已由系统开发工程师完成、独立审核已复核：docs/factors/evidence/F_CLASS_PARITY_20261107.md 8/8 PASS（7 只 max_abs_diff=0.0、uf_vol60=1.1102230246251565e-16 即 1 ULP、超 1e-12 行数 0）；独立审核 research/independent-review-20261107/F_CLASS_AUDIT_20261107.md:19 判 F-A3 PASS、:21 判 F-A5 FAIL。本台账不复算，只引用",
+      "code_changed": false,
+      "engine_changed": false,
+      "research_files_changed": false,
+      "existing_docs_changed": false,
+      "dist_prior_high_250_parity_note": "批二对账由系统开发工程师完成：docs 侧无副本，证据在 research/factor-registration-b2-20261107/REPORT_20261107.md §2 与 logs/dist_prior_high_250_evidence.json；max_abs_diff=0.0（n=5,332,523）、dist>=-0.03 jaccard 1.000000。本台账只引用、不复算"
+    },
+    "authority_revision_note": "契约文件 docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md 于 2026-11-07T16:13:21 被系统架构师更新为 v0.4：109,914 B、sha256 5c12645aefc7014b03b2f226e92b17a70ccc7b20e254227e73e14048c2851de7。团队记忆里冻结的 v0.3 四元组（89,833 B / 全文 5eb97724… / 正文前缀 89,350 B / b082d902…）自此不再匹配现行文件 —— 这是架构侧的版本推进，不是本台账的动作。本台账引用的 §7.1 八行公式与 §7.2 字段规则在 v0.4 中未变：check_f_class_ledger.py 的检查 4（逐字比对 §7.1）对 v0.4 重跑 0 违例。§1.2 的 K1–K4 如有措辞变化，以 v0.4 原文为准，本台账不改契约。",
+    "contract_binding": {
+      "why": "判定对象自 v5.9 起是 §7.1 块，不是任何版本文件的全文。活文件 FACTOR_ENGINE_CONTRACTS_20261107.md 多路写入、同日多次重写，无法归因，仍不绑；保留双绑（不可变归档 + 一份现行修订作读取来源），但两份都不按版本号判。",
+      "bound": [
+        {
+          "path": "docs/architecture/archive/FACTOR_ENGINE_CONTRACTS_20261107_v0.3_FROZEN.md",
+          "size": 89833,
+          "crlf": 914,
+          "role": "不可变权威",
+          "section_7_1_chars_raw_crlf": 2541,
+          "section_7_1_sha256_raw_crlf": "a8e88134f60b504c5bb7e6280e419e05b1c05afc13ae5abc1fd028dd1db737ef",
+          "section_7_1_chars_lf": 2514,
+          "section_7_1_sha256_lf": "6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8"
+        },
+        {
+          "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md",
+          "size": 269092,
+          "crlf": 2248,
+          "raw_sha256": "d7df40ffa284d9961e83b9fb074dc4e5263bab9299969b3d0387a020df1c1ce6",
+          "lf_sha256": "aa3679c469b5f2ef988565707a01c858553cc8f3648925f73ea02348cfdfc499",
+          "role": "读取来源（现行修订；版本号不参与判定，换版不翻转结论）",
+          "section_7_1_chars_raw_crlf": 2541,
+          "section_7_1_sha256_raw_crlf": "a8e88134f60b504c5bb7e6280e419e05b1c05afc13ae5abc1fd028dd1db737ef",
+          "section_7_1_chars_lf": 2514,
+          "section_7_1_sha256_lf": "6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8"
+        }
+      ],
+      "section_7_1_calibers": "同一块文本的三种量法，不是三个不同的块：①保留 CRLF 含尾换行 2,541 字符 / a8e88134…（团队通报用值）；②LF 归一化含尾换行 2,514 字符 / 6d3db013…（脚本实算、判定用值）；③LF 归一化去尾换行 2,513 / e9ed2b10…（v5.3 曾用值，已不用）。判定只认 ①与②，且引用时必须写明是哪一套。",
+      "non_binding_evidence": [
+        {
+          "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md",
+          "size": 162361,
+          "raw_sha256": "946a1d8675de6e4e945dc587f65b94ba0ce91922be338774b46b72022a616810",
+          "lf_sha256": "a8334fea9696c2ef5a639726af4a57b753017521edcc3054acea630b0cf9dc28",
+          "role": "上一版现行修订（v5.4–v5.8 的读取来源），§7.1 块与常量相同；只作旁证，不参与判定"
+        },
+        {
+          "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.5.md",
+          "size": 138729,
+          "raw_sha256": "c7740508c358a2c0748aa87fb14c60c8a37f6f721b3f917a7fff7b67c0c4a21a",
+          "lf_sha256": "7542375a1b1f3e88b81af3ac37aca408106f729187e6a01e13d3c1b7b9c393bb",
+          "role": "更早一版，§7.1 块相同；只作旁证"
+        }
+      ],
+      "previously_bound": [
+        {
+          "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.5.md",
+          "until": "v5.3",
+          "why_changed": "v0.6 成为当时现行修订，指针须对"
+        },
+        {
+          "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md",
+          "until": "v5.8",
+          "why_changed": "v5.9 起版本号退出判据，指针改指 v0.12 仅作读取来源；实测 v0.9–v0.12 的 §7.1 块与常量逐字节相同，换指针零翻转"
+        }
+      ],
+      "not_bound": [
+        {
+          "path": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md",
+          "size": 128007,
+          "raw_sha256": "5bd81a7472f10509dd3b000cabcd7ccaa1c1d8faa3a8edd303120edd58ec5531",
+          "lf_sha256": "60598fb2f2711da8b6dcb3c30fd67a78e939d606865e63600d3ee0894c381378",
+          "reason": "多路写入的暂存文件，内容即 v0.4，绑定无效"
+        }
+      ],
+      "failure_mode": "§7.1 块任一处被改写（含只在表格外多一个空格）→ 检查 [4] 记违例、打印两处哈希、RESULT: FAIL / exit 1。v5.9 负样本实测三轮（均在不碰仓库文件的临时树内跑）：①把 v0.12 副本表格里 vol60 的窗口数 61→62 → [4] 违例 5 条（LF 与 CRLF 常量不符、两份互不相等）、TOTAL 5、RESULT: FAIL、exit 1；②只在 §7.1 标题行加一个尾随空格（表格逐行未变，旧做法会被 row 比对放过）→ [4] 违例 6 条、TOTAL 6、RESULT: FAIL、exit 1；③还原副本 → 恢复 PASS、exit 0。",
+      "section_7_1_binding": {
+        "judged_object": "§7.1 块（含尾换行），不是契约版本文件全文；版本号只作来源标注",
+        "registered_constants": {
+          "lf_normalized": {
+            "chars": 2514,
+            "sha256": "6d3db0139a45f54c9e7399e19239929b21d0c37f660ceafaf52f707835b449d8"
+          },
+          "raw_crlf": {
+            "chars": 2541,
+            "sha256": "a8e88134f60b504c5bb7e6280e419e05b1c05afc13ae5abc1fd028dd1db737ef"
+          }
+        },
+        "assertions": [
+          "归档 §7.1 块 LF/CRLF 两口径 == 登记常量",
+          "现行修订 §7.1 块 LF/CRLF 两口径 == 登记常量",
+          "两份 §7.1 块 LF 与 CRLF 两口径互等",
+          "formula_text / warmup_bars / dependencies 与两份 §7.1 表逐字一致"
+        ],
+        "citation_rule": "引用「§7.1 哈希」必须写明口径：LF 归一化 2,514 字符 / 6d3db013…，或保留 CRLF 2,541 字符 / a8e88134…；两者差 27 字符 = 27 行各一个 CR，文本相同但哈希不同，只写前缀等于没写口径。",
+        "constants_live_in": [
+          "docs/factors/evidence/scripts/check_f_class_ledger.py S71_*",
+          "本文 meta.contract_binding",
+          "md 台账 §0.1"
+        ]
+      }
+    },
+    "freeze_declaration": {
+      "status": "FROZEN at v5.11",
+      "declared_at": "2026-11-08T00:54+0800",
+      "text": "台账自 v5.5 起定稿：因子工程师此后不再改本文件与 md 台账（除第三方直写导致的字节修复，且修复须另立版本并重报三文件指纹）。若再出现第三方直写（行尾改写、字段改动、缩进重排），本定稿立即失效，须以该刻盘面字节重算指纹并重新签认，不得沿用本条任何指纹。判据：本 registry 的 LF 归一化 sha256 必须等于 md 台账 §0.1 表所列值，md 台账自身的值只以 check_f_class_ledger.py 的 BINDING 段实跑打印为准（自指不入文件）。",
+      "scope": "F 类 8 只台账（md 台账 + 本 registry + 自检脚本）",
+      "not_in_scope": [
+        "docs/architecture/**",
+        "backend/**",
+        "docs/research/**",
+        "research/**",
+        "docs/factors/ 下他人文件"
+      ],
+      "revised_at": "2026-11-08T00:48+0800"
+    }
+  },
+  "factors": [
+    {
+      "research_name": "vol60",
+      "id": "uf_vol60",
+      "canonical_id": "uf_vol60",
+      "aliases": [
+        "vol60"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "store 侧有 status/version/命名空间，且 formula_text 是契约 §7.1 原文（ts_std(close / ts_delay(close, 1) - 1, 60)）；pack 侧文本 ts_std((close - ts_delay(close, 1)) / ts_delay(close, 1), 60) 数学等价、非逐字 → 以 store 为 canonical",
+      "label": "60日收益标准差（日频，未年化）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_std(close / ts_delay(close, 1) - 1, 60)",
+      "window": 60,
+      "warmup_bars": 61,
+      "dependencies": [
+        "close"
+      ],
+      "shift": 0,
+      "semantics": "incl_today_close",
+      "price_basis": "close",
+      "price_basis_adjustment": "复权（D1 §1.4 与 93 台账 §1 公约：前复权；本批未逐列核对）",
+      "unit": "ratio_dec",
+      "unit_note": "无量纲小数（0.0247 = 2.47%/日），非百分点；研究侧 p10/p50/p90 = 0.01410/0.02471/0.03976（compare_stats.json#series.vol60_dist）",
+      "scale_free": true,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_vol60.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=1.1102230246251565e-16（n_both_nonnull=5,469,335，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [],
+      "replaced_by": [],
+      "relation_note": "不可被 annual_vol_20d 替代：低波十分位选股 jaccard=0.136（STRATEGY_INPUT_FACTOR_MAP §S07）；比率/均值 corr 0.777195、mean_abs_diff 0.372369，年化后仍 mean_abs_diff 0.091912（compare_stats.json#pairs.vol60_vs_annual_vol_20d、#pairs.vol60_ann_vs_annual_vol_20d，n=5,469,335）。年化若要成立必须是另一个 id（如 uf_vol60_ann），禁止原地改公式（契约 §7.1 末注）。注意：裸 id vol60 已由 research_factor_pack 注册，文本为 ts_std((close - ts_delay(close, 1)) / ts_delay(close, 1), 60)（与本台账仅数学等价，K8）",
+      "serves_strategies": [
+        {
+          "strategy": "S07_xs_lowvol_60d",
+          "role": "核心量（低波 10% 选股）",
+          "still_blocked_by": [
+            "E2 xs_rank 掩码",
+            "E4 month_end",
+            "E3 in_universe",
+            "X1 组合级调仓执行器"
+          ]
+        },
+        {
+          "strategy": "S11_lowvol_reversal",
+          "role": "排名项 rk_vol60 的被排序量",
+          "still_blocked_by": [
+            "E2 xs_rank 掩码",
+            "E4 month_end",
+            "E3 in_universe",
+            "X1"
+          ]
+        },
+        {
+          "strategy": "S12_lowvol_breadth",
+          "role": "核心量",
+          "still_blocked_by": [
+            "E2 xs_rank 掩码",
+            "E1 market_breadth",
+            "E4 month_end",
+            "E3 in_universe",
+            "X1"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 140,
+        "text": "pl.col(\"ret1\").rolling_std(60).over(\"symbol\").alias(\"vol60\")",
+        "input_line": "line 126: pl.col(\"close\").pct_change().over(\"symbol\").alias(\"ret1\")",
+        "published_in": "FACTOR_GAP_SPEC §F1；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 61,
+          "dependencies": [
+            "close"
+          ]
+        },
+        "ddof": "polars rolling_std 默认 ddof=1；DSL ts_std 为 rolling_std(n, min_samples=n)（backend/app/factors/dsl.py:398-399），双侧默认一致 — 讨论依据，未做数值对账",
+        "magnitude_reference": {
+          "source": "compare_stats.json#series.vol60_dist",
+          "p10": 0.01409676135750348,
+          "p50": 0.02470624360457813,
+          "p90": 0.03975800629232132
+        }
+      },
+      "notes": [
+        "契约 §7.1 坑 3：禁用 ts_std(change_pct,60) 写法；本台账采用 deps 只有 {close} 的自洽写法",
+        "研究侧未年化；年化是另一个因子 id"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id vol60 是 alias：alias_of = uf_vol60，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_vol60"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_vol60",
+          "max_abs_diff": 1.1102230246251565e-16,
+          "n_both_nonnull": 5469335,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.vol60",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.vol60",
+          "sample_n": 4954,
+          "sample_max_abs_diff": 2.7755575615628914e-17,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_vol60.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "ma120",
+      "id": "uf_ma120",
+      "canonical_id": "uf_ma120",
+      "aliases": [
+        "ma120"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "两侧公式逐字相同（ts_mean(close, 120)）；store 侧有 status/version/命名空间 → canonical = store",
+      "label": "120日均线（含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_mean(close, 120)",
+      "window": 120,
+      "warmup_bars": 121,
+      "dependencies": [
+        "close"
+      ],
+      "shift": 0,
+      "semantics": "incl_today_close",
+      "price_basis": "close",
+      "price_basis_adjustment": "复权（前复权，同 93 台账 §1 公约；本批未逐列核对）",
+      "unit": "price_cny",
+      "unit_note": "元（复权价），与 close 同量纲",
+      "scale_free": false,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_ma120.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,428,988，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [],
+      "replaced_by": [],
+      "relation_note": "系统原有 ma20/ma60 在册；ma120 与 ma200 无 uf_* 形式的既有 id（实测未 load 磁盘时注册表 192 条中无 uf_ma120/uf_ma200）。与 ma120_bias 类偏离因子不是同一口径，不可互替。注意：裸 id ma120/ma200 已由 backend/app/custom/research_factor_pack 以同口径注册（K8，双 id 并存待系统架构师裁定唯一 id）",
+      "serves_strategies": [
+        {
+          "strategy": "S03_tsmom_60_m",
+          "role": "长期趋势过滤 close > ma120",
+          "still_blocked_by": [
+            "E4 month_end",
+            "E3 in_universe",
+            "X1"
+          ]
+        },
+        {
+          "strategy": "S08_high_52w",
+          "role": "趋势过滤",
+          "still_blocked_by": [
+            "dist_prior_high_250（未注册；口径已裁定，批二立即可做）",
+            "E4 month_end",
+            "E3 in_universe",
+            "X1"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 124,
+        "text": "pl.col(\"close\").rolling_mean(120).over(\"symbol\").alias(\"ma120\")",
+        "published_in": "FACTOR_GAP_SPEC §F2；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 121,
+          "dependencies": [
+            "close"
+          ]
+        },
+        "cross_check_reference": {
+          "source": "compare_stats.json#series.ma120_bias_ref.share_above",
+          "value": 0.46805341010249374,
+          "use": "注册后系统侧「close > ma120」占比应复现 46.8%（gap spec F2 交叉检查）；本批未测"
+        },
+        "not_verified": "本台账不复算；F-A3/V3 已由系统开发工程师完成：F_CLASS_PARITY_20261107.md uf_ma120 max_abs_diff=0.0（n=5,428,988），独立审核 F-A3 PASS"
+      },
+      "notes": [
+        "gap spec F2 记「ma120 站上占比应复现 46.8%」——该数字来自研究侧 463 系数列，注册后作为交叉检查"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id ma120 是 alias：alias_of = uf_ma120，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_ma120"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_ma120",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5428988,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.ma120",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.ma120",
+          "sample_n": 4895,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_ma120.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "ma200",
+      "id": "uf_ma200",
+      "canonical_id": "uf_ma200",
+      "aliases": [
+        "ma200"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "两侧公式逐字相同（ts_mean(close, 200)）；store 侧有 status/version/命名空间 → canonical = store",
+      "label": "200日均线（含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_mean(close, 200)",
+      "window": 200,
+      "warmup_bars": 201,
+      "dependencies": [
+        "close"
+      ],
+      "shift": 0,
+      "semantics": "incl_today_close",
+      "price_basis": "close",
+      "price_basis_adjustment": "复权（前复权，同 93 台账 §1 公约；本批未逐列核对）",
+      "unit": "price_cny",
+      "unit_note": "元（复权价）",
+      "scale_free": false,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_ma200.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,371,122，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [],
+      "replaced_by": [],
+      "relation_note": "无 uf_* 形式的既有 id；无策略依赖，注册优先级 P1。注意：裸 id ma200 已由 research_factor_pack 以同口径注册（K8，双 id 并存待裁定）",
+      "serves_strategies": [
+        {
+          "strategy": "（无）",
+          "role": "台账补齐，防止被临时手算绕过（gap spec F3 理由）",
+          "still_blocked_by": []
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 125,
+        "text": "pl.col(\"close\").rolling_mean(200).over(\"symbol\").alias(\"ma200\")",
+        "published_in": "FACTOR_GAP_SPEC §F3；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 201,
+          "dependencies": [
+            "close"
+          ]
+        },
+        "cross_check_reference": {
+          "source": "compare_stats.json#series.ma200_bias_ref.share_above",
+          "value": 0.48478402455295033,
+          "use": "参考值，gap spec 未给出靶值"
+        },
+        "not_verified": "本台账不复算；F-A3/V3 已由系统开发工程师完成：F_CLASS_PARITY_20261107.md max_abs_diff=0.0，独立审核 F-A3 PASS"
+      },
+      "notes": [
+        "201 根 warmup 意味着注册后近 40 交易日仍有非空输出，V2 校验可通过（未测）"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id ma200 是 alias：alias_of = uf_ma200，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_ma200"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_ma200",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5371122,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.ma200",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.ma200",
+          "sample_n": 4815,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_ma200.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "prior_high_20",
+      "id": "uf_prior_high_20",
+      "canonical_id": "uf_prior_high_20",
+      "aliases": [
+        "prior_high_20"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "store 为契约 §7.1 原文 ts_max(ts_delay(high, 1), 20)；pack 为 K1 的等价写法 ts_delay(ts_max(high, 20), 1) → 以 store 为 canonical",
+      "label": "此前20日最高价（不含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_max(ts_delay(high, 1), 20)",
+      "window": 20,
+      "warmup_bars": 21,
+      "dependencies": [
+        "high"
+      ],
+      "shift": 1,
+      "semantics": "prior",
+      "price_basis": "high",
+      "price_basis_adjustment": "复权最高价（D1 §1.4「high/low = 复权高/低，与回测一致」；本批未逐列核对）",
+      "unit": "price_cny",
+      "unit_note": "元（复权价）",
+      "scale_free": false,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_prior_high_20.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,496,401，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [],
+      "replaced_by": [],
+      "relation_note": "不是 high_60d 的替代品（窗口/价基/含当日三项全不同）；high_60d 的 replaced_by 按 D1 §4.2 记 prior_high_55，20 日窗口在该表无替换关系。D1 §1.4 明示「不注册 prior_high_60」",
+      "serves_strategies": [
+        {
+          "strategy": "S02_donchian_20_10",
+          "role": "入场 close > prior_high_20",
+          "still_blocked_by": [
+            "E3 in_universe",
+            "X2 max_hold_days"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 131,
+        "text": "pl.col(\"high\").shift(1).rolling_max(20).over(\"symbol\").alias(\"prior_high20\")",
+        "published_in": "caliber-decisions §1.4；FACTOR_GAP_SPEC §F4；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 21,
+          "dependencies": [
+            "high"
+          ]
+        },
+        "not_verified": "本台账不复算；判定已测：F_CLASS_PARITY_20261107.md close_gt_prior_high_20 jaccard=1.000（both_true 272,155 / only_sys 0 / only_res 0）"
+      },
+      "notes": [
+        "契约写法与 D1 §1.4／gap spec §2 的 ts_delay(ts_max(high,20),1) 代数等价，但本台账只采用契约原文（见 known_doc_conflicts[0]）"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id prior_high_20 是 alias：alias_of = uf_prior_high_20，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_prior_high_20"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_prior_high_20",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5496401,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.prior_high_20",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.prior_high_20",
+          "sample_n": 4994,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_prior_high_20.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "prior_high_55",
+      "id": "uf_prior_high_55",
+      "canonical_id": "uf_prior_high_55",
+      "aliases": [
+        "prior_high_55"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "store 为契约 §7.1 原文 ts_max(ts_delay(high, 1), 55)；pack 为 K1 等价写法 → 以 store 为 canonical；canonical 同时是 high_60d.replaced_by 的目标（跨口径取代）",
+      "label": "此前55日最高价（不含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_max(ts_delay(high, 1), 55)",
+      "window": 55,
+      "warmup_bars": 56,
+      "dependencies": [
+        "high"
+      ],
+      "shift": 1,
+      "semantics": "prior",
+      "price_basis": "high",
+      "price_basis_adjustment": "复权最高价（D1 §1.4；本批未逐列核对）",
+      "unit": "price_cny",
+      "unit_note": "元（复权价）",
+      "scale_free": false,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_prior_high_55.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,472,715，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [
+        "high_60d"
+      ],
+      "replaced_by": [],
+      "relation_note": "D1 §4.2 显式指定 high_60d 的 replaced_by = prior_high_55。但 high_60d 是「保留 id、不改语义、strategy_usable=false」的降级关系，不是同一口径的等价替换：两者 jaccard=0.000（见 §5 互引说明）",
+      "serves_strategies": [
+        {
+          "strategy": "S09_volume_breakout_55",
+          "role": "入场 close > prior_high_55",
+          "still_blocked_by": [
+            "E3 in_universe",
+            "E4/X2 视实现路径",
+            "X1 若走生产侧"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 132,
+        "text": "pl.col(\"high\").shift(1).rolling_max(55).over(\"symbol\").alias(\"prior_high55\")",
+        "published_in": "caliber-decisions §1.4；FACTOR_GAP_SPEC §F4；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 56,
+          "dependencies": [
+            "high"
+          ]
+        },
+        "vs_high_60d": {
+          "source": "compare_stats.json#signals.s09_break_vs_high_60d",
+          "n": 5470011,
+          "jaccard": 0.0,
+          "only_research_side": 143747,
+          "only_system_side": 0,
+          "pair": "compare_stats.json#pairs.prior_high55_vs_high_60d",
+          "corr_pearson": 0.9996423963445555,
+          "mean_abs_diff": 0.422994452569398
+        },
+        "window_vs_price_basis": {
+          "source": "compare_stats.json#pairs.prior_high55_vs_prior_high60_C / #pairs.prior_high55_vs_prior_high60_H",
+          "mean_abs_diff_close_shift1_60": 0.4361480232089744,
+          "mean_abs_diff_high_shift1_60": 0.13012936801641323,
+          "signal_jaccard_close_shift1_60": 0.5040778955264493
+        },
+        "not_verified": "本台账不复算；逐位对账已做：F_CLASS_PARITY_20261107.md max_abs_diff=0.0，close_gt_prior_high_55 jaccard=1.000（both_true 143,778）"
+      },
+      "notes": [
+        "S09 两条腿：高点侧本因子 + 量能侧 prior_vol_20；两条腿都在本批，均已落盘并可在启动期装载、已对账（F_CLASS_PARITY_20261107），仅线上服务未重启"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id prior_high_55 是 alias：alias_of = uf_prior_high_55，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_prior_high_55"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_prior_high_55",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5472715,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.prior_high_55",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.prior_high_55",
+          "sample_n": 4959,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_prior_high_55.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "prior_high_250",
+      "id": "uf_prior_high_250",
+      "canonical_id": "uf_prior_high_250",
+      "aliases": [
+        "prior_high_250"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "store 为契约 §7.1 原文 ts_max(ts_delay(high, 1), 250)；pack 为 K1 等价写法 → 以 store 为 canonical",
+      "label": "此前250日最高价（不含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_max(ts_delay(high, 1), 250)",
+      "window": 250,
+      "warmup_bars": 251,
+      "dependencies": [
+        "high"
+      ],
+      "shift": 1,
+      "semantics": "prior",
+      "price_basis": "high",
+      "price_basis_adjustment": "复权最高价（D1 §1.4；本批未逐列核对）",
+      "unit": "price_cny",
+      "unit_note": "元（复权价）",
+      "scale_free": false,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_prior_high_250.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,332,523，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [],
+      "replaced_by": [],
+      "relation_note": "S08 的直接判据不是本因子，而是 dist_prior_high_250 = close / prior_high_250 - 1（D1 §1.4）；dist_prior_high_250 尚未注册（口径已裁定、批二立即可做、零引擎改动，见 dist_prior_high_250_spec）。prior_high_250 本身不能替代 distance_to_high_240d（后者由 dist_prior_high_250 取代，jaccard 0.530）",
+      "serves_strategies": [
+        {
+          "strategy": "S08_high_52w",
+          "role": "作为 dist_prior_high_250 的分母（间接）",
+          "still_blocked_by": [
+            "dist_prior_high_250（未注册；口径已裁定，批二立即可做）",
+            "uf_ma120",
+            "E4 month_end",
+            "E3 in_universe",
+            "X1"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 133,
+        "text": "pl.col(\"high\").shift(1).rolling_max(250).over(\"symbol\").alias(\"prior_high250\")",
+        "published_in": "caliber-decisions §1.4；FACTOR_GAP_SPEC §F4；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 251,
+          "dependencies": [
+            "high"
+          ]
+        },
+        "downstream_reference": {
+          "source": "compare_stats.json#signals.near_high_3pct",
+          "n": 5332523,
+          "jaccard": 0.5303306715409343,
+          "only_system_side": 133101,
+          "only_research_side": 0,
+          "note": "该 jaccard 是 distance_to_high_240d 与 dist_prior_high_250 的判定差，不是本因子的，引用只为说明 S08 门槛口径"
+        },
+        "not_verified": "本台账不复算；逐位保真已做：F_CLASS_PARITY_20261107.md close_lt_prior_low_10 jaccard=1.000（both_true 487,212，研究触发率 8.853%）"
+      },
+      "notes": [
+        "251 根 warmup：注册后 V2（近 40 交易日非空）应可通过，未测"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id prior_high_250 是 alias：alias_of = uf_prior_high_250，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_prior_high_250"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_prior_high_250",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5332523,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.prior_high_250",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.prior_high_250",
+          "sample_n": 4764,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_prior_high_250.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "prior_low_10",
+      "id": "uf_prior_low_10",
+      "canonical_id": "uf_prior_low_10",
+      "aliases": [
+        "prior_low_10"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "store 为契约 §7.1 原文 ts_min(ts_delay(low, 1), 10)；pack 为 K1 等价写法 → 以 store 为 canonical；canonical 同时是 low_60d.replaced_by 的目标（降级替换）",
+      "label": "此前10日最低价（不含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_min(ts_delay(low, 1), 10)",
+      "window": 10,
+      "warmup_bars": 11,
+      "dependencies": [
+        "low"
+      ],
+      "shift": 1,
+      "semantics": "prior",
+      "price_basis": "low",
+      "price_basis_adjustment": "复权最低价（D1 §1.4；本批未逐列核对）",
+      "unit": "price_cny",
+      "unit_note": "元（复权价）",
+      "scale_free": false,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_prior_low_10.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,503,218，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [
+        "low_60d"
+      ],
+      "replaced_by": [],
+      "relation_note": "low_60d.replaced_by = 本因子（策略经理 caliber-decisions §8.2 裁定，作用域仅限策略侧下破判据 / S02 出场）。这是降级替换、非同口径等价：窗口 10 vs 60、价基 low vs close、不含当日 vs 含当日。不注册 prior_low_60；展示侧 distance_from_low_60d 继续用 low_60d，不动",
+      "serves_strategies": [
+        {
+          "strategy": "S02_donchian_20_10",
+          "role": "出场 close < prior_low_10",
+          "still_blocked_by": [
+            "E3 in_universe",
+            "X2 max_hold_days"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 134,
+        "text": "pl.col(\"low\").shift(1).rolling_min(10).over(\"symbol\").alias(\"prior_low10\")",
+        "published_in": "caliber-decisions §1.4；FACTOR_GAP_SPEC §F5；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 11,
+          "dependencies": [
+            "low"
+          ]
+        },
+        "trigger_rate": {
+          "source": "compare_stats.json#series.prior_low10_missing",
+          "close_below_prior_low10": 0.08853220061425879,
+          "close_below_low_60d": 0.0
+        },
+        "not_verified": "本台账不复算；F-A3/V3 已由系统开发工程师完成，证据 docs/factors/evidence/F_CLASS_PARITY_20261107.md（本台账 md §7 只引用）"
+      },
+      "notes": [
+        "compare_stats.json#series.prior_low10_missing.note 字段中文乱码（既有文件编码问题），数值字段可读；本批不改既有文件，仅登记"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id prior_low_10 是 alias：alias_of = uf_prior_low_10，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_prior_low_10"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_prior_low_10",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5503218,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.prior_low_10",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.prior_low_10",
+          "sample_n": 5000,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_prior_low_10.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    },
+    {
+      "research_name": "prior_vol_20",
+      "id": "uf_prior_vol_20",
+      "canonical_id": "uf_prior_vol_20",
+      "aliases": [
+        "prior_vol_20"
+      ],
+      "alias_of": null,
+      "superseded_by": [],
+      "canonical_reason": "store 为契约 §7.1 原文 ts_mean(ts_delay(volume, 1), 20)；pack 为 K1 等价写法 → 以 store 为 canonical",
+      "label": "此前20日均量（不含当日）",
+      "group": "研究补充",
+      "kind": "custom",
+      "lang": "dsl",
+      "version": 1,
+      "status": "active",
+      "formula_text": "ts_mean(ts_delay(volume, 1), 20)",
+      "window": 20,
+      "warmup_bars": 21,
+      "dependencies": [
+        "volume"
+      ],
+      "shift": 1,
+      "semantics": "prior",
+      "price_basis": "volume",
+      "price_basis_adjustment": "不除权（D1 §1.4「volume 不除权」）",
+      "unit": "unknown",
+      "unit_note": "成交量原始单位（股 / 手）未确证；因 S09 用法是 volume / prior_vol_20 的比值，单位自消，不阻断该策略；但台账不得写「已确证」",
+      "scale_free": false,
+      "scale_free_as_used": true,
+      "direction": "none",
+      "direction_note": "未经检验一律 none（契约 §7.2）",
+      "null_policy": "keep",
+      "pit": false,
+      "pit_source": "none",
+      "asset_types": [
+        "stock",
+        "etf"
+      ],
+      "strategy_usable": true,
+      "strategy_usable_note": "口径上为策略设计；盘上 status 已于 2026-11-07T23:33:57 由 draft 升 active（uf_prior_vol_20.json#status，见本行 status_carrier），准入证据逐条在本行 admission_evidence_v5_9：V3 全量 max_abs_diff=0.0（n_both_nonnull=5,496,401，tol=1e-12 判过）、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0；production 闸门 PASS (0 code) → usable_now=true。（v5.10 更正：v5.9 残留的「status 仍 draft / usable_now=false」文字已失效，不得再引用）",
+      "usable_now": true,
+      "replaces": [],
+      "replaced_by": [],
+      "relation_note": "系统无 vol_ma20；用 vol_ma10 替代时 1.5 倍量判定 jaccard 0.601（仅研究侧 269,878 / 仅系统侧 93,177，n=5,496,401），用含当日 20 日均量替代 jaccard 0.490（only_a 313,216 / only_b 212,735）— 两条替代都不成立",
+      "serves_strategies": [
+        {
+          "strategy": "S09_volume_breakout_55",
+          "role": "量能确认 volume > 1.5 × prior_vol_20",
+          "still_blocked_by": [
+            "E3 in_universe",
+            "X1（生产侧）"
+          ]
+        }
+      ],
+      "research_source": {
+        "file": "research/strategy-search-20261107/scripts/common.py",
+        "line": 136,
+        "text": "pl.col(\"volume\").shift(1).rolling_mean(20).over(\"symbol\").alias(\"prior_vol20\")",
+        "published_in": "caliber-decisions §1.4；FACTOR_GAP_SPEC §F6；契约 §7.1"
+      },
+      "evidence": {
+        "compile": {
+          "ok": true,
+          "warmup_bars": 21,
+          "dependencies": [
+            "volume"
+          ]
+        },
+        "vs_vol_ma10": {
+          "source": "compare_stats.json#pairs.prior_vol20_vs_vol_ma10",
+          "n": 5496401,
+          "corr_pearson": 0.9562430326994035,
+          "mean_abs_diff": 47600.27146210766,
+          "signal": "compare_stats.json#signals.s09_vol_1p5_vs_ma10",
+          "signal_jaccard": 0.6014816489793767
+        },
+        "vs_vol_ma20_incl_today": {
+          "source": "compare_stats.json#pairs.prior_vol20_vs_vol_ma20_incl_today",
+          "n": 5445049,
+          "corr_pearson": 0.9988438091947983,
+          "mean_abs_diff": 7289.3739329894,
+          "signal": "compare_stats.json#signals.s09_vol_1p5",
+          "signal_jaccard": 0.48965038764955315
+        },
+        "not_verified": "本台账不复算；F-A3/V3 已由系统开发工程师完成（F_CLASS_PARITY_20261107.md max_abs_diff=0.0、1.5 倍量判定 jaccard=1.000、both_true 817,835）；仍有 volume 单位（股/手）未确证"
+      },
+      "notes": [
+        "契约 §7.1 坑 2：名字里的 vol = volume，不是波动率；写成波动率会得到一个看似合理、无任何报错的错因子"
+      ],
+      "alias_strategy_usable": false,
+      "alias_note": "pack 裸 id prior_vol_20 是 alias：alias_of = uf_prior_vol_20，strategy_usable = false（生产入口 FS03 拒；研究/诊断入口允许并标 deprecated_alias_used）。别名关系用 alias_of 表达，不得写 replaced_by（replaced_by 只表跨口径取代）",
+      "alias_side_superseded_by": [
+        "uf_prior_vol_20"
+      ],
+      "canonical_column_note": "canonical 行：superseded_by 恒 []；alias 侧让位关系见 alias_side_superseded_by / id_canonical_ruling.dual_id_groups[].alias_side",
+      "status_before_v5_9": "draft",
+      "definition_version_on_disk": 1,
+      "usable_now_note": "v5.9：status=draft→active（盘上 JSON，2026-11-07T23:33:57 直写，未经 upsert_definition，故 definition version 未 +1；2026-11-08T00:36 复跑 store.upsert_definition 实测 unchanged=True，引擎以当前字节为权威、不再改写）。2026-11-08 00:29 以 assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=D:/TSP/data)) 实测 0 码",
+      "admission_evidence_v5_9": {
+        "gate_production": "PASS (0 code)",
+        "v3_factor_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_PARITY_20261107.json#factor_parity.uf_prior_vol_20",
+          "max_abs_diff": 0.0,
+          "n_both_nonnull": 5496401,
+          "tol": 1e-12,
+          "pass_1e12": true
+        },
+        "b0_fidelity": {
+          "evidence": "docs/factors/evidence/registration_b0_20261107.json#fidelity.per_factor.prior_vol_20",
+          "max_abs_diff": 0.0
+        },
+        "v3_rank_parity": {
+          "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#pairs.prior_vol_20",
+          "sample_n": 4994,
+          "sample_max_abs_diff": 0.0,
+          "rank_change_max_last_day_full_market": 0.0
+        },
+        "not_applicable": "B2 的 E1/E2/E3 判据针对 in_universe / xs_rank_* / market_breadth 三类载体，不覆盖 F 类 8 只表达式因子；本批改用 V3 全量 + V3 截面名次 + B0 保真三份实测作依据"
+      },
+      "status_carrier": {
+        "path": "D:/TSP/data/user_data/custom_factors/uf_prior_vol_20.json#status",
+        "value": "active",
+        "previous": "draft",
+        "written_at": "2026-11-07T23:33:57+0800",
+        "definition_version_on_disk": 1,
+        "consumed_by": "app.factors.gate#_definition_status → RegistryFacts(data_dir=settings.data_dir)",
+        "gate_production": "PASS (0 code)"
+      }
+    }
+  ],
+  "scope_facts": {
+    "statement": "本批 8 只 = 契约 F-A1。8 只之外还有三项，各有归属、都不是漏项，状态各不相同：prior_amount_20 已注册（研究名 + pack provider，lang=dsl，unit=CNY）；dist_prior_high_250 已注册为 uf_dist_prior_high_250（16:07，逐位对账 0.0），但仍不解锁 S08；rsi_14_pct 未注册，押后到 E1/E2 之后，base 列路线实测须改 pipeline.py（不是零改动）。",
+    "outside_this_batch": [
+      {
+        "research_name": "prior_amount_20",
+        "published_in": "caliber-decisions §1.4 / FACTOR_GAP_SPEC §F7",
+        "status": "registered",
+        "measured_at": "2026-11-07T16:07:00+08:00",
+        "measured": "get_factor 返回 spec：kind=custom、lang=dsl、formula_text=ts_delay(ts_mean(amount, 20), 1)、deps={amount}、warmup=21、stability=stable、unit=currency、scale_free=false",
+        "owner": "注册已完成（research_factor_pack）；台账 unit 已在 md §4.1 补齐",
+        "blocked_strategies": [
+          "全部 12 条的股票池流动性门槛（阈值 1e8）"
+        ],
+        "blocker": null,
+        "unit": "CNY（元，不缩放）",
+        "closed_gap": "amount 量纲未确证（§8.1）"
+      },
+      {
+        "research_name": "dist_prior_high_250",
+        "published_in": "caliber-decisions §1.4 / §1.2 末段",
+        "status": "registered",
+        "measured_at": "2026-11-07T16:12:00+08:00",
+        "measured": "load_into_registry 后 get_factor(\"uf_dist_prior_high_250\") 有 spec：kind=custom、lang=dsl、formula_text=close / ts_delay(ts_max(high, 250), 1) - 1、deps={close,high}、warmup=251、stability=experimental；裸 id dist_prior_high_250 仍为 None",
+        "batch": "批二：已完成注册 + 逐位对账（max_abs_diff=0.0，n=5,332,523）",
+        "blocked_strategies": [
+          "S08_high_52w（注册后仍不解锁：还压 E2/E3/E4/X1）"
+        ],
+        "blocker": null,
+        "registered_id": "uf_dist_prior_high_250",
+        "evidence": "research/factor-registration-b2-20261107/REPORT_20261107.md §2；logs/dist_prior_high_250_evidence.json"
+      },
+      {
+        "research_name": "rsi_14_pct",
+        "published_in": "caliber-decisions §2.1 / §4.1（D2；不在 §1.4）",
+        "status": "not_registered",
+        "measured_at": "2026-11-07T16:07:00+08:00",
+        "measured": "get_factor → None；rsi_14 在册（价格差口径，策略禁用）",
+        "batch": "押后到 E1/E2 之后；不扩 DSL 算子，但 base 列须改 pipeline.py Pass 5 三处（实测：现成 rsi_14 列是价差口径，不可复用）",
+        "blocked_strategies": [
+          "S04_rsi14_reversion"
+        ],
+        "blocker": "未注册；归「引擎改动（指标层）+ 排期决策」，不是纯排期、也不是「扩 DSL 算子」",
+        "evidence": "research/factor-registration-b2-20261107/REPORT_20261107.md §3"
+      }
+    ],
+    "note_on_brief": "任务书把三项并称「D1 §1.4」；按文件实际：prior_amount_20 与 dist_prior_high_250 在 D1 §1.4，rsi_14_pct 在 D2。此处按文件登记。",
+    "replaces_v1_key": "not_registered_this_batch（v1 把三项一律写成「本批未注册」，已作废）；v2 曾写「dist 尚未注册」与「rsi 走 base 列 = 归期排决策、零改动倾向」，v3 按 16:07–16:09 实测更正"
+  },
+  "prior_amount_20_registered_fact": {
+    "id": "prior_amount_20",
+    "canonical_id": "prior_amount_20",
+    "aliases": [],
+    "superseded_by": [],
+    "canonical_reason": "无 store 双胞胎；pack 是唯一载体；已有 B0 max_abs_diff = 0；登记 uf_prior_amount_20 会立即制造新双 id",
+    "canonical_exception": "不是双 id：磁盘 15 个 JSON 无 uf_prior_amount_20.json，get_factor('uf_prior_amount_20') is None（ID-CANON-1 §2.3）",
+    "registered": true,
+    "measured_at": "2026-11-07T16:07:00+08:00",
+    "carrier": "backend/app/custom/research_factor_pack/factor_provider.py（provider_id=official.research-factor-pack-b0；app/extensions/factors.py#ensure_factor_providers 自动发现）",
+    "registration_path": "代码内 Provider（随 import 自动注册），不走 POST /api/factors/custom、不落 custom_factors 磁盘定义",
+    "kind": "custom",
+    "lang": "dsl",
+    "formula_text": "ts_delay(ts_mean(amount, 20), 1)",
+    "dependencies": [
+      "amount"
+    ],
+    "warmup_bars": 21,
+    "stability": "stable",
+    "unit": "CNY",
+    "scale_free": false,
+    "group": "研究补充",
+    "version": 1,
+    "unit_rule": {
+      "unit": "CNY（元，不缩放）",
+      "e3_threshold": "1e8",
+      "expression": "ts_delay(ts_mean(amount, 20), 1)",
+      "shift": 1,
+      "semantics": "prior",
+      "warmup_bars": 21,
+      "basis": "§8.1"
+    },
+    "parity": {
+      "source": "docs/factors/REGISTRATION_B0_20261107.md:65",
+      "script": "research/factor-registration-20261107/verify_b0.py",
+      "max_abs_diff": 0,
+      "n": 5496401,
+      "note": "直接成对比较、无缩放"
+    },
+    "corrections": {
+      "formula_field": "FactorSpec 没有 formula 字段（backend/app/factors/registry.py:33-57）；getattr(spec,'formula',None) 的 None 是「属性不存在」默认值，不代表无公式；能否逐位复算看 lang 与 formula_text",
+      "same_track_as_uf": "计算走 compile_formula_cached(spec.formula_text) + frame_transform，与 uf_* 同一条 DSL 计算链；差别只在注册方式（代码内 provider vs 磁盘 DSL 定义）",
+      "v1_wrong": "v1 写「本批未注册」，已过期"
+    },
+    "open_gap": {
+      "id": "matrix_backtest_path",
+      "detail": "app/backtest/matrix.py#matrix_feature 只认 ma*/boll_*；sd20/prior_*/vol60/prior_amount_20 矩阵侧实现缺失（factor_provider.py 文件头自述）",
+      "blocked": "该因子不能进矩阵回测"
+    },
+    "closed_gap": "amount 量纲未确证 → 关闭（§8.1 三条互证）"
+  },
+  "dist_prior_high_250_spec": {
+    "id": "dist_prior_high_250",
+    "registered": true,
+    "measured_at": "2026-11-07T16:12:00+08:00",
+    "batch": "批二：注册 + 逐位对账均已完成（16:07 落库、16:09 报告）",
+    "basis": "§8.3.1",
+    "formula_text": "close / prior_high_250 - 1",
+    "unit": "ratio_dec（小数；-3% 写 -0.03，不是百分比）",
+    "semantics": "dist_ratio",
+    "shift": 1,
+    "price_basis": "high（分母）",
+    "warmup_bars": 251,
+    "strategy_usable": true,
+    "scale_free": true,
+    "numerator": "当日 close（前复权，与分母同一条复权序列）",
+    "denominator": "prior_high_250（high 价基、shift=1、不含当日）",
+    "null_policy": "分子或分母为空 → 空；分母 ≤0 或缺失 → 空；DSL _safe_div（backend/app/factors/dsl.py:385-390）给 null 而非 inf，策研明确接受",
+    "unlocks": [],
+    "does_not_unlock": [
+      "S08_high_52w（还压 E2/E3/E4/X1）"
+    ],
+    "acceptance_extra": "必须报「分母为 0 或 ≤0 的行数」；不为 0 时不得声称逐位等价",
+    "side_effect": "distance_to_high_240d.replaced_by → dist_prior_high_250 已在台账侧登记（replacement_rulings）；注册表 FactorSpec 无 replaced_by 字段，无需代码动作。b2 报告 §2.3 末段明确「docs/factors/ 归因子工程师，他们没动」",
+    "registered_id": "uf_dist_prior_high_250",
+    "registered_at": "2026-11-07T16:07:00+08:00",
+    "registered_by": "系统开发工程师（upsert_definition 入口，未绕过 F-A5 唯一入口）",
+    "measured": "load_into_registry 后 get_factor(\"uf_dist_prior_high_250\") 有 spec：kind=custom、lang=dsl、formula_text=\"close / ts_delay(ts_max(high, 250), 1) - 1\"、deps={close,high}、warmup=251、stability=experimental、version=1；裸 id dist_prior_high_250 仍为 None（不另注册裸 id）",
+    "formula_text_implemented": "close / ts_delay(ts_max(high, 250), 1) - 1",
+    "formula_note": "落库用的是 K1 的另一种等价写法（ts_delay(ts_max(high,250),1)），而 uf_prior_high_250 用契约写法 ts_max(ts_delay(high,1),250)。b2 报告 §2.2 实测两种写法互相 max_abs_diff=0.0、各自 vs 研究侧也是 0.0；DSL 无因子间引用，故分母只能内联、不能写 uf_prior_high_250",
+    "parity": {
+      "script": "research/factor-registration-b2-20261107/dist_prior_high_250_parity.py",
+      "report": "research/factor-registration-b2-20261107/REPORT_20261107.md",
+      "evidence": "research/factor-registration-b2-20261107/logs/dist_prior_high_250_evidence.json",
+      "max_abs_diff": 0.0,
+      "n": 5332523,
+      "rows_over_1e-12": 0,
+      "dist_ge_minus_0_03_jaccard": 1.0,
+      "both_true": 150292,
+      "only_system_side": 0,
+      "only_research_side": 0,
+      "trigger_rate": 0.028184,
+      "first_non_null": "2019-01-17",
+      "first_bar_symbols_consistent": "3,326 只全部一致（不一致 0）",
+      "null_side_only_system": 0,
+      "null_side_only_research": 0,
+      "den_lt_0_rows_eval_window": 0,
+      "den_eq_0_rows_eval_window": 0,
+      "den_null_rows_eval_window": 177478,
+      "den_le_0_rows_full_frame": 0,
+      "den_null_rows_full_frame": 838826,
+      "research_inf_rows": 0,
+      "verdict": "11/11 判据通过；复跑 unchanged=true、version 仍 1、14 个既有 json 逐字节未变",
+      "independent_audit": "未做（批二尚未提交独立审核）"
+    },
+    "null_policy_implemented": "DSL _safe_div 的判据是 denominator != 0（dsl.py:386-391），只拦 ==0、不拦负数。本因子分母是最高价、实测 den<0 为 0 行 → 「≤0 → 空」与实现在本因子上无差异；换到可能出现负分母的因子必须重验（见 known_doc_conflicts K10）",
+    "registry_metadata_gap": "落库 spec 的 unit=none、scale_free=true：store.to_spec 不落 unit（契约 §7.2 已登记的 P2 缺口），所以本台账的 unit=ratio_dec 只在台账/JSON 成立，注册表里查不到",
+    "acceptance_extra_met": "分母 ≤0 行数已报：评估窗口 den<0=0、den==0=0、空 177,478；全帧 den≤0=0、空 838,826 → 「不为 0 时不得声称逐位等价」的前置条件满足",
+    "not_verified": [
+      "矩阵回测侧未验（matrix_feature 是否认 dist_*）",
+      "HTTP 端到端未跑（走 store 入口）",
+      "复权因子一致性未单独断言（依赖两侧同源）",
+      "独立审核未做"
+    ]
+  },
+  "rsi_14_pct_plan": {
+    "id": "rsi_14_pct",
+    "registered": false,
+    "measured_at": "2026-11-07T16:07:00+08:00",
+    "schedule": "押后到 E1/E2 之后（§8.3.2）；P1，单独不解锁任何策略",
+    "route": "不扩 DSL 算子（这条仍成立）；但 base 列不是零改动：须在 app/indicators/pipeline.py Pass 5（:564-585）新增/改造 pct 价基列 —— ① close.diff() → close.pct_change()；② 去掉 al==0 → 1e-12 护栏（改 _safe_div 的 null 或保留 inf→100，并在契约定死 NaN vs null）；③ 首根语义统一（现系统第 1 根给 0.0，研究第 1 根 NaN）",
+    "route_basis": "开发经理 16:03 转达的方向 + 系统开发工程师 16:09 可行性实测（research/factor-registration-b2-20261107/REPORT_20261107.md §3）；结论：现成 rsi_14 base 列是价差口径本体，不可直接复用",
+    "reclassified": "不归「引擎能力缺口（扩 DSL 算子）」，也不归「纯排期」：归「指标层引擎改动（pipeline.py Pass 5）+ 排期决策」，须走架构契约 → 开发实现 → 独立审核",
+    "acceptance": {
+      "max_abs_diff": "<1e-10",
+      "rsi_lt30_jaccard": 0.999,
+      "rsi_gt55_jaccard": 0.999,
+      "mean": 50.1866,
+      "mean_tol": 0.01,
+      "p95_abs_diff": 0.01
+    },
+    "divergence_to_watch": "al=0 共 2,871 行：其中 680 行 ag=al=0（研究 NaN / 系统 0.0），2,191 行 ag>0（研究恰 100.0，系统 99.99999993~100-ε）。验收报告必须同时报「al=0 行数」「ag=al=0 行数」与「仅一侧为空行数」，否则 1e-10 判据会被 1e-12 护栏悄悄放过",
+    "keeps": "rsi_14（价格差）保留独立 id、策略禁用，语义不改",
+    "measured_now": {
+      "vs": "生产 compute_indicators(needed={rsi_14}) 的现成 rsi_14 列 vs 研究侧 rsi14",
+      "max_abs_diff": 28.89841800839814,
+      "n": 5510001,
+      "rows_over_1e-10": 5508079,
+      "rows_over_1e-6": 5506174,
+      "mean_abs_diff": 0.8922437851019285,
+      "p95_abs_diff": 1.9672,
+      "rsi_lt30_jaccard": 0.9484,
+      "rsi_gt55_jaccard": 0.8985,
+      "al0_rows": 2871,
+      "al0_and_ag0_rows": 680,
+      "al0_max_abs_diff": 1.64e-07,
+      "one_side_null_rows": 0,
+      "one_side_nan_rows": 680,
+      "root_cause": "价基：把 close.diff() 换成 pct_change() 后对研究 max_abs_diff=0.0；护栏项单独 1.813e-06；0/0 分支产生 680 行 NaN 分歧",
+      "verdict": "base 列路线现状不可行（判据 ①都没过），必须先改 pipeline.py 再重跑"
+    },
+    "open_question_for_architect": "warmup 语义：实测系统 rsi_14 第 1 根即有有限值、研究第 1 根 NaN，两侧都不产生 373 根前导空值；「warmup 373」与「首根 ret1 起算」的取舍属契约层，b2 报告 §3.5 只给事实不裁定"
+  },
+  "replacement_rulings": [
+    {
+      "subject": "high_60d",
+      "replaced_by": "uf_prior_high_55",
+      "target_registered": true,
+      "type": "downgrade_not_equivalent",
+      "why": "窗口 60 vs 55、价基 close vs high、含当日 vs 不含当日",
+      "evidence": "突破判定 jaccard 0.000（compare_stats.json#signals.s09_break_vs_high_60d）",
+      "basis": "§1.4 / §4.2"
+    },
+    {
+      "subject": "low_60d",
+      "replaced_by": "uf_prior_low_10",
+      "target_registered": true,
+      "type": "downgrade_not_equivalent",
+      "why": "窗口 60 vs 10、价基 close vs low、含当日 vs 不含当日",
+      "scope": "仅策略侧下破判据（S02 出场）",
+      "evidence": "close<prior_low10 触发率 8.853% vs close<low_60d 0.000%",
+      "basis": "§8.2",
+      "not_registered": [
+        "prior_low_60"
+      ],
+      "display_side_unchanged": [
+        "distance_from_low_60d"
+      ]
+    },
+    {
+      "subject": "distance_to_high_240d",
+      "replaced_by": "uf_dist_prior_high_250",
+      "target_registered": true,
+      "type": "downgrade_not_equivalent",
+      "why": "价基 close vs high、窗口 240 vs 250、含当日 vs 不含当日",
+      "evidence": "-3% 判定 jaccard 0.530（only_system_side 133,101 / only_research_side 0）",
+      "basis": "§1.4 / §4.2"
+    },
+    {
+      "subject": "rsi_14",
+      "replaced_by": null,
+      "replaced_by_declared_name": "rsi_14_pct",
+      "target_registered": false,
+      "type": "different_caliber_supersedes",
+      "why": "价格差 vs 涨跌幅（相对强弱）",
+      "evidence": "RSI>55 jaccard 0.898、RSI<30 jaccard 0.948",
+      "basis": "§2.1 / §4.2"
+    }
+  ],
+  "known_doc_conflicts": [
+    {
+      "id": "K1",
+      "topic": "同一 prior_* 公式两种写法",
+      "a": "契约 §7.1：ts_max(ts_delay(high, 1), 20)",
+      "b": "D1 §1.4 / gap spec §2：ts_delay(ts_max(high, 20), 1)",
+      "handling": "本台账一律采用契约 §7.1 原文（任务要求逐字）。两者代数等价（shift 与 rolling_max/min 可交换；DSL min_samples=n，首根非空同为第 N+1 根），但**本批未做数值比对** → 登记为待 V3，不写「已证等价」",
+      "evidence": "compile_formula 两种写法均 ok=True、warmup=21、deps={high}（实测，见 md §6）"
+    },
+    {
+      "id": "K2",
+      "topic": "vol60 写法",
+      "a": "契约 §7.1：ts_std(close / ts_delay(close, 1) - 1, 60)",
+      "b": "gap spec §2：ts_std(change_pct, 60)（并称「等价，实测平均绝对差 0」）",
+      "handling": "本台账采用契约原文（deps 只有 {close}，与 change_pct 的路径相关单位无关）"
+    },
+    {
+      "id": "K3",
+      "topic": "契约 §7.1 坑 3 的「大 100 倍」在因子路径上未被证实",
+      "detail": "×100 只出现在 app/api/intraday.py:72（分时展示）；因子/回测路径的 change_pct 是小数（app/indicators/pipeline.py:156 注释、:539 计算式、app/backtest/matrix.py:4264），实测与研究 ret1 的 max_abs_diff=2.220446049250313e-16、mean_abs_diff=3.993677303356903e-17（compare_stats.json#pairs.ret1_vs_change_pct，n=5,509,326）",
+      "handling": "「同一名字有两条单位不同的计算路径」= 风险确证；「用 change_pct 得 100 倍」= 未被本路径证实。台账按契约写法执行，并在此登记差异，供架构师修订 §7.1 措辞",
+      "status": "登记，不改契约"
+    },
+    {
+      "id": "K4",
+      "topic": "契约 F-A6 的量级区间与研究侧分位数边界",
+      "detail": "F-A6 写 vol60 典型值 0.015–0.06；研究侧实测 p10=0.01409676135750348 略低于 0.015，p50=0.02470624360457813、p90=0.03975800629232132 在区间内（compare_stats.json#series.vol60_dist）",
+      "handling": "登记差异，建议 F-A6 判据改为分位数口径（如 p50 落在区间、p90 < 0.1）；本批不改契约",
+      "status": "登记，待架构师裁定"
+    },
+    {
+      "id": "K5",
+      "topic": "调仓日依赖策略数不一致",
+      "detail": "STRATEGY_INPUT_FACTOR_MAP §S03 行写「12 条策略中 7 条依赖月末/周末再平衡（S03/S06/S07/S08/S10/S11/S12）」，§3 横向输入写「8/12 条策略依赖」，§S07 行又写「88 个调仓日」",
+      "handling": "属 E4 契约范围，不属本批；登记供架构师核对，本批不裁定",
+      "status": "登记"
+    },
+    {
+      "id": "K6",
+      "topic": "既有证据文件编码",
+      "detail": "compare_stats.json#series.prior_low10_missing.note 为乱码（GBK/UTF-8 混写）；同文件其余字段正常",
+      "handling": "不改既有文件；本批只登记。引用该注文前需重生成",
+      "status": "登记"
+    },
+    {
+      "id": "K7",
+      "topic": "uf_vol60 1 ULP 的根因归因",
+      "a": "对账报告 §7：1 ULP 源于 _safe_div 掩码除法改变内核选择 / SIMD 路径",
+      "b": "独立审核实测：DSL vs 普通除法 max_abs_diff=0.0；研究 pct_change vs 普通除法=1.1102230246251565e-16（4,214,876 行）",
+      "handling": "按审核实测表述：差异 100% 来自研究侧 close.pct_change()，与 _safe_div 无关；不保留 _safe_div 假设。对账报告 §7 由系统开发工程师更正",
+      "evidence": "research/independent-review-20261107/F_CLASS_AUDIT_20261107.md:84-95、P3-3 :237、§9 第 9 行 :252；artifacts/fa3_vol60_ulp_rootcause.txt",
+      "status": "登记，改本台账表述"
+    },
+    {
+      "id": "K8",
+      "topic": "同口径双 id 共 8 组（v3 及以前写 3 个裸 id / 4 项，错）",
+      "a": "pack factor_specs.py 以裸 id 注册 14 个：ma20/ma60/ma120/ma200/boll_lower/boll_upper/sd20/vol60/prior_high_20/prior_high_55/prior_high_250/prior_low_10/prior_vol_20/prior_amount_20；D:/TSP/data/user_data/custom_factors/ 下 15 个 JSON（14 个 uf_* + 1 个 cf_auction_resonance），逐个 json.load 读 id",
+      "b": "交集 8 组：ma120/ma200/vol60/prior_high_20/prior_high_55/prior_high_250/prior_low_10/prior_vol_20 在 pack（研究原名）与 store（uf_*）各一份。两条单侧例外：prior_amount_20 无 uf_prior_amount_20（canonical 定为研究原名）；uf_dist_prior_high_250 无 pack 对应件（单侧件）",
+      "handling": "已裁定 ID-CANON-1（docs/architecture/ARCH_DECISION_FACTOR_ID_CANONICAL_20261107.md）：canonical 一律 = store 侧 uf_*；pack 研究原名 = alias（alias_of + strategy_usable=false，生产入口 FS03 拒，研究/诊断入口允许并标 deprecated_alias_used）。replaced_by 只表跨口径取代、严禁用于别名 —— v1-v3 本行写的「另一侧标 replaced_by」是错的，v4 已改。逐行归属见 md 台账 §2.1b / JSON id_canonical_ruling",
+      "evidence": "目录 15 个 json 逐个读 id；pack RESEARCH_BASELINE_FACTOR_IDS 14 个；配对 = [i for i in RESEARCH_BASELINE_FACTOR_IDS if 'uf_'+i in store_ids] -> 8 项（因子工程师 2026-11-07 16:18 复算）；架构裁定文档 ARCH_DECISION_FACTOR_ID_CANONICAL_20261107.md §1.1/§2",
+      "status": "登记，待架构师裁定"
+    },
+    {
+      "id": "K9",
+      "topic": "台账 label 与磁盘定义 8/8 不同",
+      "a": "磁盘定义 label 例：uf_vol60='60日收益波动率'、uf_prior_vol_20='此前20日均量'",
+      "b": "台账 label：'60日收益标准差（日频，未年化）'、'此前20日均量（不含当日）'",
+      "handling": "「含当日 / 不含当日 / 未年化」这些口径语义只活在台账。登记、不裁定：建议以台账 label 覆盖磁盘定义；裁定前语义以台账为准，前端 label 不作口径证据",
+      "evidence": "本台账实测读 D:/TSP/data/user_data/custom_factors/uf_vol60.json 与 uf_prior_vol_20.json；F_CLASS_AUDIT_20261107.md P2-4 :226-228",
+      "status": "登记，待架构师裁定"
+    },
+    {
+      "id": "K10",
+      "topic": "_safe_div 只拦分母 ==0、不拦负数：规格「分母 ≤0 → 空」比实现严",
+      "a": "台账/规格（caliber §8.3.1 与本文 §4.2）：分母 ≤ 0 或空 → 空",
+      "b": "实现 backend/app/factors/dsl.py:386-391：判据 denominator != 0，负数照算（会得到很大的负距离）",
+      "handling": "本因子分母是 250 日最高价、恒 >0：b2 实测评估窗口 den<0 = 0 行、den==0 = 0 行 → 该差异在本因子上不产生任何行差，可以按规格声称逐位等价。但「≤0 → 空」这条在实现里没有落地，换到可能出负分母的因子（如价差、净额类）必须重新验，不得照抄本结论",
+      "evidence": "research/factor-registration-b2-20261107/REPORT_20261107.md §2.2 末条 + logs/dist_prior_high_250_evidence.json",
+      "status": "登记；口径收口待系统架构师（是否把 _safe_div 改成 ≤0 判据属契约范围，本台账不裁定）"
+    },
+    {
+      "id": "K11",
+      "topic": "rsi_14_pct 走 base 列 ≠ 零改动（现成 rsi_14 列不可复用）",
+      "a": "v2 / 开发经理 16:03：复用 pipeline.py:575-583 的 ewm_mean，把 _delta 换成 pct_change 即可，归「排期决策」",
+      "b": "系统开发工程师 16:09 实测：现成 rsi_14 列是 close.diff() 价差口径 + al==0→1e-12 护栏，vs 研究 rsi14 的 max_abs_diff = 28.89841800839814、5,508,079 行超 1e-10、RSI>55 jaccard 0.8985、680 行 NaN 单侧分歧；把价基换成 pct 后 max_abs_diff = 0.0",
+      "handling": "按实测表述：路线仍是「不扩 DSL 算子」，但必须改 pipeline.py Pass 5 三处（价基、护栏/NaN-null、首根语义），因此归「指标层引擎改动 + 排期」，须走架构契约 → 开发实现 → 独立审核；不得写成「零改动」或「纯排期」",
+      "evidence": "research/factor-registration-b2-20261107/REPORT_20261107.md §3.3/§3.4 + logs/rsi14_base_column_evidence.json",
+      "status": "登记，改本台账表述"
+    },
+    {
+      "id": "K12",
+      "topic": "replaced_by 的条数有两套口径（3 vs 4）",
+      "a": "本台账 §2.1b 读表须知 v4 初稿写「replaced_by 只有 3 处合法用法」",
+      "b": "JSON replacement_rulings 实际 4 条：high_60d / low_60d / distance_to_high_240d / rsi_14→rsi_14_pct（目标 rsi_14_pct 尚未注册）；id_canonical_ruling.replaced_by_rulings_cross_caliber_only 按「目标已注册」只列 3 条",
+      "handling": "把读表须知改成「4 条 + 说明 3/4 之差」；不改任何裁定、不改 rsi_14_pct 排期（§4.3），只把两个数字的差别写清，防下游按 3 条做穷举校验时把 rsi_14 判成越界",
+      "evidence": "replacement_rulings[*].subject（4 条）vs id_canonical_ruling.replaced_by_rulings_cross_caliber_only[*].subject（3 条）",
+      "v5_resolution": "已关闭：replacement_rulings[3].replaced_by 由 \"rsi_14_pct\" 改为 null，原名移入 replaced_by_declared_name 并置 target_registered=false；另 3 条改写成 canonical id（uf_*）并置 target_registered=true。§2.1b 读表须知 2 同步。3 条已注册目标 vs 4 条跨口径取代的差别仍成立，只是第 4 条不再写成看似已注册的 id",
+      "status": "已关闭（v5，2026-11-07）"
+    }
+  ],
+  "registry_state_verified": {
+    "semantics": "registry 是进程内注册表：只 import 时 all_factors()=192（178 条内置目录 + 14 条 research_factor_pack），8 个 uf_* 必然 MISSING；调用 load_into_registry(settings.data_dir) 后=207（15 条磁盘定义），8/8 与 uf_dist_prior_high_250 全部存在。生产启动 app/main.py:221 会调用它，所以「线上没有这些因子」只在「服务未重启」这一种状态下成立。",
+    "measured_at": "2026-11-07T16:12:00+08:00",
+    "data_dir": "D:/TSP/data",
+    "command": "cd backend && ./.venv/Scripts/python.exe -c \"from app.factors.registry import get_factor, all_factors; from app.config import settings; from app.factors.store import load_into_registry; print('before', len(all_factors())); print(load_into_registry(settings.data_dir)); print('after', len(all_factors()))\"",
+    "before_load": {
+      "count": 192,
+      "composition": {
+        "builtin_catalog": 178,
+        "research_factor_pack": 14
+      },
+      "uf_present": 0
+    },
+    "after_load": {
+      "count": 207,
+      "loaded_definition_count": 15,
+      "loaded_ids": [
+        "cf_auction_resonance",
+        "uf_auction_post0920_match_growth",
+        "uf_auction_tail_imbalance",
+        "uf_auction_tail_match_growth",
+        "uf_auction_volume_surprise",
+        "uf_auction_volume_vs_prev",
+        "uf_dist_prior_high_250",
+        "uf_ma120",
+        "uf_ma200",
+        "uf_prior_high_20",
+        "uf_prior_high_250",
+        "uf_prior_high_55",
+        "uf_prior_low_10",
+        "uf_prior_vol_20",
+        "uf_vol60"
+      ],
+      "uf_present": 8,
+      "uf_rows": [
+        {
+          "id": "uf_vol60",
+          "warmup_bars": 61,
+          "formula_text": "ts_std(close / ts_delay(close, 1) - 1, 60)",
+          "dependencies": [
+            "close"
+          ]
+        },
+        {
+          "id": "uf_ma120",
+          "warmup_bars": 121,
+          "formula_text": "ts_mean(close, 120)",
+          "dependencies": [
+            "close"
+          ]
+        },
+        {
+          "id": "uf_ma200",
+          "warmup_bars": 201,
+          "formula_text": "ts_mean(close, 200)",
+          "dependencies": [
+            "close"
+          ]
+        },
+        {
+          "id": "uf_prior_high_20",
+          "warmup_bars": 21,
+          "formula_text": "ts_max(ts_delay(high, 1), 20)",
+          "dependencies": [
+            "high"
+          ]
+        },
+        {
+          "id": "uf_prior_high_55",
+          "warmup_bars": 56,
+          "formula_text": "ts_max(ts_delay(high, 1), 55)",
+          "dependencies": [
+            "high"
+          ]
+        },
+        {
+          "id": "uf_prior_high_250",
+          "warmup_bars": 251,
+          "formula_text": "ts_max(ts_delay(high, 1), 250)",
+          "dependencies": [
+            "high"
+          ]
+        },
+        {
+          "id": "uf_prior_low_10",
+          "warmup_bars": 11,
+          "formula_text": "ts_min(ts_delay(low, 1), 10)",
+          "dependencies": [
+            "low"
+          ]
+        },
+        {
+          "id": "uf_prior_vol_20",
+          "warmup_bars": 21,
+          "formula_text": "ts_mean(ts_delay(volume, 1), 20)",
+          "dependencies": [
+            "volume"
+          ]
+        }
+      ],
+      "count_history": [
+        {
+          "at": "2026-11-07T16:07:00+08:00",
+          "definitions": 14,
+          "total": 206,
+          "why": "uf_dist_prior_high_250 尚未落库"
+        },
+        {
+          "at": "2026-11-07T16:12:00+08:00",
+          "definitions": 15,
+          "total": 207,
+          "why": "16:07 落库 uf_dist_prior_high_250 后"
+        }
+      ],
+      "non_f_class_row": {
+        "id": "uf_dist_prior_high_250",
+        "warmup_bars": 251,
+        "formula_text": "close / ts_delay(ts_max(high, 250), 1) - 1",
+        "dependencies": [
+          "close",
+          "high"
+        ],
+        "note": "批二，不在本批 8 只内；见 dist_prior_high_250_spec"
+      }
+    },
+    "absent_ids": [
+      "high_60d",
+      "low_60d",
+      "prior_low_60",
+      "prior_high_60",
+      "rsi_14_pct"
+    ],
+    "service_restarted": false,
+    "supersedes": "v1 的 registry_absent_verified（178 条、8 个 uf_ 全部不存在）是「未 load」的假象，已作废；v2 的 206 是 16:07 时点数，v3 改为 207（15 条定义）",
+    "bare_id_note": "裸 id dist_prior_high_250 仍为 None（等价值已注册为 uf_dist_prior_high_250）；与 K8 的双 id 问题不同，这里是同口径的「研究名 vs uf_ id」单轨"
+  },
+  "v2_changes": {
+    "at": "2026-11-07T16:10:00+08:00",
+    "author": "因子工程师",
+    "sources": [
+      "docs/research/caliber-decisions-20261107.md §8.1/§8.2/§8.3（v1.3）",
+      "research/independent-review-20261107/F_CLASS_AUDIT_20261107.md",
+      "docs/factors/evidence/F_CLASS_PARITY_20261107.md",
+      "本台账实测 2026-11-07T16:07"
+    ],
+    "items": [
+      {
+        "id": "V2-1",
+        "where": "prior_amount_20 状态",
+        "before": "本批未注册；amount 量纲未确证",
+        "after": "已注册（研究名 + pack provider，lang=dsl，formula_text=ts_delay(ts_mean(amount,20),1)，warmup=21，stability=stable）；unit=CNY（元，不缩放）；E3 阈值 1e8；量纲缺口关闭",
+        "basis": "§8.1 + 我的实测 16:07"
+      },
+      {
+        "id": "V2-2",
+        "where": "low_60d.replaced_by",
+        "before": "未明列 / 未指定（候选 prior_low_10 待确认）",
+        "after": "prior_low_10，标记降级替换、非同口径等价；不注册 prior_low_60；展示侧 distance_from_low_60d 不动",
+        "basis": "§8.2"
+      },
+      {
+        "id": "V2-3",
+        "where": "dist_prior_high_250",
+        "before": "本批未注册，批二（依赖 uf_prior_high_250），附 _safe_div 待确认",
+        "after": "批二立即可做、零引擎改动；close/prior_high_250-1 小数（-3% 写 -0.03）；分母 ≤0 或空→空（_safe_div 的 null 已接受）；warmup=251；strategy_usable=true；注册后仍不解锁 S08",
+        "basis": "§8.3.1"
+      },
+      {
+        "id": "V2-4",
+        "where": "rsi_14_pct",
+        "before": "批二/批三，需扩 DSL 算子（引擎能力缺口）",
+        "after": "押后到 E1/E2 之后；走指标层 base 列（复用 pipeline.py:575-583 的 ewm_mean(alpha=1/14, adjust=False)），不扩 DSL 算子；验收须盯 al=0 的 IEEE vs then(1e-12) 分叉",
+        "basis": "§8.3.2 + 开发经理 16:03 转达 + 代码实测"
+      },
+      {
+        "id": "V2-5",
+        "where": "数值保真表述（md §7 / boundary.numeric_note）",
+        "before": "数值保真未确证、本文件不含任何新因子的 max_abs_diff",
+        "after": "对账由系统开发工程师做，证据 F_CLASS_PARITY_20261107.md/.json（8/8 PASS、7 只 0.0、uf_vol60 1 ULP）；本台账不复算，只引用并标注独立审核状态（F-A3 PASS / F-A5 FAIL）",
+        "basis": "F_CLASS_PARITY_20261107.md + 独立审核 :19/:21"
+      },
+      {
+        "id": "V2-6",
+        "where": "注册表语义（registry_absent_verified → registry_state_verified）",
+        "before": "8 个 uf_ 与研究名在 178 条注册表中全部不存在（get_factor → None）",
+        "after": "未 load=192（178+14 pack），8 只必然 MISSING；load 后=206，8/8 存在；生产启动会 load；服务未重启",
+        "basis": "我的实测 16:07 + 独立审核 P3-1"
+      },
+      {
+        "id": "V2-7",
+        "where": "uf_vol60 1 ULP 归因",
+        "before": "_safe_div 掩码除法改变内核路径（对账报告 §7）",
+        "after": "差异 100% 来自研究侧 close.pct_change()；DSL vs 普通除法=0.0；与 _safe_div 无关",
+        "basis": "独立审核 §3.2 / P3-3 / §9 第 9 行"
+      },
+      {
+        "id": "V2-8",
+        "where": "known_doc_conflicts",
+        "before": "K1–K6",
+        "after": "新增 K7（1 ULP 归因）、K8（双 id 并存）、K9（label 不一致）",
+        "basis": "独立审核 P2-3 / P2-4 / P3-3 + 我的实测"
+      },
+      {
+        "id": "V2-9",
+        "where": "strategy_usable_note / not_verified（8 只）",
+        "before": "未注册、V3 未做",
+        "after": "已落盘并可在启动期装载（服务未重启）、F-A3 已对账；本台账不复算",
+        "basis": "对账报告 + 我的实测"
+      }
+    ]
+  },
+  "self_check": {
+    "script": "docs/factors/evidence/scripts/check_f_class_ledger.py",
+    "command": "python docs/factors/evidence/scripts/check_f_class_ledger.py",
+    "generated_at": "2026-11-08T00:36+0800",
+    "checks": [
+      {
+        "id": "research_name_id_bijection",
+        "rule": "研究名 ↔ uf_ id 一对一（无重复、无多对一、id 全部匹配 ^uf_[a-z0-9_]{1,40}$）",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "prior_shift_and_warmup",
+        "rule": "所有 prior_* 的 shift == 1 且 warmup_bars >= N + 1",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "expected_id_set_and_warmup_order",
+        "rule": "8 只 id 集合与任务书逐一相同；warmup 依次为 61/121/201/21/56/251/11/21",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "formula_verbatim_vs_contract",
+        "rule": "formula_text/warmup_bars/dependencies 与两份绑定契约的 §7.1 逐字一致（归档冻结副本 + 一份现行修订作读取来源）；每份的 §7.1 块哈希必须等于登记常量，且 LF 归一化（2,514 字符 / 6d3db013…）与保留 CRLF（2,541 字符 / a8e88134…）两套口径都要过，两份之间两口径也须相等；契约版本号不参与判定，但 §7.1 块任一改写即 FAIL 并打印两处哈希",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "md_ledger_consistency",
+        "rule": "md 台账正文包含全部 8 个 id、8 条公式原文，且同一表格行内同时给出该行 warmup",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "required_fields_present",
+        "rule": "每行字段齐全（研究名、id、formula_text、warmup、deps、semantics、shift、price_basis、unit、scale_free、strategy_usable、replaces/replaced_by、canonical_id、aliases、superseded_by、canonical_reason、relation_note、serves_strategies、research_source 等）",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "canonical_alias_rules",
+        "rule": "canonical_id == own uf_ id; aliases[] non-empty and never shadow a canonical id; alias_of empty and superseded_by=[] on canonical rows; replaced_by never carries an alias (contract 7.8.2 A-1/A-2)",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "dual_id_group_coverage",
+        "rule": "id_canonical_ruling.dual_id_groups covers exactly the 8 canonical ids, stays in sync with the factor rows, records alias_side (alias_of + strategy_usable=false + superseded_by=[canonical]), and keeps prior_amount_20 as the declared single-id exception",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "md_canonical_columns",
+        "rule": "md 台账表头含 canonical_id / aliases[] / superseded_by[] / alias_of / strategy_usable 五列，且每组恰好一行同时给出该组 canonical id、别名、alias_of=cid、alias 侧 strategy_usable=false、alias 侧 superseded_by=[cid]；含 prior_amount_20 单侧例外行",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "freeze_declaration_version_agree",
+        "rule": "freeze_declaration.status == 'FROZEN at v<version>' with <version> == meta.version, and the markdown status line (the line that starts with the status marker) names the same ledger version; any disagreement -> FAIL",
+        "violations": 0,
+        "violation_detail": []
+      },
+      {
+        "id": "md_fingerprint_matches_registry",
+        "rule": "the sha256 listed for docs/factors/evidence/f_class_registry.json in markdown section 0.1 equals the LF-normalized sha256 computed from that file now; a stale fingerprint -> FAIL",
+        "violations": 0,
+        "violation_detail": []
+      }
+    ],
+    "total_violations": 0,
+    "informational": [
+      {
+        "id": "naming_convention_d3",
+        "rule": "D1 §1.5：含当日应命名 xxx_Nd，不含当日应命名 prior_xxx_N",
+        "count": 3,
+        "detail": "vol60 / ma120 / ma200 属「含当日但名字既非 xxx_Nd 也不带 prior_」，严格读 D1 §1.5 视为命名偏差；本批按契约 F-A1 钉死的 id 保留研究名（改名会破坏 §7.5.3 唯一映射），故登记为已知偏差并以下游读 semantics 字段为准",
+        "is_violation_of_required_checks": false
+      }
+    ],
+    "note_v4": "自检从 6 项扩到 9 项：新增 7 canonical_alias_rules / 8 dual_id_group_coverage / 9 md_canonical_columns；并把 canonical_id / aliases / superseded_by / canonical_reason 并入【6】必填字段——否则只补台账字段、检查【6】仍会假通过",
+    "check_count": 11,
+    "note_v5_8": "自检从 9 项扩到 11 项：[10] freeze_declaration_version_agree / [11] md_fingerprint_matches_registry。这两条在本轮之前是真空：脚本 21:34:11 那版已实现、但 self_check.checks 只登记 9 条，故 RECORD MISMATCHES=2、RESULT: FAIL，而 freeze 状态格写错（v5.6 挂在 version=5.7 旁）与 §0.1 registry sha 过期都不会让任何一条判据变红。本轮把两条按既有结构（id + rule + violations + violation_detail）登记，check_count 9->11，total_violations 保持 0。",
+    "note_v5_9": "v5.9：绑定对象改为 §7.1 块哈希（两口径），旧做法绑整个版本文件全文哈希 —— v0.9–v0.12 若被原地改写 §7.1 会静默放行，这是漏拦。负样本实测见 meta.contract_binding.failure_mode。"
+  },
+  "v3_changes": {
+    "at": "2026-11-07T16:16:47+08:00",
+    "author": "因子工程师",
+    "trigger": "批二交付（uf_dist_prior_high_250 16:07 落库、b2 报告 16:09）+ 契约文件 16:13:21 更新为 v0.4 + 来源哈希复核",
+    "sources": [
+      "research/factor-registration-b2-20261107/REPORT_20261107.md（§2 / §3 / §5）",
+      "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107.md v0.4（16:13:21，sha256 5c1264…）",
+      "docs/research/caliber-decisions-20261107.md §8 v1.3（15:27:40）",
+      "本台账实测 2026-11-07T16:12（registry 192 / 207、uf_dist_prior_high_250 spec）"
+    ],
+    "items": [
+      {
+        "id": "V3-1",
+        "where": "dist_prior_high_250_spec.registered",
+        "before": "false；「未注册（get_factor → None）；批二立即可做」",
+        "after": "true；id=uf_dist_prior_high_250、16:07 落库、warmup 251、deps={close,high}、stability=experimental；逐位对账 max_abs_diff=0.0（n=5,332,523）、dist>=-0.03 jaccard 1.000000；裸 id 仍为 None",
+        "basis": "我的实测 16:12 + b2 报告 §2"
+      },
+      {
+        "id": "V3-2",
+        "where": "registry_state_verified.after_load",
+        "before": "count=206、loaded_definition_count=14、absent_ids 含 dist_prior_high_250",
+        "after": "count=207、15 条定义（含 uf_dist_prior_high_250），并记 16:07→16:12 的 206→207 变化史；裸 id 单列说明",
+        "basis": "我的实测 16:12（load_into_registry 返回 15 个 id）"
+      },
+      {
+        "id": "V3-3",
+        "where": "rsi_14_pct_plan.route / reclassified",
+        "before": "「复用现成 base 列即可」+「不再归引擎能力缺口」= 纯排期",
+        "after": "「不扩 DSL 算子」成立，但须改 pipeline.py Pass 5 三处；归「指标层引擎改动 + 排期」；附实测 max_abs_diff=28.8984、RSI>55 jaccard 0.8985、680 行 NaN 分歧",
+        "basis": "b2 报告 §3.3/§3.4（系统开发工程师实测）"
+      },
+      {
+        "id": "V3-4",
+        "where": "dist_prior_high_250_spec.null_policy_implemented + known_doc_conflicts K10",
+        "before": "「分母 ≤0 或空 → 空」当作已实现",
+        "after": "实现只拦 ==0；本因子 den 恒 >0（den<0 = 0 行）故无行差，但规格语句未落地，换负分母因子须重验",
+        "basis": "b2 报告 §2.2 末条（dsl.py:386-391 判据 denominator != 0）"
+      },
+      {
+        "id": "V3-5",
+        "where": "known_doc_conflicts",
+        "before": "K1–K9",
+        "after": "新增 K10（_safe_div ==0 vs ≤0）、K11（base 列非零改动）",
+        "basis": "b2 报告 §2.2 / §3.4"
+      },
+      {
+        "id": "V3-6",
+        "where": "meta.sources[*].sha256（3 条）",
+        "before": "契约 e272b357…、caliber 096aca89…、gap spec cc27dfe3…",
+        "after": "契约 5c1264…（v0.4，16:13:21）、caliber d95551c1…（15:27:40）、gap spec 7c93d4f2…；并新增 b2 报告为来源",
+        "basis": "我的实测 sha256（16:12:54）；三份文件在 v2 定稿后各自更新过，原记录已过期"
+      },
+      {
+        "id": "V3-7",
+        "where": "meta.authority_revision_note（新增）",
+        "before": "—",
+        "after": "记录契约由 v0.3 冻结版推进到 v0.4：团队记忆的 v0.3 四元组不再匹配现行文件；§7.1 八行公式未变（检查 4 对 v0.4 重跑 0 违例）",
+        "basis": "我的实测（文件 size/sha/mtime）+ 检查 4 重跑"
+      },
+      {
+        "id": "V3-8",
+        "where": "self_check.generated_at",
+        "before": "2026-11-07T16:25:00+08:00（v2 写入时误填的未来时刻）",
+        "after": "改为实际重跑时刻（见 self_check.generated_at）",
+        "basis": "本次运行"
+      }
+    ]
+  },
+  "id_canonical_ruling": {
+    "ruling_id": "ID-CANON-1",
+    "basis": "docs/architecture/ARCH_DECISION_FACTOR_ID_CANONICAL_20261107.md",
+    "rule": "canonical 一律 = store 侧 uf_*；pack 侧研究原名 = alias（alias_of + strategy_usable=false，生产入口 FS03 拒）；replaced_by 只表跨口径取代，不表别名",
+    "measured_at": "2026-11-07T16:18",
+    "pack_registered_ids": [
+      "ma20",
+      "ma60",
+      "ma120",
+      "ma200",
+      "boll_lower",
+      "boll_upper",
+      "sd20",
+      "vol60",
+      "prior_high_20",
+      "prior_high_55",
+      "prior_high_250",
+      "prior_low_10",
+      "prior_vol_20",
+      "prior_amount_20"
+    ],
+    "store_json_files": 15,
+    "store_uf_ids": [
+      "uf_ma120",
+      "uf_ma200",
+      "uf_vol60",
+      "uf_prior_high_20",
+      "uf_prior_high_55",
+      "uf_prior_high_250",
+      "uf_prior_low_10",
+      "uf_prior_vol_20",
+      "uf_dist_prior_high_250",
+      "uf_auction_post0920_match_growth",
+      "uf_auction_tail_imbalance",
+      "uf_auction_tail_match_growth",
+      "uf_auction_volume_surprise",
+      "uf_auction_volume_vs_prev"
+    ],
+    "dual_id_groups": [
+      {
+        "n": 1,
+        "canonical_id": "uf_vol60",
+        "alias": "vol60",
+        "alias_of": "uf_vol60",
+        "alias_strategy_usable": false,
+        "canonical_reason": "store 侧有 status/version/命名空间，且 formula_text 是契约 §7.1 原文（ts_std(close / ts_delay(close, 1) - 1, 60)）；pack 侧文本 ts_std((close - ts_delay(close, 1)) / ts_delay(close, 1), 60) 数学等价、非逐字 → 以 store 为 canonical",
+        "replaced_by": [],
+        "aliases": [
+          "vol60"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "vol60",
+          "alias_of": "uf_vol60",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_vol60"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 2,
+        "canonical_id": "uf_ma120",
+        "alias": "ma120",
+        "alias_of": "uf_ma120",
+        "alias_strategy_usable": false,
+        "canonical_reason": "两侧公式逐字相同（ts_mean(close, 120)）；store 侧有 status/version/命名空间 → canonical = store",
+        "replaced_by": [],
+        "aliases": [
+          "ma120"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "ma120",
+          "alias_of": "uf_ma120",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_ma120"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 3,
+        "canonical_id": "uf_ma200",
+        "alias": "ma200",
+        "alias_of": "uf_ma200",
+        "alias_strategy_usable": false,
+        "canonical_reason": "两侧公式逐字相同（ts_mean(close, 200)）；store 侧有 status/version/命名空间 → canonical = store",
+        "replaced_by": [],
+        "aliases": [
+          "ma200"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "ma200",
+          "alias_of": "uf_ma200",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_ma200"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 4,
+        "canonical_id": "uf_prior_high_20",
+        "alias": "prior_high_20",
+        "alias_of": "uf_prior_high_20",
+        "alias_strategy_usable": false,
+        "canonical_reason": "store 为契约 §7.1 原文 ts_max(ts_delay(high, 1), 20)；pack 为 K1 的等价写法 ts_delay(ts_max(high, 20), 1) → 以 store 为 canonical",
+        "replaced_by": [],
+        "aliases": [
+          "prior_high_20"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "prior_high_20",
+          "alias_of": "uf_prior_high_20",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_prior_high_20"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 5,
+        "canonical_id": "uf_prior_high_55",
+        "alias": "prior_high_55",
+        "alias_of": "uf_prior_high_55",
+        "alias_strategy_usable": false,
+        "canonical_reason": "store 为契约 §7.1 原文 ts_max(ts_delay(high, 1), 55)；pack 为 K1 等价写法 → 以 store 为 canonical；canonical 同时是 high_60d.replaced_by 的目标（跨口径取代）",
+        "replaced_by": [],
+        "note": "本因子是 high_60d.replaced_by 的目标",
+        "aliases": [
+          "prior_high_55"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "prior_high_55",
+          "alias_of": "uf_prior_high_55",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_prior_high_55"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 6,
+        "canonical_id": "uf_prior_high_250",
+        "alias": "prior_high_250",
+        "alias_of": "uf_prior_high_250",
+        "alias_strategy_usable": false,
+        "canonical_reason": "store 为契约 §7.1 原文 ts_max(ts_delay(high, 1), 250)；pack 为 K1 等价写法 → 以 store 为 canonical",
+        "replaced_by": [],
+        "aliases": [
+          "prior_high_250"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "prior_high_250",
+          "alias_of": "uf_prior_high_250",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_prior_high_250"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 7,
+        "canonical_id": "uf_prior_low_10",
+        "alias": "prior_low_10",
+        "alias_of": "uf_prior_low_10",
+        "alias_strategy_usable": false,
+        "canonical_reason": "store 为契约 §7.1 原文 ts_min(ts_delay(low, 1), 10)；pack 为 K1 等价写法 → 以 store 为 canonical；canonical 同时是 low_60d.replaced_by 的目标（降级替换）",
+        "replaced_by": [],
+        "note": "本因子是 low_60d.replaced_by 的目标",
+        "aliases": [
+          "prior_low_10"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "prior_low_10",
+          "alias_of": "uf_prior_low_10",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_prior_low_10"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      },
+      {
+        "n": 8,
+        "canonical_id": "uf_prior_vol_20",
+        "alias": "prior_vol_20",
+        "alias_of": "uf_prior_vol_20",
+        "alias_strategy_usable": false,
+        "canonical_reason": "store 为契约 §7.1 原文 ts_mean(ts_delay(volume, 1), 20)；pack 为 K1 等价写法 → 以 store 为 canonical",
+        "replaced_by": [],
+        "aliases": [
+          "prior_vol_20"
+        ],
+        "superseded_by": [],
+        "alias_side": {
+          "id": "prior_vol_20",
+          "alias_of": "uf_prior_vol_20",
+          "strategy_usable": false,
+          "superseded_by": [
+            "uf_prior_vol_20"
+          ],
+          "note": "alias 只解析到 canonical、数值归属 canonical（契约 A-2）；生产入口 FS03 拒"
+        }
+      }
+    ],
+    "group_count": 8,
+    "single_sided_exceptions": [
+      {
+        "n": 9,
+        "canonical_id": "prior_amount_20",
+        "canonical_is_research_name": true,
+        "aliases": [],
+        "replaced_by": [],
+        "replaces": [],
+        "canonical_reason": "store 目录 15 个 JSON 逐个读 id，无 uf_prior_amount_20；pack 侧已注册且逐位对账 max_abs_diff = 0（n = 5,496,401）→ 架构裁定明文例外：无 store 双胞胎，canonical 定为研究原名",
+        "canonical_strategy_usable": true,
+        "evidence": "§4.1；docs/factors/REGISTRATION_B0_20261107.md:65",
+        "superseded_by": []
+      },
+      {
+        "n": 10,
+        "canonical_id": "uf_dist_prior_high_250",
+        "aliases": [],
+        "research_side_name_not_registered": "dist_52w_high",
+        "replaced_by": [],
+        "replaces": [
+          "distance_to_high_240d"
+        ],
+        "replaces_note": "本因子是 distance_to_high_240d 的跨口径目标（§4.2）：方向记在 replaces，不写进 replaced_by；distance_to_high_240d 是研究原名且未注册，按 v5 规则不得作 replaced_by 的值",
+        "canonical_reason": "pack 14 个 id 无对应件；研究侧 dist_52w_high（common.py:157 = close / prior_high250 - 1）与落库公式 close / ts_delay(ts_max(high, 250), 1) - 1 同一物，本台账 16:20 实测 max_abs_diff = 0.0、n = 5,584,049、非零差 0 行、null 不一致 0 行（b2 报告 16:09：0.0 / n = 5,332,523，窗口不同）",
+        "canonical_strategy_usable": true,
+        "data_only_note": "dist_52w_high 不是注册 id，无需 alias 机制；若将来注册必须 alias_of = uf_dist_prior_high_250",
+        "evidence": "§4.2",
+        "superseded_by": []
+      }
+    ],
+    "replaced_by_rulings_cross_caliber_only": [
+      {
+        "subject": "high_60d",
+        "replaced_by": "uf_prior_high_55",
+        "type": "downgrade_not_equivalent",
+        "basis": "§2.6"
+      },
+      {
+        "subject": "low_60d",
+        "replaced_by": "uf_prior_low_10",
+        "type": "downgrade_not_equivalent",
+        "basis": "§2.8"
+      },
+      {
+        "subject": "distance_to_high_240d",
+        "replaced_by": "uf_dist_prior_high_250",
+        "type": "downgrade_not_equivalent",
+        "basis": "§4.2"
+      }
+    ],
+    "not_a_use_of_replaced_by": "别名（同一口径的另一个名字）一律用 alias_of；本台账没有、也不允许出现「用 replaced_by 表示别名」的写法",
+    "column_semantics": {
+      "canonical_id": "该口径唯一可被策略引用的 id；本批一律 uf_*，canonical 行恒有 canonical_id == id",
+      "aliases[]": "同口径等价别名（pack 注册的研究原名/裸 id）：只写 alias_of、strategy_usable=false、生产入口 FS03 拒；严禁写成 replaced_by",
+      "superseded_by[]": "该行 id 让位给谁。canonical 行恒 []（canonical 不被同口径取代）；alias 行 = [canonical_id]（见各条 alias_side.superseded_by）",
+      "replaced_by": "只表跨口径取代（replaced_by_rulings_cross_caliber_only 的 3 处），不表别名；取值只有两种：目标已注册 → 写 canonical id（uf_/cf_ 开头），目标未注册 → 写 null，原名移入 replaced_by_declared_name 并置 target_registered=false（v5 统一）",
+      "canonical_reason": "为什么这一侧是 canonical；定为研究原名时必须写理由（契约 A-1）",
+      "field_name_sources": "契约 §7.8.2 A-1 用 superseded_by；架构裁定 §2.2 台账规则用 replaced_by；两者并存、语义按本表区分，不是同义字段"
+    }
+  },
+  "v4_changes": [
+    {
+      "id": "V4-1",
+      "what": "K8 由「3 个裸 id / 4 项」改为「8 组」",
+      "why": "pack 14 个 id 与 store 14 个 uf_* 的交集实测为 8 组（逐文件读 id）",
+      "evidence": "本文件 id_canonical_ruling.pack_registered_ids / store_uf_ids"
+    },
+    {
+      "id": "V4-2",
+      "what": "prior_amount_20 移出双 id 行，定为 canonical = 研究原名（单侧例外）",
+      "why": "store 无 uf_prior_amount_20.json",
+      "evidence": "§4.1；目录 15 个 JSON 逐个读 id"
+    },
+    {
+      "id": "V4-3",
+      "what": "uf_dist_prior_high_250 作为单侧例外补映射行",
+      "why": "pack 无对应件；研究侧 dist_52w_high 同一物",
+      "evidence": "common.py:157；本台账 16:20 实测 max_abs_diff = 0.0 / n = 5,584,049"
+    },
+    {
+      "id": "V4-4",
+      "what": "别名一律 alias_of + strategy_usable=false，replaced_by 不表别名",
+      "why": "v1-v3 的 K8 写「另一侧标 replaced_by」，会让实现侧判断不出该不该重跑对账",
+      "evidence": "md 台账 §2.1b 读表须知 2；本文件 id_canonical_ruling.not_a_use_of_replaced_by"
+    },
+    {
+      "id": "V4-5",
+      "what": "V3 补充对账（F-A3 全量 8 只 × 20 symbol × 近 250 交易日 + 名次漂移）",
+      "why": "1 ULP 过得了 1e-12，但可能改变近并列处的名次与 tie 组；S02/S09 能否拿 uf_prior_* 当验收基准取决于此项",
+      "evidence": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json（2026-11-07T16:24 实跑，8 对 max_abs_diff 全 <1e-12、rank_change_max 全 0.0、被换位 0 只、250 日逐日同样 0）"
+    },
+    {
+      "id": "V4-6",
+      "what": "补 superseded_by 一列（md §2.1b 与 JSON 双侧），并把 canonical_id / aliases / superseded_by / canonical_reason 四列并入自检必填字段",
+      "why": "任务书要求三列齐全；只补 canonical_id/aliases 而必填字段不覆盖 superseded_by，会让检查【6】假通过",
+      "evidence": "md §2.1b 表新增 2 列（canonical 行 superseded_by[] + alias 侧 superseded_by[]）；JSON id_canonical_ruling.dual_id_groups[].superseded_by / .alias_side.superseded_by；检查 7/8/9 见 self_check"
+    }
+  ],
+  "column_semantics_v4": {
+    "canonical_id": "该口径唯一可被策略引用的 id；本批一律 uf_*，canonical 行恒有 canonical_id == id",
+    "aliases[]": "同口径等价别名（pack 注册的研究原名/裸 id）：只写 alias_of、strategy_usable=false、生产入口 FS03 拒；严禁写成 replaced_by",
+    "superseded_by[]": "该行 id 让位给谁。canonical 行恒 []（canonical 不被同口径取代）；alias 行 = [canonical_id]（见各条 alias_side.superseded_by）",
+    "replaced_by": "只表跨口径取代（replaced_by_rulings_cross_caliber_only 的 3 处），不表别名；取值只有两种：目标已注册 → 写 canonical id（uf_/cf_ 开头），目标未注册 → 写 null，原名移入 replaced_by_declared_name 并置 target_registered=false（v5 统一）",
+    "canonical_reason": "为什么这一侧是 canonical；定为研究原名时必须写理由（契约 A-1）",
+    "field_name_sources": "契约 §7.8.2 A-1 用 superseded_by；架构裁定 §2.2 台账规则用 replaced_by；两者并存、语义按本表区分，不是同义字段"
+  },
+  "v5_4_changes": [
+    {
+      "id": "V5.4-1",
+      "what": "自检 [4] 的 contract2 指针 v0.5 → v0.6",
+      "basis": "开发经理派单；契约 v0.6 于 2026-11-07T17:16:36 冻结",
+      "evidence": "正向 exit 0 / 9 项 0 违例；负样本只改 v0.6 一个字 → [4] 违例 2 条、RESULT FAIL、exit 1",
+      "effect": "零结论翻转（§7.1 块四处逐字节相同）"
+    },
+    {
+      "id": "V5.4-2",
+      "what": "§7.1 块三口径写明，避免再出现「2,513 vs 2,541」对不上",
+      "basis": "我的实测（四份契约 × 三种口径）",
+      "evidence": "CRLF 2,541/a8e88134；LF 2,514/6d3db013；LF 去尾换行 2,513/e9ed2b10",
+      "effect": "读数口径统一，判定不变"
+    },
+    {
+      "id": "V5.4-3",
+      "what": "revision_note 的过期契约哈希（110,944 B / 6b8fb14c…）改为三份契约逐份现行指纹（raw + LF 两种口径）",
+      "basis": "我的实测",
+      "effect": "只改文字，不改台账数字"
+    },
+    {
+      "id": "V5.4-4",
+      "what": "登记裁定 (a)：伴生记录形态",
+      "basis": "契约 v0.6 §7.12.2 伴生固定取值 + §7.10.2 字段表「主记录恒 false，伴生恒 true」",
+      "detail": "主：both_collision=false / verdict=allow / ref_namespace=column / class=base；伴生：record_kind=companion / both_collision=true / verdict=exempt / code=null / ref_namespace=factor / class=custom_dsl / resolved_id=pack id；共用 (source_path, evidence, side, ref_name) 元组，靠 record_kind 区分；伴生不进 allowlist、不进任何层 by_verdict",
+      "measured": "22 活配置 = 79 主 + 14 伴生 = 93；伴生逐出现展开 ma20×10 / ma60×2 / boll_lower×1 / boll_upper×1"
+    },
+    {
+      "id": "V5.4-5",
+      "what": "登记裁定 (b)：path_scope=history 由 N4 固化为代码事实，收回此前期望表的 both",
+      "basis": "契约 v0.6 §7.10.3 N4 + custom_signals.py:646-647 实测",
+      "detail": "21 条日线源 history、1 条 monitor_rule intraday、both 计数 0、path_divergence 全 false；7 条冲突源 verdict=allow；「误判代价是静默停机而非 400」一条随之保留",
+      "measured": "history 主记录 77 + intraday 2 = 79"
+    },
+    {
+      "id": "V5.4-6",
+      "what": "meta.sources 两条被其作者更新的文件重算哈希",
+      "basis": "我的实测（盘面复算）",
+      "effect": "只改哈希与大小，引用内容与结论不变"
+    }
+  ],
+  "v5_5_changes": [
+    {
+      "id": "V5.5-1",
+      "what": "meta.revision_note 里 110,944 B / 6b8fb14c… 就地加【作废：中途态，盘上无对应文件】，并按「size + sha + 读取时刻」一起引",
+      "basis": "开发经理派单 + 我的实测：读取时刻 2026-11-07T18:23+0800 全库无该尺寸契约文件；同刻未编号活暂存 128,007 B / raw 5bd81a74… / LF 60598fb2…",
+      "effect": "只改文字与标注，不改任何台账数字或结论",
+      "note": "派单 done_when 写「109,944」；brief 正文写 110,944，盘面与 v5.4 原文均为 110,944，故按 110,944 处理；109,914 是另一个中途态（v3 时代），一并标注"
+    },
+    {
+      "id": "V5.5-2",
+      "what": "「[4] 绑的是哪一份」两处措辞统一为 v0.6：meta.sources[0].binding、self_check.checks[3].rule",
+      "basis": "脚本 BINDING 段 contract2 行 = docs/architecture/FACTOR_ENGINE_CONTRACTS_20261107_v0.6.md（162,361 B / LF a8334fea…）；meta.contract_binding.bound[1] 同一对象",
+      "effect": "json 侧 meta 与脚本实跑口径一致；v0.5 仅存于 non_binding_evidence",
+      "evidence": "改后重跑 9/9 项 0 违例、RECORD MISMATCHES 0、exit 0"
+    },
+    {
+      "id": "V5.5-3",
+      "what": "§7.1 块口径统一为脚本实算值 2,514 字符 / 6d3db013…（LF 归一化含尾换行）",
+      "basis": "脚本实跑输出 s7.1 archive / live 两行",
+      "effect": "json 不再与脚本输出自相矛盾（原写 2,513 / e9ed2b10…，是同一块去尾换行）"
+    },
+    {
+      "id": "V5.5-4",
+      "what": "side_key 未涉及实质引用（契约 v0.6 §7.10.2：可选、不参与判据）",
+      "basis": "基线核对：v5.4 盘面上两文件对该字段 0 次实质引用；v5.5 新增的说明性字样 JSON 3 处 / md 2 处，全部是对「是否引用」的元陈述，不含把它当判据的用法",
+      "effect": "未改任何口径；仅登记契约措辞"
+    },
+    {
+      "id": "V5.5-5",
+      "what": "§0.1 指纹表增列 raw sha256 与文件 mtime，并把「实测」时刻与本轮实跑对齐",
+      "basis": "派单 done_when ③ 要求三文件各报 LF 归一化 + raw 两栏；两文件 CRLF=0，故 raw 与 LF 同值（同值本身即为「行尾未被改写」的证据）",
+      "effect": "只增一列与刷新时间标注，未改任何大小、行数或哈希值",
+      "measured": "2026-11-07T18:57+0800"
+    }
+  ],
+  "v5_6_changes": [
+    {
+      "id": "V5.6-1",
+      "what": "§12.1 末行的期望表指纹由 v3.2（91,709 B / f21494f9…）更新为 v3.3（97,062 B / 8366cdb2…），并写明 v3.3 的重签对象与表外差异登记",
+      "basis": "开发经理 18:05 重生成引用因子盘存产物（186,343 B / b661c8cd…）；因子工程师按契约 v0.6 §7.12.4 独立复算 canonical_digest = aefdf528…2d1a 后重签期望表，期望表版本 v3.2→v3.3",
+      "effect": "只改 §12.1 末行的期望表版本与指纹文字。8 只因子公式、warmup、deps、双 id 三列、replaced_by、K10/K11/K12 一律未动；台账内任何因子数字或结论零改动",
+      "note": "依 §0.2 定稿声明：v5.5 之后任何字节改动须另立版本并重报三文件指纹，故升 v5.6 而非静默改字节"
+    }
+  ],
+  "v5_7_changes": [
+    {
+      "id": "V5.7-1",
+      "what": "§12.1 末行的期望表指纹由 v3.3（97,062 B / 8366cdb2…）更新为 v3.4（99,935 B / 184dcdf9…），并在 §0.1 重报三文件指纹",
+      "basis": "按契约 v0.6 §7.12.4，签认对象是三元组 canonical_digest + schema_version + scanned_sources，不是文件字节；旁挂 .sha256 只证「本次运行字节完整」。开发经理 18:05 重生成的产物在 19:23:57 又被重跑一次：size 仍 186,343 B、records 仍 218、canonical_digest 仍 aefdf528…2d1a，只有 generated_at 变（→ 全文 sha 由 b661c8cd… 变 df5e1a63…）。v3.3 把签名绑在 b661c8cd… 那一份字节上，因此被一次只改 generated_at 的重跑推翻。v3.4 改为签三元组、字节实例只作观测记录，重跑不再推翻签名。",
+      "effect": "期望表 v3.3→v3.4：signature_triple 增 signed_object / byte_instances_observed / byte_sha_policy；target_bytes 降为「仅作上下文、非签认断言」；resign_basis.current_target 改为三元组；history 增 19:23:57 一条。台账与 registry 只改指纹与版本文字，8 只因子公式、warmup、deps、双 id 三列、replaced_by、K10/K11/K12 一律未动",
+      "note": "依 §0.2 定稿声明：v5.5 之后任何字节改动须另立版本并重报三文件指纹，故升 v5.7 而非静默改字节",
+      "verified": "19:24 在盘上重测产物：186,343 B、full sha256 df5e1a63…、records 218、canonical_digest 独立复算 aefdf528…2d1a，与签名值逐位相同；四类扰动（改 generated_at/repo_head/data_root、records 倒序、随机重排、改一条 verdict）行为仍符合 §7.12.4"
+    }
+  ],
+  "v5_8_changes": [
+    {
+      "at": "2026-11-07T22:24+0800",
+      "author": "因子工程师",
+      "trigger": "开发经理 21:5x 实测：自检 REAL_EXIT=1 / RESULT: FAIL / RECORD MISMATCHES: 2（[10][11] 已实现但未登记）；JSON 无结构化签认块（全树 walk signature* 0 命中）；期望表 md v3.3 与 json v3.4 版本脱钩",
+      "changed": [
+        "self_check.checks 追加 [10] freeze_declaration_version_agree 与 [11] md_fingerprint_matches_registry（violations 均 0），check_count 9 -> 11，total_violations 保持 0",
+        "新增顶层 signature 结构化签认块（recipe 1：aefdf528…2d1a / \"2\" / 67），digest 为本轮独立复算，非转抄产物字段",
+        "meta.version 5.7 -> 5.8；freeze_declaration.status FROZEN at v5.7 -> FROZEN at v5.8；revised_at / declared_at / self_check.generated_at 均为本轮实际写入分钟",
+        "md 台账：§0.1 registry 行与脚本行指纹重测、§0.2 补 v5.8 条并写明 v5.7 的两个字节态均不得被引用、§6 检查表 9 项 -> 11 项、§9 加 v5.8 行、状态行版号与修订时间"
+      ],
+      "not_changed": [
+        "8 只因子：formula_text / window / warmup_bars（61/121/201/21/56/251/11/21）/ dependencies / semantics / shift / price_basis / unit / scale_free / direction",
+        "双 id 三列（canonical_id / aliases[] / superseded_by[]）与 alias_side",
+        "replacement_rulings 四条 replaced_by",
+        "known_doc_conflicts K1–K12",
+        "factors[] 记录序与字段序"
+      ],
+      "note": "依 §0.2 定稿声明：v5.5 之后任何字节改动须另立版本并重报三文件指纹，故升 v5.8 而非静默改字节",
+      "reason_for_version_bump": "v5.7 名下已存在两种字节（19:37:15 与本次之前 19:28 那版），同一版本号对应两种字节不可签；故 v5.8 另立"
+    }
+  ],
+  "v5_9_changes": {
+    "batch": "R12 载体批：F 类 8 只 status 升 active + 8 组 alias 的 alias_of 载体核验 + market_breadth 登记裁定落账",
+    "date": "2026-11-08",
+    "author": "因子工程师",
+    "scope": "只动 docs/factors 三个台账文件与盘上 8 个 uf_* 定义的 status 字段；未改 backend/**、未改任何公式/warmup/deps、未提交",
+    "status_carrier": {
+      "what": "8 只 canonical uf_* 由 status=draft 升 active。依据逐只三条实测（见各 row 的 admission_evidence_v5_9）：V3 全量对账 pass_1e12=True、V3 末交易日全市场截面 rank_change_max=0.0、B0 保真 max_abs_diff=0.0。禁止批量写 active：每只都带自己的证据行。",
+      "evidence_source_measured_at": {
+        "F_CLASS_PARITY": "2026-11-07T14:36:40",
+        "F_CLASS_RANK_PARITY": "docs/factors/evidence/F_CLASS_RANK_PARITY_20261107.json#meta",
+        "registration_b0": "docs/factors/evidence/registration_b0_20261107.json#generated_at"
+      },
+      "write_path": "直写盘上 JSON（D:/TSP/data/user_data/custom_factors/uf_*.json），不经 API；2026-11-08T00:36 用 store.upsert_definition 复跑，8/8 返回 unchanged=True（引擎认为盘上字节即权威内容，不抬版本、不重写）",
+      "definition_version_note": "盘上 version 仍为 1（status 变更发生在直接写盘路径上，未经 upsert_definition 的「内容变化→版本+1」分支）。这是既成事实，不回写、不伪造版本号。"
+    },
+    "alias_of_carrier": {
+      "what": "8 组双 id 的 alias 侧 alias_of / strategy_usable=false 由 pack 承载，不由盘上 JSON 承载。",
+      "where": "backend/app/custom/research_factor_pack/factor_specs.py:71-79（_ALIAS_OF 表，8 条逐行照抄契约 §7.15.1 第 1–8 行）+ :106-107（_spec 写入 alias_of 与 strategy_usable）",
+      "why_not_disk_json": "store 的 id 规则 CUSTOM_ID_PATTERN = ^uf_[a-z0-9_]{1,40}$（backend/app/factors/store.py:17）对 alias 侧 8 个研究原名（vol60/ma120/ma200/prior_high_20/prior_low_10/prior_high_55/prior_vol_20/prior_high_250）一律不匹配；store.to_spec 会抛 ValueError，写盘既不能登记也不合法。契约 §7.15.1「载体」列写的正是 store(canonical)+pack(alias)。",
+      "disk_json_alias_of_0_of_15_is_correct": "盘上 15 个定义 JSON 全是 canonical 侧（8 个 uf_* + uf_dist_prior_high_250 + 5 个 uf_auction_*）+ cf_auction_resonance，按 §7.16.5 它们的 alias_of 必须为 None —— 0/15 是正确态，不是缺陷。"
+    },
+    "gate_evidence_20261108": {
+      "command": "cd backend && ./.venv/Scripts/python.exe <probe>（assert_factors_usable 逐 id + 整批，mode='production'，facts=RegistryFacts(data_dir=settings.data_dir)）",
+      "per_id_result": {
+        "alias_side_8": {
+          "vol60": "FS03",
+          "ma120": "FS03",
+          "ma200": "FS03",
+          "prior_high_20": "FS03",
+          "prior_low_10": "FS03",
+          "prior_high_55": "FS03",
+          "prior_vol_20": "FS03",
+          "prior_high_250": "FS03"
+        },
+        "canonical_side_8": {
+          "uf_vol60": "PASS",
+          "uf_ma120": "PASS",
+          "uf_ma200": "PASS",
+          "uf_prior_high_20": "PASS",
+          "uf_prior_low_10": "PASS",
+          "uf_prior_high_55": "PASS",
+          "uf_prior_vol_20": "PASS",
+          "uf_prior_high_250": "PASS"
+        }
+      },
+      "note_no_data_dir": "只用 RegistryFacts()（不传 data_dir）时 8 只 canonical 与 market_breadth 全报 FS02（未登记）—— 那是「闸门没接盘上定义」的读法，不是 status 问题。本批所有结论都用 RegistryFacts(data_dir=settings.data_dir)。",
+      "whole_batch": "16 个 id 一起送会报 FS04（ma120/uf_ma120 混用），这是 §7.16.6 的设计行为，不是缺陷。"
+    },
+    "blocked_7_ids": [
+      {
+        "id": "ma20",
+        "code": "FS01",
+        "status": null,
+        "carrier": "pack（唯一载体）",
+        "why": "pack provider 注册的 FactorSpec 无 status 载体；store 的 id 正则不收非 uf_ 前缀，盘上 JSON 无法承载"
+      },
+      {
+        "id": "ma60",
+        "code": "FS01",
+        "status": null,
+        "carrier": "pack（唯一载体）",
+        "why": "同上"
+      },
+      {
+        "id": "sd20",
+        "code": "FS01",
+        "status": null,
+        "carrier": "pack（唯一载体）",
+        "why": "同上"
+      },
+      {
+        "id": "boll_lower",
+        "code": "FS01",
+        "status": null,
+        "carrier": "pack（唯一载体）",
+        "why": "同上"
+      },
+      {
+        "id": "boll_upper",
+        "code": "FS01",
+        "status": null,
+        "carrier": "pack（唯一载体）",
+        "why": "同上"
+      },
+      {
+        "id": "prior_amount_20",
+        "code": "FS01",
+        "status": null,
+        "carrier": "pack（唯一载体）",
+        "why": "同上（§7.15.1 第 14 行明令不得新建 uf_prior_amount_20）"
+      },
+      {
+        "id": "market_breadth",
+        "code": "FS02",
+        "status": null,
+        "carrier": "无",
+        "why": "登记面为零：backend 里 'market_breadth' 字符串 0 命中、all_factors() 无此 id；store 走不通（id 正则），pack 需要新增 FactorSpec 即 backend/app 代码"
+      }
+    ],
+    "not_done": [
+      "market_breadth 未登记（需实现侧新增 FactorSpec / provider，见 FACTOR_GAP_SPEC §9 G5）",
+      "6 个 pack 单侧件未取得 status（需 §7.15.3 登记 P2 ① 落地，见 §9 G4）",
+      "semantics / cross_sectional 两个字段在 FactorSpec 里不存在，未造字段（见 §9 G6）"
+    ]
+  },
+  "signature": {
+    "signed_object": "docs/architecture/evidence/referenced_factor_inventory.json",
+    "object_kind": "canonical_digest_triple（契约 v0.6 §7.12.4）",
+    "canonical_digest": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a",
+    "schema_version": "2",
+    "scanned_sources": 67,
+    "recipe": "1",
+    "recipe_definition": "§7.12.4：剔除 generated_at / repo_head / data_root / canonical_digest 四键后，records 逐条以其自身规范化 JSON（ensure_ascii=False, sort_keys=True, separators=(',',':')）排序，其余同样 dumps，取 UTF-8 sha256",
+    "unspecified_value_note": "本条只按 recipe 1 填，不预填 recipe 2 的任何值：产物当前无 canonical_digest_recipe 字段，且 R8 的 recipe 2 已被独立审核退回",
+    "signed_at": "2026-11-07T22:24+0800",
+    "signed_by": "因子工程师",
+    "computed_independently": true,
+    "agrees_with_artifact_field": true,
+    "stability_verified": {
+      "as_is": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a",
+      "perturb_generated_at_repo_head_data_root": "unchanged",
+      "records_reversed": "unchanged",
+      "records_shuffled_seed7": "unchanged",
+      "perturb_one_verdict_allow_to_block": "3b4e85e7806abc09b7a6e21b7c9222da414b070b5bef750166b977cc3c0c46d3（必须变，确实变了）",
+      "records_count": 218
+    },
+    "byte_instances_observed": [
+      {
+        "observed_at": "2026-11-07T18:05:22+08:00",
+        "size_bytes": 186343,
+        "full_sha256": "b661c8cdfeee…（转记自期望表 v3.4 §5，该字节已被覆盖、已不在盘上，本轮未复算）",
+        "canonical_digest": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a"
+      },
+      {
+        "observed_at": "2026-11-07T19:23:57+08:00",
+        "size_bytes": 186343,
+        "full_sha256": "df5e1a63e98f8834e95517bbdde556a2550bb901d865ba09c1ac7f4040b32e49",
+        "canonical_digest": "aefdf5283acfa8195fd3d9783984f076e62a9eeb8e1fb4816b0aadb21ab22d1a"
+      }
+    ],
+    "byte_sha_policy": "签认对象是三元组，不是文件字节。旁挂 .sha256 / full_sha256 只证「本次运行字节完整」。只改 generated_at 的重跑会改变全文 sha256 而 canonical_digest 不变，此时签名不应失效——v5.6 把签名绑在 b661c8cd… 那份字节上，被一次这种重跑推翻，那是签错对象。",
+    "not_asserted": [
+      "不断言 18:05:22 或 19:23:57 中任一字节实例「现在仍在盘上」；盘上现行字节以 BINDING 段打印为准",
+      "不断言 digest 变化只由 side_key 补齐引起（旧字节已不在盘上，无法复现验证）"
+    ]
+  },
+  "admission_carrier_rulings": {
+    "batch": "R12 载体批：非 uf_ 前缀件的准入载体裁定（v5.10 追加）",
+    "measured_at": "2026-11-08T00:55+0800",
+    "method": "assert_factors_usable([id], mode='production', facts=RegistryFacts(data_dir=settings.data_dir))，settings.data_dir = D:/TSP/data",
+    "ruling_single_sided_6": {
+      "ids": [
+        "ma20",
+        "ma60",
+        "sd20",
+        "boll_lower",
+        "boll_upper",
+        "prior_amount_20"
+      ],
+      "observed_code": "FS01",
+      "observed_detail_status": null,
+      "decision": "不豁免（no exemption granted）",
+      "why_not_exempt": [
+        "闸门的豁免集是 EXEMPT_KINDS = {base, virtual}（backend/app/factors/gate.py:74），黑名单语义，其余 kind 一律进判定；这 6 只 kind=custom，不在豁免集内。",
+        "§7.8.4 末行明令「Provider 注册且无 status 的按 draft 处理」，即漏填必须失败、不许放行；闸门里没有任何按 id 名单开的小门。",
+        "契约 v0.12 §7.15.3 登记 P2 ①：为 FactorSpec 增 status（或 provider 注册路径显式给 status）。字段今日不存在（backend/app/factors/registry.py 的 FactorSpec 无 status），故本批无法补。"
+      ],
+      "why_not_write_status": "盘上 status 只能由 store 承载，而 store 的 id 正则 CUSTOM_ID_PATTERN=^uf_[a-z0-9_]{1,40}$（backend/app/factors/store.py:17）+ to_spec():73-85 直接 ValueError；这 6 个 id 不带 uf_ 前缀，没有任何合法载体。为它们伪造 uf_ 双胞胎亦被 §7.15.1 第 14 行禁止（prior_amount_20 明确不得新建 uf_prior_amount_20）。",
+      "blocked_by_gap": "docs/factors/FACTOR_GAP_SPEC_20261107.md §9 G4（P0，量级 S，须走契约→实现→独立审核）",
+      "affects": "策略经理引用这 6 个 id 的策略在 production 入口全部被拒（当前实测 6/6 FS01）",
+      "official_evidence_20261108": {
+        "what": "6 个单侧件 alias_of 必须为 None 且不因 alias 出 FS03（与 FS01 的缺口无关，FS01 见 blocked_by_gap）",
+        "node": "backend/tests/test_factor_gate.py::test_real_disk_six_single_sided_pack_factors_are_not_aliases",
+        "result": "PASS（本轮 tests/test_factor_gate.py + tests/test_factor_registry.py 合计 100 passed / 0 failed，2026-11-08T00:53）"
+      }
+    },
+    "ruling_market_breadth": {
+      "ids": [
+        "market_breadth"
+      ],
+      "observed_code": "FS02",
+      "decision": "登记（策略经理裁定走法②：单侧、不建 uf_market_breadth 双胞胎），但登记面为零 → 本批无法落盘，交 G5",
+      "measured_facts": {
+        "grep_backend_app_hits": 0,
+        "all_factors_has_id": false,
+        "catalog_count_in_process": 195,
+        "catalog_count_pytest_snapshot": 110,
+        "compile_formula_market_breadth": "E001 未知标识符（未注册）"
+      },
+      "why_no_carrier": "两条载体路都不通：①store 盘上 JSON 被 id 正则拒绝（实测 to_spec({'id':'market_breadth'}) → ValueError: id 必须匹配 ^uf_[a-z0-9_]{1,40}$）；②provider/pack 载体是 backend/app/** 代码（app/extensions/factors.py#ensure_factor_providers 只发现 app.custom 下的 Python 包），本角色不写实现代码。",
+      "blocked_by_gap": "docs/factors/FACTOR_GAP_SPEC_20261107.md §9 G5（P0，量级 M）+ G6（语义字段，P2）",
+      "registration_spec_agreed": {
+        "id": "market_breadth",
+        "sidedness": "单侧（不建 uf_market_breadth）",
+        "formula": "xs_mean(close > ma60, in_universe)",
+        "semantics": "market_aggregate_daily",
+        "cross_sectional": true,
+        "warmup_bars": 120,
+        "dependencies": [
+          "close",
+          "ma60",
+          "in_universe"
+        ],
+        "strategy_usable": true,
+        "mandatory_constraint": "禁止对其再做任何截面算子或排名（否则按标的广播后重复计数，约 3,000 倍）"
+      },
+      "e1_evidence": {
+        "days_both_nonnull": 1770,
+        "max_abs_diff": 0.0,
+        "null_days": 9,
+        "null_breakdown": {
+          "st_unknown_window": 8,
+          "beyond_coverage": 1
+        },
+        "source": "docs/factors/B2_IMPLEMENTATION_20261107.md §4"
+      },
+      "official_evidence_20261108": {
+        "script": "research/b0b-20261107/verify_fs03_realdisk.py",
+        "log": "research/b0b-20261107/logs/fs03_realdisk.json",
+        "log_size_bytes": 8245,
+        "log_sha256": "1e00af393632f488935e16ec99777199a7e3fe562fdc9d2822e901b1d3791f7e",
+        "log_mtime": "2026-11-08T00:51:05+0800",
+        "run_at": "2026-11-08T00:51+0800",
+        "summary": {
+          "total": 9,
+          "passed": 9,
+          "failed": 0
+        },
+        "checks_passed": [
+          "P0.alias_table_matches",
+          "P1.providers_ready",
+          "P2.canonical_on_disk",
+          "A1.eight_aliases_all_FS03",
+          "A2.eight_canonicals_no_FS03",
+          "A3.diagnostic_does_not_reject_alias",
+          "A4.spec_carrier",
+          "A5.disk_json_has_no_alias_of",
+          "A6.disk_status_snapshot_info"
+        ],
+        "a6_status_snapshot": "8 只 canonical 在盘上均为 status=active（A6.disk_status_snapshot_info），与本批 2026-11-07T23:33:57 的写入一致"
+      },
+      "catalog_snapshot_20261108": {
+        "all_factors": 110,
+        "breakdown": {
+          "catalog": 77,
+          "provider": 33
+        },
+        "pytest_node": "backend/tests/test_factor_registry.py::test_catalog_counts_and_kinds",
+        "pytest_result": "1 passed（len(specs)==110、id 唯一 110、virtual 61、pit 7 全过）",
+        "after_this_batch": 110,
+        "after_this_batch_reason": "本批没有新增任何 FactorSpec；110→111 只能由 G5 的实现带来",
+        "linked_assertions_to_update_on_implement": [
+          "backend/tests/test_factor_registry.py:289  len(specs) == 110  -> 111",
+          "backend/tests/test_factor_registry.py:290  len({spec.id}) == 110 -> 111"
+        ]
+      },
+      "done_when_3_status": {
+        "a_compile_formula_market_breadth": "未达成：E001 未知标识符（未注册，grep backend/app 0 命中）",
+        "b_catalog_110_to_111": "未达成：仍 110（本批不新增 FactorSpec）",
+        "c_self_check_exit0": "达成：docs/factors/evidence/scripts/check_f_class_ledger.py exit 0 / RESULT PASS",
+        "why_not_met": "登记 = 新增一个 FactorSpec（provider/pack 或 _CATALOG），即 backend/app/** 代码；本角色不写实现代码（SOUL：不编辑 backend/app/**、不改引擎）",
+        "unblock": "docs/factors/FACTOR_GAP_SPEC_20261107.md §9 G5（P0/M，登记）+ G6（P2/M，semantics/cross_sectional 载体）"
+      }
+    },
+    "boundary": "本节只记实测与裁定，不含任何实现；不改 backend/**，不为凑门槛伪造定义或语义字段。"
+  },
+  "v5_10_changes": {
+    "batch": "R12 载体批 v5.10 勘误（三处；公式与数值一律不动）",
+    "date": "2026-11-08",
+    "author": "因子工程师",
+    "scope": "docs/factors 台账三文件；未改 backend/**、未改盘上定义、未提交",
+    "changes": [
+      {
+        "id": 1,
+        "what": "8 只的 strategy_usable_note 是 v5.9 残留的旧结论（仍写 status=draft / usable_now=false），与同行的 status=active / usable_now=true 自相矛盾",
+        "fix": "逐只改写为带证据的现行结论（引用本行 admission_evidence_v5_9 的 V3/B0/rank 实测与 gate_production），并新增 status_carrier 记录载体路径与写入时刻 2026-11-07T23:33:57",
+        "why": "台账行必须自洽：同一行里 status 与说明不得指向两个相反事实"
+      },
+      {
+        "id": 2,
+        "what": "v5.9 §15.5 写「compile_formula('market_breadth') 要成立还需打通注册因子 id → DSL 标识符这一层，属 G5」，并以 compile_formula('uf_vol60') 同样 E001 作对照",
+        "fix": "该对照是假象：E001 只因该进程没走启动期 load_into_registry。实测（同一 venv，先 store.load_all + register_factor 9 只可注册的定义）compile_formula('uf_vol60') → ok=True、warmup_bars=61；即 id→DSL 标识符解析本来就存在（backend/app/factors/dsl.py:676/690 走 get_factor），启动期由 backend/app/main.py:217-221 / backend/backtest/worker.py:234-236 的 load_into_registry 装载。",
+        "consequence": "G5 的验收④应从「额外打通标识符层」降为「登记即通过」：market_breadth 一旦成为 FactorSpec，compile_formula('market_breadth') 随启动期装载自动可用。这是把缺口写大/写错的一处，必须更正。"
+      },
+      {
+        "id": 3,
+        "what": "6 个 pack 单侧件「补 status 还是闸门豁免」二选一未落笔",
+        "fix": "明确裁定：不豁免（依据 gate.py:74 EXEMPT_KINDS={base,virtual} 与 §7.8.4 末行），也不鼓吹补 status（无载体），交 G4；逐条记在新增顶层 admission_carrier_rulings",
+        "why": "沉默会被读成默认放行"
+      }
+    ],
+    "not_changed": [
+      "8 只 formula_text / warmup_bars / dependencies / shift",
+      "双 id 三列 canonical_id / aliases[] / superseded_by",
+      "replaced_by 四条",
+      "K1–K12",
+      "signature 三元组（aefdf528…2d1a / \"2\" / 67）"
+    ]
+  },
+  "v5_11_changes": {
+    "batch": "R12 载体批 v5.11 收尾（只补证据出处与缺口门票；公式、数值、双 id 三列一律不动）",
+    "date": "2026-11-08",
+    "author": "因子工程师",
+    "scope": "docs/factors 台账两文件（F_CLASS_REGISTRATION_20261107.md + evidence/f_class_registry.json）；未改 backend/**、未改盘上定义、未提交",
+    "changes": [
+      {
+        "id": 1,
+        "what": "done_when ② 的闸门证据原先是 here-doc 临时跑（无落盘产物）",
+        "fix": "改引仓库内可复跑的判据脚本 research/b0b-20261107/verify_fs03_realdisk.py：9/9 PASS，日志 research/b0b-20261107/logs/fs03_realdisk.json（8,245 B / sha256 1e00af393632f488… / 2026-11-08T00:51:05）",
+        "why": "证据必须能被第三方一条命令复算；临时 here-doc 的输出无法被复核"
+      },
+      {
+        "id": 2,
+        "what": "done_when ③（market_breadth 可 compile_formula + 目录计数 110→111）在本批未达成",
+        "fact": "grep -rn 'market_breadth' backend/app --include=*.py → 0 命中；all_factors() = 110；compile_formula('market_breadth') → E001",
+        "fix": "如实记为未达成，并按 G5（登记）+ G6（语义字段）给实现门票；不给近似因子、不写没有读者的装饰字段",
+        "why": "登记=新增 FactorSpec=backend/app/** 代码，本角色不写实现代码"
+      },
+      {
+        "id": 3,
+        "what": "「110 从哪里来、变成 111 要动哪几行」此前只在 §15.5 散落一句",
+        "fix": "落成整表：110 = _CATALOG(77) + provider(33)；实现 G5 时必须同步改 backend/tests/test_factor_registry.py:289-290 两个常量，否则测试红",
+        "why": "把验收判据交给开发侧时可机械执行，不留解释空间"
+      }
+    ],
+    "not_changed": [
+      "8 只 formula_text / warmup_bars / dependencies / shift",
+      "双 id 三列 canonical_id / aliases[] / superseded_by",
+      "replaced_by 四条 / K1–K12 / signature 三元组（aefdf528…2d1a / \"2\" / 67）",
+      "盘上 D:/TSP/data/user_data/custom_factors/*.json 的任何字节"
+    ]
+  }
+}
