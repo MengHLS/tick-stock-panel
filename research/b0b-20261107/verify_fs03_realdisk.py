@@ -122,6 +122,18 @@ def main() -> int:
         json_keys[path.stem] = "alias_of" in payload
     check("A5.disk_json_has_no_alias_of", not any(json_keys.values()), json_keys)
 
+    # 信息项（ok 恒 True, 不设阈值）: canonical 侧出不出 FS01 完全由这一列决定 ——
+    # status=draft 时 §7.16.3 按「非 active」拒并记 FS01, active 时无 FS01。
+    # 2026-11-07 23:33:57 外部把这 8 个文件由 draft 改成 active（created_at 未变、
+    # updated_at 刷新），证据里的 codes 随之从 ['FS01'] 变 []；判据 A2 两边都成立
+    # （只要求「不出 FS03」）。把快照写进证据, 让数字可被后来的读方对上。
+    status_snapshot = {}
+    for cid in ALIAS_PAIRS.values():
+        payload = json.loads((DATA_DIR / "user_data" / "custom_factors" / (cid + ".json"))
+                             .read_text(encoding="utf-8"))
+        status_snapshot[cid] = payload.get("status")
+    check("A6.disk_status_snapshot_info", True, status_snapshot)
+
     failed = [c for c in checks if not c["ok"]]
     payload = {
         "checks": checks,

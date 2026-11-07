@@ -6,6 +6,7 @@ PASS A2.eight_canonicals_no_FS03
 PASS A3.diagnostic_does_not_reject_alias
 PASS A4.spec_carrier
 PASS A5.disk_json_has_no_alias_of
+PASS A6.disk_status_snapshot_info
 
 alias  vol60            -> uf_vol60           alias_of=uf_vol60           usable=False codes=['FS03', 'FS01']
 alias  ma120            -> uf_ma120           alias_of=uf_ma120           usable=False codes=['FS03', 'FS01']
@@ -16,13 +17,13 @@ alias  prior_high_250   -> uf_prior_high_250  alias_of=uf_prior_high_250  usable
 alias  prior_low_10     -> uf_prior_low_10    alias_of=uf_prior_low_10    usable=False codes=['FS03', 'FS01']
 alias  prior_vol_20     -> uf_prior_vol_20    alias_of=uf_prior_vol_20    usable=False codes=['FS03', 'FS01']
 
-canon  uf_vol60           alias_of=None   codes=['FS01']
-canon  uf_ma120           alias_of=None   codes=['FS01']
-canon  uf_ma200           alias_of=None   codes=['FS01']
-canon  uf_prior_high_20   alias_of=None   codes=['FS01']
-canon  uf_prior_high_55   alias_of=None   codes=['FS01']
-canon  uf_prior_high_250  alias_of=None   codes=['FS01']
-canon  uf_prior_low_10    alias_of=None   codes=['FS01']
-canon  uf_prior_vol_20    alias_of=None   codes=['FS01']
+canon  uf_vol60           alias_of=None   codes=[]
+canon  uf_ma120           alias_of=None   codes=[]
+canon  uf_ma200           alias_of=None   codes=[]
+canon  uf_prior_high_20   alias_of=None   codes=[]
+canon  uf_prior_high_55   alias_of=None   codes=[]
+canon  uf_prior_high_250  alias_of=None   codes=[]
+canon  uf_prior_low_10    alias_of=None   codes=[]
+canon  uf_prior_vol_20    alias_of=None   codes=[]
 
-summary: {'total': 8, 'passed': 8, 'failed': 0} -> C:\work\sourcecode\tick-stock-panel\research\b0b-20261107\logs\fs03_realdisk.json
+summary: {'total': 9, 'passed': 9, 'failed': 0} -> C:\work\sourcecode\tick-stock-panel\research\b0b-20261107\logs\fs03_realdisk.json

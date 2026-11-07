@@ -20,7 +20,7 @@
 
 **①真盘 8 组双 id 各出 FS03、8 只 canonical 不出**
 
-脚本 `research/b0b-20261107/verify_fs03_realdisk.py`（**exit 0**，8/8 PASS）：
+脚本 `research/b0b-20261107/verify_fs03_realdisk.py`（**exit 0**，9/9 PASS；其中 A6 是信息项），证据 `logs/fs03_realdisk.json` 8,245 B / `1e00af393632f488935e16ec99777199a7e3fe562fdc9d2822e901b1d3791f7e`，连跑两次逐字节相同：
 
 | alias | canonical | spec.alias_of | strategy_usable | production codes |
 |---|---|---|---|---|
@@ -33,7 +33,9 @@
 | prior_low_10 | uf_prior_low_10 | uf_prior_low_10 | False | `['FS03','FS01']` |
 | prior_vol_20 | uf_prior_vol_20 | uf_prior_vol_20 | False | `['FS03','FS01']` |
 
-8 只 canonical 全部 `alias_of=None`、**codes 里没有 FS03**（都是 `['FS01']`，status=draft 所致，符合预期）。
+8 只 canonical 全部 `alias_of=None`、**codes 里没有 FS03**，本判据（A2）成立。
+
+**canonical 侧的 FS01 随真盘 `status` 变化，与本批代码无关。** 提交时的证据里它们是 `['FS01']`（15 个定义 status 全 `draft`）；23:33:57 这 8 个 `uf_*.json` 被**外部**改成 `status="active"`（`created_at` 仍 14:30:24、`updated_at` 刷新为 23:33:57，文件 mtime 同一秒），复跑后 codes 变 `[]`。已核过三点：验证脚本本身不写盘（连跑两次文件 mtime/sha 不变）、`test_factor_gate`+`store`+`api`+`provider_discovery`+`resource_bundle` 五件套跑 162 passed 期间真盘 15 个文件 sha 与 mtime **零变化**、`load_into_registry` 与 `ensure_synced` 都只读。为免后来的读方对不上数字，新增信息项 `A6.disk_status_snapshot_info`（ok 恒 true，不设阈值）把当时 8 个 status 写进证据。
 
 关键前置：真盘 `D:/TSP/data/user_data/custom_factors/*.json` 15 个文件**没有一个** `alias_of` 键（`A5` 判据），所以 FS03 只可能来自本批新增的 pack 载体 —— 不是巧合。
 
@@ -42,7 +44,6 @@
 **②gate 套件 ≥56 passed 且新增真盘用例**
 
 `tests/test_factor_gate.py`：**62 passed**（原 56 + 6 条新用例）。
-
 | 新增用例 | 判据 |
 |---|---|
 | `test_factor_spec_has_the_two_admission_fields_as_22nd_and_23rd` | 两字段位次 |
@@ -129,7 +130,7 @@ FAILED tests/test_resource_bundle.py::test_preview_signal_whitelist_sees_ext_col
 
 **`6eda98bb`**（635 文件，+221,859/−111，全部在 `research/`）
 
-**新增证据**：`research/b0b-20261107/verify_fs03_realdisk.py`（6,645 B / `e307622fbc438c7e` / 151 行）+ `logs/fs03_realdisk.json`（8,060 B / `e04abb2eff8fb4fa`）、`logs/fs03_realdisk_stdout.txt`（1,738 B / `877fd9a1e68dd3d7`）、`logs/pytest_all_8files.txt`（1,538 B / `8a4dcf405f10d18c`）、`logs/pytest_gate.txt`（1,374 B / `b257ded349c11e55`）、`logs/pytest_discovery.txt`（1,373 B / `237706ec447c8e52`）、`logs/rerun20.txt`、`logs/negative_remove_732.txt`
+**新增证据**：`research/b0b-20261107/verify_fs03_realdisk.py`（7,488 B / `8ef326137c607395` / 163 行）+ `logs/fs03_realdisk.json`（8,245 B / `1e00af39…`，9 项）、`logs/fs03_realdisk_stdout.txt`（1,725 B / `f2ac7206…`）、`logs/pytest_all_8files.txt`（1,538 B / `8a4dcf405f10d18c`）、`logs/pytest_gate.txt`（1,374 B / `b257ded349c11e55`）、`logs/pytest_discovery.txt`（1,373 B / `237706ec447c8e52`）、`logs/rerun20.txt`、`logs/negative_remove_732.txt`
 
 ---
 
@@ -142,3 +143,4 @@ FAILED tests/test_resource_bundle.py::test_preview_signal_whitelist_sees_ext_col
 5. **矩阵路径 `month_end`/`week_end`** 仍不可物化（归 B0b-2，未动 `matrix.py`）。
 6. **`docs/` 未提交**：`docs/architecture/` 下 5 个 `M` 与 2 个 `??`（含 `FACTOR_ENGINE_CONTRACTS_20261107_v0.12.md`）不是我本批改的，留给文档侧。
 7. **S09 registry 数字不可复现**：`common.py` + `registry.json` 已入库给出 git 锚，但我没有重跑 S09 三档 —— 重算本身属研究侧。
+8. **真盘 8 个 `uf_*.json` 的 `status` 被外部改成 `active`**（23:33:57，非我改动，已实证脚本与测试都不写盘）。副作用是 `test_real_disk_eight_alias_ids_are_rejected_and_canonicals_pass` 里「research 放行要带 `allow_non_active=True`」那句注释的前提变了：现在不带该参数也放行。用例本身仍绿，但注释已过期，需下一批顺手订正。

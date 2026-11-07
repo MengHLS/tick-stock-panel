@@ -115,81 +115,65 @@
   ],
   "canonical_rows": [
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_vol60",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_ma120",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_ma200",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_prior_high_20",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_prior_high_55",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_prior_high_250",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_prior_low_10",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
     },
     {
-      "blocked_codes": [
-        "FS01"
-      ],
+      "blocked_codes": [],
       "canonical": "uf_prior_vol_20",
-      "error_code": "FS01",
+      "error_code": null,
       "ok": true,
       "registered": true,
       "spec_alias_of": null
@@ -303,6 +287,20 @@
       },
       "id": "A5.disk_json_has_no_alias_of",
       "ok": true
+    },
+    {
+      "detail": {
+        "uf_ma120": "active",
+        "uf_ma200": "active",
+        "uf_prior_high_20": "active",
+        "uf_prior_high_250": "active",
+        "uf_prior_high_55": "active",
+        "uf_prior_low_10": "active",
+        "uf_prior_vol_20": "active",
+        "uf_vol60": "active"
+      },
+      "id": "A6.disk_status_snapshot_info",
+      "ok": true
     }
   ],
   "provider_status": {
@@ -328,7 +326,7 @@
   },
   "summary": {
     "failed": 0,
-    "passed": 8,
-    "total": 8
+    "passed": 9,
+    "total": 9
   }
 }
