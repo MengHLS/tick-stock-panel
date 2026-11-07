@@ -116,3 +116,6 @@ relicensing/
 # 本地产物
 .artifacts/
 .superpowers/
+backend/.tmp-review/
+backend/.venv-wsl-recovery/
+mcp-results/
