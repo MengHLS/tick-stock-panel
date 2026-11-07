@@ -108,6 +108,25 @@ GOLDEN_COLUMNS: list[dict] = [
     {"id": "first_board_chain_recovered_not_breakout", "label": "事件链回攻未过前高", "group": "首板事件链", "desc": "结构有效且目标首板收盘未突破前高 P"},
     {"id": "first_board_chain_seed_close_preserved", "label": "事件链锚点收盘守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板收盘价"},
     {"id": "first_board_chain_seed_low_preserved", "label": "事件链锚点低点守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板最低价"},
+    # --- 日历包 E4 (B4, 2026-11-07): month_end / week_end, 追加在首板事件链之后 ---
+    {"id": "month_end", "label": "月末交易日", "group": "日历", "desc": "date == max(trade_date of calendar month)  # 日历 = kline_daily_enriched distinct date; 数据末端 (本月是否结束未知) 输出 null"},
+    {"id": "week_end", "label": "周末交易日(ISO周)", "group": "日历", "desc": "date == max(trade_date of ISO week (iso_year, iso_week))  # 跨年按 ISO 二元组, 不用自然周序号; 数据末端输出 null"},
+    # --- 研究基线包 B0 (14) + B2 in_universe (2026-11-07), 共 15 项, 追加在首板事件链之后 ---
+    {"id": "ma20", "label": "20日均线", "group": "研究补充", "desc": "ts_mean(close, 20)"},
+    {"id": "ma60", "label": "60日均线", "group": "研究补充", "desc": "ts_mean(close, 60)"},
+    {"id": "boll_lower", "label": "布林下轨(MA20-2σ)", "group": "研究补充", "desc": "ts_mean(close, 20) - 2 * ts_std(close, 20)"},
+    {"id": "boll_upper", "label": "布林上轨(MA20+2σ)", "group": "研究补充", "desc": "ts_mean(close, 20) + 2 * ts_std(close, 20)"},
+    {"id": "sd20", "label": "20日收盘标准差", "group": "研究补充", "desc": "ts_std(close, 20)"},
+    {"id": "prior_high_20", "label": "此前20日最高价", "group": "研究补充", "desc": "ts_delay(ts_max(high, 20), 1)"},
+    {"id": "prior_low_10", "label": "此前10日最低价", "group": "研究补充", "desc": "ts_delay(ts_min(low, 10), 1)"},
+    {"id": "prior_high_55", "label": "此前55日最高价", "group": "研究补充", "desc": "ts_delay(ts_max(high, 55), 1)"},
+    {"id": "prior_vol_20", "label": "此前20日均量", "group": "研究补充", "desc": "ts_delay(ts_mean(volume, 20), 1)"},
+    {"id": "ma120", "label": "120日均线", "group": "研究补充", "desc": "ts_mean(close, 120)"},
+    {"id": "vol60", "label": "60日收益率标准差(日频未年化)", "group": "研究补充", "desc": "ts_std((close - ts_delay(close, 1)) / ts_delay(close, 1), 60)"},
+    {"id": "prior_high_250", "label": "此前250日最高价", "group": "研究补充", "desc": "ts_delay(ts_max(high, 250), 1)"},
+    {"id": "prior_amount_20", "label": "此前20日均成交额", "group": "研究补充", "desc": "ts_delay(ts_mean(amount, 20), 1)"},
+    {"id": "ma200", "label": "200日均线", "group": "研究补充", "desc": "ts_mean(close, 200)"},
+    {"id": "in_universe", "label": "公共股票池掩码", "group": "研究补充", "desc": "(observed_bars >= 120) & (st_flag == False as-of) & (raw_close >= 3.0) & (prior_amount20 >= 1e8) & (volume > 0)"},
     {"id": "deviate_3d", "label": "3日基准偏离", "group": "截面联动", "desc": "个股3日收益减所属板块基准3日收益"},
     {"id": "deviate_10d", "label": "10日基准偏离", "group": "截面联动", "desc": "个股10日收益减所属板块基准10日收益"},
     {"id": "deviate_30d", "label": "30日基准偏离", "group": "截面联动", "desc": "个股30日收益减所属板块基准30日收益"},
@@ -267,8 +286,8 @@ def test_scoring_warmup_snapshot() -> None:
 
 def test_catalog_counts_and_kinds() -> None:
     specs = all_factors()
-    assert len(specs) == 93
-    assert len({spec.id for spec in specs}) == 93  # id 唯一
+    assert len(specs) == 110
+    assert len({spec.id for spec in specs}) == 110  # id 唯一
     virtual = [spec for spec in specs if spec.kind == "virtual"]
     assert len(virtual) == 61  # ma/ema 10 + 原有 26 + 扩充批次 16 + 事件链 9
     financial = [spec for spec in specs if spec.pit]
@@ -307,8 +326,8 @@ def test_get_factor_and_dependencies() -> None:
 def test_asset_type_filter() -> None:
     stock = all_factors(asset_type="stock")
     etf = all_factors(asset_type="etf")
-    assert len(stock) == 93
-    assert len(etf) == 70  # 财务 7 项仅股票
+    assert len(stock) == 110
+    assert len(etf) == 87  # 财务 7 项仅股票
 
 
 def test_register_factor_rejects_duplicate() -> None:
@@ -355,7 +374,7 @@ def test_factors_api_contract() -> None:
     assert response.status_code == 200
     payload = response.json()
     factors = payload["factors"]
-    assert len(factors) == 93
+    assert len(factors) == 110
     first = factors[0]
     assert first["id"] == "momentum_5d"
     assert first["kind"] == "base"
@@ -378,7 +397,7 @@ def test_factors_api_contract() -> None:
 def test_factors_api_asset_filter_and_validation() -> None:
     client = _client()
     etf = client.get("/api/factors", params={"asset_type": "etf"}).json()["factors"]
-    assert len(etf) == 70
+    assert len(etf) == 87
     assert all("stock" in item["asset_types"] for item in etf)
     # 非法资产类型 → 422 (fail-closed, 不静默回退全量)
     assert client.get("/api/factors", params={"asset_type": "index"}).status_code == 422

@@ -281,13 +281,6 @@ def _resolve_id(requested: str | None, label: str, prefix: str) -> str:
     return requested.strip() if requested and requested.strip() else _slugify_id(label, prefix)
 
 
-def _next_version(data_dir, factor_id: str) -> int:
-    for definition in store.load_all(data_dir):
-        if str(definition.get("id")) == factor_id:
-            return int(definition.get("version", 1)) + 1
-    return 1
-
-
 def _trial_nonempty(request: Request, formula: str, asset_type: str = "stock") -> None:
     """保存前置校验: 公式在最近 40 个交易日有非空输出 (设计 §3.5, fail-closed)。"""
     compiled = compile_formula(formula)
@@ -345,13 +338,15 @@ def create_custom_factor(req: CustomFactorCreateRequest, request: Request) -> di
     definition = {
         "id": factor_id,
         "kind": "custom",
-        "version": _next_version(data_dir, factor_id),
+        "version": 1,  # 版本号由 store.upsert_definition 裁决 (F-A5 幂等)
         "label": req.label,
         "group": req.group,
         "formula": req.formula,
         "description": req.description,
         "direction": req.direction,
-        "status": "draft",
+        # 不写 status: create 不是生命周期操作 (status 的唯一写入口是
+        # POST /custom/{id}/status 与「编辑即回 draft」)。盘上已有定义时
+        # store.upsert_definition 沿用盘上状态, 首次创建默认 draft。
         "created_at": store._now(),
         "updated_at": store._now(),
     }
@@ -359,13 +354,16 @@ def create_custom_factor(req: CustomFactorCreateRequest, request: Request) -> di
         store.to_spec(definition)  # 先做 schema/id/编译校验
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    _trial_nonempty(request, req.formula)
+    # 内容与已存定义等价时 (F-A5) 不重跑试算、不写盘: 同内容二次注册是空操作。
+    # 判等必须走 upsert_definition 同一口径 (含 status 归一化), 否则盘上的 active
+    # 定义会被这里判成「变了」而白跑一次试算。
+    stored = store.load_one(data_dir, factor_id)
+    if not store.is_unchanged_definition(stored, definition):
+        _trial_nonempty(request, req.formula)
     try:
-        store.register_definition(definition)
+        return store.upsert_definition(data_dir, definition)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    store.save_one(data_dir, definition)
-    return {"ok": True, "id": factor_id, "version": definition["version"]}
 
 
 @router.post("/composite")
@@ -376,22 +374,20 @@ def create_composite_factor(req: CompositeFactorCreateRequest, request: Request)
     definition = {
         "id": factor_id,
         "kind": "composite",
-        "version": _next_version(data_dir, factor_id),
+        "version": 1,  # 版本号由 store.upsert_definition 裁决 (F-A5 幂等)
         "label": req.label,
         "group": req.group,
         "members": req.members,
         "description": req.description,
         "direction": req.direction,
-        "status": "draft",
+        # status 同 create_custom_factor: 由 upsert_definition 裁决 (盘上沿用/首建 draft)
         "created_at": store._now(),
         "updated_at": store._now(),
     }
     try:
-        store.register_definition(definition)
+        return store.upsert_definition(data_dir, definition)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    store.save_one(data_dir, definition)
-    return {"ok": True, "id": factor_id, "version": definition["version"]}
 
 
 class CustomFactorUpdateRequest(BaseModel):

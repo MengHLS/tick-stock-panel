@@ -1,7 +1,11 @@
 """因子公式 DSL 编译器 (P2)。
 
 流水线: text → tokenizer → 递归下降解析(EBNF 见设计文档 §3.4) → AST → 语义检查
-→ 依赖/预热推导 → Polars Expr。编译失败返回结构化错误 (E001-E016), 不抛裸异常。
+→ 依赖/预热推导 → Polars Expr。编译失败返回结构化错误 (E001-E017), 不抛裸异常。
+
+E017 (B2 新增, 契约 §3.2.1): 掩码参数不是布尔值。只有 xs_rank_pool /
+xs_rank_pct / xs_mean 的第 2 参数会返回它; 合法掩码 = 比较/逻辑表达式, 或
+带 "mask" 标签的已注册 0/1/null 掩码因子 (如 in_universe)。
 
 窗口纪律 (Polars 嵌套窗口会静默产出全 null, 必须在编译期杜绝):
 - 所有 ts_* 算子只向后看 (负 shift 常量层强制 E005)。
@@ -57,6 +61,11 @@ OPERATORS: dict[str, tuple[int, tuple[str, ...]]] = {
     "rank": (1, ()),
     "zscore": (1, ()),
     "winsorize": (1, ("k",)),  # k 可省略, 默认 3
+    # 截面排名族 / 截面均值 (契约 §3 / §4): 第 2 参数恒为 mask (必填, 无默认值)
+    "xs_rank_pool": (2, ()),
+    "xs_rank_market": (1, ()),
+    "xs_rank_pct": (2, ()),
+    "xs_mean": (2, ()),
     "power": (1, ("c",)),
     "clamp": (1, ("lo", "hi")),
     "if_else": (3, ()),
@@ -72,6 +81,15 @@ TS_OPERATORS = frozenset({
     "ts_rank", "ts_zscore", "ts_corr", "ts_cov", "ts_quantile", "decay_linear",
 })
 CROSS_OPERATORS = frozenset({"rank", "zscore", "winsorize"})
+# 截面排名族 / 截面均值: 第 2 参数是掩码 (契约 §3.2.1 / §4.2);
+# 三者与 CROSS_OPERATORS 同属截面族 (cross_sectional=True, 不得嵌进时序窗口)。
+XS_OPERATORS = frozenset({"xs_rank_pool", "xs_rank_pct", "xs_mean"})
+XS_ALL_OPERATORS = frozenset({"rank", "zscore", "winsorize", "xs_rank_market", *XS_OPERATORS})
+# 掩码参数下标 (0-based); 只有这些算子做 E017 类型检查
+XS_MASK_ARG_INDEX = {"xs_rank_pool": 1, "xs_rank_pct": 1, "xs_mean": 1}
+# 掩码因子标记: 值域 {0.0, 1.0, null}, 需布尔视图 (契约 §2.2 输出表末行)。
+# 复用 FactorSpec.tags, 不新增注册表字段。
+MASK_FACTOR_TAG = "mask"
 
 
 @dataclass
@@ -361,6 +379,15 @@ def _check_call(node: dict, errors: list[DslError]) -> dict[str, float]:
         errors.append(DslError("E011", "winsorize 的 k 必须在 [1,6] 内", offset=node["offset"], detail={"k": constants["k"]}))
     if "lo" in constants and "hi" in constants and constants["lo"] > constants["hi"]:
         errors.append(DslError("E003", "clamp 的 lo 不能大于 hi", offset=node["offset"]))
+    mask_index = XS_MASK_ARG_INDEX.get(name)
+    if mask_index is not None and mask_index < len(args) and not _is_mask_node(args[mask_index]):
+        errors.append(DslError(
+            "E017",
+            f"{name} 的第 {mask_index + 1} 参数必须是布尔掩码: 传比较/逻辑表达式,"
+            f" 或带 '{MASK_FACTOR_TAG}' 标签的已注册掩码因子 (如 in_universe)",
+            offset=args[mask_index]["offset"],
+            detail={"operator": name, "arg_index": mask_index},
+        ))
     return constants
 
 
@@ -381,6 +408,23 @@ def _semantic_walk(node: dict, errors: list[DslError], constants_by_call: dict[i
 # ------------------------------------------------------------- code generation
 
 _CMP_METHOD = {">": "gt", ">=": "ge", "<": "lt", "<=": "le", "==": "eq", "!=": "ne"}
+
+
+def _is_mask_node(node: dict) -> bool:
+    """静态判定一个 AST 节点是否是合法掩码 (契约 §3.2.1)。
+
+    合法: 比较/逻辑表达式; 或带 MASK_FACTOR_TAG 的已注册因子 (如 in_universe)。
+    非法: 裸数值列 / 数字字面量 / 其它函数 (保守拒绝, 不做类型推断)。
+    """
+    kind = node["kind"]
+    if kind == "col":
+        spec = get_factor(node["value"])
+        return spec is not None and MASK_FACTOR_TAG in tuple(spec.tags)
+    if kind == "unary":
+        return _is_mask_node(node["children"][0])
+    if kind == "bin":
+        return node["value"] in _CMP_METHOD or node["value"] in ("and", "or")
+    return False
 
 
 def _safe_div(numerator: pl.Expr, denominator: pl.Expr) -> pl.Expr:
@@ -515,6 +559,50 @@ def _compile_call(node: dict) -> tuple[pl.Expr | None, bool, bool]:
         std = inner.std().over("date")
         return inner.clip(mean - k * std, mean + k * std), False, False
 
+    if name in XS_OPERATORS or name == "xs_rank_market":
+        inner, inner_window, inner_bool = _compile_node(children[0])
+        if inner is None:
+            return None, False, False
+        if inner_window:
+            inner = inner.over("symbol")
+        if inner_bool:
+            inner = inner.cast(pl.Float64)
+        if name == "xs_rank_market":
+            # 全样本平均名次 / 全样本非空家数; 与现有 rank 同式 (XS-B1 逐位相同)
+            market_count = inner.count().over("date")
+            return inner.rank(method="average").over("date") / market_count, False, False
+        mask_expr, mask_window, mask_bool = _compile_node(children[1])
+        if mask_expr is None:
+            return None, False, False
+        if mask_window:
+            mask_expr = mask_expr.over("symbol")
+        if not mask_bool:
+            # 掩码因子值域 {1.0, 0.0, null} -> Boolean; null 保持 null (G3 三态)
+            mask_expr = mask_expr.cast(pl.Boolean)
+        if name == "xs_rank_pool":
+            # 分子分母同一批样本: 池内非空 (契约 §3.2.1)
+            member = pl.when(mask_expr).then(inner).otherwise(None)
+            pool_count = member.count().over("date")
+            return _safe_div(
+                member.rank(method="average").over("date"),
+                pool_count.cast(pl.Float64),
+            ), False, False
+        if name == "xs_rank_pct":
+            # 缺陷形态 (仅差异证明): 分子全样本名次, 分母池内家数 (含 x 为空者)
+            global_rank = inner.rank(method="average").over("date")
+            pool_size = (
+                pl.when(mask_expr)
+                .then(pl.lit(1, dtype=pl.Int32))
+                .otherwise(pl.lit(0, dtype=pl.Int32))
+                .sum()
+                .over("date")
+            )
+            return pl.when(mask_expr & inner.is_not_null()).then(
+                _safe_div(global_rank, pool_size.cast(pl.Float64))
+            ).otherwise(None), False, False
+        # xs_mean: 当日所有行同值 (含池外行); 池内无有效样本 -> null
+        return pl.when(mask_expr).then(inner).otherwise(None).mean().over("date"), False, False
+
     if name == "if_else":
         cond, cond_window, _ = _compile_node(children[0])
         then_expr, then_window, _ = _compile_node(children[1])
@@ -613,7 +701,7 @@ def compile_formula(text: str) -> CompiledFormula:
 
     def _find_cross(node: dict) -> None:
         nonlocal cross_sectional
-        if node["kind"] == "call" and node["value"] in CROSS_OPERATORS:
+        if node["kind"] == "call" and node["value"] in XS_ALL_OPERATORS:
             cross_sectional = True
         for child in node["children"]:
             _find_cross(child)
@@ -638,7 +726,7 @@ def compile_formula(text: str) -> CompiledFormula:
 
     # 阶段一: 校验并拒绝"截面算子嵌在时序窗口内" (无法单层 over 表达)
     def _contains_cross(node: dict) -> bool:
-        if node["kind"] == "call" and node["value"] in CROSS_OPERATORS:
+        if node["kind"] == "call" and node["value"] in XS_ALL_OPERATORS:
             return True
         return any(_contains_cross(child) for child in node["children"])
 
@@ -648,7 +736,7 @@ def compile_formula(text: str) -> CompiledFormula:
                 if _contains_cross(child):
                     errors.append(DslError(
                         "E009",
-                        f"截面算子不能嵌在时序窗口内: {node['value']}(...) 的参数含 rank/zscore/winsorize",
+                        f"截面算子不能嵌在时序窗口内: {node['value']}(...) 的参数含 rank/zscore/winsorize/xs_*",
                         offset=node["offset"],
                     ))
                     return
@@ -683,14 +771,22 @@ def compile_formula(text: str) -> CompiledFormula:
     pending: list[dict] = [ast]
     while pending:
         current = pending.pop(0)
-        if current.get("kind") == "call" and current.get("value") in CROSS_OPERATORS:
-            operand = current["children"][0]
-            if _has_any_over(operand):
-                alias = f"__tsfx_{len(temp_roots)}__"
-                current["children"][0] = {"kind": "col", "value": alias, "children": [], "offset": operand["offset"]}
-                temp_roots.append({"alias": alias, "root": copy.deepcopy(operand)})
-                pending.append(temp_roots[-1]["root"])
-                continue  # 操作数已替换为临时列, 不再下钻原子树
+        if current.get("kind") == "call" and current.get("value") in XS_ALL_OPERATORS:
+            # 数据参数恒为 children[0]; xs_* 家族的掩码参数 (children[1]) 同样可能含窗口
+            indexes = [0]
+            if current["value"] in XS_MASK_ARG_INDEX:
+                indexes.append(XS_MASK_ARG_INDEX[current["value"]])
+            replaced = False
+            for index in indexes:
+                operand = current["children"][index]
+                if _has_any_over(operand):
+                    alias = f"__tsfx_{len(temp_roots)}__"
+                    current["children"][index] = {"kind": "col", "value": alias, "children": [], "offset": operand["offset"]}
+                    temp_roots.append({"alias": alias, "root": copy.deepcopy(operand)})
+                    pending.append(temp_roots[-1]["root"])
+                    replaced = True
+            if replaced:
+                continue  # 相关操作数已替换为临时列, 不再下钻该子树
         pending.extend(current.get("children", []))
 
     # 阶段三: 编译最终表达式与临时列表达式 (按依赖顺序: 深层在前)
