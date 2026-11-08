@@ -1,0 +1,15 @@
+name: sina
+display_name: "新浪行情"
+runtime: none
+entry: app.plugins.sina.provider:SinaProvider
+check: app.plugins.sina.provider:availability
+datasets: [minute, full_minute]
+description: "新浪公开 1 分钟 K 线；历史分钟支持沪深股票，盘中全量分钟仅沪深主板 A 股，多线程修复轮。"
+install_hint: "无需额外依赖"
+homepage: "https://finance.sina.com.cn/"
+usage_notes:
+  - "分钟 K: 每标的单次请求最近 1500 根（约 6 个交易日），不支持 BJ 与长期历史回补"
+  - "成交量由股转换为手；成交额单位为元；价格按原始价接入"
+  - "公开接口无 Key，批量补拉需限频；零成交分钟可能省略"
+  - "全量分钟: 仅沪深主板 A 股（沪 60 / 深 00 开头），无廉价增量端点，盘中服务自动降级为仅修复轮且间隔不低于 60 秒"
+  - "全量分钟修复轮使用 32 线程并发拉取当日分钟；公开接口稳定性与限频风险需自行评估"

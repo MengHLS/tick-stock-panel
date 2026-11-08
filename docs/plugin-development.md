@@ -350,6 +350,12 @@ uv run --extra dev python -m ruff check app/plugins/<your_plugin>/ tests/test_<y
   - 单标的请求最近 800 根(约 3 个完整交易日),`minute_history_days=3` 会让分时档位和自动同步界面按该深度收窄。
   - 返回原始价、北京墙钟 naive datetime、成交量手口径;供应商分钟行没有可靠成交额,`amount` 保持 `null`,不得用价格×量伪造。
   - `tests/test_tencent_provider.py` 覆盖字段映射、800 根边界、时段过滤、异常隔离、数据集能力与 loader 注册。
+- **`backend/app/plugins/sina/`** — 新浪公开 1 分钟 K 线(runtime: none, 纯 HTTP 零依赖)
+  - 声明 `minute` 与 `full_minute`;历史分钟仅支持沪深股票,北交所、ETF、指数与非 1m 请求显式失败,不静默跨源。
+  - 单标的请求最近 1500 根(约 6 个交易日),`minute_history_days=6`;成交量由股转换为手,成交额单位为元,datetime 为北京墙钟 naive。
+  - HTTP 失败、非数组响应通过 `ProviderRequestError` 传递到任务层;空数组保留无数据语义,零成交分钟可能省略,不得补造。
+  - `full_minute` 盘中修复轮只请求沪深主板 A 股(沪 60 / 深 00 开头),32 线程并发、当日窗口过滤;不实现 `get_intraday_latest`,盘中服务自动降级为仅修复轮且间隔不低于 60s。
+  - `tests/test_sina_provider.py` 覆盖请求契约、单位转换、窗口/去重/时段过滤、主板范围、并发轮失败隔离、数据集能力与 loader 注册。
 - **`backend/app/plugins/fuyao/`** — 同花顺官方 REST 数据源(runtime: none, 纯 HTTP 零依赖)
   - 提供 `realtime`(A 股全市场快照, 分页拉取)、`daily`(原始价日K三档: 近端窗口走 daily-k-10d dump, 深窗口走 daily-k 10 年全量 dump(172MB 一次下载、缓存复用、10d 补尾), 兜底单标的接口按 10 年自动分片)、`adj_factor`(事件 dump + 前收盘价从本地日K dump 一次取齐、缺价标的回退单标的接口, 按交易所公式推导单事件比值, 涨跌停自检; 全市场配价从逐标的 ~13 分钟降为秒级); Key 在设置页卡片直接配置(先探后存), 或 `.env` 配 `FUYAO_API_KEY`
   - `client.py` — httpx 客户端(X-api-key 认证 + 统一信封解包 + 分页 + 页间隔限频 + 单标的日K + dump 预签名下载, S3 下载不带 Key 头)
