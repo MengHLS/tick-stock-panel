@@ -11,7 +11,6 @@ from .spec import load_spec, spec_warnings
 
 REQUIRED_COLUMNS = ["symbol", "date", "open", "high", "low", "close", "volume"]
 MAX_WINDOW_BARS = 500
-MAX_LOOKBACK_DAYS = 1400
 
 
 class ResearchInputError(ValueError):
@@ -77,18 +76,25 @@ def load_events(
         raise ResearchInputError("rule_version 与当前装载规格不一致")
 
     panel = runtime.enriched_panel
-    latest = panel.latest_date(ASSET_TYPE)
+    market = getattr(runtime, "market_data", None)
+    latest_daily = market.latest_daily_date() if callable(getattr(market, "latest_daily_date", None)) else None
+    candidates = [value for value in (panel.latest_date(ASSET_TYPE), latest_daily) if value is not None]
+    latest = min(candidates) if candidates else None
     if as_of is not None and latest is not None and as_of > latest:
         raise ResearchInputError("as_of 不得晚于最后一根已完成日线")
     effective_as_of = as_of or latest
     if effective_as_of is None:
         return {**meta, "status": "no_daily", "events": [], "candidates": []}
 
-    generation_before = panel.data_generation(ASSET_TYPE)
     warmup = int(spec["warmup_bars"])
     need_bars = window_bars + warmup
-    start = effective_as_of - timedelta(days=MAX_LOOKBACK_DAYS)
-    frame = panel.range(start, effective_as_of, symbols=[symbol], columns=None)
+    # enriched 区间缓存只覆盖近 ~300 天；按观察窗口反推日历日，
+    # 覆盖不足时回退到稳定日线批量读取（同一 enriched 口径），避免把“读不到”误报成“无日线”。
+    start = effective_as_of - timedelta(days=max(int(need_bars * 2.1), 120))
+    generation_before = panel.data_generation(ASSET_TYPE)
+    frame = panel.range(start, effective_as_of, symbols=[symbol], columns=REQUIRED_COLUMNS)
+    if (frame is None or frame.is_empty()) and callable(getattr(market, "get_daily_batch", None)):
+        frame = market.get_daily_batch([symbol], start, effective_as_of, columns=REQUIRED_COLUMNS)
     generation_after = panel.data_generation(ASSET_TYPE)
     if frame is None or frame.is_empty():
         return {**meta, "as_of": effective_as_of.isoformat(), "status": "no_daily", "events": [], "candidates": []}

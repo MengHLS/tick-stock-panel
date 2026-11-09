@@ -73,8 +73,22 @@ class _Panel:
         return self.frame
 
 
-def _runtime(panel: _Panel, tmp_path: Path) -> SimpleNamespace:
-    return SimpleNamespace(data_dir=tmp_path, enriched_panel=panel)
+class _Market:
+    def __init__(self, frame: pl.DataFrame | None = None, *, latest: date | None = None) -> None:
+        self.frame = frame if frame is not None else pl.DataFrame()
+        self.latest = latest
+        self.calls: list[tuple[list[str], date, date]] = []
+
+    def latest_daily_date(self) -> date | None:
+        return self.latest
+
+    def get_daily_batch(self, symbols: list[str], start: date, end: date, columns=None):
+        self.calls.append((symbols, start, end))
+        return self.frame
+
+
+def _runtime(panel: _Panel, tmp_path: Path, market: _Market | None = None) -> SimpleNamespace:
+    return SimpleNamespace(data_dir=tmp_path, enriched_panel=panel, market_data=market)
 
 
 def _frame(bars: list[dict]) -> pl.DataFrame:
@@ -167,6 +181,24 @@ def test_service_ready_payload(tmp_path: Path) -> None:
     start, end = panel.calls[0]
     assert end == bars[75]["date"]
     assert (end - start).days <= 1400
+
+
+def test_service_falls_back_to_daily_batch_when_cache_does_not_cover_range(tmp_path: Path) -> None:
+    """enriched 区间缓存只近 300 天；覆盖不足时必须回退稳定日线读取，而不是误报无日线。"""
+    bars = _series()
+    end = bars[75]["date"]
+    panel = _Panel(None, latest=end)
+    market = _Market(_frame([bar for bar in bars if bar["date"] <= end]), latest=end)
+    payload = load_events(
+        _runtime(panel, tmp_path, market),
+        symbol="000001.SZ",
+        window_bars=30,
+        as_of=end,
+        rule_version_expected=None,
+    )
+    assert payload["status"] == "ready"
+    assert market.calls, "缓存未覆盖时应走日线批量读取"
+    assert any(event["event_type"] == "Spring" for event in payload["events"])
 
 
 def test_service_default_as_of_and_out_of_window_pattern_ignored(tmp_path: Path) -> None:
