@@ -103,6 +103,10 @@ export const QK = {
   strategyResearchExperiments: ['strategy-research', 'experiments'] as const,
   strategyResearchFactors:     ['strategy-research', 'factors'] as const,
 
+  // Wyckoff research (只读研究快照; 规则版本与截止日期都影响结果, 必须进键)
+  wyckoffEvents:               (symbol: string, asOf: string | null, window: number, ruleVersion: string | null) =>
+                                ['wyckoff-research', 'events', symbol, asOf ?? 'latest', window, ruleVersion ?? 'auto'] as const,
+
   // Backtest
   backtestStatus:       ['backtest-status'] as const,
   backtestCandidates:   ['backtest-candidates'] as const,

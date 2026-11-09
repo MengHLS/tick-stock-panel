@@ -3351,6 +3351,69 @@ export interface StrategyResearchFactor {
   updated_at: string
 }
 
+// ===== Wyckoff research =====
+// 只读日线研究快照：规则未由研究规格冻结前，事件只用于界面与状态验收。
+export interface WyckoffEvidenceCondition {
+  name: string
+  actual: number | string | null
+  threshold: string
+  window: string
+  computable: boolean
+}
+
+export interface WyckoffResearchEvent {
+  event_id: string
+  symbol: string
+  asset_type: string
+  timeframe: string
+  rule_version: string
+  params_hash: string
+  data_generation: string | null
+  as_of: string
+  event_type: string
+  phase: string
+  pattern_date: string
+  /** 确认日；候选事件为 null，图表标记只落在确认日 */
+  confirmed_at: string | null
+  available_at: string | null
+  available_at_basis: string
+  status: 'confirmed' | 'candidate'
+  evidence: WyckoffEvidenceCondition[]
+  invalidation_rule: string
+  /** 形态日当时已知的箱体水平，失效阈值按此冻结 */
+  levels: Record<string, number>
+  linked_event_id: string | null
+}
+
+export type WyckoffResearchStatus =
+  | 'ready'
+  | 'no_daily'
+  | 'insufficient_data'
+  | 'not_computable'
+  | 'spec_missing'
+  | 'generation_changed'
+
+export interface WyckoffResearchResponse {
+  symbol: string
+  asset_type: string
+  timeframe: string
+  as_of: string
+  window_bars: number
+  rule_version: string
+  params_hash: string
+  spec_status: string
+  spec_source: string | null
+  status: WyckoffResearchStatus
+  data_generation: string | null
+  observed_generation?: string | null
+  observed_bars?: number
+  required_bars?: number
+  missing_columns?: string[]
+  missing_fields?: string[]
+  events: WyckoffResearchEvent[]
+  candidates: WyckoffResearchEvent[]
+}
+
 // ===== API surface =====
 export const api = {
   health: () => request<{ status: string; version: string; mode: string }>('/health'),
@@ -5890,6 +5953,17 @@ export const api = {
       timeoutMs: null,
       body: JSON.stringify(payload),
     }),
+  wyckoffResearchEvents: (params: {
+    symbol: string
+    asOf?: string | null
+    window: number
+    ruleVersion?: string | null
+  }) => {
+    const query = new URLSearchParams({ symbol: params.symbol, window: String(params.window) })
+    if (params.asOf) query.set('as_of', params.asOf)
+    if (params.ruleVersion) query.set('rule_version', params.ruleVersion)
+    return request<WyckoffResearchResponse>(`/api/custom/wyckoff-research/events?${query.toString()}`)
+  },
 }
 
 // ===== Pipeline =====
