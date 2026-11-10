@@ -17,6 +17,10 @@ import polars as pl
 
 from app.config import settings
 from app.parquet import scan_enriched_parquet
+from app.strategy.risk_limits import (
+    validate_max_hold_days,
+    validate_stop_loss,
+)
 from app.tickflow.repository import KlineRepository
 
 logger = logging.getLogger(__name__)
@@ -94,6 +98,11 @@ class BacktestConfig:
     rsi_oversold_threshold: float = 30
     rsi_overbought_threshold: float = 70
     asset_type: str = "stock"
+
+    def __post_init__(self) -> None:
+        # 风控参数量级校验（请求→配置层）：非 API 入口（脚本/内部调用）也走这里。
+        validate_stop_loss(self.stop_loss_pct, context="stop_loss_pct")
+        validate_max_hold_days(self.max_hold_days, context="max_hold_days")
 
 
 @dataclass
