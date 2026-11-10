@@ -15,6 +15,7 @@ import { storage } from '@/lib/storage'
 import { fmtPrice, fmtPct, fmtBigNum, priceColorClass, formatExtNumber } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { computeGroupPcts, loadGroupStatsConfig, type GroupStatsConfigPatch } from '@/lib/watchlistGroupStats'
+import { watchlistGroupCounts } from '@/lib/watchlistGroups'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { StockPreviewDialog } from '@/components/StockPreviewDialog'
@@ -1158,14 +1159,7 @@ export function Watchlist() {
     })
   }, [])
   const groupCounts = useMemo(() => {
-    // 多组并存: 一股计入每个所属分组的计数; 不属于任何分组才计未分组
-    const counts: Record<string, number> = { ungrouped: 0 }
-    for (const entry of listEntries) {
-      const gids = entry.group_ids ?? []
-      if (gids.length === 0) counts.ungrouped += 1
-      else for (const gid of gids) counts[gid] = (counts[gid] ?? 0) + 1
-    }
-    return counts
+    return watchlistGroupCounts(listEntries)
   }, [listEntries])
   // 行引用稳定: enriched 行对象由 react-query 结构共享保引用 (内容未变 → 引用
   // 不变, 行内无逐 tick 时间戳字段), 源行与分组都未变时沿用上次合并结果 —

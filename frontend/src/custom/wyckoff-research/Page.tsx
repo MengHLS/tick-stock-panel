@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { DatePicker } from '@/components/DatePicker'
 import { StockFinancialSearch } from '@/components/financials/StockFinancialSearch'
 import { StockDailyKChart } from '@/components/StockDailyKChart'
+import { WatchlistPanel } from '@/components/watchlist'
 import { useLastStock } from '@/lib/useLastStock'
 import { api, type WyckoffEvidenceCondition, type WyckoffResearchEvent, type WyckoffResearchResponse } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
@@ -90,7 +91,6 @@ export function WyckoffResearchPage() {
     retry: 1,
     staleTime: 60_000,
   })
-
   const state: ViewState = !enabled
     ? { kind: 'off' }
     : !symbol
@@ -258,6 +258,17 @@ export function WyckoffResearchPage() {
         </div>
       </div>
 
+      <div className="flex min-h-0 flex-1">
+        <WatchlistPanel
+          className="hidden w-[176px] shrink-0 border-r border-border/70 xl:flex"
+          activeSymbol={symbol}
+          onSelect={(nextSymbol, nextName) => {
+            setSymbol(nextSymbol)
+            setName(nextName ?? '')
+            remember(nextSymbol, nextName ?? '')
+          }}
+        />
+        <div className="flex min-w-0 flex-1 flex-col">
       {state.kind === 'off' && <EmptyState icon={AlertTriangle} title="研究未启用" hint="开启后按截止日期读取日线事件快照；关闭时不发起请求。" />}
       {state.kind === 'no-symbol' && <EmptyState icon={Search} title="未选标的" hint="搜索并选择一只股票；未选标的时不请求事件。" />}
       {state.kind === 'loading' && (
@@ -419,6 +430,8 @@ export function WyckoffResearchPage() {
           </div>
         </>
       )}
+        </div>
+      </div>
     </div>
   )
 }

@@ -18,8 +18,9 @@ import {
   WATCHLIST_GROUP_COLORS,
   resolveWatchlistGroupColor,
 } from '@/lib/watchlist-group-colors'
+import type { WatchlistGroupFilter } from '@/lib/watchlistGroups'
 
-export type WatchlistGroupFilter = 'all' | 'ungrouped' | string
+export type { WatchlistGroupFilter }
 
 interface GroupBarProps {
   groups: WatchlistGroup[]

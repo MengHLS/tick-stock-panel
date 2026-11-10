@@ -8,12 +8,16 @@ import type { WyckoffResearchEvent, WyckoffResearchResponse } from '@/lib/api'
 const mocks = vi.hoisted(() => ({
   events: vi.fn(),
   search: vi.fn(),
+  watchlist: vi.fn(),
+  watchlistGroups: vi.fn(),
 }))
 
 vi.mock('@/lib/api', () => ({
   api: {
     wyckoffResearchEvents: mocks.events,
     instrumentSearch: mocks.search,
+    watchlistList: mocks.watchlist,
+    watchlistGroups: mocks.watchlistGroups,
   },
 }))
 
@@ -118,12 +122,22 @@ function eventRows() {
 
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+  localStorage.clear()
   host = document.createElement('div')
   document.body.append(host)
   root = createRoot(host)
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   chartProps.current = null
   mocks.search.mockResolvedValue({ items: [] })
+  mocks.watchlist.mockResolvedValue({
+    symbols: [
+      { symbol: '600519.SH', name: '贵州茅台', added_at: '2026-11-01', group_ids: ['g-core'] },
+      { symbol: '603618.SH', name: '杭电股份', added_at: '2026-11-02' },
+    ],
+  })
+  mocks.watchlistGroups.mockResolvedValue({
+    groups: [{ id: 'g-core', name: '核心', color: 'blue' }],
+  })
   mocks.events.mockResolvedValue(payload())
 })
 
@@ -161,6 +175,39 @@ it('开启研究但未选标的仍不请求', async () => {
 
   expect(host.textContent).toContain('未选标的')
   expect(mocks.events).not.toHaveBeenCalled()
+})
+
+it('左侧自选列表复用自选查询，点击即切换标的', async () => {
+  renderPage()
+  await flush()
+  const rail = host.querySelector('aside[aria-label="自选列表"]')!
+  await vi.waitFor(() => expect(rail.textContent).toContain('贵州茅台'), { timeout: 2_000 })
+  expect(mocks.watchlist).toHaveBeenCalledTimes(1)
+  expect(rail.textContent).toContain('603618.SH')
+
+  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
+  const hangdian = [...rail.querySelectorAll<HTMLButtonElement>('button')].find(node => node.textContent?.includes('杭电股份'))!
+  act(() => hangdian.click())
+  await vi.waitFor(() => expect(mocks.events).toHaveBeenCalledWith(expect.objectContaining({ symbol: '603618.SH' })), { timeout: 2_000 })
+  expect(host.textContent).toContain('603618.SH')
+})
+
+it('自选面板支持按分组筛选', async () => {
+  renderPage()
+  await flush()
+  const rail = host.querySelector('aside[aria-label="自选列表"]')!
+  await vi.waitFor(() => expect(rail.textContent).toContain('贵州茅台'), { timeout: 2_000 })
+
+  const trigger = rail.querySelector<HTMLButtonElement>('button[aria-label="选择自选分组"]')!
+  act(() => trigger.click())
+  await flush()
+  const options = [...document.body.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')]
+  const core = options.find(node => node.textContent?.includes('核心'))!
+  act(() => core.click())
+  await flush()
+
+  expect(rail.textContent).toContain('贵州茅台')
+  expect(rail.textContent).not.toContain('杭电股份')
 })
 
 it('选标的后共用 as_of，并把标记落在确认日', async () => {

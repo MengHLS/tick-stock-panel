@@ -9,6 +9,7 @@ import { WatchlistGroupMenu } from '@/components/WatchlistAddMenu'
 import { api, type FactorBatchItem, type FactorBatchResult, type FactorColumn } from '@/lib/api'
 import { fmtPct, priceColorClass } from '@/lib/format'
 import { QK } from '@/lib/queryKeys'
+import { watchlistGroupCounts } from '@/lib/watchlistGroups'
 import { FactorBacktest } from './FactorBacktest'
 import { MiningWorkbench } from './MiningWorkbench'
 import { AutoMiningDialog } from './AutoMiningDialog'
@@ -206,14 +207,7 @@ function BatchDiscovery({
   })
   const watchlistEntries = watchlist.data?.symbols ?? []
   const watchlistCounts = useMemo(() => {
-    // 多组并存: 一股计入每个所属分组
-    const counts: Record<string, number> = { ungrouped: 0 }
-    for (const entry of watchlistEntries) {
-      const gids = entry.group_ids ?? []
-      if (gids.length === 0) counts.ungrouped += 1
-      else for (const gid of gids) counts[gid] = (counts[gid] ?? 0) + 1
-    }
-    return counts
+    return watchlistGroupCounts(watchlistEntries)
   }, [watchlistEntries])
   const allColumns = useMemo(() => columns.data?.columns ?? [], [columns.data])
   const columnsByGroup = useMemo(() => {

@@ -17,6 +17,7 @@ import {
   REGIME_STATE_COLORS,
 } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
+import { watchlistGroupCounts } from '@/lib/watchlistGroups'
 import { setUiPref } from '@/lib/uiPrefs'
 import { groupParams, visibleParams } from '@/lib/strategyParams'
 import { storage } from '@/lib/storage'
@@ -831,16 +832,7 @@ function StockPoolPicker({ value, onChange, assetType = 'stock' }: { value: stri
     staleTime: 30_000,
   })
   const watchlistEntries = watchlist.data?.symbols ?? []
-  const watchlistCounts = useMemo(() => {
-    // 多组并存: 一股计入每个所属分组
-    const counts: Record<string, number> = { ungrouped: 0 }
-    for (const entry of watchlistEntries) {
-      const gids = entry.group_ids ?? []
-      if (gids.length === 0) counts.ungrouped += 1
-      else for (const gid of gids) counts[gid] = (counts[gid] ?? 0) + 1
-    }
-    return counts
-  }, [watchlistEntries])
+  const watchlistCounts = useMemo(() => watchlistGroupCounts(watchlistEntries), [watchlistEntries])
 
   useEffect(() => {
     if (results.length === 0) return
