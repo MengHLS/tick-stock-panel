@@ -374,6 +374,27 @@ export interface WatchlistGroup {
   id: string
   name: string
   color: WatchlistGroupColor
+  /** 缺省 true；false 时只属于该分组的股票不出现在「全部」 */
+  show_in_all?: boolean
+  /** 缺省为手工分组；动态分组成员由 rule 计算，不写入 watchlist.parquet */
+  kind?: 'dynamic'
+  rule?: DynamicGroupRule
+}
+
+export interface DynamicGroupCondition {
+  left: string
+  op: string
+  right: string | number
+  leftDays?: number
+  rightDays?: number
+}
+
+export interface DynamicGroupRule {
+  type: 'conditions'
+  schema_version: 1
+  logic: 'and'
+  conditions: DynamicGroupCondition[]
+  max_results?: number
 }
 
 export interface WatchlistImportCandidate {
@@ -4419,15 +4440,41 @@ export const api = {
     }),
   watchlistGroups: () =>
     request<{ groups: WatchlistGroup[] }>('/api/watchlist/groups'),
-  watchlistGroupCreate: (name: string, color: WatchlistGroupColor) =>
+  watchlistGroupCreate: (
+    name: string,
+    color: WatchlistGroupColor,
+    options?: { kind?: 'dynamic'; rule?: DynamicGroupRule; show_in_all?: boolean },
+  ) =>
     request<{ groups: WatchlistGroup[]; group: WatchlistGroup }>('/api/watchlist/groups', {
       method: 'POST',
-      body: JSON.stringify({ name, color }),
+      body: JSON.stringify({ name, color, ...options }),
+      // 分组创建是显式配置动作，避开后端启动预热窗口；普通列表请求仍用 30s。
+      timeoutMs: 90_000,
     }),
-  watchlistGroupRename: (groupId: string, name: string, color: WatchlistGroupColor) =>
+  watchlistGroupRename: (
+    groupId: string,
+    name: string,
+    color: WatchlistGroupColor,
+    rule?: DynamicGroupRule,
+    showInAll?: boolean,
+  ) =>
     request<{ groups: WatchlistGroup[] }>(
       `/api/watchlist/groups/${encodeURIComponent(groupId)}`,
-      { method: 'PUT', body: JSON.stringify({ name, color }) },
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          name,
+          color,
+          ...(rule ? { rule } : {}),
+          ...(showInAll === undefined ? {} : { show_in_all: showInAll }),
+        }),
+        timeoutMs: 90_000,
+      },
+    ),
+  watchlistGroupResolved: (groupId: string) =>
+    request<{ group: WatchlistGroup; as_of: string | null; rows: Record<string, any>[] }>(
+      `/api/watchlist/groups/${encodeURIComponent(groupId)}/resolved`,
+      { timeoutMs: 90_000 },
     ),
   watchlistGroupReorder: (orderedIds: string[]) =>
     request<{ groups: WatchlistGroup[] }>('/api/watchlist/groups/reorder', {

@@ -6,6 +6,7 @@ import { QK } from '@/lib/queryKeys'
 import { cn } from '@/lib/cn'
 import { WatchlistGroupMenu } from '@/components/WatchlistAddMenu'
 import {
+  filterEntriesVisibleInAll,
   filterWatchlistEntries,
   watchlistGroupCounts,
   type WatchlistGroupFilter,
@@ -54,7 +55,7 @@ export function WatchlistPanel({
   })
 
   const entries = entriesQ.data?.symbols ?? []
-  const groups: WatchlistGroup[] = groupsQ.data?.groups ?? []
+  const groups: WatchlistGroup[] = (groupsQ.data?.groups ?? []).filter(group => group.kind !== 'dynamic')
   const counts = useMemo(() => watchlistGroupCounts(entries), [entries])
   const groupLabel = group === 'all'
     ? '全部'
@@ -63,22 +64,26 @@ export function WatchlistPanel({
       : groups.find(item => item.id === group)?.name ?? '全部'
 
   const filtered = useMemo(() => {
-    const scoped = filterWatchlistEntries(entries, group)
+    const scoped = group === 'all'
+      ? (groupsQ.isSuccess ? filterEntriesVisibleInAll(entries, groups) : entries)
+      : filterWatchlistEntries(entries, group)
     const keyword = query.trim().toLowerCase()
     if (!keyword) return scoped
     return scoped.filter(entry =>
       entry.symbol.toLowerCase().includes(keyword)
       || (entry.name ?? '').toLowerCase().includes(keyword),
     )
-  }, [entries, group, query])
+  }, [entries, group, groups, query])
 
   useEffect(() => {
     if (!autoSelectFirst || entriesQ.isPending) return
-    const scoped = filterWatchlistEntries(entries, group)
+    const scoped = group === 'all'
+      ? (groupsQ.isSuccess ? filterEntriesVisibleInAll(entries, groups) : entries)
+      : filterWatchlistEntries(entries, group)
     if (scoped.length === 0) return
     if (activeSymbol && scoped.some(entry => entry.symbol === activeSymbol)) return
     onSelect(scoped[0].symbol, scoped[0].name ?? null)
-  }, [activeSymbol, autoSelectFirst, entries, entriesQ.isPending, group, onSelect])
+  }, [activeSymbol, autoSelectFirst, entries, entriesQ.isPending, group, groups, onSelect])
 
   return (
     <aside className={cn('flex min-h-0 flex-col', className)} aria-label="自选列表">

@@ -67,6 +67,7 @@ import { useIsDesktop } from '@/lib/useMediaQuery'
 import { useDialogBackdrop } from '@/lib/useDialogBackdrop'
 import { resolveWatchlistGroupColor } from '@/lib/watchlist-group-colors'
 import { computeGroupPcts, groupPctColor, groupPctTitle } from '@/lib/watchlistGroupStats'
+import { filterEntriesVisibleInAll } from '@/lib/watchlistGroups'
 import { fmtPct } from '@/lib/format'
 import { findDataSource } from '@/lib/dataSources'
 import { toggleTheme, useTheme } from '@/lib/theme'
@@ -463,13 +464,17 @@ export function Layout() {
     enabled: navGroupPctVisible,
     staleTime: 60_000,
   })
-  const navGroupPcts = useMemo(
-    () => computeGroupPcts(
-      navWatchlist?.symbols ?? [],
-      new Map((navEnriched?.rows ?? []).map((r: any) => [r.symbol as string, r])),
-    ),
-    [navWatchlist, navEnriched],
-  )
+  const navGroupPcts = useMemo(() => {
+    const entries = navWatchlist?.symbols ?? []
+    const rowsBySymbol = new Map((navEnriched?.rows ?? []).map((r: any) => [r.symbol as string, r]))
+    const pcts = computeGroupPcts(entries, rowsBySymbol)
+    if (!watchlistGroupsData) return pcts
+    const visibleAll = computeGroupPcts(
+      filterEntriesVisibleInAll(entries, watchlistGroups),
+      rowsBySymbol,
+    )
+    return { ...pcts, all: visibleAll.all ?? pcts.all }
+  }, [navWatchlist, navEnriched, watchlistGroupsData, watchlistGroups])
 
   // 数据同步状态轮询: 有活跃 job 时「数据」菜单项显示转圈。
   // 标签页隐藏时 TanStack 默认暂停轮询 — 转圈提示只在页面可见时有意义, 不再强制后台轮询

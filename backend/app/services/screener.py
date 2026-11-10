@@ -79,6 +79,10 @@ class ScreenerService:
         """Public read entry for callers that only receive the screener runtime contract."""
         return self._load_enriched_for_date(target_date)
 
+    def load_enriched_history(self, target_date: date, lookback_days: int) -> pl.DataFrame:
+        """Public history read entry for extension resolvers."""
+        return self._load_enriched_history(target_date, lookback_days)
+
     @staticmethod
     def clear_history_cache(asset_type: str | None = None) -> None:
         """清空进程级 _history_cache (TTL 缓存)。

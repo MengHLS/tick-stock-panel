@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useMemo, type MouseEvent as ReactMouseEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
@@ -18,7 +18,7 @@ import { storage } from '@/lib/storage'
 import { fmtPrice, fmtPct, fmtBigNum, priceColorClass, formatExtNumber, fmtAssetPrice } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { computeGroupPcts, loadGroupStatsConfig, type GroupStatsConfigPatch } from '@/lib/watchlistGroupStats'
-import { watchlistGroupCounts } from '@/lib/watchlistGroups'
+import { filterEntriesVisibleInAll, watchlistGroupCounts } from '@/lib/watchlistGroups'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyState } from '@/components/EmptyState'
 import { StockPreviewDialog } from '@/components/StockPreviewDialog'
@@ -39,6 +39,10 @@ import {
 import { WatchlistGroupCards } from '@/components/WatchlistGroupCards'
 import { WatchlistGroupStatsBar } from '@/components/WatchlistGroupStatsBar'
 import { ExtensionSlot } from '@/extensions/ExtensionSlot'
+import {
+  WatchlistRowMenu,
+  type WatchlistRowMenuState,
+} from '@/components/watchlist/WatchlistRowMenu'
 
 // 分时列开放排序 (StockDataTable 实例级白名单; 表头眼睛/刷新按钮已 stopPropagation)
 const INTRADAY_SORTABLE_KEYS = new Set(['intraday'])
@@ -295,7 +299,7 @@ function StockSearchBox({
   const results = search.data?.results ?? []
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: globalThis.MouseEvent) {
       if (e.target instanceof Element && e.target.closest('[data-watchlist-group-menu]')) return
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
@@ -511,6 +515,9 @@ const StockCard = React.memo(function StockCard({
   groups,
   onToggleMember,
   groupChangePending,
+  inWatchlist,
+  onAddToWatchlist,
+  onRowContextMenu,
 }: {
   r: any
   candleRows: KlineRow[]
@@ -530,6 +537,9 @@ const StockCard = React.memo(function StockCard({
   groups: WatchlistGroup[]
   onToggleMember: (symbol: string, groupId: string, member: boolean) => void
   groupChangePending: boolean
+  inWatchlist: boolean
+  onAddToWatchlist: (symbol: string) => void
+  onRowContextMenu: (r: any, event: ReactMouseEvent<HTMLElement>) => void
 }) {
   const board = boardTag(r.symbol)
   const price = r.rt_price ?? r.close
@@ -554,13 +564,23 @@ const StockCard = React.memo(function StockCard({
     <div
       className={`relative rounded-lg border border-border bg-surface hover:border-border/80 transition-all duration-200 group cursor-pointer overflow-hidden ${bgGlow} ${active ? 'ring-2 ring-accent/60' : ''}`}
       onClick={() => onPreview(r.symbol, name ?? '')}
+      onContextMenu={event => onRowContextMenu(r, event)}
     >
       {/* 左侧彩色指示条 */}
       <div className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg ${barColor}`} />
 
       {/* 分组与删除入口 */}
       <div className="absolute top-1.5 right-1.5 z-10">
-        {isConfirming ? (
+        {!inWatchlist ? (
+          <button
+            onClick={event => { event.stopPropagation(); onAddToWatchlist(r.symbol) }}
+            className="inline-flex items-center gap-1 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent hover:bg-accent/20"
+            aria-label="加入自选"
+          >
+            <Plus className="h-3 w-3" />
+            自选
+          </button>
+        ) : isConfirming ? (
           <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => onConfirmRemove(r.symbol)}
@@ -862,9 +882,28 @@ export function Watchlist() {
     queryFn: api.watchlistGroups,
   })
   const groups = groupList.data?.groups ?? []
+  const manualGroups = useMemo(
+    () => groups.filter(group => group.kind !== 'dynamic'),
+    [groups],
+  )
   const activeGroupId = selectedGroup === 'all' || selectedGroup === 'ungrouped'
     ? null
     : selectedGroup
+  const activeGroup = activeGroupId
+    ? groups.find(group => group.id === activeGroupId) ?? null
+    : null
+  const dynamicGroupActive = activeGroup?.kind === 'dynamic'
+  useEffect(() => {
+    if (dynamicGroupActive) setGroupCardsOpen(false)
+  }, [dynamicGroupActive])
+  // 动态分组成员来自全市场规则解析，不在 watchlist.parquet 中；只在选中时解析。
+  const dynamicGroupRows = useQuery({
+    queryKey: QK.watchlistGroupResolved(activeGroupId ?? ''),
+    queryFn: () => api.watchlistGroupResolved(activeGroupId as string),
+    enabled: dynamicGroupActive && !!activeGroupId,
+    staleTime: 60_000,
+  })
+  const resolvedDynamicRows = dynamicGroupRows.data?.rows ?? EMPTY_ROWS
 
   useEffect(() => {
     if (
@@ -885,8 +924,13 @@ export function Watchlist() {
   })
   const preparation = useWatchlistPrepare(enriched.data?.rows)
 
-  // 直接使用已保存的自选名单，图表请求无需等待 enriched 行情返回。
-  const symbols = useMemo(() => list.data?.symbols.map(entry => entry.symbol) ?? [], [list.data?.symbols])
+  // 图表请求无需等待 enriched 行情返回；动态分组按规则成员取数。
+  const symbols = useMemo(() => {
+    if (dynamicGroupActive) {
+      return resolvedDynamicRows.map((row: any) => String(row.symbol))
+    }
+    return list.data?.symbols.map(entry => entry.symbol) ?? []
+  }, [dynamicGroupActive, resolvedDynamicRows, list.data?.symbols])
 
   // 实时行情状态 (提前到此处: 分时轮询判断需要 realtimeRunning)
   const quoteStatus = useQuoteStatus()
@@ -1022,8 +1066,8 @@ export function Watchlist() {
   })
 
   const createGroup = useMutation({
-    mutationFn: ({ name, color }: { name: string; color: WatchlistGroupColor }) =>
-      api.watchlistGroupCreate(name, color),
+    mutationFn: ({ name, color, showInAll }: { name: string; color: WatchlistGroupColor; showInAll?: boolean }) =>
+      api.watchlistGroupCreate(name, color, { show_in_all: showInAll }),
     onSuccess: data => {
       qc.setQueryData(QK.watchlistGroups, { groups: data.groups })
       setSelectedGroup(data.group.id)
@@ -1031,8 +1075,18 @@ export function Watchlist() {
   })
 
   const renameGroup = useMutation({
-    mutationFn: ({ groupId, name, color }: { groupId: string; name: string; color: WatchlistGroupColor }) =>
-      api.watchlistGroupRename(groupId, name, color),
+    mutationFn: ({
+      groupId,
+      name,
+      color,
+      showInAll,
+    }: {
+      groupId: string
+      name: string
+      color: WatchlistGroupColor
+      showInAll?: boolean
+    }) =>
+      api.watchlistGroupRename(groupId, name, color, undefined, showInAll),
     onSuccess: data => qc.setQueryData(QK.watchlistGroups, data),
   })
 
@@ -1070,6 +1124,7 @@ export function Watchlist() {
   // 二次确认状态
   const [confirmClear, setConfirmClear] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
+  const [rowMenu, setRowMenu] = useState<WatchlistRowMenuState | null>(null)
 
   // 稳定的 per-symbol 回调 (供 memo 化的 StockCard 使用, 避免每次渲染都传新引用)
   const handleCardPreview = useCallback((sym: string, name: string) => {
@@ -1080,6 +1135,17 @@ export function Watchlist() {
   }, [remove])
   const handleCardCancelRemove = useCallback(() => setConfirmRemove(null), [])
   const handleCardRequestRemove = useCallback((sym: string) => setConfirmRemove(sym), [])
+  const handleRowContextMenu = useCallback((r: any, event: ReactMouseEvent<HTMLElement>) => {
+    if (r.asset_type === 'index') return
+    event.preventDefault()
+    event.stopPropagation()
+    setRowMenu({
+      x: event.clientX,
+      y: event.clientY,
+      symbol: String(r.symbol),
+      name: (r.rt_name ?? r.name ?? null) as string | null,
+    })
+  }, [])
   const handleToggleMember = useCallback((symbol: string, groupId: string, member: boolean) => {
     if (member) addGroupMember.mutate({ symbol, groupId })
     else removeGroupMember.mutate({ symbol, groupId })
@@ -1093,6 +1159,14 @@ export function Watchlist() {
 
   const listEntries = list.data?.symbols ?? []
   const allSymbols = listEntries.map(s => s.symbol)
+  const entriesInAll = useMemo(
+    () => groupList.isSuccess ? filterEntriesVisibleInAll(listEntries, groups) : listEntries,
+    [groupList.isSuccess, listEntries, groups],
+  )
+  const entriesInAllSymbols = useMemo(
+    () => new Set(entriesInAll.map(entry => entry.symbol)),
+    [entriesInAll],
+  )
   const rows = enriched.data?.rows ?? []
   const groupBySymbol = useMemo(
     () => new Map(listEntries.map(entry => [entry.symbol, entry.group_ids ?? []])),
@@ -1106,6 +1180,23 @@ export function Watchlist() {
     ),
     [listEntries, rows],
   )
+  const groupPctsWithAll = useMemo(() => {
+    const visibleAll = computeGroupPcts(
+      entriesInAll,
+      new Map(rows.map((r: any) => [r.symbol as string, r])),
+    )
+    return { ...groupPcts, all: visibleAll.all ?? groupPcts.all }
+  }, [entriesInAll, groupPcts, rows])
+  // 动态分组按解析结果临时补一份组内统计，不改手工分组口径。
+  const effectiveGroupPcts = useMemo(() => {
+    if (!dynamicGroupActive) return groupPctsWithAll
+    const entries = resolvedDynamicRows.map((row: any) => ({
+      symbol: String(row.symbol),
+      group_ids: [selectedGroup],
+    }))
+    const rowsBySymbol = new Map(resolvedDynamicRows.map((row: any) => [String(row.symbol), row]))
+    return { ...groupPctsWithAll, ...computeGroupPcts(entries, rowsBySymbol) }
+  }, [dynamicGroupActive, groupPctsWithAll, resolvedDynamicRows, selectedGroup])
   // 分组「指标 + 排序 + 卡片显示项」配置: 分组统计条与分组卡片共享同一份持久化设置
   const [groupStatsConfig, setGroupStatsConfig] = useState(loadGroupStatsConfig)
   const updateGroupStatsConfig = useCallback((patch: GroupStatsConfigPatch) => {
@@ -1118,11 +1209,21 @@ export function Watchlist() {
   const groupCounts = useMemo(() => {
     return watchlistGroupCounts(listEntries)
   }, [listEntries])
+  const effectiveGroupCounts = useMemo(() => {
+    if (!dynamicGroupActive) return groupCounts
+    return { ...groupCounts, [selectedGroup]: resolvedDynamicRows.length }
+  }, [dynamicGroupActive, groupCounts, resolvedDynamicRows.length, selectedGroup])
   // 行引用稳定: enriched 行对象由 react-query 结构共享保引用 (内容未变 → 引用
   // 不变, 行内无逐 tick 时间戳字段), 源行与分组都未变时沿用上次合并结果 —
   // 行对象跨 tick 稳定, 已 memo 的分组卡片 (StockCard) 不再被每 tick 的新行对象击穿。
   const mergedRowsCacheRef = useRef(new Map<string, { src: any; gids: readonly string[]; merged: any }>())
   const rowsInSelectedGroup = useMemo(() => {
+    if (dynamicGroupActive) {
+      return resolvedDynamicRows.map((row: any) => ({
+        ...row,
+        group_ids: groupBySymbol.get(String(row.symbol)) ?? EMPTY_GROUP_IDS,
+      }))
+    }
     const prev = mergedRowsCacheRef.current
     const next = new Map<string, { src: any; gids: readonly string[]; merged: any }>()
     const rowsWithGroup = rows.map(row => {
@@ -1137,11 +1238,13 @@ export function Watchlist() {
       return merged
     })
     mergedRowsCacheRef.current = next
-    if (selectedGroup === 'all') return rowsWithGroup
+    if (selectedGroup === 'all') return rowsWithGroup.filter(row => entriesInAllSymbols.has(row.symbol))
     if (selectedGroup === 'ungrouped') return rowsWithGroup.filter(row => row.group_ids.length === 0)
     return rowsWithGroup.filter(row => row.group_ids.includes(selectedGroup))
-  }, [groupBySymbol, rows, selectedGroup])
-  const watchlistContentLoading = list.isLoading || (allSymbols.length > 0 && enriched.isLoading)
+  }, [dynamicGroupActive, entriesInAllSymbols, groupBySymbol, resolvedDynamicRows, rows, selectedGroup])
+  const watchlistContentLoading = list.isLoading
+    || (allSymbols.length > 0 && enriched.isLoading)
+    || (dynamicGroupActive && dynamicGroupRows.isLoading)
 
   // 实时监控圆点: 仅 Free/低档 "按自选实时监控" 模式 (mode === 'watchlist') 下显示;
   // 全市场模式 (mode === 'full_market') 全部标的都在监控, 标圆点无意义, 故不显示。
@@ -1417,9 +1520,12 @@ export function Watchlist() {
       onDimensionClick={setDimensionTarget}
       isMonitored={monitoredSymbols.has(r.symbol)}
       active={previewSymbol === r.symbol}
-      groups={groups}
+      groups={manualGroups}
       onToggleMember={handleToggleMember}
       groupChangePending={addGroupMember.isPending || removeGroupMember.isPending}
+      inWatchlist={allSymbols.includes(r.symbol)}
+      onAddToWatchlist={symbol => addMutation.mutate({ symbol, groupId: null })}
+      onRowContextMenu={handleRowContextMenu}
     />
   )
 
@@ -1489,10 +1595,10 @@ export function Watchlist() {
             <StockSearchBox
               onPreview={(sym, name) => { setPreviewSymbol(sym); setPreviewName(name) }}
               existingBySymbol={groupBySymbol}
-              groups={groups}
+              groups={manualGroups}
               onAdd={(symbol, groupId) => addMutation.mutate({ symbol, groupId })}
               onToggleMember={handleToggleMember}
-              preferredGroupId={activeGroupId}
+              preferredGroupId={dynamicGroupActive ? null : activeGroupId}
               addPending={addMutation.isPending}
               memberPending={addGroupMember.isPending || removeGroupMember.isPending}
             />
@@ -1551,12 +1657,15 @@ export function Watchlist() {
               <Settings2 className="h-4 w-4" />
             </button>
             <button
-              onClick={() => enriched.refetch()}
-              disabled={enriched.isFetching}
+              onClick={() => {
+                void enriched.refetch()
+                if (dynamicGroupActive) void dynamicGroupRows.refetch()
+              }}
+              disabled={enriched.isFetching || (dynamicGroupActive && dynamicGroupRows.isFetching)}
               className="inline-flex items-center justify-center h-8 w-8 rounded-btn bg-elevated hover:bg-elevated/80 text-secondary hover:text-foreground transition-colors duration-150 ease-smooth disabled:opacity-50"
               title="刷新"
             >
-              <RefreshCw className={`h-4 w-4 ${enriched.isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${enriched.isFetching || (dynamicGroupActive && dynamicGroupRows.isFetching) ? 'animate-spin' : ''}`} />
             </button>
             {allSymbols.length > 0 && (
               <>
@@ -1577,7 +1686,10 @@ export function Watchlist() {
                 symbols: sortedRows.map((row: any) => row.symbol),
                 viewMode,
                 selectedGroup,
-                refresh: () => enriched.refetch(),
+                refresh: () => {
+                  void enriched.refetch()
+                  if (dynamicGroupActive) void dynamicGroupRows.refetch()
+                },
               }}
             />
           </div>
@@ -1586,9 +1698,9 @@ export function Watchlist() {
 
       {groupStatsOpen && (
         <WatchlistGroupStatsBar
-          groups={groups}
-          counts={groupCounts}
-          pcts={groupPcts}
+          groups={groups.filter(group => group.kind !== 'dynamic' || group.id === selectedGroup)}
+          counts={effectiveGroupCounts}
+          pcts={effectiveGroupPcts}
           selected={selectedGroup}
           onSelect={handleGroupSelect}
           config={groupStatsConfig}
@@ -1598,17 +1710,30 @@ export function Watchlist() {
 
       <WatchlistGroupBar
         groups={groups}
-        counts={groupCounts}
+        counts={effectiveGroupCounts}
         selected={selectedGroup}
-        total={allSymbols.length}
-        pcts={groupPcts}
+        total={entriesInAll.length}
+        pcts={effectiveGroupPcts}
         onSelect={handleGroupSelect}
-        onCreate={(name, color) => createGroup.mutateAsync({ name, color }).then(() => undefined)}
+        onCreate={(name, color, showInAll) => createGroup.mutateAsync({ name, color, showInAll }).then(() => undefined)}
         onRename={(groupId, name, color) => renameGroup.mutateAsync({ groupId, name, color }).then(() => undefined)}
+        onToggleShowInAll={(groupId, showInAll) => {
+          const group = groups.find(item => item.id === groupId)
+          if (!group) return Promise.resolve()
+          return renameGroup
+            .mutateAsync({ groupId, name: group.name, color: group.color, showInAll })
+            .then(() => undefined)
+        }}
         onDelete={groupId => deleteGroup.mutateAsync(groupId).then(() => undefined)}
         onClearGroup={groupId => clearGroup.mutateAsync(groupId).then(() => undefined)}
         onReorder={orderedIds => reorderGroup.mutateAsync(orderedIds).then(() => undefined)}
       />
+
+      {dynamicGroupActive && dynamicGroupRows.isError && (
+        <div className="border-b border-danger/20 bg-danger/5 px-5 py-2 text-xs text-danger">
+          动态分组解析失败：{dynamicGroupRows.error instanceof Error ? dynamicGroupRows.error.message : '请检查规则或数据状态'}
+        </div>
+      )}
 
       {/* 筛选栏 */}
       {filterOpen && (
@@ -1723,11 +1848,12 @@ export function Watchlist() {
             />
           ) : groupCardsOpen ? (
             <WatchlistGroupCards
-              groups={groups}
+              groups={manualGroups}
               rows={rows}
               groupBySymbol={groupBySymbol}
-              pcts={groupPcts}
+              pcts={groupPctsWithAll}
               onPreview={handleCardPreview}
+              onRowContextMenu={handleRowContextMenu}
               onOpenGroup={handleGroupSelect}
               config={groupStatsConfig}
               onConfigChange={updateGroupStatsConfig}
@@ -1741,6 +1867,7 @@ export function Watchlist() {
               onSortToggle={handleSortToggle}
               extraSortableKeys={INTRADAY_SORTABLE_KEYS}
               onVisibleRowsChange={handleTableVisibleRows}
+              onRowContextMenu={handleRowContextMenu}
               rowKey={(r: any) => r.symbol}
               rowClassName={(r: any) => cn('border-t border-border transition-colors duration-150 ease-smooth hover:bg-elevated/50', r.symbol === previewSymbol && 'bg-accent/10 hover:bg-accent/15')}
               // 日k列表头：标签 + 显示/隐藏眼睛按钮
@@ -1859,7 +1986,16 @@ export function Watchlist() {
                         <QuoteFreshnessBadge freshness={r.quote_freshness} compact />
                         {/* 删除入口：从分组移除 + 从自选移除(二次确认) + 移到顶部 */}
                         <div className="ml-auto pl-1 shrink-0">
-                          {confirmRemove === r.symbol ? (
+                          {!allSymbols.includes(r.symbol) ? (
+                            <button
+                              onClick={() => addMutation.mutate({ symbol: r.symbol, groupId: null })}
+                              className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] text-accent bg-accent/10 hover:bg-accent/20"
+                              aria-label="加入自选"
+                            >
+                              <Plus className="h-3 w-3" />
+                              自选
+                            </button>
+                          ) : confirmRemove === r.symbol ? (
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => { remove.mutate(r.symbol); setConfirmRemove(null) }}
@@ -1877,7 +2013,7 @@ export function Watchlist() {
                           ) : (
                             <div className="flex items-center gap-1">
                               <WatchlistGroupPicker
-                                groups={groups}
+                                groups={manualGroups}
                                 groupIds={r.group_ids ?? []}
                                 symbol={r.symbol}
                                 disabled={addGroupMember.isPending || removeGroupMember.isPending}
@@ -2037,6 +2173,21 @@ export function Watchlist() {
         </div>
       </div>
 
+      {rowMenu && (
+        <WatchlistRowMenu
+          menu={rowMenu}
+          onClose={() => setRowMenu(null)}
+          groups={manualGroups}
+          groupIds={groupBySymbol.get(rowMenu.symbol) ?? []}
+          inWatchlist={allSymbols.includes(rowMenu.symbol)}
+          isTop={allSymbols[0] === rowMenu.symbol}
+          moveTopBusy={moveToTop.isPending}
+          groupBusy={addGroupMember.isPending || removeGroupMember.isPending}
+          onMoveToTop={() => moveToTop.mutate(rowMenu.symbol)}
+          onToggleGroup={(groupId, member) => handleToggleMember(rowMenu.symbol, groupId, member)}
+        />
+      )}
+
       {/* 清空确认弹窗 */}
       <AnimatePresence>
         {confirmClear && (
@@ -2112,7 +2263,7 @@ export function Watchlist() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
         groupId={activeGroupId}
-        groups={groups}
+        groups={manualGroups}
         existingBySymbol={groupBySymbol}
       />
     </div>

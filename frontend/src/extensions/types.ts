@@ -46,6 +46,15 @@ export interface FrontendSlotContextMap {
     /** 刷新自选增强数据 (扩展修改数据后调用) */
     refresh: () => void
   }
+  /** 自选列表右键菜单 — 扩展只负责菜单项，位置与关闭由核心管理 */
+  'watchlist.row-menu': {
+    apiVersion: 1
+    symbol: string
+    name: string | null
+    close: () => void
+    /** 扩展打开嵌套弹窗时固定菜单，避免 Escape / 滚动抢先卸载 */
+    setPinned: (pinned: boolean) => void
+  }
   /** 策略回测结果区尾部 — 基于已完成结果快照做只读扩展展示 */
   'backtest.result.extra': {
     apiVersion: 1

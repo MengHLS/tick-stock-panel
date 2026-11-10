@@ -24,6 +24,7 @@ from pathlib import Path
 import polars as pl
 
 from app.config import settings
+from app.services import watchlist_group_resolvers
 from app.tickflow.capabilities import Cap, CapabilitySet
 from app.tickflow.client import get_client
 from app.tickflow.rate_limits import chunked, resolve_limit
@@ -130,11 +131,25 @@ def _read_groups() -> list[dict]:
         if not isinstance(item, dict) or not item.get("id") or not item.get("name"):
             continue
         color = str(item.get("color", DEFAULT_GROUP_COLOR))
-        groups.append({
+        kind = str(item.get("kind") or "manual")
+        if kind not in ("manual", "dynamic"):
+            logger.warning("watchlist group %s has unknown kind %r; skipped", item.get("id"), kind)
+            continue
+        group = {
             "id": str(item["id"]),
             "name": str(item["name"]),
             "color": color if color in GROUP_COLORS else DEFAULT_GROUP_COLOR,
-        })
+        }
+        if item.get("show_in_all") is False:
+            group["show_in_all"] = False
+        if kind == "dynamic":
+            rule = item.get("rule")
+            if not isinstance(rule, dict):
+                logger.warning("watchlist dynamic group %s has invalid rule; skipped", item.get("id"))
+                continue
+            group["kind"] = "dynamic"
+            group["rule"] = rule
+        groups.append(group)
     return groups
 
 
@@ -168,6 +183,16 @@ def _validate_group_id(group_id: str | None, groups: list[dict]) -> None:
         raise ValueError("自选分组不存在")
 
 
+def _validate_manual_group_id(group_id: str | None, groups: list[dict]) -> None:
+    """手工成员写入只允许指向手工分组；动态分组成员由规则计算。"""
+    _validate_group_id(group_id, groups)
+    if group_id is None:
+        return
+    group = next(group for group in groups if group["id"] == group_id)
+    if group.get("kind") == "dynamic":
+        raise ValueError("动态分组不能手工添加成员")
+
+
 def list_symbols() -> list[dict]:
     with _LOCK:
         df = _read_entries()
@@ -198,7 +223,7 @@ def add_batch(
         for gid in (group_ids or []) + ([group_id] if group_id is not None else []):
             if gid in apply_ids:
                 continue
-            _validate_group_id(gid, groups)
+            _validate_manual_group_id(gid, groups)
             apply_ids.append(gid)
         rows = _read_entries().to_dicts()
         added = 0
@@ -256,10 +281,55 @@ def list_groups() -> list[dict]:
         return _read_groups()
 
 
-def create_group(name: str, color: str | None = None) -> tuple[list[dict], dict]:
+def resolve_group(group_id: str, *, as_of, context) -> tuple[dict, list[dict]]:
+    """解析动态分组成员；手工分组返回空列表（前端已有手工成员数据）。"""
+    with _LOCK:
+        group = next((item for item in _read_groups() if item["id"] == group_id), None)
+    if group is None:
+        raise KeyError(group_id)
+    if group.get("kind") != "dynamic":
+        return group, []
+    rule = group.get("rule") or {}
+    rule_kind = str(rule.get("type") or "").strip()
+    if not rule_kind:
+        raise ValueError("动态分组规则缺少 type")
+    rows = watchlist_group_resolvers.resolve(rule_kind, rule, as_of, context)
+    normalized: list[dict] = []
+    for row in rows:
+        if not isinstance(row, dict) or not row.get("symbol"):
+            continue
+        normalized.append({
+            **row,
+            "group_ids": [group_id],
+            "asset_type": row.get("asset_type") or "stock",
+        })
+    return group, normalized
+
+
+def create_group(
+    name: str,
+    color: str | None = None,
+    *,
+    kind: str = "manual",
+    rule: dict | None = None,
+    show_in_all: bool = True,
+) -> tuple[list[dict], dict]:
     with _LOCK:
         normalized = _normalize_group_name(name)
         normalized_color = _normalize_group_color(color)
+        if kind not in ("manual", "dynamic"):
+            raise ValueError("分组类型必须是 manual 或 dynamic")
+        if not isinstance(show_in_all, bool):
+            raise ValueError("show_in_all 必须是布尔值")
+        if kind == "dynamic":
+            if not isinstance(rule, dict):
+                raise ValueError("动态分组必须提供规则")
+            rule_kind = str(rule.get("type") or "").strip()
+            if not rule_kind:
+                raise ValueError("动态分组规则缺少 type")
+            watchlist_group_resolvers.validate(rule_kind, rule)
+        elif rule is not None:
+            raise ValueError("手工分组不能携带规则")
         groups = _read_groups()
         if any(group["name"].casefold() == normalized.casefold() for group in groups):
             raise ValueError("分组名称已存在")
@@ -268,6 +338,11 @@ def create_group(name: str, color: str | None = None) -> tuple[list[dict], dict]
             "name": normalized,
             "color": normalized_color,
         }
+        if kind == "dynamic":
+            group["kind"] = "dynamic"
+            group["rule"] = rule
+        if not show_in_all:
+            group["show_in_all"] = False
         groups.append(group)
         _write_groups(groups)
         return groups, group
@@ -285,6 +360,50 @@ def rename_group(group_id: str, name: str, color: str | None = None) -> list[dic
             for group in groups
         ):
             raise ValueError("分组名称已存在")
+        target["name"] = normalized
+        if color is not None:
+            target["color"] = _normalize_group_color(color)
+        _write_groups(groups)
+        return groups
+
+
+def update_group(
+    group_id: str,
+    name: str,
+    color: str | None = None,
+    *,
+    rule: dict | None = None,
+    show_in_all: bool | None = None,
+) -> list[dict]:
+    """原子更新分组名称/颜色/动态规则。"""
+    with _LOCK:
+        normalized = _normalize_group_name(name)
+        groups = _read_groups()
+        target = next((group for group in groups if group["id"] == group_id), None)
+        if target is None:
+            raise KeyError(group_id)
+        if any(
+            group["id"] != group_id and group["name"].casefold() == normalized.casefold()
+            for group in groups
+        ):
+            raise ValueError("分组名称已存在")
+        if rule is not None:
+            if target.get("kind") != "dynamic":
+                raise ValueError("手工分组不能设置动态规则")
+            if not isinstance(rule, dict):
+                raise ValueError("动态分组规则格式不正确")
+            rule_kind = str(rule.get("type") or "").strip()
+            if not rule_kind:
+                raise ValueError("动态分组规则缺少 type")
+            watchlist_group_resolvers.validate(rule_kind, rule)
+            target["rule"] = rule
+        if show_in_all is not None:
+            if not isinstance(show_in_all, bool):
+                raise ValueError("show_in_all 必须是布尔值")
+            if show_in_all:
+                target.pop("show_in_all", None)
+            else:
+                target["show_in_all"] = False
         target["name"] = normalized
         if color is not None:
             target["color"] = _normalize_group_color(color)
@@ -325,7 +444,7 @@ def set_group(symbol: str, group_id: str | None) -> list[dict]:
     """
     with _LOCK:
         groups = _read_groups()
-        _validate_group_id(group_id, groups)
+        _validate_manual_group_id(group_id, groups)
         rows = _read_entries().to_dicts()
         if not any(row["symbol"] == symbol for row in rows):
             raise KeyError(symbol)
@@ -341,7 +460,7 @@ def add_to_group(symbol: str, group_id: str) -> list[dict]:
     """把标的加入一个分组(多组成员关系: 不影响已属于的其他分组)。"""
     with _LOCK:
         groups = _read_groups()
-        _validate_group_id(group_id, groups)
+        _validate_manual_group_id(group_id, groups)
         rows = _read_entries().to_dicts()
         if not any(row["symbol"] == symbol for row in rows):
             raise KeyError(symbol)
@@ -360,7 +479,7 @@ def remove_from_group(symbol: str, group_id: str) -> list[dict]:
     """把标的移出一个分组(仅摘本组标签; 标的仍在自选, 可能落入未分组)。"""
     with _LOCK:
         groups = _read_groups()
-        _validate_group_id(group_id, groups)
+        _validate_manual_group_id(group_id, groups)
         rows = _read_entries().to_dicts()
         if not any(row["symbol"] == symbol for row in rows):
             raise KeyError(symbol)
@@ -386,8 +505,11 @@ def clear_group(group_id: str) -> list[dict]:
     """清空分组成员:把该分组标签从所有条目摘掉(变未分组),保留分组定义。"""
     with _LOCK:
         groups = _read_groups()
-        if not any(group["id"] == group_id for group in groups):
+        group = next((group for group in groups if group["id"] == group_id), None)
+        if group is None:
             raise KeyError(group_id)
+        if group.get("kind") == "dynamic":
+            raise ValueError("动态分组没有手工成员")
         df = _strip_group(_read_entries(), group_id)
         _write_entries(df)
         return df.to_dicts()

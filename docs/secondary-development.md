@@ -27,7 +27,8 @@
 - 策略研究扩展（已实现）：`backend/app/custom/strategy_research` 通过只读回测结果、`MarketDataRead` 和独立 JSON 存储生成 T74 右尾路径报告、配对实验与因子假设台账；研究产物位于 `data/user_data/research/strategy_research/`，不写回测结果或策略目录。
 - 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、参数与空值策略、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
 - 历史 ST 数据 Provider（已实现）：标准数据源可声明 `st_history` 数据集，设置页按 `st_history_data_provider` 独立路由；默认内置 `local_st_history` 读取本地规范数据。Provider 只返回 `symbol/flag_date/st_flag`，ST 宇宙过滤与涨跌停修正仍由核心完成。
-- 当前前端插槽：`layout.navigation.extra`、`stock-preview.tabs`、`stock-preview.footer`、`watchlist.toolbar`。
+- 当前前端插槽：`layout.navigation.extra`、`stock-preview.tabs`、`stock-preview.footer`、`watchlist.toolbar`、`watchlist.row-menu`。
+- 动态自选分组（已实现）：分组定义支持 `kind="dynamic"` + `rule`，核心通过 `app.services.watchlist_group_resolvers` 按规则类型解析成员，具体解析器由 `backend/app/custom/<namespace>/` 注册；当前 `official.dynamic-watchlist` 提供声明式条件解析器（复用自定义信号条件 DSL）。动态成员只读，不写入 `watchlist.parquet`。
 - 回测页面插槽（已实现）：`backtest.result.extra`、`backtest.trades.extra`、`backtest.savedResults.extra`、`backtest.settings.extra`。结果与交易上下文只传保存/运行快照和受控回调，不暴露回测页内部状态。
 - 后端继承点（已实现）：`NotificationFormatter`、`QuoteUpdateObserver`、`CandidateFilter`、`ScoringPolicy`、`RiskPolicy`、`BacktestCostModel`、`StrategyProvider`、`MonitorConditionEvaluator`。
 - 个股详情公共入口（已实现）：源码扩展通过 `@/extensions/stockPreview` 的 `openStockPreview` / `closeStockPreview` 调用；运行时页面通过 `ctx.ui` 调用相同能力。复用原弹窗、查询和列表切股，不要求每个扩展自行挂载图表。
@@ -135,6 +136,7 @@ layout.navigation.extra
 stock-preview.tabs
 stock-preview.footer
 watchlist.toolbar
+watchlist.row-menu
 backtest.result.extra
 backtest.trades.extra
 backtest.savedResults.extra
@@ -147,6 +149,7 @@ backtest.settings.extra
 - `stock-preview.tabs` 在个股详情顶部「日 K / 分时」右侧追加标签。组件接收当前证券的 `{ symbol: string, name: string | null }`。选中时挂载，离开时卸载。弹窗内切股会保留当前标签，并为新证券重新挂载组件。重新打开弹窗默认显示日 K。
 - `stock-preview.footer`：`{ symbol, name, view }`，个股详情对话框底部（日K/分时图表下方）；`view` 为 `'daily' | 'intraday'`。适合个股附加面板：龙虎榜、资金流、外部研究链接等。
 - `watchlist.toolbar`：`{ symbols, viewMode, selectedGroup, refresh }`，自选页工具栏末尾；`symbols` 为当前筛选视图中的标的，`refresh` 在扩展修改数据后调用以刷新自选增强数据。适合批量操作入口：自定义分析、导出、组合计算等。
+- `watchlist.row-menu`：`{ apiVersion, symbol, name, close, setPinned }`，自选列表（表格/卡片/分组卡片）股票行右键菜单。`close` 关闭菜单；扩展打开嵌套弹窗时先调用 `setPinned(true)`，关闭弹窗后再 `setPinned(false)` 并 `close()`，避免按 Escape 或滚动时菜单先行卸载。
 - `backtest.result.extra`：`{ result }`，完成/已保存结果快照的结果区尾部；只读，不触发重新回测。
 - `backtest.trades.extra`：`{ result, trades, selectedTrade, onSelectTrade }`，交易明细页签尾部；`onSelectTrade` 打开核心单笔 K 线回放。
 - `backtest.savedResults.extra`：`{ currentSavedId, openSaved, busy }`，已保存结果弹窗尾部；`openSaved` 只接受核心生成的结果 ID。

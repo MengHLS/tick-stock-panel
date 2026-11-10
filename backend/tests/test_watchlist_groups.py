@@ -278,3 +278,30 @@ def test_legacy_single_group_id_migration(monkeypatch, tmp_path):
     assert (tmp_path / "user_data" / "watchlist.parquet.bak").exists()
     df = pl.read_parquet(path)
     assert "group_ids" in df.columns and "group_id" not in df.columns
+
+
+def test_group_show_in_all_defaults_on_and_toggles(monkeypatch, tmp_path):
+    """默认分组出现在全部; 关闭后仅在定义中落 false, 重新开启恢复缺省字段。"""
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    _, group = watchlist.create_group("隐藏分组")
+    assert "show_in_all" not in watchlist.list_groups()[0]
+
+    watchlist.update_group(group["id"], "隐藏分组", "sky", show_in_all=False)
+    assert watchlist.list_groups()[0]["show_in_all"] is False
+
+    watchlist.update_group(group["id"], "隐藏分组", "sky", show_in_all=True)
+    assert "show_in_all" not in watchlist.list_groups()[0]
+
+
+def test_group_show_in_all_api_contract(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    created = watchlist_api.create_group(
+        watchlist_api.GroupNameRequest(name="仅分组", color="rose", show_in_all=False)
+    )
+    assert created["group"]["show_in_all"] is False
+
+    updated = watchlist_api.rename_group(
+        created["group"]["id"],
+        watchlist_api.GroupNameRequest(name="仅分组", color="rose", show_in_all=True),
+    )
+    assert "show_in_all" not in updated["groups"][0]

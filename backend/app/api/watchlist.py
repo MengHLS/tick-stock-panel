@@ -86,6 +86,10 @@ class BatchAddRequest(BaseModel):
 class GroupNameRequest(BaseModel):
     name: str
     color: str | None = None
+    # 动态分组: kind=dynamic + rule={type: "conditions", ...}; 手工分组保持缺省
+    kind: str = "manual"
+    rule: dict | None = None
+    show_in_all: bool | None = None
 
 
 class GroupReorderRequest(BaseModel):
@@ -170,7 +174,13 @@ def prepare_data(body: PrepareRequest, request: Request):
 @router.post("/groups")
 def create_group(req: GroupNameRequest):
     try:
-        groups, group = watchlist.create_group(req.name, req.color)
+        groups, group = watchlist.create_group(
+            req.name,
+            req.color,
+            kind=req.kind,
+            rule=req.rule,
+            show_in_all=True if req.show_in_all is None else req.show_in_all,
+        )
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
     return {"groups": groups, "group": group}
@@ -189,12 +199,48 @@ def reorder_groups(req: GroupReorderRequest):
 @router.put("/groups/{group_id}")
 def rename_group(group_id: str, req: GroupNameRequest):
     try:
-        groups = watchlist.rename_group(group_id, req.name, req.color)
+        groups = watchlist.update_group(
+            group_id,
+            req.name,
+            req.color,
+            rule=req.rule,
+            show_in_all=req.show_in_all,
+        )
     except KeyError as e:
         raise HTTPException(404, "自选分组不存在") from e
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
     return {"groups": groups}
+
+
+@router.get("/groups/{group_id}/resolved")
+def resolve_group(
+    group_id: str,
+    request: Request,
+    as_of: date | None = None,
+):
+    """解析动态分组成员；手工分组返回空行（成员仍由 /enriched 提供）。"""
+    from app.services.screener import ScreenerService
+
+    repo = request.app.state.repo
+    svc = ScreenerService(repo)
+    target = as_of or svc.latest_date()
+    if target is None:
+        raise HTTPException(400, "无可用数据日期")
+    try:
+        group, rows = watchlist.resolve_group(
+            group_id,
+            as_of=target,
+            context={"screener": svc, "repo": repo},
+        )
+    except KeyError as e:
+        raise HTTPException(404, "自选分组不存在") from e
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
+    except Exception as e:
+        logger.exception("watchlist dynamic group resolve failed: %s", group_id)
+        raise HTTPException(500, "动态分组解析失败，请检查规则或数据状态") from e
+    return {"group": group, "as_of": str(target), "rows": rows}
 
 
 @router.delete("/groups/{group_id}")
@@ -213,6 +259,8 @@ def clear_group(group_id: str, request: Request):
         rows = watchlist.clear_group(group_id)
     except KeyError as e:
         raise HTTPException(404, "自选分组不存在") from e
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
     return {"symbols": _with_names(rows, request)}
 
 

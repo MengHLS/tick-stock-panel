@@ -50,6 +50,7 @@ const GroupCard = React.memo(function GroupCard({
   onToggle,
   onPreview,
   onOpen,
+  onRowContextMenu,
 }: {
   data: GroupCardData
   pctInfo?: GroupPctInfo
@@ -64,6 +65,7 @@ const GroupCard = React.memo(function GroupCard({
   onToggle: (key: string) => void
   onPreview: (symbol: string, name: string) => void
   onOpen: (key: string) => void
+  onRowContextMenu: (r: any, event: React.MouseEvent<HTMLElement>) => void
 }) {
   const visible = expanded ? data.rows : data.rows.slice(0, topN)
   const hasMore = data.rows.length > topN
@@ -126,6 +128,7 @@ const GroupCard = React.memo(function GroupCard({
                 key={r.symbol}
                 type="button"
                 onClick={() => onPreview(r.symbol, r.rt_name ?? r.name ?? '')}
+                onContextMenu={event => onRowContextMenu(r, event)}
                 className="flex w-full items-center gap-2 px-3 py-[5px] text-left transition-colors hover:bg-elevated/50"
                 title={`${r.symbol} ${r.rt_name ?? r.name ?? ''}`}
               >
@@ -177,6 +180,7 @@ interface WatchlistGroupCardsProps {
   /** 分组等权涨跌幅统计 */
   pcts: GroupPctMap
   onPreview: (symbol: string, name: string) => void
+  onRowContextMenu: (r: any, event: React.MouseEvent<HTMLElement>) => void
   /** 钻取分组 (切换到该分组的卡片列表) */
   onOpenGroup: (groupId: string) => void
   config: GroupStatsConfig
@@ -189,6 +193,7 @@ export function WatchlistGroupCards({
   groupBySymbol,
   pcts,
   onPreview,
+  onRowContextMenu,
   onOpenGroup,
   config,
   onConfigChange,
@@ -273,6 +278,7 @@ export function WatchlistGroupCards({
             expanded={expanded.has(card.key)}
             onToggle={toggleExpanded}
             onPreview={onPreview}
+            onRowContextMenu={onRowContextMenu}
             onOpen={onOpenGroup}
           />
         ))}

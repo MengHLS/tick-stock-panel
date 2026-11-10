@@ -30,8 +30,10 @@ interface GroupBarProps {
   /** 分组等权平均涨跌幅 (key: 'all' | 'ungrouped' | 分组id); 缺省不显示 */
   pcts?: GroupPctMap
   onSelect: (group: WatchlistGroupFilter) => void
-  onCreate: (name: string, color: WatchlistGroupColor) => Promise<void>
+  onCreate: (name: string, color: WatchlistGroupColor, showInAll?: boolean) => Promise<void>
   onRename: (groupId: string, name: string, color: WatchlistGroupColor) => Promise<void>
+  /** 设置该分组成员是否出现在「全部」 */
+  onToggleShowInAll?: (groupId: string, showInAll: boolean) => Promise<void>
   onDelete: (groupId: string) => Promise<void>
   onClearGroup?: (groupId: string) => Promise<void>
   /** 手动调整分组前后顺序 (持久化到后端) */
@@ -47,6 +49,7 @@ export function WatchlistGroupBar({
   onSelect,
   onCreate,
   onRename,
+  onToggleShowInAll,
   onDelete,
   onClearGroup,
   onReorder,
@@ -56,8 +59,16 @@ export function WatchlistGroupBar({
   const tabs = [
     { id: 'all', name: '全部', count: total, color: null },
     { id: 'ungrouped', name: '未分组', count: counts.ungrouped ?? 0, color: null },
-    ...groups.map(group => ({ id: group.id, name: group.name, count: counts[group.id] ?? 0, color: group.color })),
+    ...groups.map(group => ({
+      id: group.id,
+      name: group.name,
+      count: group.kind === 'dynamic' ? counts[group.id] : counts[group.id] ?? 0,
+      color: group.color,
+      dynamic: group.kind === 'dynamic',
+    })),
   ]
+  const selectedGroupInfo = groups.find(group => group.id === selected)
+  const canClearSelected = selectedGroupInfo?.kind !== 'dynamic'
   // 拖拽排序状态: dragIndex = 拖动中的分组下标, dropIndex = 插入位置 (均相对 groups 数组)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [dropIndex, setDropIndex] = useState<number | null>(null)
@@ -151,8 +162,11 @@ export function WatchlistGroupBar({
                 )}
                 {color && <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${color.dot}`} />}
                 <span>{tab.name}</span>
+                {'dynamic' in tab && tab.dynamic && (
+                  <span className="rounded bg-elevated px-1 py-0.5 text-[9px] leading-none text-muted">动态</span>
+                )}
                 <span className={`font-mono text-[10px] tabular-nums ${active && !color ? 'text-accent/80' : 'text-muted'}`}>
-                  {tab.count}
+                  {tab.count ?? '—'}
                 </span>
                 {pcts && (() => {
                   const info = pcts[tab.id]
@@ -180,7 +194,7 @@ export function WatchlistGroupBar({
           <FolderCog className="h-4 w-4" />
         </button>
         {/* 清空当前分组 — 仅选中具体分组时显示 */}
-        {onClearGroup && selected !== 'all' && selected !== 'ungrouped' && (
+        {onClearGroup && canClearSelected && selected !== 'all' && selected !== 'ungrouped' && (
           <button
             type="button"
             onClick={() => setConfirmClear(true)}
@@ -194,7 +208,7 @@ export function WatchlistGroupBar({
       </div>
 
       {/* 清空分组确认弹窗 */}
-      {confirmClear && selected !== 'all' && selected !== 'ungrouped' && (
+      {confirmClear && canClearSelected && selected !== 'all' && selected !== 'ungrouped' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -230,6 +244,7 @@ export function WatchlistGroupBar({
           onClose={() => setManagerOpen(false)}
           onCreate={onCreate}
           onRename={onRename}
+          onToggleShowInAll={onToggleShowInAll}
           onDelete={onDelete}
           onReorder={onReorder}
         />
@@ -278,12 +293,14 @@ function GroupManagerDialog({
   onClose,
   onCreate,
   onRename,
+  onToggleShowInAll,
   onDelete,
   onReorder,
 }: Omit<GroupBarProps, 'selected' | 'total' | 'onSelect' | 'onClearGroup'> & { onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState<WatchlistGroupColor>(DEFAULT_WATCHLIST_GROUP_COLOR)
+  const [newShowInAll, setNewShowInAll] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [editingColor, setEditingColor] = useState<WatchlistGroupColor>(DEFAULT_WATCHLIST_GROUP_COLOR)
@@ -332,9 +349,10 @@ function GroupManagerDialog({
       return
     }
     await run(async () => {
-      await onCreate(newName.trim(), newColor)
+      await onCreate(newName.trim(), newColor, newShowInAll)
       setNewName('')
       setNewColor(DEFAULT_WATCHLIST_GROUP_COLOR)
+      setNewShowInAll(true)
       inputRef.current?.focus()
     })
   }
@@ -425,6 +443,19 @@ function GroupManagerDialog({
           <span className="mt-1 shrink-0 text-[11px] text-muted">分组颜色</span>
           <GroupColorPicker value={newColor} onChange={setNewColor} />
         </div>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-[11px] text-muted">在全部中显示</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={newShowInAll}
+            onClick={() => setNewShowInAll(value => !value)}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${newShowInAll ? 'bg-accent' : 'bg-elevated'}`}
+            title={newShowInAll ? '在全部中显示' : '在全部中隐藏'}
+          >
+            <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${newShowInAll ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+          </button>
+        </div>
         {error && <p className="mt-2 text-xs text-danger">{error}</p>}
       </div>
 
@@ -502,6 +533,24 @@ function GroupManagerDialog({
                       <ChevronDown className="h-3.5 w-3.5" />
                     </button>
                   </>
+                )}
+                {onToggleShowInAll && group.kind !== 'dynamic' && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-muted">全部</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={group.show_in_all !== false}
+                      disabled={pending}
+                      onClick={() => void run(async () => {
+                        await onToggleShowInAll(group.id, group.show_in_all === false)
+                      })}
+                      className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors disabled:opacity-50 ${group.show_in_all === false ? 'bg-elevated' : 'bg-accent'}`}
+                      title={group.show_in_all === false ? '在全部中隐藏' : '在全部中显示'}
+                    >
+                      <span className={`inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform ${group.show_in_all === false ? 'translate-x-0.5' : 'translate-x-[14px]'}`} />
+                    </button>
+                  </div>
                 )}
                 <button
                   type="button"

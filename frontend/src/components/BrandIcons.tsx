@@ -186,6 +186,17 @@ export const IconReview = make(
   </>,
 )
 
+/** 交易计划 — 计划单 + 执行勾 */
+export const IconPlan = make(
+  <>
+    <rect x="5" y="4" width="14" height="17" />
+    <path d="M9 4V2.5H15V4" />
+    <path d="M8.5 8.5H15.5" strokeWidth="1.5" />
+    <path d="M8.5 12H12.5" strokeWidth="1.5" />
+    <path d="M8.5 16.2L10.3 18L15.3 13" />
+  </>,
+)
+
 /** 指数 — 三根抬升的指数柱 */
 export const IconIndices = make(
   <>

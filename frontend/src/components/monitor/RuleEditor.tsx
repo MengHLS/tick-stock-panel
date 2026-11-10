@@ -323,7 +323,7 @@ export function RuleEditor({ rule, preset, simple, onClose, onSaved }: Props) {
       dot: 'bg-muted/60',
       symbols: entries.map(e => e.symbol),
     }]
-    for (const group of watchGroupsQ.data?.groups ?? []) {
+    for (const group of (watchGroupsQ.data?.groups ?? []).filter(item => item.kind !== 'dynamic')) {
       const syms = entries.filter(e => e.group_ids?.includes(group.id)).map(e => e.symbol)
       if (syms.length === 0) continue
       options.push({ key: group.id, name: group.name, dot: resolveWatchlistGroupColor(group.color).dot, symbols: syms })
@@ -336,7 +336,7 @@ export function RuleEditor({ rule, preset, simple, onClose, onSaved }: Props) {
   })()
 
   // ── 自选分组作用域 (scope=watchlist_group): 分组选择 + 只读成员预览 ──
-  const groupList = watchGroupsQ.data?.groups ?? []
+  const groupList = (watchGroupsQ.data?.groups ?? []).filter(group => group.kind !== 'dynamic')
   const watchEntries = watchlistQ.data?.symbols ?? []
   const groupCounts = useMemo(() => {
     const counts: Record<string, number> = {}

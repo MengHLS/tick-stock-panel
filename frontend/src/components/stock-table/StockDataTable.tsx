@@ -5,7 +5,7 @@
  * 不内置任何业务逻辑：单元格内容（含 symbol 列交互、操作列、ext 列）由调用方通过
  * renderCell / renderExtraCol 注入。这样两个页面的特有交互得以保留，同时表头能力一致。
  */
-import { cloneElement, isValidElement, useEffect, useRef, type ReactElement, type ReactNode } from 'react'
+import { cloneElement, isValidElement, useEffect, useRef, type MouseEvent, type ReactElement, type ReactNode } from 'react'
 import { useVirtualizer, type VirtualItem } from '@tanstack/react-virtual'
 import type { ColumnConfig } from '@/lib/list-columns'
 import { UNSORTABLE_KEYS } from '@/lib/stock-table'
@@ -23,6 +23,8 @@ export interface StockDataTableProps {
   rowKey?: (r: any) => string | number
   /** 行 className（默认含 hover） */
   rowClassName?: (r: any) => string
+  /** 行右键事件 (自选页用于扩展菜单) */
+  onRowContextMenu?: (r: any, event: MouseEvent<HTMLTableRowElement>) => void
   /** 表头是否 sticky（自选页需要，策略页不需要） */
   headerSticky?: boolean
   /** 最小表格宽度，默认按列数计算 */
@@ -59,6 +61,7 @@ export function StockDataTable({
   columns, rows, renderCell,
   rowKey = (r: any) => r.symbol,
   rowClassName = () => 'border-t border-border hover:bg-elevated/50',
+  onRowContextMenu,
   headerSticky = false,
   minWidth,
   sort,
@@ -120,6 +123,7 @@ export function StockDataTable({
       key={rowKey(r)}
       ref={virtualRow ? rowVirtualizer.measureElement : undefined}
       data-index={virtualRow?.index}
+      onContextMenu={onRowContextMenu ? event => onRowContextMenu(r, event) : undefined}
       className={`transition-colors duration-150 ease-smooth group ${rowClassName(r)}`}
     >
       {visibleColumns.map(col => {
