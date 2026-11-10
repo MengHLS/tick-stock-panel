@@ -57,6 +57,14 @@ def test_overview_api_filters_before_limit() -> None:
         params={"min_closeness": 0.5, "limit": 1, "window": "3d", "direction": "down"},
     ).json()
     assert [r["symbol"] for r in body["rows"]] == ["000001.SZ"]
+    assert set(body["rows"][0]["windows"]) == {"3d"}
+
+    body = client.get(
+        "/api/abnormal/overview",
+        params={"min_closeness": 0.0, "limit": 10, "window": "10d"},
+    ).json()
+    assert body["rows"]
+    assert all(set(r["windows"]) == {"10d"} for r in body["rows"])
 
 
 def test_overview_api_rejects_unknown_board() -> None:
@@ -67,6 +75,22 @@ def test_overview_api_rejects_unknown_board() -> None:
         params={"min_closeness": 0.5, "board": "不存在"},
     )
     assert resp.status_code == 422
+
+
+def test_overview_api_accepts_multiple_boards() -> None:
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    resp = _client().get(
+        "/api/abnormal/overview",
+        params=[
+            ("min_closeness", "0"),
+            ("limit", "10"),
+            ("boards", "主板"),
+            ("boards", "北交所"),
+        ],
+    )
+    assert resp.status_code == 200
+    assert {r["symbol"] for r in resp.json()["rows"]} == {"920001.BJ", "600000.SH", "000001.SZ"}
 
 
 def test_suppression_api_rejects_invalid_forward_days() -> None:

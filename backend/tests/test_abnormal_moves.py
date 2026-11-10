@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from types import SimpleNamespace
 
 import polars as pl
 
 from app.indicators.pipeline import (
+    _benchmark_cache,
     attach_deviation_columns,
     attach_deviation_columns_today,
     benchmark_momentum_today,
@@ -223,6 +225,20 @@ class _FakeRepo:
         return {}
 
 
+class _AdaptiveRepo(_FakeRepo):
+    def __init__(self, latest: pl.DataFrame, history: pl.DataFrame, data_dir, cache_date: date) -> None:
+        super().__init__(latest)
+        self._history = history
+        self._cache_date = cache_date
+        self.store = SimpleNamespace(data_dir=data_dir)
+
+    def get_enriched_latest(self):
+        return self._df, self._cache_date
+
+    def get_enriched_history(self, target_date, lookback_days):
+        return self._history.filter(pl.col("date") <= target_date).tail(lookback_days + 1)
+
+
 class _FakeQuotes:
     def get_index_quotes(self):
         return pl.DataFrame(
@@ -243,6 +259,137 @@ def test_bench_rt_pct_converts_percent_to_decimal() -> None:
     assert abs(_bench_rt_pct(_PercentQuotes()) - (-0.0188)) < 1e-12
     # close/prev_close 兜底路径本身是小数, 不受影响
     assert abs(_bench_rt_pct(_FakeQuotes()) - (3300.0 / 3270.0 - 1)) < 1e-12
+
+
+def test_adaptive_deviation_uses_current_run_low(tmp_path) -> None:
+    """10日偏离从本轮最低收盘起算，而不是机械取固定 T-10。"""
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    _benchmark_cache.clear()
+    cache_date = cn_today()
+    dates = [cache_date - timedelta(days=10 - i) for i in range(11)]
+    closes = [3.49, 3.37, 3.24, 3.11, 3.42, 3.76, 4.14, 4.55, 5.01, 5.51, 6.06]
+    _write_index_daily(
+        tmp_path,
+        [("399107.SZ", day, 100.0 if day != cache_date else 104.95) for day in dates],
+    )
+    history = pl.DataFrame({
+        "symbol": ["002578.SZ"] * len(dates),
+        "date": dates,
+        "close": closes,
+    })
+    latest = pl.DataFrame({
+        "symbol": ["002578.SZ"],
+        "name": ["闽发铝业"],
+        "close": [6.06],
+        "change_pct": [0.0998],
+        "deviate_3d": [0.1],
+        "deviate_10d": [0.5],
+        "deviate_30d": [0.2],
+    })
+
+    result = build_overview(
+        _AdaptiveRepo(latest, history, tmp_path, cache_date),
+        None,
+        min_closeness=0.0,
+        limit=10,
+    )
+    row = next(r for r in result["rows"] if r["symbol"] == "002578.SZ")
+    window = row["windows"]["10d"]
+    assert window["value"] == 0.8991
+    assert window["window_days"] == 7
+    assert window["base_date"] == dates[3].isoformat()
+    assert row["windows"]["3d"]["value"] == 0.1
+    assert row["windows"]["3d"]["window_days"] == 3
+
+
+def test_adaptive_deviation_negative_uses_run_high(tmp_path) -> None:
+    """负向偏离从窗口内最高收盘起算。"""
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    _benchmark_cache.clear()
+    cache_date = cn_today()
+    dates = [cache_date - timedelta(days=10 - i) for i in range(11)]
+    closes = [10.0, 8.0, 9.0, 7.0, 8.0, 6.0, 7.0, 5.0, 6.0, 4.0, 3.0]
+    _write_index_daily(tmp_path, [("399107.SZ", day, 100.0) for day in dates])
+    history = pl.DataFrame({
+        "symbol": ["002578.SZ"] * len(dates),
+        "date": dates,
+        "close": closes,
+    })
+    latest = pl.DataFrame({
+        "symbol": ["002578.SZ"],
+        "name": ["闽发铝业"],
+        "close": [3.0],
+        "change_pct": [-0.1],
+        "deviate_3d": [-0.1],
+        "deviate_10d": [-0.1],
+        "deviate_30d": [-0.1],
+    })
+
+    result = build_overview(
+        _AdaptiveRepo(latest, history, tmp_path, cache_date),
+        None,
+        min_closeness=0.0,
+        limit=10,
+    )
+    row = next(r for r in result["rows"] if r["symbol"] == "002578.SZ")
+    window = row["windows"]["10d"]
+    assert abs(window["value"] - (3.0 / 10.0 - 1)) < 1e-9
+    assert window["window_days"] == 10
+    assert window["base_date"] == dates[0].isoformat()
+
+
+def test_build_overview_selected_window_only_computes_that_window(tmp_path) -> None:
+    """选 10 日时只读取/重算 10 日，不触碰 3 日或 30 日的数据与历史。"""
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    _benchmark_cache.clear()
+    cache_date = cn_today()
+    dates = [cache_date - timedelta(days=10 - i) for i in range(11)]
+    closes = [3.49, 3.37, 3.24, 3.11, 3.42, 3.76, 4.14, 4.55, 5.01, 5.51, 6.06]
+    _write_index_daily(
+        tmp_path,
+        [("399107.SZ", day, 100.0 if day != cache_date else 104.95) for day in dates],
+    )
+    history = pl.DataFrame({
+        "symbol": ["002578.SZ"] * len(dates),
+        "date": dates,
+        "close": closes,
+    })
+    latest = pl.DataFrame({
+        "symbol": ["002578.SZ"],
+        "name": ["闽发铝业"],
+        "close": [6.06],
+        "change_pct": [0.0998],
+        "deviate_3d": [0.1],
+        "deviate_10d": [0.5],
+        # 故意不提供 deviate_30d，验证选 10 日时不依赖 30 日列
+    })
+
+    class _RecordingRepo(_AdaptiveRepo):
+        def __init__(self) -> None:
+            super().__init__(latest, history, tmp_path, cache_date)
+            self.lookbacks: list[int] = []
+
+        def get_enriched_history(self, target_date, lookback_days):
+            self.lookbacks.append(lookback_days)
+            return super().get_enriched_history(target_date, lookback_days)
+
+    repo = _RecordingRepo()
+    result = build_overview(repo, None, min_closeness=0.0, window="10d")
+    row = next(r for r in result["rows"] if r["symbol"] == "002578.SZ")
+    assert set(row["windows"]) == {"10d"}
+    assert row["windows"]["10d"]["window_days"] == 7
+    assert repo.lookbacks == [11]
+
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    repo.lookbacks.clear()
+    result = build_overview(repo, None, min_closeness=0.0, window="3d")
+    row = next(r for r in result["rows"] if r["symbol"] == "002578.SZ")
+    assert set(row["windows"]) == {"3d"}
+    assert repo.lookbacks == []
 
 
 def test_build_overview_closeness_and_status() -> None:
@@ -274,6 +421,34 @@ def test_build_overview_closeness_and_status() -> None:
     closeness = [r["max_closeness"] for r in result["rows"]]
     assert closeness == sorted(closeness, reverse=True)
     assert result["counts"]["triggered"] >= 1
+
+
+def test_build_overview_selected_window_controls_status() -> None:
+    """选了 10 日窗口后，状态和接近度必须按 10 日算，不能被 3 日高档覆盖。"""
+    with _hist_cache_lock:
+        _hist_cache.clear()
+    df = pl.DataFrame(
+        {
+            "symbol": ["002578.SZ"],
+            "name": ["闽发铝业"],
+            "close": [6.06],
+            "change_pct": [0.0],
+            # 3日触发、10日边缘、30日观察；选 10 日时状态应为边缘
+            "deviate_3d": [0.34],
+            "deviate_10d": [0.90],
+            "deviate_30d": [0.90],
+        }
+    )
+    result = build_overview(
+        _FakeRepo(df),
+        None,
+        min_closeness=0.5,
+        window="10d",
+    )
+    row = result["rows"][0]
+    assert row["status"] == "edge"
+    assert row["focus_closeness"] == 0.9
+    assert result["counts"] == {"triggered": 0, "edge": 1, "watch": 0}
 
 
 def test_build_overview_weekend_does_not_double_count_last_session(monkeypatch) -> None:
@@ -403,6 +578,11 @@ def test_build_overview_filters_before_limit() -> None:
     main_board = build_overview(repo, None, min_closeness=0.5, limit=1, board="主板")
     assert [r["symbol"] for r in main_board["rows"]] == ["600002.SH"]
     assert main_board["total"] == 3
+
+    multi_board = build_overview(
+        repo, None, min_closeness=0.5, limit=10, boards={"主板", "创业板"},
+    )
+    assert {r["symbol"] for r in multi_board["rows"]} == {"600000.SH", "000001.SZ", "600002.SH"}
 
     three_day = build_overview(repo, None, min_closeness=0.5, limit=1, window="3d")
     assert [r["symbol"] for r in three_day["rows"]] == ["600002.SH"]

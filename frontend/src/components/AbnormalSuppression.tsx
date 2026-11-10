@@ -3,6 +3,7 @@ import {
   api,
   type AbnormalSuppression as AbnormalSuppressionPayload,
   type AbnormalSuppressionWindow,
+  type AbnormalWindowKey,
 } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { fmtPrice } from '@/lib/format'
@@ -41,19 +42,22 @@ function windowTitle(key: string, window: AbnormalSuppressionWindow, nearest: bo
   return [
     `${WINDOW_LABELS[key]}偏离阈值 ${sign}${(window.threshold * 100).toFixed(0)}%`,
     `当前偏离 ${(window.current_deviation * 100).toFixed(1)}%`,
-    '按收盘价测算；假设对应指数保持当前点位，N 日窗口逐日滚动',
+    `本轮 ${window.effective_days ?? parseInt(key, 10)} 日${window.days?.[0]?.base_date ? ` · 起点 ${window.days[0].base_date}` : ''}`,
+    '按收盘价测算；假设对应指数保持当前点位，窗口逐日滚动',
     nearest ? '最临近压制' : '',
   ].filter(Boolean).join(' · ')
 }
 
 export function AbnormalSuppressionRows({
-  data, symbol, days,
+  data, symbol, days, window: selectedWindow,
 }: {
   data: AbnormalSuppressionPayload
   symbol: string
   days: number
+  window?: AbnormalWindowKey
 }) {
-  const keys = WINDOW_ORDER.filter(key => data.windows?.[key])
+  const keys = (selectedWindow ? [selectedWindow] : WINDOW_ORDER)
+    .filter(key => data.windows?.[key])
   if (keys.length === 0) {
     return (
       <div className="flex shrink-0 items-center border-b border-border/60 bg-base/40 px-5 py-1.5 text-[10px] text-muted">
@@ -63,6 +67,9 @@ export function AbnormalSuppressionRows({
   }
 
   const nearest = data.nearest?.window
+  const capWindow = selectedWindow && data.windows[selectedWindow]
+    ? selectedWindow
+    : keys[0]
   return (
     <>
       <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-b border-border/60 bg-base/40 px-5 py-1.5">
@@ -75,13 +82,17 @@ export function AbnormalSuppressionRows({
         {keys.map(key => {
           const window = data.windows[key]
           const active = nearest === key
+          const actualDays = window.effective_days
+          const label = actualDays != null && actualDays !== parseInt(key, 10)
+            ? `${WINDOW_LABELS[key]}(${actualDays}日)`
+            : WINDOW_LABELS[key]
           return (
             <div key={key} className="flex min-w-0 items-center gap-1.5">
               <span
                 className={`shrink-0 text-[10px] ${active ? 'font-semibold text-foreground' : 'text-muted'}`}
                 title={windowTitle(key, window, active)}
               >
-                {WINDOW_LABELS[key]}
+                {label}
               </span>
               {window.days.slice(0, VISIBLE_DAYS).map((day, index) => (
                 <span
@@ -113,20 +124,33 @@ export function AbnormalSuppressionRows({
       <AbnormalMiniStructure
         symbol={symbol}
         days={days}
-        cap={data.windows['30d']?.days?.[0]?.cap ?? null}
+        cap={capWindow ? data.windows[capWindow]?.days?.[0]?.cap ?? null : null}
       />
     </>
   )
 }
 
-export function AbnormalSuppression({ symbol, days }: { symbol: string; days: number }) {
+export function AbnormalSuppression({
+  symbol, days, window,
+}: {
+  symbol: string
+  days: number
+  window?: AbnormalWindowKey
+}) {
   const query = useQuery({
-    queryKey: QK.abnormalSuppression(symbol, FORWARD_DAYS),
-    queryFn: () => api.abnormalSuppression(symbol, FORWARD_DAYS),
+    queryKey: QK.abnormalSuppression(symbol, FORWARD_DAYS, window),
+    queryFn: () => api.abnormalSuppression(symbol, FORWARD_DAYS, window),
     staleTime: 30_000,
     refetchInterval: 60_000,
   })
 
   if (query.isLoading || query.isError || !query.data) return null
-  return <AbnormalSuppressionRows data={query.data} symbol={symbol} days={days} />
+  return (
+    <AbnormalSuppressionRows
+      data={query.data}
+      symbol={symbol}
+      days={days}
+      window={window}
+    />
+  )
 }

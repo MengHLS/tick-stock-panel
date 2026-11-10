@@ -15,6 +15,7 @@ interface Props {
   symbol: string
   renderer?: ChartRenderer
   days: number
+  selectedDate?: string | null
   height?: number
   refetchIntervalMs?: number
   onPriceDoubleClick?: (price: number, currentPrice: number) => void
@@ -30,6 +31,7 @@ export function StockMultiDayIntradayChart({
   symbol,
   renderer = 'echarts',
   days,
+  selectedDate,
   height = 420,
   refetchIntervalMs,
   onPriceDoubleClick,
@@ -132,6 +134,9 @@ export function StockMultiDayIntradayChart({
 
   const chartHeight = Math.max(260, height - (showCoverage || syncMinute.isPending ? 32 : 0) - (partialDates.length ? 32 : 0))
   const Chart = renderer === 'lightweight' ? LightweightIntraday : EChartsMultiDayIntraday
+  const displayedSessions = selectedDate
+    ? sessions.filter(session => session.date === selectedDate)
+    : sessions
 
   if (loading) {
     return (
@@ -224,11 +229,11 @@ export function StockMultiDayIntradayChart({
       <Chart
         assetType={history.data?.asset_type ?? latest.data?.asset_type}
         {...(renderer === 'lightweight' ? {
-          priceLimit: sessions.length === 1 && sessions[0].date === latest.data?.date ? latest.data?.price_limit ?? undefined : undefined,
+          priceLimit: displayedSessions.length === 1 && displayedSessions[0].date === latest.data?.date ? latest.data?.price_limit ?? undefined : undefined,
         } : {})}
         symbol={symbol}
         showLimitLines={false}
-        sessions={sessions}
+        sessions={displayedSessions.length > 0 ? displayedSessions : sessions}
         height={chartHeight}
         onPriceDoubleClick={onPriceDoubleClick}
         priceLines={priceLines}

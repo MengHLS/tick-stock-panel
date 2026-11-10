@@ -12,7 +12,7 @@
  */
 export const DEFAULT_NAV_PATHS = [
   '/', '/watchlist', '/screener', '/factors', '/backtest',
-  '/stock-analysis', '/limit-ladder', '/concept-analysis', '/industry-analysis', '/financials',
+  '/stock-analysis', '/limit-ladder', '/max-board', '/concept-analysis', '/industry-analysis', '/financials',
   '/monitor', '/regime', '/abnormal', '/lots', '/paper', '/signals', '/review',
   '/indices', '/data',
 ] as const

@@ -12,7 +12,9 @@
   异常波动特别规定 (原 3日±15% / 10日+50% / 30日+100%) 同步废止,
   与主板普通股票适用同一套标准 (见 price_limits.MAIN_BOARD_ST_LIMIT_CHANGE_DATE)。
 
-偏离值 = 个股 N 日累计涨跌幅 - 对应指数同期涨跌幅 (enriched 运行时列 deviate_Nd)。
+偏离值 = 个股从本轮启动点到当前的涨幅 - 对应指数同期涨幅。3 日窗口固定；
+10/30 日窗口上限分别为 10/30 个交易日，正向取窗口内最低收盘、负向取最高
+收盘，因此实际窗口可能短于上限 (enriched 的 deviate_Nd 仍保留固定 N 日口径)。
 「接近度」= |实时偏离| / 该方向阈值: ≥1 已触发, ≥0.7 边缘, ≥0.5 观察。
 盘中实时叠加: 历史偏离 (已完成交易日) + 今日实时涨跌 - 基准指数今日涨跌。
 """
@@ -113,12 +115,24 @@ def rule_for(symbol: str, name: str | None) -> AbnormalRule:
 # ── 快照计算 ──────────────────────────────────────────────
 
 _hist_cache_lock = threading.Lock()
-_hist_cache: dict[str, Any] = {}
+_hist_cache: dict[tuple[int, ...], Any] = {}
 _HIST_CACHE_TTL = 60.0
+_HIST_CACHE_TTL_ADAPTIVE_MISSING = 10.0
 
 _STATUS_TRIGGERED = "triggered"
 _STATUS_EDGE = "edge"
 _STATUS_WATCH = "watch"
+_ADAPTIVE_WINDOWS = (10, 30)
+
+
+def _normalize_window(window: str | None) -> int | None:
+    """'10d' → 10；None/未知值返回 None。"""
+    if window is None:
+        return None
+    for n in DEVIATION_WINDOWS:
+        if window == f"{n}d":
+            return n
+    return None
 
 
 def _status_of(closeness: float) -> str:
@@ -129,35 +143,222 @@ def _status_of(closeness: float) -> str:
     return _STATUS_WATCH
 
 
-def _hist_snapshot(repo: Any) -> dict[str, Any]:
-    """enriched 最新日的偏离列快照 (60s 进程内缓存)。"""
+def _hist_snapshot(
+    repo: Any,
+    windows: tuple[int, ...] | None = None,
+) -> dict[str, Any]:
+    """enriched 最新日的偏离列快照 (按所需窗口分别缓存 60s)。
+
+    页面选中单一窗口时只读取该窗口的 deviate 列并只重算该窗口的
+    自适应启动点；未指定窗口的监控规则仍使用全部窗口。
+    """
+    requested = tuple(
+        n for n in (windows if windows is not None else DEVIATION_WINDOWS)
+        if n in DEVIATION_WINDOWS
+    )
+    if not requested:
+        requested = DEVIATION_WINDOWS
     now = time.monotonic()
     with _hist_cache_lock:
-        cached = _hist_cache.get("data")
-        if cached is not None and now - cached["_ts"] < _HIST_CACHE_TTL:
-            return cached
+        cached = _hist_cache.get(requested)
+        if cached is not None:
+            ttl = _HIST_CACHE_TTL if cached.get("adaptive_ready") else _HIST_CACHE_TTL_ADAPTIVE_MISSING
+            if now - cached["_ts"] < ttl:
+                return cached
 
     df, cache_date = repo.get_enriched_latest()
     rows: dict[str, dict[str, Any]] = {}
     if not df.is_empty() and "symbol" in df.columns:
-        cols = ["symbol", *[c for c in ("name", "close", "change_pct",
-                                        "deviate_3d", "deviate_10d", "deviate_30d") if c in df.columns]]
+        deviate_cols = [f"deviate_{n}d" for n in requested]
+        cols = [
+            c for c in ("symbol", "name", "close", "change_pct", *deviate_cols)
+            if c in df.columns
+        ]
         df = df.select(cols)
         name_map = repo.get_name_map(df["symbol"].to_list())
         for r in df.iter_rows(named=True):
             symbol = str(r["symbol"])
-            rows[symbol] = {
+            row = {
                 "name": name_map.get(symbol) or r.get("name"),
                 "close": r.get("close"),
                 "rt_pct": r.get("change_pct"),
-                "deviate_3d": r.get("deviate_3d"),
-                "deviate_10d": r.get("deviate_10d"),
-                "deviate_30d": r.get("deviate_30d"),
             }
-    payload = {"_ts": now, "rows": rows, "cache_date": cache_date.isoformat() if cache_date else None}
+            for n in requested:
+                col = f"deviate_{n}d"
+                if col in df.columns:
+                    row[col] = r.get(col)
+            rows[symbol] = row
+    adaptive = _load_adaptive_deviation_map(repo, cache_date, rows, requested)
+    for symbol, row in rows.items():
+        row["adaptive"] = adaptive.get(symbol, {})
+    adaptive_required = tuple(n for n in requested if n in _ADAPTIVE_WINDOWS)
+    payload = {
+        "_ts": now,
+        "rows": rows,
+        "cache_date": cache_date.isoformat() if cache_date else None,
+        "adaptive_ready": bool(adaptive) if adaptive_required else True,
+    }
     with _hist_cache_lock:
-        _hist_cache["data"] = payload
+        _hist_cache[requested] = payload
     return payload
+
+
+def _finite_float(value: Any) -> float | None:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return out if math.isfinite(out) else None
+
+
+def _bench_close_on_date(
+    bench_by_key: dict[str, dict[date, float]],
+    bench_key: str,
+    target: date,
+) -> float | None:
+    """取基准日精确对应的收盘点位；缺行时 fail closed。"""
+    return (bench_by_key.get(bench_key) or {}).get(target)
+
+
+def _load_adaptive_deviation_map(
+    repo: Any,
+    cache_date: date | None,
+    rows: dict[str, dict[str, Any]],
+    windows: tuple[int, ...] | None = None,
+) -> dict[str, dict[str, dict[str, Any]]]:
+    """按本轮上涨启动点重算偏离，供异动页和压制弹窗使用。
+
+    固定交易所口径从 T-N 取基准；这里改为在 T-N..T-1 的实际收盘中找
+    正向最低点（负向最高点），实际窗口可短于 N 日。它只影响异动展示和
+    压制位，不改 enriched 的全局 deviate_* 因子口径。
+    """
+    adaptive_windows = tuple(
+        n for n in (windows if windows is not None else _ADAPTIVE_WINDOWS)
+        if n in _ADAPTIVE_WINDOWS
+    )
+    if cache_date is None or not rows or not adaptive_windows:
+        return {}
+    data_dir = getattr(getattr(repo, "store", None), "data_dir", None)
+    get_history = getattr(repo, "get_enriched_history", None)
+    if data_dir is None or not callable(get_history):
+        return {}
+
+    history_end = cache_date
+    get_span = getattr(repo, "get_enriched_history_span", None)
+    if callable(get_span):
+        try:
+            span = get_span()
+        except Exception:  # noqa: BLE001
+            span = None
+        if span is not None and span[1] < history_end:
+            # 盘中实时缓存只更新 _enriched_cache，历史缓存可能仍停在昨收；
+            # 本轮启动点只需截至昨收的历史，今天现价由快照 close 提供。
+            history_end = span[1]
+
+    lookback_days = max(adaptive_windows) + 1
+    try:
+        history = get_history(history_end, lookback_days)
+    except Exception:  # noqa: BLE001 - 历史缓存不可用时保留固定口径
+        return {}
+    if history is None:
+        # 实时 flush 只更新 _enriched_cache，历史缓存可能仍停在最近收盘；
+        # 向前退几个自然日找到可用历史末行，今天现价仍由快照 close 提供。
+        for back in range(1, 15):
+            try:
+                history = get_history(
+                    history_end - timedelta(days=back),
+                    lookback_days,
+                )
+            except Exception:  # noqa: BLE001
+                break
+            if history is not None:
+                break
+    if (
+        history is None
+        or history.is_empty()
+        or not {"symbol", "date", "close"}.issubset(history.columns)
+    ):
+        return {}
+    history_max = history["date"].max()
+    if not isinstance(history_max, date) or (cache_date - history_max).days > 21:
+        return {}
+
+    bench = load_benchmark_momentum(data_dir)
+    if bench is None or bench.is_empty():
+        return {}
+
+    bench_by_key: dict[str, dict[date, float]] = {}
+    for item in bench.iter_rows(named=True):
+        bench_key = item.get("bench_key")
+        trade_date = item.get("date")
+        close = _finite_float(item.get("bench_close"))
+        if not bench_key or not isinstance(trade_date, date) or close is None or close <= 0:
+            continue
+        bench_by_key.setdefault(bench_key, {})[trade_date] = close
+
+    series: dict[str, list[tuple[date, float]]] = {}
+    selected = history.select(["symbol", "date", "close"]).drop_nulls().unique(
+        subset=["symbol", "date"], keep="last"
+    ).sort(["symbol", "date"])
+    for item in selected.iter_rows(named=True):
+        symbol = str(item["symbol"])
+        trade_date = item["date"]
+        close = _finite_float(item["close"])
+        if not isinstance(trade_date, date) or close is None or close <= 0:
+            continue
+        series.setdefault(symbol, []).append((trade_date, close))
+
+    adaptive: dict[str, dict[str, dict[str, Any]]] = {}
+    for symbol, base in rows.items():
+        current_close = _finite_float(base.get("close"))
+        bench_key = _bench_key_of(symbol)
+        points = series.get(symbol)
+        if current_close is None or current_close <= 0 or not bench_key or not points:
+            continue
+        prior = [(day, close) for day, close in points if day < cache_date]
+        if not prior:
+            continue
+        bench_now = _bench_close_on_date(bench_by_key, bench_key, cache_date)
+        if bench_now is None:
+            continue
+
+        for n in adaptive_windows:
+            window = prior[-n:]
+            if not window:
+                continue
+            official = _finite_float(base.get(f"deviate_{n}d"))
+            positive = official >= 0 if official is not None else current_close >= window[-1][1]
+            best_index = 0
+            for index in range(1, len(window)):
+                if positive:
+                    if window[index][1] < window[best_index][1]:
+                        best_index = index
+                elif window[index][1] > window[best_index][1]:
+                    best_index = index
+
+            base_date, base_close = window[best_index]
+            bench_base = _bench_close_on_date(bench_by_key, bench_key, base_date)
+            if (
+                bench_base is None
+                or bench_base <= 0
+                or base_close <= 0
+            ):
+                continue
+            stock_return = current_close / base_close - 1.0
+            bench_return = bench_now / bench_base - 1.0
+            value = stock_return - bench_return
+            direction = "up" if value >= 0 else "down"
+            effective_days = len(window) - best_index
+            adaptive.setdefault(symbol, {})[f"{n}d"] = {
+                "value": value,
+                "direction": direction,
+                "effective_days": effective_days,
+                "base_date": base_date.isoformat(),
+                "base_close": base_close,
+                "bench_base": bench_base,
+                "bench_now": bench_now,
+            }
+    return adaptive
 
 
 def _bench_rt_pct(quote_service: Any) -> float:
@@ -197,6 +398,7 @@ def build_overview(
     window: str | None = None,
     direction: str = "both",
     board: str | None = None,
+    boards: set[str] | None = None,
     exclude_st: bool = False,
     symbols: set[str] | None = None,
     query: str | None = None,
@@ -207,7 +409,10 @@ def build_overview(
     方向、板块等继续过滤; 若先截断再过滤, 接近度靠前但板块/窗口不匹配的
     标的会占满结果, 让其余筛选项看起来“没有数据”。
     """
-    hist = _hist_snapshot(repo)
+    window_number = _normalize_window(window)
+    window_key = f"{window_number}d" if window_number is not None else None
+    requested_windows = (window_number,) if window_number is not None else DEVIATION_WINDOWS
+    hist = _hist_snapshot(repo, requested_windows)
     cache_date = hist.get("cache_date")
     hist_rows: dict[str, dict[str, Any]] = hist["rows"]
 
@@ -229,13 +434,13 @@ def build_overview(
     if not includes_today and (today.weekday() >= 5 or _is_closed_session()):
         includes_today = True
 
-    window_key = window if window in {f"{n}d" for n in DEVIATION_WINDOWS} else None
     direction_key = direction if direction in ("up", "down") else "both"
     query_key = (query or "").strip().lower()
+    board_filter = boards if boards else ({board} if board else None)
     out_rows: list[dict[str, Any]] = []
     for symbol, base in hist_rows.items():
         rule = rule_for(symbol, base.get("name"))
-        if board is not None and rule.board != board:
+        if board_filter is not None and rule.board not in board_filter:
             continue
         if exclude_st and rule.st:
             continue
@@ -250,26 +455,40 @@ def build_overview(
 
         windows: dict[str, dict[str, Any]] = {}
         max_closeness = 0.0
-        for n in DEVIATION_WINDOWS:
-            hist_dev = base.get(f"deviate_{n}d")
+        adaptive = base.get("adaptive") or {}
+        for n in requested_windows:
+            window_key_n = f"{n}d"
+            adaptive_item = adaptive.get(window_key_n) if isinstance(adaptive, dict) else None
+            if adaptive_item is not None:
+                hist_dev = _finite_float(adaptive_item.get("value"))
+                window_days = adaptive_item.get("effective_days")
+                base_date = adaptive_item.get("base_date")
+            else:
+                hist_dev = base.get(f"deviate_{n}d")
+                window_days = None
+                base_date = None
             if hist_dev is None:
                 continue
             live = hist_dev + rt_delta
             up_t, down_t = rule.thresholds[n]
             threshold = up_t if live >= 0 else down_t
             closeness = abs(live) / threshold if threshold > 0 else 0.0
-            windows[f"{n}d"] = {
+            windows[window_key_n] = {
                 "value": round(live, 4),
                 "threshold": threshold,
                 "closeness": round(closeness, 4),
+                "window_days": int(window_days) if window_days is not None else n,
+                "base_date": base_date,
             }
             max_closeness = max(max_closeness, closeness)
         if not windows or max_closeness < min_closeness:
             continue
+        focus_closeness = max_closeness
         if window_key is not None:
             selected = windows.get(window_key)
             if selected is None or selected["closeness"] < min_closeness:
                 continue
+            focus_closeness = selected["closeness"]
         if direction_key != "both":
             focus = windows.get(window_key) if window_key else max(
                 windows.values(), key=lambda w: w["closeness"]
@@ -287,10 +506,11 @@ def build_overview(
             "rt_pct": rt_pct,
             "windows": windows,
             "max_closeness": round(max_closeness, 4),
-            "status": _status_of(max_closeness),
+            "focus_closeness": round(focus_closeness, 4),
+            "status": _status_of(focus_closeness),
         })
 
-    out_rows.sort(key=lambda r: r["max_closeness"], reverse=True)
+    out_rows.sort(key=lambda r: r["focus_closeness"], reverse=True)
     total = len(out_rows)
     counts = {
         _STATUS_TRIGGERED: sum(1 for r in out_rows if r["status"] == _STATUS_TRIGGERED),
@@ -316,7 +536,7 @@ def build_overview(
 # 「压制价」; 窗口每个交易日向前滚动, 因此明日/后日的压制价要按新的
 # N 日基准重算, 不能把今天的压制价当成固定值。
 #
-# 推导 (小数口径):
+# 推导 (小数口径; P_base / B_base 为本轮启动点):
 #   deviate_N = P_now / P_base - 1 - (B_now / B_base - 1)
 #             = P_now / P_base - B_now / B_base
 #   P_cap = P_base * (threshold + B_now / B_base)
@@ -349,17 +569,46 @@ def _suppression_sort_key(window: dict[str, Any]) -> tuple[int, float]:
     return (0 if room < 0 else 1, room)
 
 
+def _adaptive_base_index(
+    closes: list[float],
+    last_index: int,
+    window: int,
+    direction: str,
+    offset: int,
+) -> int | None:
+    """未来第 offset 个交易日对应的本轮启动低/高点索引。
+
+    未来价格未知时沿用已有历史：上涨方向假定未来价格不低于当前低点，
+    因此低点只有滚出窗口后才会切换。这样今日/明日仍使用同一个启动点。
+    """
+    end = last_index + offset
+    low = max(0, end - window)
+    high = min(last_index, end - 1)
+    if high < low:
+        return None
+    best = low
+    for index in range(low + 1, high + 1):
+        if direction == "up":
+            if closes[index] < closes[best]:
+                best = index
+        elif closes[index] > closes[best]:
+            best = index
+    return best
+
+
 def build_suppression_schedule(
     repo: Any,
     *,
     symbol: str,
     forward_days: int = 5,
+    window: str | None = None,
 ) -> dict[str, Any]:
     """返回各偏离窗口的收盘价压制位与后续交易日剩余空间。
 
     参数:
         symbol: 个股代码。
         forward_days: 向后测算的交易日数 (0=仅今日), 上限 10。
+        window: 仅测算指定偏离窗口; 省略时保留全部窗口 (监控兼容路径)。
 
     返回 ``windows`` 中每个窗口包含 ``threshold`` / ``direction`` /
     ``current_deviation`` / ``days``; ``days[0]`` 为今日, ``days[k]`` 为
@@ -369,7 +618,9 @@ def build_suppression_schedule(
     """
     symbol = symbol.strip().upper()
     forward_days = max(0, min(int(forward_days), _SUPPRESSION_MAX_FORWARD_DAYS))
-    hist = _hist_snapshot(repo)
+    window_number = _normalize_window(window)
+    requested_windows = (window_number,) if window_number is not None else DEVIATION_WINDOWS
+    hist = _hist_snapshot(repo, requested_windows)
     cache_date = hist.get("cache_date")
     base = (hist.get("rows") or {}).get(symbol)
     if not base:
@@ -433,51 +684,88 @@ def build_suppression_schedule(
     dates = stock["date"].to_list()
     closes = [float(value) for value in stock["close"].to_list()]
     last_index = len(dates) - 1
-    if last_index < min(DEVIATION_WINDOWS):
+    if last_index < min(requested_windows):
         return {"symbol": symbol, "name": name, "windows": {}, "reason": "insufficient_history"}
 
     windows: dict[str, dict[str, Any]] = {}
     missing_history = False
-    for n in DEVIATION_WINDOWS:
-        deviate = base.get(f"deviate_{n}d")
-        if deviate is None:
-            continue
-        deviate = float(deviate)
-        if not math.isfinite(deviate):
-            continue
+    adaptive_by_window = base.get("adaptive") or {}
+    if not isinstance(adaptive_by_window, dict):
+        adaptive_by_window = {}
+    for n in requested_windows:
         up_threshold, down_threshold = rule.thresholds[n]
-        direction = "up" if deviate >= 0 else "down"
-        threshold = up_threshold if direction == "up" else down_threshold
-        signed_threshold = threshold if direction == "up" else -threshold
+        adaptive_item = adaptive_by_window.get(f"{n}d")
+        adaptive_used = False
+        if isinstance(adaptive_item, dict):
+            deviate = _finite_float(adaptive_item.get("value"))
+            direction = adaptive_item.get("direction")
+            p_base = _finite_float(adaptive_item.get("base_close"))
+            b_base = _finite_float(adaptive_item.get("bench_base"))
+            b_now = _finite_float(adaptive_item.get("bench_now"))
+            if (
+                deviate is not None
+                and direction in ("up", "down")
+                and p_base is not None
+                and p_base > 0
+                and b_base is not None
+                and b_base > 0
+                and b_now is not None
+                and b_now > 0
+            ):
+                adaptive_used = True
+                threshold = up_threshold if direction == "up" else down_threshold
+                signed_threshold = threshold if direction == "up" else -threshold
+                effective_days = int(adaptive_item.get("effective_days") or n)
+            else:
+                adaptive_used = False
 
-        base_index = last_index - n
-        if base_index < 0:
-            missing_history = True
-            continue
-        p_base = closes[base_index]
-        b_base = bench_by_date.get(dates[base_index])
-        if (
-            not math.isfinite(p_base)
-            or p_base <= 0
-            or b_base is None
-            or not math.isfinite(b_base)
-            or b_base <= 0
-        ):
-            missing_history = True
-            continue
+        if not adaptive_used:
+            deviate = base.get(f"deviate_{n}d")
+            if deviate is None:
+                continue
+            deviate = float(deviate)
+            if not math.isfinite(deviate):
+                continue
+            direction = "up" if deviate >= 0 else "down"
+            threshold = up_threshold if direction == "up" else down_threshold
+            signed_threshold = threshold if direction == "up" else -threshold
+            effective_days = n
 
-        # B_now / B_base 由当前偏离反解: deviate = P_now / P_base - B_now / B_base
-        bench_ratio_now = close / p_base - deviate
-        if not math.isfinite(bench_ratio_now) or bench_ratio_now <= 0:
-            missing_history = True
-            continue
-        b_now = b_base * bench_ratio_now
+            base_index = last_index - n
+            if base_index < 0:
+                missing_history = True
+                continue
+            p_base = closes[base_index]
+            b_base = bench_by_date.get(dates[base_index])
+            if (
+                not math.isfinite(p_base)
+                or p_base <= 0
+                or b_base is None
+                or not math.isfinite(b_base)
+                or b_base <= 0
+            ):
+                missing_history = True
+                continue
+
+            # B_now / B_base 由当前偏离反解: deviate = P_now / P_base - B_now / B_base
+            bench_ratio_now = close / p_base - deviate
+            if not math.isfinite(bench_ratio_now) or bench_ratio_now <= 0:
+                missing_history = True
+                continue
+            b_now = b_base * bench_ratio_now
+        else:
+            base_index = None
 
         days: list[dict[str, Any]] = []
         max_offset = min(forward_days, n)
         for offset in range(max_offset + 1):
-            index = base_index + offset
-            if index < 0:
+            if adaptive_used:
+                index = _adaptive_base_index(
+                    closes, last_index, n, direction, offset,
+                )
+            else:
+                index = base_index + offset
+            if index is None or index < 0:
                 continue
             p_window_base = closes[index]
             b_window_base = bench_by_date.get(dates[index])
@@ -505,6 +793,7 @@ def build_suppression_schedule(
             "threshold": threshold,
             "direction": direction,
             "current_deviation": round(deviate, 4),
+            "effective_days": effective_days,
             "days": days,
         }
 

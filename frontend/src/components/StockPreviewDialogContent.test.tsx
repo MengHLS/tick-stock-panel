@@ -13,10 +13,24 @@ vi.mock('./StockPanel', () => ({
     symbol: string; dateRange: { start: string }; infoBarOnly?: boolean
   }) => infoBarOnly ? <span>行情</span> : <span>日线 {symbol} {dateRange.start}</span>,
 }))
-vi.mock('./StockMultiDayIntradayChart', () => ({
-  StockMultiDayIntradayChart: ({ symbol, days }: { symbol: string; days: number }) =>
-    <span>分钟线 {symbol} {days}日</span>,
-}))
+vi.mock('./StockMultiDayIntradayChart', async () => {
+  const React = await import('react')
+  return {
+    StockMultiDayIntradayChart: ({
+      symbol, days, selectedDate, onSessionsChange,
+    }: {
+      symbol: string
+      days: number
+      selectedDate?: string | null
+      onSessionsChange?: (dates: string[]) => void
+    }) => {
+      React.useEffect(() => {
+        onSessionsChange?.(['2026-11-10', '2026-11-07', '2026-11-06'])
+      }, [onSessionsChange])
+      return <span>分钟线 {symbol} {days}日 {selectedDate ?? 'all'}</span>
+    },
+  }
+})
 vi.mock('./monitor/RuleEditor', () => ({ RuleEditor: () => null }))
 
 const first = { symbol: '600000.SH', name: '浦发银行' }
@@ -102,6 +116,21 @@ it('没有扩展时，日 K 和分时正常切换，保留各自区间并刷新�
   expect(panel().textContent).toBe(daily)
   click('分时')
   expect(button('5日').getAttribute('aria-pressed')).toBe('true')
+})
+
+it('分时可按交易日切换', async () => {
+  await setup()
+  click('分时')
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+  const select = host.querySelector<HTMLSelectElement>('select[aria-label="分时日期"]')!
+  expect(select).not.toBeNull()
+  expect([...select.options].map(item => item.value)).toEqual(['', '2026-11-10', '2026-11-07', '2026-11-06'])
+  await act(async () => {
+    select.value = '2026-11-07'
+    select.dispatchEvent(new Event('change', { bubbles: true }))
+  })
+  expect(panel().textContent).toContain('分钟线 600000.SH')
+  expect(panel().textContent).toContain('2026-11-07')
 })
 
 it('扩展按 order 和 id 追加，只有选中面板挂载，切股和重开遵循详情视图生命周期', async () => {

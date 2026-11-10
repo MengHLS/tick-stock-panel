@@ -1116,6 +1116,10 @@ export interface AbnormalWindowInfo {
   threshold: number
   /** 接近度 |value|/threshold */
   closeness: number
+  /** 本轮实际交易日数 (≤ 窗口上限) */
+  window_days?: number | null
+  /** 本轮启动日 (正向最低收盘 / 负向最高收盘) */
+  base_date?: string | null
 }
 
 export type AbnormalStatus = 'triggered' | 'edge' | 'watch'
@@ -1129,6 +1133,8 @@ export interface AbnormalRow {
   rt_pct: number | null
   windows: Record<string, AbnormalWindowInfo>
   max_closeness: number
+  /** 当前筛选窗口的接近度 */
+  focus_closeness?: number
   status: AbnormalStatus
 }
 
@@ -1150,10 +1156,13 @@ export interface AbnormalOverview {
   rows: AbnormalRow[]
 }
 
+export type AbnormalWindowKey = '3d' | '10d' | '30d'
+
 export interface AbnormalOverviewFilters {
-  window?: '3d' | '10d' | '30d'
+  window?: AbnormalWindowKey
   direction?: 'both' | 'up' | 'down'
   board?: string
+  boards?: string[]
   excludeSt?: boolean
   watchlistOnly?: boolean
   query?: string
@@ -1177,6 +1186,8 @@ export interface AbnormalSuppressionWindow {
   direction: 'up' | 'down'
   /** 当前实时偏离值 */
   current_deviation: number
+  /** 本轮实际交易日数 (≤ 窗口上限) */
+  effective_days?: number | null
   days: AbnormalSuppressionDay[]
 }
 
@@ -1565,6 +1576,59 @@ export interface LimitLadderResult {
   sealed_counts_up?: { real: number; fake: number; pending: number }
   /** 跌停侧 sealed 明细 */
   sealed_counts_down?: { real: number; fake: number; pending: number }
+}
+
+// ===== 最高板接力 =====
+export interface MaxBoardStock {
+  symbol: string
+  name: string
+  boards: number
+  change_pct: number | null
+  close: number | null
+}
+
+export interface MaxBoardSeriesPoint {
+  date: string
+  height: number
+  leaders: MaxBoardStock[]
+}
+
+export interface MaxBoardEvent {
+  id: string
+  break_date: string
+  previous_date: string
+  previous_height: number
+  previous_leaders: MaxBoardStock[]
+  break_day: {
+    date: string
+    height: number
+    leaders: MaxBoardStock[]
+    former_leaders: MaxBoardStock[]
+  }
+  successor: {
+    date: string
+    height: number
+    leaders: MaxBoardStock[]
+  } | null
+  status: 'taken_over' | 'vacant' | 'pending'
+  height_gap: number
+}
+
+export interface MaxBoardCurrent extends MaxBoardSeriesPoint {
+  delta_height: number
+  last_break_date: string | null
+  days_since_break: number | null
+  last_event: MaxBoardEvent | null
+}
+
+export interface MaxBoardRelayResult {
+  as_of: string | null
+  range: { start: string | null; end: string | null; days: number }
+  series: MaxBoardSeriesPoint[]
+  events: MaxBoardEvent[]
+  current: MaxBoardCurrent | null
+  total: number
+  exclude_st: boolean
 }
 
 // ===== Backtest =====
@@ -4629,6 +4693,12 @@ export const api = {
     )
   },
 
+  maxBoardRelay: (days = 60, asOf?: string) => {
+    const params = new URLSearchParams({ days: String(days) })
+    if (asOf) params.set('as_of', asOf)
+    return request<MaxBoardRelayResult>(`/api/max-board/relay?${params.toString()}`)
+  },
+
   backtestStatus: () => request<{ available: boolean }>('/api/backtest/status'),
 
   /** 策略/因子候选 (回测报告的持久化摘要, 模拟盘对比用) */
@@ -5853,7 +5923,11 @@ export const api = {
     })
     if (filters.window) params.set('window', filters.window)
     if (filters.direction && filters.direction !== 'both') params.set('direction', filters.direction)
-    if (filters.board) params.set('board', filters.board)
+    if (filters.boards?.length) {
+      filters.boards.forEach(board => params.append('boards', board))
+    } else if (filters.board) {
+      params.set('board', filters.board)
+    }
     if (filters.excludeSt) params.set('exclude_st', 'true')
     if (filters.watchlistOnly) params.set('watchlist_only', 'true')
     if (filters.query?.trim()) params.set('q', filters.query.trim())
@@ -5864,11 +5938,15 @@ export const api = {
   abnormalIntraday: (limit = 500) =>
     request<AbnormalIntradayPayload>(`/api/abnormal/intraday?limit=${limit}`),
 
-  /** 异动阈值价格压制: 各窗口今日/后续交易日的收盘价上限与剩余空间 */
-  abnormalSuppression: (symbol: string, forwardDays = 5) =>
-    request<AbnormalSuppression>(
-      `/api/abnormal/suppression?symbol=${encodeURIComponent(symbol)}&forward_days=${forwardDays}`,
-    ),
+  /** 异动阈值价格压制: 指定窗口今日/后续交易日的收盘价上限与剩余空间 */
+  abnormalSuppression: (symbol: string, forwardDays = 5, window?: AbnormalWindowKey) => {
+    const params = new URLSearchParams({
+      symbol,
+      forward_days: String(forwardDays),
+    })
+    if (window) params.set('window', window)
+    return request<AbnormalSuppression>(`/api/abnormal/suppression?${params.toString()}`)
+  },
 
   // ===== Monitor Rules (监控规则) =====
   monitorRulesList: () =>

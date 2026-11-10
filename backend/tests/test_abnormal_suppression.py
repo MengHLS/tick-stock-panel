@@ -30,10 +30,18 @@ def _write_index_daily(tmp_path, rows: list[tuple[str, date, float]]) -> None:
 
 
 class _FakeRepo:
-    def __init__(self, latest: pl.DataFrame, daily: pl.DataFrame, data_dir, cache_date: date) -> None:
+    def __init__(
+        self,
+        latest: pl.DataFrame,
+        daily: pl.DataFrame,
+        data_dir,
+        cache_date: date,
+        history: pl.DataFrame | None = None,
+    ) -> None:
         self._latest = latest
         self._daily = daily
         self._cache_date = cache_date
+        self._history = history
         self.store = SimpleNamespace(data_dir=data_dir)
 
     def get_enriched_latest(self):
@@ -41,6 +49,11 @@ class _FakeRepo:
 
     def get_name_map(self, symbols=None):
         return {}
+
+    def get_enriched_history(self, target_date, lookback_days):
+        if self._history is None:
+            return None
+        return self._history.filter(pl.col("date") <= target_date).tail(lookback_days + 1)
 
     def get_daily(self, symbol, start, end, columns=None):
         return self._daily.filter(
@@ -95,6 +108,45 @@ def test_suppression_30d_rolls_base_forward(tmp_path) -> None:
     assert window["days"][2]["cap"] == 33.0
     assert window["days"][2]["room_pct"] == 0.65
     assert body["nearest"]["window"] == "30d"
+
+
+def test_suppression_uses_adaptive_run_start(tmp_path) -> None:
+    _clear_caches()
+    days = [date(2026, 10, 27) + timedelta(days=i) for i in range(11)]
+    closes = [3.49, 3.37, 3.24, 3.11, 3.42, 3.76, 4.14, 4.55, 5.01, 5.51, 6.06]
+    _write_index_daily(
+        tmp_path,
+        [("399107.SZ", day, 100.0 if day != days[-1] else 104.95) for day in days],
+    )
+    history = pl.DataFrame({
+        "symbol": ["002578.SZ"] * len(days),
+        "date": days,
+        "close": closes,
+    })
+    latest = pl.DataFrame({
+        "symbol": ["002578.SZ"],
+        "name": ["闽发铝业"],
+        "close": [6.06],
+        "deviate_3d": [0.1],
+        "deviate_10d": [0.5],
+        "deviate_30d": [0.2],
+    })
+    daily = pl.DataFrame({"symbol": ["002578.SZ"] * len(days), "date": days, "close": closes})
+    repo = _FakeRepo(latest, daily, tmp_path, days[-1], history=history)
+
+    body = build_suppression_schedule(
+        repo,
+        symbol="002578.SZ",
+        forward_days=3,
+        window="10d",
+    )
+    assert set(body["windows"]) == {"10d"}
+    window = body["windows"]["10d"]
+    assert window["effective_days"] == 7
+    assert window["current_deviation"] == round(6.06 / 3.11 - 1 - (104.95 / 100.0 - 1), 4)
+    assert window["days"][0]["base_date"] == days[3].isoformat()
+    assert window["days"][0]["cap"] == 6.374
+    assert window["days"][0]["room_pct"] == 0.0518
 
 
 def test_suppression_negative_direction_returns_floor(tmp_path) -> None:

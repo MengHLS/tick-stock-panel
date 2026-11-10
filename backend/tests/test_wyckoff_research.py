@@ -68,26 +68,43 @@ class _Panel:
     def data_generation(self, asset_type: str = "stock") -> str | None:
         return self.generations.pop(0) if len(self.generations) > 1 else self.generations[0]
 
-    def range(self, start, end, symbols=None, columns=None):
-        self.calls.append((start, end))
-        return self.frame
-
-
 class _Market:
-    def __init__(self, frame: pl.DataFrame | None = None, *, latest: date | None = None) -> None:
+    def __init__(self, frame: pl.DataFrame | None = None, *, partitions: bool = True) -> None:
         self.frame = frame if frame is not None else pl.DataFrame()
-        self.latest = latest
-        self.calls: list[tuple[list[str], date, date]] = []
+        self.partitions = partitions
+        self.partition_reads = 0
+        self.batch_calls = 0
+        self.windows: list[tuple[date, date]] = []
 
-    def latest_daily_date(self) -> date | None:
-        return self.latest
+    def dataset_partition_dates(self, dataset: str, start: date, end: date) -> list[date]:
+        self.windows.append((start, end))
+        if not self.partitions or self.frame.is_empty() or "date" not in self.frame.columns:
+            return []
+        days = [value for value in self.frame["date"].unique().sort().to_list() if start <= value <= end]
+        return days
+
+    def read_dataset_partition(self, dataset: str, day: date, columns: list[str] | None = None) -> pl.DataFrame:
+        self.partition_reads += 1
+        part = self.frame.filter(pl.col("date") == day)
+        if columns:
+            keep = [column for column in columns if column in part.columns]
+            part = part.select(keep) if keep else pl.DataFrame()
+        return part
 
     def get_daily_batch(self, symbols: list[str], start: date, end: date, columns=None):
-        self.calls.append((symbols, start, end))
-        return self.frame
+        self.batch_calls += 1
+        if self.frame.is_empty() or "date" not in self.frame.columns:
+            return pl.DataFrame()
+        frame = self.frame.filter((pl.col("date") >= start) & (pl.col("date") <= end))
+        if columns:
+            keep = [column for column in columns if column in frame.columns]
+            frame = frame.select(keep) if keep else pl.DataFrame()
+        return frame
 
 
 def _runtime(panel: _Panel, tmp_path: Path, market: _Market | None = None) -> SimpleNamespace:
+    if market is None:
+        market = _Market(getattr(panel, "frame", None))
     return SimpleNamespace(data_dir=tmp_path, enriched_panel=panel, market_data=market)
 
 
@@ -160,9 +177,10 @@ def test_no_invalidation_row_when_as_of_precedes_break_bar() -> None:
 def test_service_ready_payload(tmp_path: Path) -> None:
     bars = _series()
     panel = _Panel(_frame(bars), latest=bars[-1]["date"])
+    market = _Market(_frame(bars))
     # 窗口是观察区：弹簧在 60 号，故截止日取 75 号、窗口 30 才能覆盖它
     payload = load_events(
-        _runtime(panel, tmp_path),
+        _runtime(panel, tmp_path, market),
         symbol="000001.SZ",
         window_bars=30,
         as_of=bars[75]["date"],
@@ -178,17 +196,17 @@ def test_service_ready_payload(tmp_path: Path) -> None:
     assert len(payload["params_hash"]) == 16
     assert any(event["event_type"] == "Spring" for event in payload["events"])
     # 有界读取：只按窗口+预热向前取，不扫描全历史
-    start, end = panel.calls[0]
+    start, end = market.windows[0]
     assert end == bars[75]["date"]
-    assert (end - start).days <= 1400
+    assert (end - start).days <= 400
 
 
-def test_service_falls_back_to_daily_batch_when_cache_does_not_cover_range(tmp_path: Path) -> None:
-    """enriched 区间缓存只近 300 天；覆盖不足时必须回退稳定日线读取，而不是误报无日线。"""
+def test_service_falls_back_to_daily_batch_without_partition_reader(tmp_path: Path) -> None:
+    """数据源不暴露按日分区时回退稳定日线批量读取，而不是误报无日线。"""
     bars = _series()
     end = bars[75]["date"]
     panel = _Panel(None, latest=end)
-    market = _Market(_frame([bar for bar in bars if bar["date"] <= end]), latest=end)
+    market = _Market(_frame([bar for bar in bars if bar["date"] <= end]), partitions=False)
     payload = load_events(
         _runtime(panel, tmp_path, market),
         symbol="000001.SZ",
@@ -197,7 +215,7 @@ def test_service_falls_back_to_daily_batch_when_cache_does_not_cover_range(tmp_p
         rule_version_expected=None,
     )
     assert payload["status"] == "ready"
-    assert market.calls, "缓存未覆盖时应走日线批量读取"
+    assert market.batch_calls == 1, "无分区能力时应走日线批量读取"
     assert any(event["event_type"] == "Spring" for event in payload["events"])
 
 
@@ -205,16 +223,17 @@ def test_second_request_hits_disk_cache_without_rereading(tmp_path: Path) -> Non
     bars = _series()
     end = bars[75]["date"]
     panel = _Panel(_frame(bars), latest=bars[-1]["date"])
-    runtime = _runtime(panel, tmp_path)
+    market = _Market(_frame(bars))
+    runtime = _runtime(panel, tmp_path, market)
     first = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
     assert first["status"] == "ready"
     assert first["cached"] is False
-    range_calls = len(panel.calls)
+    reads_before = market.partition_reads
 
     second = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
     assert second["status"] == "ready"
     assert second["cached"] is True
-    assert len(panel.calls) == range_calls, "命中快照后不应再读区间"
+    assert market.partition_reads == reads_before, "命中快照后不应再读分区"
     assert second["events"] == first["events"]
     assert list((tmp_path / "user_data" / "wyckoff_research" / "cache").glob("*.json"))
 
@@ -235,8 +254,10 @@ def test_corrupt_cache_file_is_ignored(tmp_path: Path) -> None:
     bars = _series()
     end = bars[75]["date"]
     panel = _Panel(_frame(bars), latest=bars[-1]["date"])
-    runtime = _runtime(panel, tmp_path)
+    market = _Market(_frame(bars))
+    runtime = _runtime(panel, tmp_path, market)
     load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    reads_after_first = market.partition_reads
     files = list((tmp_path / "user_data" / "wyckoff_research" / "cache").glob("*.json"))
     assert files
     files[0].write_text("{not json", encoding="utf-8")
@@ -244,7 +265,7 @@ def test_corrupt_cache_file_is_ignored(tmp_path: Path) -> None:
     payload = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
     assert payload["status"] == "ready"
     assert payload["cached"] is False
-    assert len(panel.calls) == 2
+    assert market.partition_reads > reads_after_first
 
 
 def test_service_default_as_of_and_out_of_window_pattern_ignored(tmp_path: Path) -> None:

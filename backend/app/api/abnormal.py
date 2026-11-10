@@ -37,6 +37,7 @@ def abnormal_overview(
     window: Literal["3d", "10d", "30d"] | None = Query(None),
     direction: Literal["both", "up", "down"] = Query("both"),
     board: Literal["主板", "创业板", "科创板", "北交所"] | None = Query(None),
+    boards: list[Literal["主板", "创业板", "科创板", "北交所"]] | None = Query(None),
     exclude_st: bool = Query(False),
     watchlist_only: bool = Query(False),
     q: str | None = Query(None, max_length=64),
@@ -61,6 +62,7 @@ def abnormal_overview(
         window=window,
         direction=direction,
         board=board,
+        boards=set(boards or []),
         exclude_st=exclude_st,
         symbols=symbols,
         query=q,
@@ -72,8 +74,9 @@ def abnormal_suppression(
     request: Request,
     symbol: str = Query(..., min_length=6, max_length=16),
     forward_days: int = Query(5, ge=0, le=10),
+    window: Literal["3d", "10d", "30d"] | None = Query(None),
 ):
-    """异动阈值价格压制: 各窗口今日/后续交易日的收盘价上限与剩余空间。
+    """异动阈值价格压制: 指定窗口今日/后续交易日的收盘价上限与剩余空间。
 
     偏移异动的阈值本质上是价格上限; 把阈值反解成收盘价, 并随 N 日窗口
     逐日滚动, 供个股详情弹窗展示「后续上涨空间」。
@@ -83,4 +86,5 @@ def abnormal_suppression(
         repo,
         symbol=symbol,
         forward_days=forward_days,
+        window=window,
     )

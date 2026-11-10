@@ -12,6 +12,7 @@ export const DAILY_DATA_QUERY_PREFIXES = new Set([
   'screener-cached', 'screener-kline-batch', 'market-snapshot', 'overview-market',
   'index-quotes', 'index-daily', 'watchlist-enriched', 'kline-batch', 'kline', 'kline-latest', 'stock-levels',
   'regime-history', 'regime-latest', 'regime-states', 'regime-coverage', 'regime-phases', 'regime-mainline',
+  'max-board-relay',
 ])
 
 /** 分钟落盘补拉后的体检与直接消费查询, 不影响日K/财务或独立的指数分钟数据。 */
@@ -54,6 +55,7 @@ export const QK = {
                            window?: string
                            direction?: string
                            board?: string
+                           boards?: string[]
                            excludeSt?: boolean
                            watchlistOnly?: boolean
                            query?: string
@@ -63,16 +65,16 @@ export const QK = {
                            limit,
                            filters.window ?? '',
                            filters.direction ?? 'both',
-                           filters.board ?? '',
+                           filters.boards?.join(',') ?? filters.board ?? '',
                            filters.excludeSt ? 1 : 0,
                            filters.watchlistOnly ? 1 : 0,
                            filters.query ?? '',
                          ] as const,
   // 盘中异动信号聚合 (异动监控「盘中」tab)
   abnormalIntraday:     (limit: number) => ['abnormal-intraday', limit] as const,
-  // 异动阈值价格压制 (个股详情弹窗, 按 symbol + 预测天数)
-  abnormalSuppression:  (symbol: string, forwardDays: number) =>
-                           ['abnormal-suppression', symbol, forwardDays] as const,
+  // 异动阈值价格压制 (个股详情弹窗, 按 symbol + 预测天数 + 所选窗口)
+  abnormalSuppression:  (symbol: string, forwardDays: number, window?: string) =>
+                           ['abnormal-suppression', symbol, forwardDays, window ?? ''] as const,
   // 不用 watchlist- 前缀: 日K历史盘中几乎不变, 若被 SSE quotes_updated 高频失效
   // (expert 1s) 会导致全自选日K每秒重拉, staleTime 形同虚设。
   // 刷新点: staleTime 过期 + Watchlist 增删自选/改蜡烛天数时的手动失效;
@@ -103,6 +105,7 @@ export const QK = {
   extSeries:           (colsKey: string, date?: string | null, symbolsKey?: string) => ['ext-series', colsKey, date ?? '', symbolsKey ?? ''] as const,
   marketSnapshot:       ['market-snapshot'] as const,
   limitLadder:          (asOf?: string) => ['limit-ladder', asOf] as const,
+  maxBoardRelay:        (days: number, asOf?: string) => ['max-board-relay', days, asOf ?? ''] as const,
 
   // 通用主题分析器 (用户自建主题 + 股票池)
   themeAnalyzerRoot:     ['theme-analyzer'] as const,

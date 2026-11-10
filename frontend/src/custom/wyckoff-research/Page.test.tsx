@@ -156,25 +156,21 @@ function renderPage() {
   ))
 }
 
-it('默认关闭研究时不发起事件请求', async () => {
+it('自选为空时不请求事件并提示未选标的', async () => {
+  mocks.watchlist.mockResolvedValue({ symbols: [] })
   renderPage()
-  await flush()
-
-  expect(host.textContent).toContain('研究未启用')
+  await vi.waitFor(() => expect(host.textContent).toContain('未选标的'), { timeout: 2_000 })
   expect(mocks.events).not.toHaveBeenCalled()
-  const toggle = host.querySelector<HTMLButtonElement>('button[role="switch"]')!
-  expect(toggle.getAttribute('aria-checked')).toBe('false')
   expect(host.querySelector('[data-testid="kline"]')).toBeNull()
+  await vi.waitFor(() => expect(host.textContent).toContain('自选为空'), { timeout: 2_000 })
 })
 
-it('开启研究但未选标的仍不请求', async () => {
+it('进入页面默认加载自选第一只', async () => {
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  await flush()
-
-  expect(host.textContent).toContain('未选标的')
-  expect(mocks.events).not.toHaveBeenCalled()
+  await vi.waitFor(() => expect(mocks.events).toHaveBeenCalledWith(expect.objectContaining({ symbol: '600519.SH' })), { timeout: 2_000 })
+  await vi.waitFor(() => expect(eventRows()).toHaveLength(5), { timeout: 2_000 })
+  expect(host.textContent).toContain('600519.SH')
+  expect(host.querySelector('button[role="switch"]')).toBeNull()
 })
 
 it('左侧自选列表复用自选查询，点击即切换标的', async () => {
@@ -185,7 +181,7 @@ it('左侧自选列表复用自选查询，点击即切换标的', async () => {
   expect(mocks.watchlist).toHaveBeenCalledTimes(1)
   expect(rail.textContent).toContain('603618.SH')
 
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
+  await vi.waitFor(() => expect(mocks.events).toHaveBeenCalled(), { timeout: 2_000 })
   const hangdian = [...rail.querySelectorAll<HTMLButtonElement>('button')].find(node => node.textContent?.includes('杭电股份'))!
   act(() => hangdian.click())
   await vi.waitFor(() => expect(mocks.events).toHaveBeenCalledWith(expect.objectContaining({ symbol: '603618.SH' })), { timeout: 2_000 })
@@ -212,10 +208,6 @@ it('自选面板支持按分组筛选', async () => {
 
 it('选标的后共用 as_of，并把标记落在确认日', async () => {
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
   await vi.waitFor(() => expect(eventRows()).toHaveLength(5), { timeout: 2_000 })
 
   expect(mocks.events).toHaveBeenCalledTimes(1)
@@ -249,9 +241,6 @@ it('选标的后共用 as_of，并把标记落在确认日', async () => {
 
 it('关闭失效图层后不再绘制失效标记', async () => {
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
   await vi.waitFor(() => expect(chartProps.current).not.toBeNull(), { timeout: 2_000 })
 
   act(() => buttonByText('失效')!.click())
@@ -262,9 +251,6 @@ it('关闭失效图层后不再绘制失效标记', async () => {
 
 it('截止日期与图表共用同一边界', async () => {
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
   await vi.waitFor(() => expect(chartProps.current).not.toBeNull(), { timeout: 2_000 })
 
   act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-asof"]')!.click())
@@ -277,17 +263,14 @@ it('历史不足与不可计算分别呈现，不画图表冒充就绪', async (
     status: 'insufficient_data', events: [], candidates: [], observed_bars: 88, required_bars: 150,
   }))
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
   await vi.waitFor(() => expect(host.textContent).toContain('需要 150 交易日'), { timeout: 2_000 })
   expect(host.querySelector('[data-testid="kline"]')).toBeNull()
   expect(host.textContent).toContain('历史不足')
 
   queryClient.clear()
   mocks.events.mockResolvedValue(payload({ status: 'not_computable', events: [], candidates: [], missing_columns: ['volume'] }))
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
-  await flush()
+  // 换窗口触发新的查询键（同标的同参数会被缓存）
+  act(() => buttonByText('250日')!.click())
   await vi.waitFor(() => expect(host.textContent).toContain('缺少计算字段：volume'), { timeout: 2_000 })
   expect(host.textContent).toContain('不可计算')
 })
@@ -295,9 +278,6 @@ it('历史不足与不可计算分别呈现，不画图表冒充就绪', async (
 it('请求失败保留参数并提供重试', async () => {
   mocks.events.mockRejectedValue(new Error('boom'))
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
   await vi.waitFor(() => expect(host.textContent).toContain('请求失败'), { timeout: 2_000 })
 
   mocks.events.mockResolvedValue(payload())
@@ -311,9 +291,6 @@ it('请求失败保留参数并提供重试', async () => {
 
 it('窗口长度进入查询键并切换图表可见根数', async () => {
   renderPage()
-  await flush()
-  act(() => host.querySelector<HTMLButtonElement>('button[role="switch"]')!.click())
-  act(() => host.querySelector<HTMLButtonElement>('[data-testid="pick-stock"]')!.click())
   await vi.waitFor(() => expect(chartProps.current).not.toBeNull(), { timeout: 2_000 })
 
   act(() => buttonByText('250日')!.click())

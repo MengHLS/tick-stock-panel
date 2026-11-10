@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } fr
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, RefreshCw, Clock, LineChart, Star, RadioTower, Maximize2, Minimize2, Activity } from 'lucide-react'
-import { api, type AbnormalRow } from '@/lib/api'
+import { api, type AbnormalRow, type AbnormalWindowKey } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { cn } from '@/lib/cn'
 import { cnSignal } from '@/lib/signals'
@@ -34,6 +34,8 @@ export interface Props {
   onClose: () => void
   /** 从偏移异动列表打开时带入的当前行: 保证不在 overview 前 N 条也能显示异动/压制信息 */
   abnormalRow?: AbnormalRow | null
+  /** 从偏移异动列表打开时选中的窗口: 弹窗只查询和展示该窗口 */
+  abnormalWindow?: AbnormalWindowKey
   /** 触发信息 (来自监控触发记录, 有值时在顶栏下方显示) */
   triggerInfo?: {
     price?: number | null
@@ -99,7 +101,8 @@ function fmtAbnormalCalcTime(asofSec: number): string {
 
 
 export function StockPreviewDialogContent({
-  symbol, name, onClose, abnormalRow, triggerInfo, navList: navListSource, onNavigate,
+  symbol, name, onClose, abnormalRow, abnormalWindow, triggerInfo,
+  navList: navListSource, onNavigate,
 }: Props) {
   const [view, setView] = useState<PreviewView>('daily')
   const panelId = useId()
@@ -112,6 +115,8 @@ export function StockPreviewDialogContent({
   const selectedTab = isChartView ? undefined : extensionTabs.find(tab => view === `extension:${tab.id}`)
   const TabContent = selectedTab?.component
   const [intradayDays, setIntradayDays] = useState<number | null>(loadIntradayDays)
+  const [intradaySessionDates, setIntradaySessionDates] = useState<string[]>([])
+  const [intradayFocusDate, setIntradayFocusDate] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState(getDefaultRange)
   const [rollingMonths, setRollingMonths] = useState<number | null>(6)
   const clock = useQuoteClock()
@@ -131,6 +136,16 @@ export function StockPreviewDialogContent({
   const qc = useQueryClient()
   const backdrop = useDialogBackdrop(onClose)
 
+  useEffect(() => {
+    setIntradaySessionDates([])
+    setIntradayFocusDate(null)
+  }, [symbol])
+
+  const handleIntradaySessionsChange = useCallback((dates: string[]) => {
+    setIntradaySessionDates(dates)
+    setIntradayFocusDate(prev => prev && dates.includes(prev) ? prev : null)
+  }, [])
+
   const watchlist = useQuery({
     queryKey: QK.watchlist,
     queryFn: api.watchlistList,
@@ -141,11 +156,15 @@ export function StockPreviewDialogContent({
     queryFn: api.monitorRulesList,
     enabled: !!symbol,
   })
-  // 异动边缘: 与异动页同 queryKey 共享缓存; 该股处于观察/边缘/触发状态时在图表上方显示信息条。
-  // 尊重异动页「主开关默认关闭, 关闭时零计算」的设计 — 开关关闭时弹窗不触发全市场计算
+  // 从异动页打开时只查询当前窗口；其他入口未指定 abnormalWindow 时保持原行为。
+  // 尊重异动页「主开关默认关闭, 关闭时零计算」的设计 — 开关关闭时弹窗不触发全市场计算。
   const abnormal = useQuery({
-    queryKey: QK.abnormalOverview(0.5, 300),
-    queryFn: () => api.abnormalOverview(0.5, 300),
+    queryKey: QK.abnormalOverview(0.5, 300, abnormalWindow ? { window: abnormalWindow } : {}),
+    queryFn: () => api.abnormalOverview(
+      0.5,
+      300,
+      abnormalWindow ? { window: abnormalWindow } : {},
+    ),
     enabled: !!symbol && !abnormalRow && storage.abnormalEnabled.get(false),
     // enriched 缓存预热期间会返回空快照; 弹窗单独打开时也要短轮询恢复。
     refetchInterval: (query) =>
@@ -154,9 +173,18 @@ export function StockPreviewDialogContent({
   const abRow = abnormalRow ?? (symbol
     ? abnormal.data?.rows.find(r => r.symbol === symbol)
     : undefined)
+  const abWindowEntries = useMemo(() => {
+    if (!abRow) return []
+    if (abnormalWindow) {
+      const info = abRow.windows[abnormalWindow]
+      return info ? [[abnormalWindow, info] as const] : []
+    }
+    return Object.entries(abRow.windows)
+      .sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10))
+  }, [abRow, abnormalWindow])
   // 接近度最高的窗口 (信息条中高亮)
-  const abDominantWindow = abRow
-    ? Object.entries(abRow.windows).reduce(
+  const abDominantWindow = !abnormalWindow && abRow
+    ? abWindowEntries.reduce(
         (best, [k, w]) => (!best || w.closeness > best[1].closeness ? [k, w] as const : best),
         undefined as undefined | readonly [string, { value: number; threshold: number; closeness: number }],
       )
@@ -380,7 +408,7 @@ export function StockPreviewDialogContent({
                     </div>
                   </div>
                 ) : view === 'intraday' && (
-                  <div className="inline-flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <div className="inline-flex shrink-0 items-center rounded border border-border/60 bg-base/60 p-0.5" aria-label="分时周期">
                       {dayOptions.map(days => (
                         <button
@@ -398,6 +426,17 @@ export function StockPreviewDialogContent({
                         </button>
                       ))}
                     </div>
+                    <select
+                      aria-label="分时日期"
+                      value={intradayFocusDate ?? ''}
+                      onChange={event => setIntradayFocusDate(event.target.value || null)}
+                      className="h-7 min-w-[104px] rounded border border-border/60 bg-base/60 px-2 font-mono text-[11px] text-secondary outline-none transition-colors hover:text-foreground focus:border-accent/60"
+                    >
+                      <option value="">近{effectiveIntradayDays}日</option>
+                      {intradaySessionDates.map(date => (
+                        <option key={date} value={date}>{date}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
               </div>
@@ -508,7 +547,7 @@ export function StockPreviewDialogContent({
             )}
 
             {/* 异动边缘信息条 (与异动页同源; 该股无异动数据时不显示)。整条按状态着色提升辨识度 */}
-            {abRow && (() => {
+            {abRow && abWindowEntries.length > 0 && (() => {
               const meta = AB_STATUS_META[abRow.status] ?? AB_STATUS_META.watch
               return (
                 <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 shrink-0 ${meta.bar}`}>
@@ -519,15 +558,13 @@ export function StockPreviewDialogContent({
                       {meta.label}
                     </span>
                   </span>
-                  {Object.entries(abRow.windows)
-                    .sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10))
-                    .map(([w, info]) => {
-                      const dominant = abDominantWindow?.[0] === w
+                  {abWindowEntries.map(([w, info]) => {
+                      const dominant = abnormalWindow ? true : abDominantWindow?.[0] === w
                       const thresholdSign = info.value >= 0 ? '+' : '−'
                       return (
                         <span
                           key={w}
-                          title={`近${parseInt(w, 10)}日累计偏离(含实时) / 交易所规则阈值 · 接近度=|偏离|/阈值`}
+                          title={`本轮${info.window_days ?? parseInt(w, 10)}日偏离(含实时)${info.base_date ? ` · 起点 ${info.base_date}` : ''} / 交易所规则阈值 · 接近度=|偏离|/阈值`}
                           className={`shrink-0 rounded border px-1.5 py-0.5 font-mono text-[11px] ${
                             dominant
                               ? 'border-border bg-elevated font-semibold text-foreground'
@@ -538,6 +575,9 @@ export function StockPreviewDialogContent({
                           <span className={info.value >= 0 ? 'text-bull' : 'text-bear'}>{fmtPct(info.value)}</span>
                           <span className="text-muted"> / {thresholdSign}{(info.threshold * 100).toFixed(0)}%</span>
                           <span className="text-muted"> · 接近{(info.closeness * 100).toFixed(0)}%</span>
+                          {info.window_days != null && info.window_days !== parseInt(w, 10) && (
+                            <span className="ml-1 text-[9px] font-normal text-muted/70">{info.window_days}日</span>
+                          )}
                         </span>
                       )
                     })}
@@ -554,7 +594,11 @@ export function StockPreviewDialogContent({
             })()}
 
             {abRow && symbol && (
-              <AbnormalSuppression symbol={symbol} days={effectiveIntradayDays} />
+              <AbnormalSuppression
+                symbol={symbol}
+                days={effectiveIntradayDays}
+                window={abnormalWindow}
+              />
             )}
 
             <div role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${view}`} className="min-h-0 flex-1 overflow-auto p-3 sm:px-4 sm:py-3">
@@ -591,10 +635,12 @@ export function StockPreviewDialogContent({
                   symbol={symbol}
                   renderer="lightweight"
                   days={effectiveIntradayDays}
+                  selectedDate={intradayFocusDate}
                   height={480}
                   refetchIntervalMs={intradayRefetchMs}
                   priceLines={monitorPriceLines}
                   onPriceDoubleClick={openPriceAlert}
+                  onSessionsChange={handleIntradaySessionsChange}
                 />
                 </div>
               ) : selectedTab && TabContent && (

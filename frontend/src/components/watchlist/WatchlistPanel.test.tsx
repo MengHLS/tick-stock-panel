@@ -127,3 +127,16 @@ it('点击标的回调并高亮当前标的', async () => {
   act(() => target.click())
   expect(onSelect).toHaveBeenCalledWith('600519.SH', '贵州茅台')
 })
+
+it('autoSelectFirst 在无当前标的时选中当前分组第一只', async () => {
+  const onSelect = vi.fn()
+  act(() => root.render(
+    <QueryClientProvider client={queryClient}>
+      <WatchlistPanel autoSelectFirst onSelect={onSelect} />
+    </QueryClientProvider>,
+  ))
+  await vi.waitFor(() => expect(onSelect).toHaveBeenCalledWith('600519.SH', '贵州茅台'), { timeout: 2_000 })
+
+  await flush()
+  expect(onSelect).toHaveBeenCalledTimes(1)
+})

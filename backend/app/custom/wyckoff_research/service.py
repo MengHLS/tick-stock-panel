@@ -1,6 +1,7 @@
 """只读编排：有界读取日线 enriched，按 as_of 截断后调用纯规则计算。"""
 from __future__ import annotations
 
+import time
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -12,6 +13,10 @@ from .spec import load_spec, spec_warnings
 
 REQUIRED_COLUMNS = ["symbol", "date", "open", "high", "low", "close", "volume"]
 MAX_WINDOW_BARS = 500
+
+# 最新 enriched 日期是目录扫描；缓存 30 秒，避免每次请求都扫一遍分区目录。
+_LATEST_TTL_SECONDS = 30.0
+_LATEST_CACHE: dict[str, tuple[float, date | None]] = {}
 
 
 class ResearchInputError(ValueError):
@@ -46,6 +51,43 @@ def _missing_price_column(frame: pl.DataFrame) -> list[str]:
     return [column for column in REQUIRED_COLUMNS if column not in frame.columns]
 
 
+def _latest_enriched_date(panel: Any, data_dir: Any) -> date | None:
+    key = str(data_dir)
+    now = time.monotonic()
+    cached = _LATEST_CACHE.get(key)
+    if cached is not None and now - cached[0] < _LATEST_TTL_SECONDS:
+        return cached[1]
+    value = panel.latest_date(ASSET_TYPE)
+    _LATEST_CACHE[key] = (now, value)
+    return value
+
+
+def _read_enriched_partitions(market: Any, symbol: str, start: date, end: date) -> pl.DataFrame:
+    """按日直读 enriched 分区，避免仓库 enriched 区间缓存的冷启动全量重算。"""
+    if market is None:
+        return pl.DataFrame()
+    try:
+        days = market.dataset_partition_dates("kline_daily_enriched", start, end)
+    except Exception:  # noqa: BLE001 - 回退到批量接口
+        days = []
+    frames: list[pl.DataFrame] = []
+    for day in days:
+        try:
+            part = market.read_dataset_partition("kline_daily_enriched", day, REQUIRED_COLUMNS)
+        except Exception:  # noqa: BLE001 - 单日损坏跳过
+            continue
+        if part.is_empty() or "symbol" not in part.columns:
+            continue
+        selected = part.filter(pl.col("symbol") == symbol)
+        if not selected.is_empty():
+            frames.append(selected)
+    if frames:
+        return pl.concat(frames, how="diagonal_relaxed")
+    if callable(getattr(market, "get_daily_batch", None)):
+        return market.get_daily_batch([symbol], start, end, columns=REQUIRED_COLUMNS)
+    return pl.DataFrame()
+
+
 def load_events(
     runtime: Any,
     *,
@@ -78,9 +120,7 @@ def load_events(
 
     panel = runtime.enriched_panel
     market = getattr(runtime, "market_data", None)
-    latest_daily = market.latest_daily_date() if callable(getattr(market, "latest_daily_date", None)) else None
-    candidates = [value for value in (panel.latest_date(ASSET_TYPE), latest_daily) if value is not None]
-    latest = min(candidates) if candidates else None
+    latest = _latest_enriched_date(panel, runtime.data_dir)
     if as_of is not None and latest is not None and as_of > latest:
         raise ResearchInputError("as_of 不得晚于最后一根已完成日线")
     effective_as_of = as_of or latest
@@ -106,9 +146,7 @@ def load_events(
         if cached is not None:
             cached["cached"] = True
             return cached
-    frame = panel.range(start, effective_as_of, symbols=[symbol], columns=REQUIRED_COLUMNS)
-    if (frame is None or frame.is_empty()) and callable(getattr(market, "get_daily_batch", None)):
-        frame = market.get_daily_batch([symbol], start, effective_as_of, columns=REQUIRED_COLUMNS)
+    frame = _read_enriched_partitions(market, symbol, start, effective_as_of)
     generation_after = panel.data_generation(ASSET_TYPE)
     if frame is None or frame.is_empty():
         return {**meta, "as_of": effective_as_of.isoformat(), "status": "no_daily", "events": [], "candidates": []}

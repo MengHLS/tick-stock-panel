@@ -2,7 +2,10 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import type { AbnormalSuppression as AbnormalSuppressionPayload } from '@/lib/api'
+import type {
+  AbnormalSuppression as AbnormalSuppressionPayload,
+  AbnormalWindowKey,
+} from '@/lib/api'
 import { AbnormalSuppressionRows } from './AbnormalSuppression'
 
 vi.mock('./AbnormalMiniStructure', () => ({
@@ -33,10 +36,10 @@ function payload(windows: AbnormalSuppressionPayload['windows']): AbnormalSuppre
   }
 }
 
-function render(data: AbnormalSuppressionPayload) {
+function render(data: AbnormalSuppressionPayload, window?: AbnormalWindowKey) {
   return act(async () => {
     root.render(
-      <AbnormalSuppressionRows data={data} symbol="002242.SZ" days={20} />,
+      <AbnormalSuppressionRows data={data} symbol="002242.SZ" days={20} window={window} />,
     )
   })
 }
@@ -47,6 +50,7 @@ it('展示今明后压制价与剩余空间', async () => {
       threshold: 1,
       direction: 'up',
       current_deviation: 0.8,
+      effective_days: 7,
       days: [
         { offset: 0, base_date: '2026-09-01', cap: 24, room_pct: 0.2 },
         { offset: 1, base_date: '2026-09-02', cap: 25, room_pct: 0.25 },
@@ -66,7 +70,7 @@ it('展示今明后压制价与剩余空间', async () => {
   }))
 
   expect(host.textContent).toContain('后续压制')
-  expect(host.textContent).toContain('10日')
+  expect(host.textContent).toContain('10日(7日)')
   expect(host.textContent).toContain('24.00')
   expect(host.textContent).toContain('+20.0%')
   expect(host.textContent).toContain('30日')
@@ -107,4 +111,26 @@ it('负向偏离展示下方压制与已破状态', async () => {
 it('没有可测算窗口时显示数据不足', async () => {
   await render(payload({}))
   expect(host.textContent).toContain('压制价数据不足')
+})
+
+it('指定窗口时只展示该窗口', async () => {
+  await render(payload({
+    '10d': {
+      threshold: 1,
+      direction: 'up',
+      current_deviation: 0.8,
+      days: [{ offset: 0, base_date: '2026-09-01', cap: 24, room_pct: 0.2 }],
+    },
+    '30d': {
+      threshold: 2,
+      direction: 'up',
+      current_deviation: 1,
+      days: [{ offset: 0, base_date: '2026-08-01', cap: 30, room_pct: 0.5 }],
+    },
+  }), '10d')
+
+  expect(host.textContent).toContain('10日')
+  expect(host.textContent).toContain('24.00')
+  expect(host.textContent).not.toContain('30日')
+  expect(host.textContent).not.toContain('30.00')
 })

@@ -26,6 +26,7 @@ const PAGE_LABELS: Record<string, string> = {
   '/backtest': '回测',
   '/stock-analysis': '个股分析',
   '/limit-ladder': '连板梯队',
+  '/max-board': '最高板接力',
   '/concept-analysis': '概念板块',
   '/industry-analysis': '行业板块',
   '/financials': '财务概况',

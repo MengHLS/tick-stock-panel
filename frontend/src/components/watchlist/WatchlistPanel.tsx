@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { api, type WatchlistGroup } from '@/lib/api'
@@ -26,6 +26,8 @@ export interface WatchlistPanelProps {
   className?: string
   title?: string
   initialGroup?: WatchlistGroupFilter
+  /** 进入面板时若无当前标的，自动选中当前分组的第一只 */
+  autoSelectFirst?: boolean
 }
 
 export function WatchlistPanel({
@@ -35,6 +37,7 @@ export function WatchlistPanel({
   className,
   title = '自选',
   initialGroup = 'all',
+  autoSelectFirst = false,
 }: WatchlistPanelProps) {
   const [group, setGroup] = useState<WatchlistGroupFilter>(initialGroup)
   const [query, setQuery] = useState('')
@@ -68,6 +71,14 @@ export function WatchlistPanel({
       || (entry.name ?? '').toLowerCase().includes(keyword),
     )
   }, [entries, group, query])
+
+  useEffect(() => {
+    if (!autoSelectFirst || entriesQ.isPending) return
+    const scoped = filterWatchlistEntries(entries, group)
+    if (scoped.length === 0) return
+    if (activeSymbol && scoped.some(entry => entry.symbol === activeSymbol)) return
+    onSelect(scoped[0].symbol, scoped[0].name ?? null)
+  }, [activeSymbol, autoSelectFirst, entries, entriesQ.isPending, group, onSelect])
 
   return (
     <aside className={cn('flex min-h-0 flex-col', className)} aria-label="自选列表">
