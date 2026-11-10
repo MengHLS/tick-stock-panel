@@ -1,0 +1,1521 @@
+{
+ "batch": "s01b/postfix_20261108/phase2/results_all",
+ "purpose": "把 research/s01b-20261108/results/ 下全部臂在当前引擎（末日结算修复后）按原参数重跑",
+ "engine": {
+  "path": "C:\\work\\sourcecode\\tick-stock-panel\\backend\\app\\backtest\\engine.py",
+  "bytes": 269940,
+  "sha256": "4243fe97723dad20d01bd440783cf71ea6ef05c55a9ffd4652492031e40d8386"
+ },
+ "conclusion": {
+  "arms_total": 18,
+  "arms_changed_by_C": 0,
+  "arms_byte_identical_to_D": 18,
+  "why_unchanged": "18 臂策略文件全部声明 finalize_open_at_end=True（末日强制清算分支），按契约该分支本就不受末日结算缺陷影响；修复只改「不尝试清算」时的记账路径。",
+  "smoke_a0_note": "唯一 stats 差异是 market_matrix_shape/bytes（59×5197 → 59×5811，数据根扩容），trades/equity 仍逐字节相同。"
+ },
+ "scripts": {
+  "run_all_arms.py": {
+   "bytes": 11469,
+   "sha256": "310be95f10130933cfd3936f85170a89f9f1d9c248a2c46310c17b51e26aa0db"
+  },
+  "build_delta.py": {
+   "bytes": 20225,
+   "sha256": "8cbb01bd193a817637d59d4a6c566f6be567ae176407e13cf516edacaa0a3310"
+  },
+  "verify_phase2.py": {
+   "bytes": 7110,
+   "sha256": "dcf5845fddebefb1ed9dc3e644c14598932eaedae1040d22e54d3dd6d163183c"
+  },
+  "scan_stale_tokens.py": {
+   "bytes": 3137,
+   "sha256": "18ad58dd8f9cb81f242c7b79a4d256dbaef1bcdb411cbabf8039ca1a1c46373d"
+  }
+ },
+ "deliverables": {
+  "METRICS_D_vs_C_20261108.md": {
+   "bytes": 22884,
+   "sha256": "6c1ffc1019545be505a455a03621c0e4c6badcd997e9209a055388a9f5dc6922"
+  },
+  "delta_arms.json": {
+   "bytes": 95027,
+   "sha256": "7b2686a84484f7b9b5077a6a6a2d8aca6e72d4a3bdea186dda129cf207c5cfd0"
+  },
+  "metrics_table_C_20261108.md": {
+   "bytes": 2738,
+   "sha256": "d025d8ce96f98cc2a204d6a60c82b693306cdb15d0f597b6627d0070a915cf3a"
+  },
+  "REPORT_phase2_20261108.md": {
+   "bytes": 16082,
+   "sha256": "b8132e89325bc51845377cefbef8b68c3ec76a4b39107350c8241936c5a51e4f"
+  },
+  "verify_phase2_result.txt": {
+   "bytes": 9849,
+   "sha256": "8ff93c6d5a40cd873522d3304c20aab78a1c6c55b8b464c627aa887d99b1e817"
+  },
+  "stale_tokens_scan.json": {
+   "bytes": 4538,
+   "sha256": "36ca41253d3a0391db6b53e8349308105e34cd0dc293ebd729e7ba6600ca4d9e"
+  }
+ },
+ "anchor_six": [
+  {
+   "tag": "base_nodefaults_10bp",
+   "total_return_D": -0.5147,
+   "total_return_C": -0.5164,
+   "delta_pp": -0.17,
+   "final_D": 485293.78,
+   "final_C": 483571.22,
+   "expected_pp_D": -51.47,
+   "expected_pp_C": -51.64,
+   "mdd_D": -0.7195,
+   "mdd_C": -0.7195,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_execution_costs",
+   "total_return_D": -0.5146,
+   "total_return_C": -0.5163,
+   "delta_pp": -0.17,
+   "final_D": 485420.69,
+   "final_C": 483698.12,
+   "expected_pp_D": -51.46,
+   "expected_pp_C": -51.63,
+   "mdd_D": -0.7194,
+   "mdd_C": -0.7194,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_entry_price_basis_raw",
+   "total_return_D": -0.5653,
+   "total_return_C": -0.567,
+   "delta_pp": -0.17,
+   "final_D": 434710.53,
+   "final_C": 432987.97,
+   "expected_pp_D": -56.53,
+   "expected_pp_C": -56.7,
+   "mdd_D": -0.7431,
+   "mdd_C": -0.7441,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "base_nodefaults_gross",
+   "total_return_D": -0.4729,
+   "total_return_C": -0.4746,
+   "delta_pp": -0.17,
+   "final_D": 527074.75,
+   "final_C": 525402.74,
+   "expected_pp_D": null,
+   "expected_pp_C": null,
+   "mdd_D": -0.7108,
+   "mdd_C": -0.7108,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_block_limit_open",
+   "total_return_D": 0.1213,
+   "total_return_C": 0.1178,
+   "delta_pp": -0.35,
+   "final_D": 1121259.36,
+   "final_C": 1117814.25,
+   "expected_pp_D": 12.13,
+   "expected_pp_C": 11.78,
+   "mdd_D": -0.4012,
+   "mdd_C": -0.4012,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_trailing_peak_price_close",
+   "total_return_D": -0.5147,
+   "total_return_C": -0.5164,
+   "delta_pp": -0.17,
+   "final_D": 485293.78,
+   "final_C": 483571.22,
+   "expected_pp_D": -51.47,
+   "expected_pp_C": -51.64,
+   "mdd_D": -0.7195,
+   "mdd_C": -0.7195,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_finalize_open_at_end",
+   "total_return_D": -0.5218,
+   "total_return_C": -0.5218,
+   "delta_pp": 0.0,
+   "final_D": 478212.34,
+   "final_C": 478212.34,
+   "expected_pp_D": -52.18,
+   "expected_pp_C": -52.18,
+   "mdd_D": -0.7195,
+   "mdd_C": -0.7195,
+   "parquet_trades_same": true
+  },
+  {
+   "tag": "only_exit_signal_requires_profit",
+   "total_return_D": -0.3262,
+   "total_return_C": -0.3262,
+   "delta_pp": 0.0,
+   "final_D": 673798.76,
+   "final_C": 673798.76,
+   "expected_pp_D": -32.62,
+   "expected_pp_C": -32.62,
+   "mdd_D": -0.6177,
+   "mdd_C": -0.6177,
+   "parquet_trades_same": true
+  }
+ ],
+ "arms": [
+  {
+   "tag": "a0_10bp",
+   "strategy_id": "s01b_a0",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0.py",
+   "strategy_file_sha256": "cd941b474f59077d505e829200af149f5c99e9a2e59977190151e1b5bac744b8",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 199,
+   "completed_trade_count": 194,
+   "open_at_end_count": 5,
+   "final_equity": 1242725.28,
+   "total_return": 0.2427,
+   "annual_return": 0.0313,
+   "max_drawdown": -0.3927,
+   "win_rate": 0.3351,
+   "median_pnl": -0.0964,
+   "avg_holding_days": 45.3,
+   "oos_annual": 0.0473,
+   "oos_mdd": -0.2954,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "rerun_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "D_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06"
+    },
+    "equity.parquet": {
+     "C_sha256": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "rerun_sha256": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "D_sha256": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "2501c913b80b29c14432a49f0cfdc134234bee84611af07a239a202d88c43068",
+     "rerun_sha256": "2501c913b80b29c14432a49f0cfdc134234bee84611af07a239a202d88c43068",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "df2a4e5358bd41364b346020ed6ebe656466ecea64792837aa0b65f8911df9d4",
+     "rerun_sha256": "24ce81b187d869990bf36dcb90a79dcac7dfb15f58aeacfb035d471230446eeb",
+     "D_sha256": "b9dbf332e649fe20a691ce0f391bdbebc017fcf25daff318fa14eafb81798d6d"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a0_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a0 --tag a0_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a0_30bp",
+   "strategy_id": "s01b_a0",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0.py",
+   "strategy_file_sha256": "cd941b474f59077d505e829200af149f5c99e9a2e59977190151e1b5bac744b8",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 30.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 199,
+   "completed_trade_count": 194,
+   "open_at_end_count": 5,
+   "final_equity": 1134266.2,
+   "total_return": 0.1343,
+   "annual_return": 0.018,
+   "max_drawdown": -0.4089,
+   "win_rate": 0.3299,
+   "median_pnl": -0.1,
+   "avg_holding_days": 45.3,
+   "oos_annual": 0.0332,
+   "oos_mdd": -0.3033,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "35018b00cda9406acca20ed7de7aabbc2c0455395513b01ee13e45f0e2fb7672",
+     "rerun_sha256": "35018b00cda9406acca20ed7de7aabbc2c0455395513b01ee13e45f0e2fb7672",
+     "D_sha256": "35018b00cda9406acca20ed7de7aabbc2c0455395513b01ee13e45f0e2fb7672"
+    },
+    "equity.parquet": {
+     "C_sha256": "582596164cbee00881db4af5be46cbfbad5383103c5b2f67baf5343431e7af1a",
+     "rerun_sha256": "582596164cbee00881db4af5be46cbfbad5383103c5b2f67baf5343431e7af1a",
+     "D_sha256": "582596164cbee00881db4af5be46cbfbad5383103c5b2f67baf5343431e7af1a"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "ac7bb3b3a094d742c76d9af71f02c00e3002fe9815c8bf3d9faf5c37d1db9a07",
+     "rerun_sha256": "ac7bb3b3a094d742c76d9af71f02c00e3002fe9815c8bf3d9faf5c37d1db9a07",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "72e2f1f971a3c4acf238a912487e7b0b4a46b2f137fca59fc6573d38174a016e",
+     "rerun_sha256": "db9bcd3abf283f26f148a4992b514b0be455e857adb686e0a0a3a7728e89a35d",
+     "D_sha256": "de256c816b3e4dfddcf42856ef62ded541d373f426e5e99033e6456a8d2da635"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a0_30bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a0 --tag a0_30bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0.py\" --slippage-bps 30",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a0_gross",
+   "strategy_id": "s01b_a0",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a0.py",
+   "strategy_file_sha256": "f99041de09d7521b243db6128729d70de4c5e2aec3527fcfe8e19589f6ee7bb0",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 0.0,
+   "gross": true,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 199,
+   "completed_trade_count": 194,
+   "open_at_end_count": 5,
+   "final_equity": 1338157.49,
+   "total_return": 0.3382,
+   "annual_return": 0.0421,
+   "max_drawdown": -0.3802,
+   "win_rate": 0.3351,
+   "median_pnl": -0.0932,
+   "avg_holding_days": 45.3,
+   "oos_annual": 0.059,
+   "oos_mdd": -0.2898,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "6c53a19dc744ea4500492f7dd480ce81bc8ba3ac6fd7be46788fb710e6419a12",
+     "rerun_sha256": "6c53a19dc744ea4500492f7dd480ce81bc8ba3ac6fd7be46788fb710e6419a12",
+     "D_sha256": "6c53a19dc744ea4500492f7dd480ce81bc8ba3ac6fd7be46788fb710e6419a12"
+    },
+    "equity.parquet": {
+     "C_sha256": "92af13517a990c60014022d9258d2a965311e85d3d5a3aacc85d249c7e84fa28",
+     "rerun_sha256": "92af13517a990c60014022d9258d2a965311e85d3d5a3aacc85d249c7e84fa28",
+     "D_sha256": "92af13517a990c60014022d9258d2a965311e85d3d5a3aacc85d249c7e84fa28"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "4a9ff047f0b2cc412e5776be9d4937669e52f8582c5569b8db1eb33e115e57df",
+     "rerun_sha256": "4a9ff047f0b2cc412e5776be9d4937669e52f8582c5569b8db1eb33e115e57df",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "c71a14a5e6fefb6f3a57dad6fc60868735335cdf2d2d212bef46a4c0ceb234d7",
+     "rerun_sha256": "2cf140300f079eb84c0bad2eb7370ead99a86ed9b34b1c0ace4de9a14a2d667e",
+     "D_sha256": "0a0c1878e6795c5e93ec09ebc19550e52080e9ff0642d51665d132d3c771338e"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a0_gross",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a0 --tag a0_gross --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a0.py\" --gross",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a1_10bp",
+   "strategy_id": "s01b_a1",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a1.py",
+   "strategy_file_sha256": "d3b408ab72199eb81f3302de8b5171c8c658e23f9edc338ff34479269300208b",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 519,
+   "completed_trade_count": 517,
+   "open_at_end_count": 2,
+   "final_equity": 303058.96,
+   "total_return": -0.6969,
+   "annual_return": -0.1556,
+   "max_drawdown": -0.8386,
+   "win_rate": 0.1509,
+   "median_pnl": -0.0824,
+   "avg_holding_days": 16.4,
+   "oos_annual": -0.2297,
+   "oos_mdd": -0.7502,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 69042,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 26,
+    "pending_exit": 11
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be",
+     "rerun_sha256": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be",
+     "D_sha256": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be"
+    },
+    "equity.parquet": {
+     "C_sha256": "a92bc59f968c2e95e24f91d29b408f2e5d847334ac96b52f0efbef943dc1447f",
+     "rerun_sha256": "a92bc59f968c2e95e24f91d29b408f2e5d847334ac96b52f0efbef943dc1447f",
+     "D_sha256": "a92bc59f968c2e95e24f91d29b408f2e5d847334ac96b52f0efbef943dc1447f"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "9e9cfa04ecc77901c99a39d056881f235f196aab2f59c36fadbe82285093c6da",
+     "rerun_sha256": "9e9cfa04ecc77901c99a39d056881f235f196aab2f59c36fadbe82285093c6da",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "42872d8886223023bdf5e3c287ae855dba3ca72e5c672b1279adc3dacf6801d6",
+     "rerun_sha256": "8b473c3e8bd4cc71eaea06f97a90f6a498dc8667687d680d3bd519b2d4517458",
+     "D_sha256": "fc499ac1b0aa1ad4a891673b6f5e5deb80b4982bf73969e97e8dbb9c96f94288"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a1_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a1 --tag a1_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a1.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a1_30bp",
+   "strategy_id": "s01b_a1",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a1.py",
+   "strategy_file_sha256": "d3b408ab72199eb81f3302de8b5171c8c658e23f9edc338ff34479269300208b",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 30.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 521,
+   "completed_trade_count": 517,
+   "open_at_end_count": 4,
+   "final_equity": 271957.64,
+   "total_return": -0.728,
+   "annual_return": -0.1684,
+   "max_drawdown": -0.8271,
+   "win_rate": 0.1451,
+   "median_pnl": -0.0842,
+   "avg_holding_days": 16.4,
+   "oos_annual": -0.1854,
+   "oos_mdd": -0.7071,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 68921,
+    "buy_cash": 0,
+    "buy_lot_size": 1,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 1,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 26,
+    "pending_exit": 11
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "a01ef69d35ce6b44d965563bd7b633c444971f78153f56069b1cd92b3fe1d4a4",
+     "rerun_sha256": "a01ef69d35ce6b44d965563bd7b633c444971f78153f56069b1cd92b3fe1d4a4",
+     "D_sha256": "a01ef69d35ce6b44d965563bd7b633c444971f78153f56069b1cd92b3fe1d4a4"
+    },
+    "equity.parquet": {
+     "C_sha256": "e4f761826b4e9c31ceca8ff0378fb3586cdd99499dd423a5a81fa36b889afccb",
+     "rerun_sha256": "e4f761826b4e9c31ceca8ff0378fb3586cdd99499dd423a5a81fa36b889afccb",
+     "D_sha256": "e4f761826b4e9c31ceca8ff0378fb3586cdd99499dd423a5a81fa36b889afccb"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "6b90c49999c70eac8424164aa2a7913828475c06b9f8dee9a4d4373fac808a32",
+     "rerun_sha256": "6b90c49999c70eac8424164aa2a7913828475c06b9f8dee9a4d4373fac808a32",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "1f6730355f29196aa20e7dcb9f49acad47777ccbaaa805d9bd155cc8212a1158",
+     "rerun_sha256": "6c203b1ec826cd8582f7f45e3413b8407f5980d9a69cdc96aa471595a900b29a",
+     "D_sha256": "5ab2a3b4ca3dc3bbd6ad3b7581faf5834759762de24d2d9044e0fbda9b2ba5de"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a1_30bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a1 --tag a1_30bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a1.py\" --slippage-bps 30",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a1_gross",
+   "strategy_id": "s01b_a1",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a1.py",
+   "strategy_file_sha256": "34c3be6389f8c9be0b59b044d3eaf950c3c8d62497e7b5e67644b0f0c37d0e64",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 0.0,
+   "gross": true,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 525,
+   "completed_trade_count": 524,
+   "open_at_end_count": 1,
+   "final_equity": 506571.51,
+   "total_return": -0.4934,
+   "annual_return": -0.0918,
+   "max_drawdown": -0.7637,
+   "win_rate": 0.1546,
+   "median_pnl": -0.08,
+   "avg_holding_days": 16.2,
+   "oos_annual": -0.1694,
+   "oos_mdd": -0.6772,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 68954,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 10,
+    "pending_exit": 8
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "410b867816b008299b10778f37ab33fba906104dff7336b481b1bfce5ba22e01",
+     "rerun_sha256": "410b867816b008299b10778f37ab33fba906104dff7336b481b1bfce5ba22e01",
+     "D_sha256": "410b867816b008299b10778f37ab33fba906104dff7336b481b1bfce5ba22e01"
+    },
+    "equity.parquet": {
+     "C_sha256": "9714b39f33bf12576badce6cd43f8b6b3264a53de96a301b682ed25575d7e01e",
+     "rerun_sha256": "9714b39f33bf12576badce6cd43f8b6b3264a53de96a301b682ed25575d7e01e",
+     "D_sha256": "9714b39f33bf12576badce6cd43f8b6b3264a53de96a301b682ed25575d7e01e"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "a43b5ce8fa34d7269c0bdfb8c6fa423718e0d2c22fc1a8fa60d856d3590a1b8f",
+     "rerun_sha256": "a43b5ce8fa34d7269c0bdfb8c6fa423718e0d2c22fc1a8fa60d856d3590a1b8f",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "9db28b2dfd239d9842b3e45d1b46f1faaf163a38213d17f0e93bf1b1614d5f24",
+     "rerun_sha256": "917084a59037047c74ed9a805a13b6cc6b95b063937d3f4e4b8097d0f0e8749e",
+     "D_sha256": "8d0262225a9817c7ad06c4bd83603619ecaa41f7203a97d4ccf8f330d91d88c6"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a1_gross",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a1 --tag a1_gross --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a1.py\" --gross",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a2_10bp",
+   "strategy_id": "s01b_a2",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a2.py",
+   "strategy_file_sha256": "7ce513997cc478242145e677511ee20e56c0ca2be6597ed334210bbca9bdfcac",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1126,
+   "completed_trade_count": 1125,
+   "open_at_end_count": 1,
+   "final_equity": 145240.48,
+   "total_return": -0.8548,
+   "annual_return": -0.2391,
+   "max_drawdown": -0.9058,
+   "win_rate": 0.3529,
+   "median_pnl": -0.0824,
+   "avg_holding_days": 7.1,
+   "oos_annual": -0.1383,
+   "oos_mdd": -0.6504,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46500,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 13
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "920fa88944bdd6d9e32a26bab410c67cb0f1fea854b5e929c6f5d14565792dbc",
+     "rerun_sha256": "920fa88944bdd6d9e32a26bab410c67cb0f1fea854b5e929c6f5d14565792dbc",
+     "D_sha256": "920fa88944bdd6d9e32a26bab410c67cb0f1fea854b5e929c6f5d14565792dbc"
+    },
+    "equity.parquet": {
+     "C_sha256": "331be457116f202dd1df35710f2fc090cd74fbc27dd029c60624b9eb32d77a7d",
+     "rerun_sha256": "331be457116f202dd1df35710f2fc090cd74fbc27dd029c60624b9eb32d77a7d",
+     "D_sha256": "331be457116f202dd1df35710f2fc090cd74fbc27dd029c60624b9eb32d77a7d"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "b17b4676045e5f765467b281a17d4a212b56b3f0776f4ac62ab7443c45c9b5f8",
+     "rerun_sha256": "b17b4676045e5f765467b281a17d4a212b56b3f0776f4ac62ab7443c45c9b5f8",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "eae2a2503e90f9f1057bc47205e09757a7adacfdbe4bf0dda1f814039786d113",
+     "rerun_sha256": "255913e9b0d7e0faf39da5a1e985938f1e0f5008b6910969b07d10ea0b6e23c9",
+     "D_sha256": "239f678551bdf55f06be85c71b46f92a5764ea55d846898d78a879b0d7468763"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a2_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a2 --tag a2_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a2.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a2_30bp",
+   "strategy_id": "s01b_a2",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a2.py",
+   "strategy_file_sha256": "7ce513997cc478242145e677511ee20e56c0ca2be6597ed334210bbca9bdfcac",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 30.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1142,
+   "completed_trade_count": 1140,
+   "open_at_end_count": 2,
+   "final_equity": 136065.43,
+   "total_return": -0.8639,
+   "annual_return": -0.2461,
+   "max_drawdown": -0.9102,
+   "win_rate": 0.3518,
+   "median_pnl": -0.0842,
+   "avg_holding_days": 7.0,
+   "oos_annual": -0.1101,
+   "oos_mdd": -0.6056,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46428,
+    "buy_cash": 0,
+    "buy_lot_size": 12,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 32,
+    "pending_exit": 14
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "eca85517ee44c85049857bdc54928860f1f19a5cd110ff3aa8d27453c116b387",
+     "rerun_sha256": "eca85517ee44c85049857bdc54928860f1f19a5cd110ff3aa8d27453c116b387",
+     "D_sha256": "eca85517ee44c85049857bdc54928860f1f19a5cd110ff3aa8d27453c116b387"
+    },
+    "equity.parquet": {
+     "C_sha256": "27313a44f8e531603fb270e23e7b7f54fec446e7823fd332357c2c0051d6f0ef",
+     "rerun_sha256": "27313a44f8e531603fb270e23e7b7f54fec446e7823fd332357c2c0051d6f0ef",
+     "D_sha256": "27313a44f8e531603fb270e23e7b7f54fec446e7823fd332357c2c0051d6f0ef"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "44191c048a69312eeca0ff359ed23c19d0f8d362f18b584544aa3777fceeda1b",
+     "rerun_sha256": "44191c048a69312eeca0ff359ed23c19d0f8d362f18b584544aa3777fceeda1b",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "ec62aaf883c168dc02f791f0944d4f15ff11f4026d77d5845126ab46970c37b2",
+     "rerun_sha256": "9eada0876612c1836da40d9c071a6b06b571b3f77b2da79895123eff5877db27",
+     "D_sha256": "613f5edc767362c562076b836104cf13accc9c3b96a6c10996a6366018011e07"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a2_30bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a2 --tag a2_30bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a2.py\" --slippage-bps 30",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a2_gross",
+   "strategy_id": "s01b_a2",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a2.py",
+   "strategy_file_sha256": "abd57a806c18e2c9f385243d21da37e46e748bb39d2fc41c15cd135ebf940715",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 0.0,
+   "gross": true,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1134,
+   "completed_trade_count": 1132,
+   "open_at_end_count": 2,
+   "final_equity": 224488.38,
+   "total_return": -0.7755,
+   "annual_return": -0.1907,
+   "max_drawdown": -0.8697,
+   "win_rate": 0.3578,
+   "median_pnl": -0.08,
+   "avg_holding_days": 7.1,
+   "oos_annual": -0.0683,
+   "oos_mdd": -0.5808,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46208,
+    "buy_cash": 0,
+    "buy_lot_size": 2,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 13
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "390423ad502f61ca591aed65234e947a75a5fb6432402a46809891eac4ffe0a4",
+     "rerun_sha256": "390423ad502f61ca591aed65234e947a75a5fb6432402a46809891eac4ffe0a4",
+     "D_sha256": "390423ad502f61ca591aed65234e947a75a5fb6432402a46809891eac4ffe0a4"
+    },
+    "equity.parquet": {
+     "C_sha256": "306d5ee1259bd02c3805cc88d8aebe9a18b1edeaa9d0ae56af2636122a6aca35",
+     "rerun_sha256": "306d5ee1259bd02c3805cc88d8aebe9a18b1edeaa9d0ae56af2636122a6aca35",
+     "D_sha256": "306d5ee1259bd02c3805cc88d8aebe9a18b1edeaa9d0ae56af2636122a6aca35"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "d925bbd9ceda681437657b4185191b0474fa4776a1f4a78b07ea384ac81d40f3",
+     "rerun_sha256": "d925bbd9ceda681437657b4185191b0474fa4776a1f4a78b07ea384ac81d40f3",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "a160f67250215e30dd7c1d5976b73ff72cbeae054e506c619f9dd4220dcc6002",
+     "rerun_sha256": "3a273b659ba4061d520442783f15241012b2aeacee65340dffe0f4e21bfc4aab",
+     "D_sha256": "9a4f6b8ced278efcdd4d0aca20edd3f033b9e0f75c77fa31694a995a26d16c76"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a2_gross",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a2 --tag a2_gross --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a2.py\" --gross",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a3_10bp",
+   "strategy_id": "s01b_a3",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a3.py",
+   "strategy_file_sha256": "2008d0d000f781e620a2b0445ccafdeaa2f9004d9a0b90afc26750c56dc3960b",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1135,
+   "completed_trade_count": 1134,
+   "open_at_end_count": 1,
+   "final_equity": 138893.51,
+   "total_return": -0.8611,
+   "annual_return": -0.2439,
+   "max_drawdown": -0.91,
+   "win_rate": 0.3483,
+   "median_pnl": -0.0824,
+   "avg_holding_days": 7.1,
+   "oos_annual": -0.1457,
+   "oos_mdd": -0.6622,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "rerun_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "D_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa"
+    },
+    "equity.parquet": {
+     "C_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "rerun_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "D_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "rerun_sha256": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "435f4e91961c57c5831fb76299760b45279ef0ea512f643c8242be5958f78bd9",
+     "rerun_sha256": "ca9f9c0e6494ee2a38696975079b685207fa13ee33880b8aab75eb319b8df035",
+     "D_sha256": "6503ce147d646e34deac79fe1eb8f50bca36fff11362befaf01a6570d5103fa8"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a3_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a3 --tag a3_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a3.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a3_30bp",
+   "strategy_id": "s01b_a3",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a3.py",
+   "strategy_file_sha256": "2008d0d000f781e620a2b0445ccafdeaa2f9004d9a0b90afc26750c56dc3960b",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 30.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1158,
+   "completed_trade_count": 1156,
+   "open_at_end_count": 2,
+   "final_equity": 126615.45,
+   "total_return": -0.8734,
+   "annual_return": -0.2538,
+   "max_drawdown": -0.9142,
+   "win_rate": 0.3469,
+   "median_pnl": -0.0842,
+   "avg_holding_days": 6.9,
+   "oos_annual": -0.1456,
+   "oos_mdd": -0.6523,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46052,
+    "buy_cash": 0,
+    "buy_lot_size": 13,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 17
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "8b83ae44a0e710b5e090fbc708efa984aa126e0a3244c0b771c4d2b51b7842b4",
+     "rerun_sha256": "8b83ae44a0e710b5e090fbc708efa984aa126e0a3244c0b771c4d2b51b7842b4",
+     "D_sha256": "8b83ae44a0e710b5e090fbc708efa984aa126e0a3244c0b771c4d2b51b7842b4"
+    },
+    "equity.parquet": {
+     "C_sha256": "8338ae9e4350e17f4a18ac1afd2786c99e5ea66296dd0a49faf7109e6b1e0590",
+     "rerun_sha256": "8338ae9e4350e17f4a18ac1afd2786c99e5ea66296dd0a49faf7109e6b1e0590",
+     "D_sha256": "8338ae9e4350e17f4a18ac1afd2786c99e5ea66296dd0a49faf7109e6b1e0590"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "57197c85fbc96442030ebaa496da2b73703eb1bc8be7f0d842172c8e23404f72",
+     "rerun_sha256": "57197c85fbc96442030ebaa496da2b73703eb1bc8be7f0d842172c8e23404f72",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "5f71622a7aebf48f1932b182dbbc1f1fed7b090b32791578959cbb91cb2c8383",
+     "rerun_sha256": "060011b5ac8ef81efc06b97035cab546ea7f53ba6f3f31926db44f0f4d18a77a",
+     "D_sha256": "050c3ce9c9f801fd729ad79e4cab85834a75a1a5681dc35d8fbce4089649cabf"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a3_30bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a3 --tag a3_30bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a3.py\" --slippage-bps 30",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a3_gross",
+   "strategy_id": "s01b_a3",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a3.py",
+   "strategy_file_sha256": "32006512724ae04b31937486d374f0f8fe3ef56b77fb6cc1ba5b4f5bf84e34d2",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 0.0,
+   "gross": true,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1148,
+   "completed_trade_count": 1146,
+   "open_at_end_count": 2,
+   "final_equity": 197023.43,
+   "total_return": -0.803,
+   "annual_return": -0.2055,
+   "max_drawdown": -0.8736,
+   "win_rate": 0.3543,
+   "median_pnl": -0.08,
+   "avg_holding_days": 7.0,
+   "oos_annual": -0.0917,
+   "oos_mdd": -0.5802,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 45584,
+    "buy_cash": 0,
+    "buy_lot_size": 4,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 37,
+    "pending_exit": 14
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "ce45d2d050f295dd38c001a58ff5aa4768eae193a7113a11aa9a8c0a2f413fae",
+     "rerun_sha256": "ce45d2d050f295dd38c001a58ff5aa4768eae193a7113a11aa9a8c0a2f413fae",
+     "D_sha256": "ce45d2d050f295dd38c001a58ff5aa4768eae193a7113a11aa9a8c0a2f413fae"
+    },
+    "equity.parquet": {
+     "C_sha256": "833ecb25b29e4662a95bb5e4e32dc42d2a13653b0db1b34b7b3da08210349e79",
+     "rerun_sha256": "833ecb25b29e4662a95bb5e4e32dc42d2a13653b0db1b34b7b3da08210349e79",
+     "D_sha256": "833ecb25b29e4662a95bb5e4e32dc42d2a13653b0db1b34b7b3da08210349e79"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "f290279da230e4cc5e95115c82c25401300e3ced6d9a395867c98c8a4ccd48f4",
+     "rerun_sha256": "f290279da230e4cc5e95115c82c25401300e3ced6d9a395867c98c8a4ccd48f4",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "dcfc50cf6dbf419e93cd13b85bd55611de717efc0fe00f1537ffc692b474ed52",
+     "rerun_sha256": "44013c32a8a7ab80fb3946b9eade4ccfbc177e2faffce522a079acf04f3fb58b",
+     "D_sha256": "4eac012284222767b42f7c0c6bff7b36a77f9600a500764442e27e96ab9fe0cc"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a3_gross",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a3 --tag a3_gross --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a3.py\" --gross",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a2h_10bp",
+   "strategy_id": "s01b_a2h",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a2h.py",
+   "strategy_file_sha256": "e30768519bf97d27e9ba0baaeab835f31a3bdbe961fbccb1048dc7bf5d210b15",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1487,
+   "completed_trade_count": 1486,
+   "open_at_end_count": 1,
+   "final_equity": 147821.5,
+   "total_return": -0.8522,
+   "annual_return": -0.2372,
+   "max_drawdown": -0.9064,
+   "win_rate": 0.4206,
+   "median_pnl": -0.0824,
+   "avg_holding_days": 5.3,
+   "oos_annual": -0.2023,
+   "oos_mdd": -0.7338,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 34663,
+    "buy_cash": 0,
+    "buy_lot_size": 8,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 46,
+    "pending_exit": 21
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "abf94f8758c1fe5a57ccb6f70351a8b8fc075929f43ae45162594eba2db23528",
+     "rerun_sha256": "abf94f8758c1fe5a57ccb6f70351a8b8fc075929f43ae45162594eba2db23528",
+     "D_sha256": "abf94f8758c1fe5a57ccb6f70351a8b8fc075929f43ae45162594eba2db23528"
+    },
+    "equity.parquet": {
+     "C_sha256": "1088501e0a49fedc7dc39e10e7360214b0ec10ed5dc754afc8f30c1eb9a20d56",
+     "rerun_sha256": "1088501e0a49fedc7dc39e10e7360214b0ec10ed5dc754afc8f30c1eb9a20d56",
+     "D_sha256": "1088501e0a49fedc7dc39e10e7360214b0ec10ed5dc754afc8f30c1eb9a20d56"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "9ff69b11a7e8786804fb40e3e9b06002f76be7938532576ae60dd21e904d70f4",
+     "rerun_sha256": "9ff69b11a7e8786804fb40e3e9b06002f76be7938532576ae60dd21e904d70f4",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "48bc5c86c81ba3ed42cd98565c92f4e26019326e0fd047c950a24c194ff6352a",
+     "rerun_sha256": "90b8e63d336c407a6ea1e5229c9b1a4dc91d64c5c54057ae268f921f4c7bb51a",
+     "D_sha256": "c1f8383ebe144a5575d6910b44fc765dd8c25d174f44e7206a52d0dd95dc5d94"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a2h_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a2h --tag a2h_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a2h.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a4_10bp",
+   "strategy_id": "s01b_a4",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a4.py",
+   "strategy_file_sha256": "7b50682c851b58ebc2f51a4baff069237c45dba61e2b9301663daed87dda47d3",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 238,
+   "completed_trade_count": 233,
+   "open_at_end_count": 5,
+   "final_equity": 316665.8,
+   "total_return": -0.6833,
+   "annual_return": -0.1503,
+   "max_drawdown": -0.713,
+   "win_rate": 0.3433,
+   "median_pnl": -0.1072,
+   "avg_holding_days": 37.4,
+   "oos_annual": -0.1465,
+   "oos_mdd": -0.5728,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 75134,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 2,
+    "sell_limit_down": 0,
+    "pending_exit": 1
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "aa42fdd051ff23f3ffe8e25db471e476756afb0962de1ffc0c32d3a610187558",
+     "rerun_sha256": "aa42fdd051ff23f3ffe8e25db471e476756afb0962de1ffc0c32d3a610187558",
+     "D_sha256": "aa42fdd051ff23f3ffe8e25db471e476756afb0962de1ffc0c32d3a610187558"
+    },
+    "equity.parquet": {
+     "C_sha256": "d5fbe895441a068060dcad0302699f9faf33097978526e31a64ac1d622b37afa",
+     "rerun_sha256": "d5fbe895441a068060dcad0302699f9faf33097978526e31a64ac1d622b37afa",
+     "D_sha256": "d5fbe895441a068060dcad0302699f9faf33097978526e31a64ac1d622b37afa"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "9e53e48f76b7a78e8dda6d85749c624715a6ad3859321cb5e0f91eb0e1f7235a",
+     "rerun_sha256": "9e53e48f76b7a78e8dda6d85749c624715a6ad3859321cb5e0f91eb0e1f7235a",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "04aac3f9954091048799b0556df06e0e06adac7c444a2571e436b1850d349780",
+     "rerun_sha256": "bd131428cc9122a256dfd24e6ef7521ca51a3d30e8dcab0efc5828b110a95789",
+     "D_sha256": "ae7905a37caba18a09eb922e962913415d6769e40ac51f244347ff15882b2788"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a4_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a4 --tag a4_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a4.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a0ev_10bp",
+   "strategy_id": "s01b_a0ev",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0ev.py",
+   "strategy_file_sha256": "a590df3d23e9637560144df644ea13453f13affafaa812f59860cd9357e4fca1",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 199,
+   "completed_trade_count": 194,
+   "open_at_end_count": 5,
+   "final_equity": 1242725.28,
+   "total_return": 0.2427,
+   "annual_return": 0.0313,
+   "max_drawdown": -0.3927,
+   "win_rate": 0.3351,
+   "median_pnl": -0.0964,
+   "avg_holding_days": 45.3,
+   "oos_annual": 0.0473,
+   "oos_mdd": -0.2954,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "rerun_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "D_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06"
+    },
+    "equity.parquet": {
+     "C_sha256": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "rerun_sha256": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "D_sha256": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "2501c913b80b29c14432a49f0cfdc134234bee84611af07a239a202d88c43068",
+     "rerun_sha256": "2501c913b80b29c14432a49f0cfdc134234bee84611af07a239a202d88c43068",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "e6dd0d1f454fba246709ab92699780be695f443795719a6314f608e3bc8b4670",
+     "rerun_sha256": "5a60d10a4980454e8bd3fa8cff658726518bdf0f5d0c7bc82ea4845374ab6957",
+     "D_sha256": "5657d5fbc6d1f14ddda63ef2d4f4c2ef966f30208eaf2a1b89b14260c6e4de10"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a0ev_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a0ev --tag a0ev_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0ev.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "a3ev_10bp",
+   "strategy_id": "s01b_a3ev",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a3ev.py",
+   "strategy_file_sha256": "181d57040f19a57aea2f059ec588b8c65f079533da7860132f32a7b8b4a80091",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1135,
+   "completed_trade_count": 1134,
+   "open_at_end_count": 1,
+   "final_equity": 138893.51,
+   "total_return": -0.8611,
+   "annual_return": -0.2439,
+   "max_drawdown": -0.91,
+   "win_rate": 0.3483,
+   "median_pnl": -0.0824,
+   "avg_holding_days": 7.1,
+   "oos_annual": -0.1457,
+   "oos_mdd": -0.6622,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "rerun_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "D_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa"
+    },
+    "equity.parquet": {
+     "C_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "rerun_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "D_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "rerun_sha256": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "e9aff82411677ff6780c790d95d915ddc368027561067bef6abc30ca16fde30d",
+     "rerun_sha256": "70aef33884b716276d4d23a7944b2eb8e2a9fabaecd6c14e0c5353edaa30c7e0",
+     "D_sha256": "cc8abd29db93752143e3be9f512417ec784e45229367dba4351f1fae70de2017"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only a3ev_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a3ev --tag a3ev_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a3ev.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "prod_file_10bp",
+   "strategy_id": "custom_mw7fvp17",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\postfix_20261108\\_inputs\\prod_variant_5510B\\custom_mw7fvp17.py",
+   "strategy_file_sha256": "918254f0e2bec567a9f3c593db258e4fd8fc54e24e111c2ef16e7bfdda5b2153",
+   "start": "2019-07-01",
+   "end": "2026-10-30",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 1135,
+   "completed_trade_count": 1134,
+   "open_at_end_count": 1,
+   "final_equity": 138893.51,
+   "total_return": -0.8611,
+   "annual_return": -0.2439,
+   "max_drawdown": -0.91,
+   "win_rate": 0.3483,
+   "median_pnl": -0.0824,
+   "avg_holding_days": 7.1,
+   "oos_annual": -0.1457,
+   "oos_mdd": -0.6622,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "rerun_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "D_sha256": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa"
+    },
+    "equity.parquet": {
+     "C_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "rerun_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "D_sha256": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "rerun_sha256": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "0cf5520291f4026fd5b174228d224cab4860cffffa9ea06b2d5fe632646238e8",
+     "rerun_sha256": "7da7f011fda4cdda93c8dad4dfa26c3c808c4bd3e9c9812f59780a7c670c6584",
+     "D_sha256": "2aded0a6d7f937ec3cd57cddd55da5d8eea47bd352a00e29ebf9806903de34ba"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "UNCHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": []
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only prod_file_10bp",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id custom_mw7fvp17 --tag prod_file_10bp --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\postfix_20261108\\_inputs\\prod_variant_5510B\\custom_mw7fvp17.py\"",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  },
+  {
+   "tag": "smoke_a0",
+   "strategy_id": "s01b_a0",
+   "strategies_dir": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0.py",
+   "strategy_file_sha256": "cd941b474f59077d505e829200af149f5c99e9a2e59977190151e1b5bac744b8",
+   "start": "2023-01-01",
+   "end": "2023-03-31",
+   "slippage_bps": 10.0,
+   "gross": false,
+   "finalize_open_at_end": true,
+   "error": null,
+   "n_trades": 10,
+   "completed_trade_count": 5,
+   "open_at_end_count": 5,
+   "final_equity": 993210.78,
+   "total_return": -0.0068,
+   "annual_return": -0.0287,
+   "max_drawdown": -0.069,
+   "win_rate": 0.0,
+   "median_pnl": -0.0565,
+   "avg_holding_days": 29.8,
+   "oos_annual": -0.027,
+   "oos_mdd": -0.069,
+   "execution": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 13,
+    "buy_no_slot": 3522,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 0,
+    "pending_exit": 0
+   },
+   "artifacts": {
+    "trades.parquet": {
+     "C_sha256": "62530cee61b4370b36a8e92e3cf9b821e03d492c29ba832761189d5e8e8d24ff",
+     "rerun_sha256": "62530cee61b4370b36a8e92e3cf9b821e03d492c29ba832761189d5e8e8d24ff",
+     "D_sha256": "62530cee61b4370b36a8e92e3cf9b821e03d492c29ba832761189d5e8e8d24ff"
+    },
+    "equity.parquet": {
+     "C_sha256": "511d2a2c817b75dbba43f31ac0f644becee2976b2930034f2a21377b56b0393e",
+     "rerun_sha256": "511d2a2c817b75dbba43f31ac0f644becee2976b2930034f2a21377b56b0393e",
+     "D_sha256": "511d2a2c817b75dbba43f31ac0f644becee2976b2930034f2a21377b56b0393e"
+    },
+    "drawdown.parquet": {
+     "C_sha256": "461cd354d6fc141dcb1218c1a26fec39971ea2d587e108d5165fe8516fc2db28",
+     "rerun_sha256": "461cd354d6fc141dcb1218c1a26fec39971ea2d587e108d5165fe8516fc2db28",
+     "D_sha256": null
+    },
+    "result.json": {
+     "C_sha256": "32a5fb158fe83ca736405c7ce6d8a036b3a7570715b2028235720a8b9a4ccd43",
+     "rerun_sha256": "1b6216b2cf7e0d90c1f760f8c091738ea5c9cf43024e3879f6f59f497c289cd8",
+     "D_sha256": "4fcadc6c68c5eea06bca3fe2cd7075772053aa457cfc429496cc37733f974803"
+    }
+   },
+   "determinism_parquet_identical": true,
+   "vs_D": {
+    "status": "CHANGED",
+    "trades_same": true,
+    "equity_same": true,
+    "execution_same": true,
+    "stats_diff_keys": [
+     "market_matrix_bytes",
+     "market_matrix_shape"
+    ]
+   },
+   "repro": {
+    "driver": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py --only smoke_a0",
+    "equivalent_prod_run": "等价 prod_run_s01b.py 命令: backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\prod_run_s01b.py --strategy-id s01b_a0 --tag smoke_a0 --strategies-dir \"C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies\\custom\\s01b_a0.py\" --start 2023-01-01 --end 2023-03-31",
+    "batch_repro_all_18": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\run_all_arms.py",
+    "verify": "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_phase2.py"
+   }
+  }
+ ]
+}

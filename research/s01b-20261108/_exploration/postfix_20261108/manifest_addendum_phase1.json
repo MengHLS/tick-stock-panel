@@ -1,0 +1,30 @@
+{
+ "generated_at": "2026-11-08 22:01:26",
+ "note": "gen_report.py 之后新增/更新的证据文件；manifest_postfix.json 保持原样（可复现）",
+ "files": {
+  "SUPPLEMENT_phase1_20261108.md": {
+   "bytes": 5110,
+   "sha256": "bc575f1714a2fa34e869bfce7bb7c15b1cfeb98a913c411bb3061d7c6898a34d"
+  },
+  "REPORT_postfix_20261108.md": {
+   "bytes": 8952,
+   "sha256": "e1d89888ac05ce636fa3374ad007c0361a7d5375e1c4b325c32cbd2590d1a549"
+  },
+  "ab_old_engine_tests.txt": {
+   "bytes": 17908,
+   "sha256": "7522f988e9bbb571fbaa0eefb52a1e99e7a55ebcbabdc01a850ed0afeee2761c"
+  },
+  "pytest_backtest_after_rerun.txt": {
+   "bytes": 10918,
+   "sha256": "29cc926c49f494d0e341488fea1a7a203e4e26af31bad620b19fd40f3869d885"
+  },
+  "baseline/engine_after.py": {
+   "bytes": 269940,
+   "sha256": "4243fe97723dad20d01bd440783cf71ea6ef05c55a9ffd4652492031e40d8386"
+  },
+  "write_supplement.py": {
+   "bytes": 7405,
+   "sha256": "2056ec092af6d2a368f006f0b21a389dd133b711a57897dcd47dda0a026cf8f5"
+  }
+ }
+}

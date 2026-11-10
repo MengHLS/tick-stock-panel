@@ -1,0 +1,386 @@
+{
+  "inputs": {
+    "trades": {
+      "path": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\results\\a1_10bp\\trades.parquet",
+      "bytes": 41323,
+      "mtime": "2026-11-08 16:24:00"
+    },
+    "fingerprint_before": {
+      "kline_daily": {
+        "path": "D:\\TSP\\data\\kline_daily",
+        "files": 20537,
+        "bytes": 271578284,
+        "newest_mtime": "2026-11-07 20:46:42"
+      },
+      "kline_daily_enriched": {
+        "path": "D:\\TSP\\data\\kline_daily_enriched",
+        "files": 2141,
+        "bytes": 521337108,
+        "newest_mtime": "2026-11-07 20:54:07"
+      },
+      "adj_factor": {
+        "path": "D:\\TSP\\data\\adj_factor",
+        "files": 1,
+        "bytes": 433593,
+        "newest_mtime": "2026-11-02 15:37:22",
+        "sha256_first4MiB": "8472135db189c230d6284283ae55bd1f3926726564b0684fadf9f7f3c4914fa9"
+      }
+    }
+  },
+  "Q1": {
+    "kline_daily_cols": [
+      "symbol",
+      "close",
+      "open",
+      "high",
+      "low",
+      "volume",
+      "amount",
+      "quote_ts",
+      "date"
+    ],
+    "kline_daily_has_any_adj_column": false,
+    "kline_daily_enriched_cols": [
+      "symbol",
+      "date",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "amount",
+      "raw_close",
+      "raw_high",
+      "raw_low",
+      "turnover_rate",
+      "consecutive_limit_ups",
+      "consecutive_limit_downs",
+      "quote_ts"
+    ],
+    "adj_factor_cols": [
+      "symbol",
+      "trade_date",
+      "ex_factor",
+      "dividend",
+      "bonus",
+      "allot",
+      "allot_price",
+      "prev_close",
+      "cum"
+    ],
+    "adj_factor_rows": 32888,
+    "adj_factor_symbols": 5197,
+    "adj_factor_range": [
+      "2018-01-11",
+      "2026-11-02"
+    ],
+    "adj_factor_row_is_event": "每行=一次除权除息事件（非每日序列），ex_factor = 除权前收盘 / 除权参考价",
+    "adj_factor_duplicated_symbol_date": 0,
+    "recompute": {
+      "rows": 8689982,
+      "max_abs_f_diff": 1.1102230246251565e-16,
+      "rows_diff_gt_1e_4": 0,
+      "rows_diff_gt_1e_6": 0
+    },
+    "base_normalisation": {
+      "last_date": "2026-11-06",
+      "rows": 5572,
+      "close_eq_raw_rows": 5572,
+      "verdict": "最新一日 close 与 raw_close 逐行相等 ⇒ 前复权，基准=该股最后一个除权事件之后（价格水平=原始价）"
+    },
+    "f_range": {
+      "min": 0.07948572464762553,
+      "max": 1.0
+    },
+    "code_refs": [
+      "backend/app/backtest/engine.py:998  parquet_root = data_dir / enriched_dirname(asset_type) → kline_daily_enriched",
+      "backend/app/tickflow/repository.py:85   {'stock': 'kline_daily_enriched'}",
+      "backend/app/indicators/pipeline.py:250-273  _apply_adj_factor：adjusted = raw × cum(<=date) / cum_total（前复权）",
+      "backend/app/api/data.py:906  ex_factor 定义：单事件等比因子 = 除权前收盘价 / 除权参考价，按日期连乘得累计复权因子",
+      "backend/app/backtest/matrix.py:2557-2572  raw_open = round(open × raw_close / close, 2)（用同一日比例还原原始价，不跨口径）"
+    ],
+    "manual_samples": [
+      {
+        "symbol": "603871.SH",
+        "date": "2023-02-17",
+        "raw_close": 23.15,
+        "adj_close": 7.299478743739339,
+        "f_implied_close_over_raw": 0.31531225674899954,
+        "f_expected_cum_over_total": 0.31531225674899954,
+        "n_events_whole_table": 12
+      },
+      {
+        "symbol": "000004.SZ",
+        "date": "2020-01-02",
+        "raw_close": 22.33,
+        "adj_close": 22.33,
+        "f_implied_close_over_raw": 1.0,
+        "f_expected_cum_over_total": 1.0,
+        "n_events_whole_table": 0
+      }
+    ]
+  },
+  "basis_check": {
+    "rows": 519,
+    "entry_matches_raw_open_bp_p50_abs": 9.999999999998899,
+    "entry_matches_raw_open_share_0.5pct": 0.9961464354527938,
+    "entry_matches_adj_open_share_0.5pct": 0.33911368015414256,
+    "stop_loss_trades": 425,
+    "stop_loss_exit_matches_stop_level_share_0.5pct": 0.7764705882352941,
+    "stop_loss_exit_matches_stop_level_bp_p50": -10.003092768939847,
+    "stop_loss_exit_matches_raw_open_share_0.5pct": 0.2752941176470588,
+    "stop_loss_pnl_p50": -0.082394,
+    "stop_loss_pnl_p10_p90": [
+      -0.1139384,
+      -0.082391
+    ],
+    "stop_loss_exit_below_day_low": 18,
+    "stop_loss_exit_above_day_high": 0,
+    "all_trades_pnl_as_recorded_p50": -0.082393,
+    "all_trades_pnl_all_raw_p50": -0.05333333333333323,
+    "all_trades_pnl_all_adj_p50": -0.05288082083662182,
+    "all_trades_pnl_mixed_p50": -0.0811240040797021,
+    "share_recorded_closer_to_all_raw_than_mixed": 0.4527938342967245
+  },
+  "Q2": {
+    "trades": 519,
+    "trade_symbols": 496,
+    "trade_symbols_in_adj_factor": 453,
+    "trade_symbols_absent_from_adj_factor": 43,
+    "absent_symbols": [
+      "000068.SZ",
+      "000428.SZ",
+      "000526.SZ",
+      "000586.SZ",
+      "000663.SZ",
+      "000868.SZ",
+      "002072.SZ",
+      "002163.SZ",
+      "002528.SZ",
+      "002564.SZ",
+      "002575.SZ",
+      "300106.SZ",
+      "300264.SZ",
+      "300268.SZ",
+      "300269.SZ",
+      "300273.SZ",
+      "300297.SZ",
+      "300325.SZ",
+      "300334.SZ",
+      "300350.SZ",
+      "300391.SZ",
+      "300799.SZ",
+      "600119.SH",
+      "600187.SH",
+      "600200.SH",
+      "600242.SH",
+      "600250.SH",
+      "600257.SH",
+      "600550.SH",
+      "600661.SH",
+      "600696.SH",
+      "600860.SH",
+      "603056.SH",
+      "603789.SH",
+      "688031.SH",
+      "688071.SH",
+      "688246.SH",
+      "688266.SH",
+      "688428.SH",
+      "688435.SH",
+      "688506.SH",
+      "688520.SH",
+      "920200.BJ"
+    ],
+    "trade_symbols_missing_from_panel": [],
+    "rows_compared_per_trade_symbol": 800539,
+    "rows_with_f_diff_gt_1e_4": 0,
+    "defaulted_one_suspected": 0,
+    "defaulted_one_suspected_symbols": [],
+    "stuck_at_one_but_explained_pre_window_events": [
+      "002031.SZ",
+      "002343.SZ",
+      "002512.SZ",
+      "002694.SZ",
+      "002766.SZ",
+      "002856.SZ",
+      "300061.SZ",
+      "300184.SZ",
+      "300287.SZ",
+      "300318.SZ",
+      "300461.SZ",
+      "600280.SH",
+      "600664.SH",
+      "603717.SH"
+    ],
+    "impossible_gap_probe": {
+      "rows": 800539,
+      "rows_beyond_board_limit": 17,
+      "by_class": {
+        "退市整理期(无涨跌幅限制)": 9,
+        "待确认": 8
+      },
+      "pending_rows": [
+        {
+          "symbol": "001359.SZ",
+          "date": "2024-03-29",
+          "adj_ret": -0.1386,
+          "raw_ret": -0.1386288130474177,
+          "f": 0.7482900945292831
+        },
+        {
+          "symbol": "300876.SZ",
+          "date": "2020-08-27",
+          "adj_ret": -0.2232,
+          "raw_ret": -0.2232222222222222,
+          "f": 0.6873143997484662
+        },
+        {
+          "symbol": "300881.SZ",
+          "date": "2020-09-02",
+          "adj_ret": -0.3173,
+          "raw_ret": -0.3173076923076923,
+          "f": 0.8395724615234286
+        },
+        {
+          "symbol": "300966.SZ",
+          "date": "2021-04-12",
+          "adj_ret": -0.2623,
+          "raw_ret": -0.26232672398666435,
+          "f": 0.9923400563869011
+        },
+        {
+          "symbol": "301288.SZ",
+          "date": "2022-04-26",
+          "adj_ret": -0.2469,
+          "raw_ret": -0.24689488033929108,
+          "f": 0.9870092969982607
+        },
+        {
+          "symbol": "601065.SH",
+          "date": "2023-04-11",
+          "adj_ret": -0.1601,
+          "raw_ret": -0.16012269938650314,
+          "f": 0.9165442575598082
+        },
+        {
+          "symbol": "688559.SH",
+          "date": "2020-09-10",
+          "adj_ret": -0.2491,
+          "raw_ret": -0.24906132665832292,
+          "f": 0.9931005686380997
+        },
+        {
+          "symbol": "688665.SH",
+          "date": "2021-02-10",
+          "adj_ret": -0.2704,
+          "raw_ret": -0.270381679389313,
+          "f": 0.6583174022459372
+        }
+      ],
+      "note": "前复权后仍出现超越涨跌幅限制的单日跌幅 ⇒ 该股在 adj_factor 里可能漏了除权事件；退市整理期/上市首日无涨跌幅限制，不算漏记"
+    },
+    "verdict": "enriched 前复权因子与 adj_factor 连乘逐行一致（0 行偏差>1e-4）；无「有事件却被默认成 1.0」的标的"
+  },
+  "Q3": {
+    "trades": 519,
+    "trades_with_event_in_hold_strict": 25,
+    "share_with_event_in_hold_strict": 0.04816955684007707,
+    "trades_with_event_incl_entry": 27,
+    "event_mag_p50": 0.007329842931937169,
+    "event_mag_p90": 0.05090595825945164,
+    "event_mag_max": 0.2909298345693099,
+    "trades_single_event_ge_8pct": 2,
+    "trades_single_event_ge_5pct": 3,
+    "f_entry_p50": 0.9829815882013614,
+    "f_entry_p05": 0.5038506225959015,
+    "f_entry_min": 0.23373898169814913,
+    "cross_basis_bias_p50": 0.017313052454805966,
+    "cross_basis_bias_p90": 0.5480655786080204,
+    "cross_basis_bias_max": 3.2782765319453713,
+    "trades_cross_basis_ge_8pct": 164,
+    "share_cross_basis_ge_8pct": 0.3159922928709056
+  },
+  "Q4": {
+    "symbols": [
+      "001210.SZ",
+      "300573.SZ",
+      "603696.SH",
+      "002683.SZ",
+      "601330.SH"
+    ],
+    "rows": 10,
+    "event_sanity": [
+      {
+        "symbol": "920925.BJ",
+        "ex_date": "2023-06-30",
+        "ex_factor": 2.020042194092827,
+        "prev_date": "2023-06-29",
+        "prev_raw_close": 19.15,
+        "ev_date_raw_close": 9.48,
+        "raw_ratio": 0.49503916449086166,
+        "expected_1_over_e": 0.49503916449086166,
+        "diff": 0.0
+      },
+      {
+        "symbol": "300910.SZ",
+        "ex_date": "2023-05-12",
+        "ex_factor": 1.941611101099297,
+        "prev_date": "2023-05-11",
+        "prev_raw_close": 107.74,
+        "ev_date_raw_close": 55.15,
+        "raw_ratio": 0.5118804529422685,
+        "expected_1_over_e": 0.5150361982550585,
+        "diff": -0.003155745312790059
+      },
+      {
+        "symbol": "300860.SZ",
+        "ex_date": "2021-04-06",
+        "ex_factor": 1.9140220886341395,
+        "prev_date": "2021-04-02",
+        "prev_raw_close": 136.91,
+        "ev_date_raw_close": 70.33,
+        "raw_ratio": 0.5136951281863998,
+        "expected_1_over_e": 0.5224600102256958,
+        "diff": -0.00876488203929593
+      }
+    ]
+  },
+  "appendix_C": {
+    "trades": 519,
+    "stop_trades_with_touch": 425,
+    "hit_first_touch_date_eq_exit_date": 0.8094117647058824,
+    "hit_duration_eq_touch_offset": 0.8070588235294117,
+    "fill_at_stop_level_share": 0.788235294117647,
+    "fill_at_stop_share_when_touch_after_entry_day": 0.8614958448753463,
+    "share_touch_on_entry_day": 0.15058823529411763,
+    "close_based_duration_match": 0.10352941176470588,
+    "close_based_mixed_duration_match": 0.20470588235294118,
+    "close_mixed_triggers_on_entry_bar": 194,
+    "close_raw_triggers_on_entry_bar": 37,
+    "note": "只把「按哪种价格口径/触发规则推出来的日与价」和记录值对一下，不下结论；收盘价口径（含混口径）都对不上记录的离场日"
+  },
+  "elapsed_s": 30.8,
+  "fingerprint_after": {
+    "kline_daily": {
+      "path": "D:\\TSP\\data\\kline_daily",
+      "files": 20537,
+      "bytes": 271578284,
+      "newest_mtime": "2026-11-07 20:46:42"
+    },
+    "kline_daily_enriched": {
+      "path": "D:\\TSP\\data\\kline_daily_enriched",
+      "files": 2141,
+      "bytes": 521337108,
+      "newest_mtime": "2026-11-07 20:54:07"
+    },
+    "adj_factor": {
+      "path": "D:\\TSP\\data\\adj_factor",
+      "files": 1,
+      "bytes": 433593,
+      "newest_mtime": "2026-11-02 15:37:22",
+      "sha256_first4MiB": "8472135db189c230d6284283ae55bd1f3926726564b0684fadf9f7f3c4914fa9"
+    }
+  },
+  "fingerprint_unchanged": true
+}

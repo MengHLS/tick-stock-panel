@@ -1,0 +1,163 @@
+{
+ "tag": "ts_2y",
+ "variant": "custom_ts",
+ "start": "2019-07-01",
+ "end": "2021-06-30",
+ "elapsed_s": 4.5,
+ "error": null,
+ "run_id": "7716cd29ad",
+ "strategy_facts": {
+  "id": "custom_mw7fvp17",
+  "execution_backend": "matrix_native",
+  "entry_signals": [],
+  "exit_signals": [],
+  "stop_loss": null,
+  "trailing_stop": 0.05,
+  "trailing_take_profit_activate": null,
+  "trailing_take_profit_drawdown": null,
+  "max_hold_days": 60,
+  "file_path": "C:\\work\\sourcecode\\tick-stock-panel\\research\\matrix-native-risk-20261108\\data_root\\strategies\\custom_ts\\custom_mw7fvp17.py"
+ },
+ "matcher_config_seen_by_engine": {
+  "stop_loss_pct": null,
+  "take_profit_pct": null,
+  "trailing_stop_pct": 0.05,
+  "trailing_take_profit_activate_pct": null,
+  "trailing_take_profit_drawdown_pct": null,
+  "max_hold_days": 60,
+  "exit_fill": "open_t+1",
+  "entry_fill": "open_t+1",
+  "matching": "open_t+1"
+ },
+ "matrix_shape": [
+  487,
+  4458
+ ],
+ "headline": {
+  "total_return": -0.6746,
+  "annual_return": -0.4406,
+  "max_drawdown": -0.6858,
+  "sharpe": -2.45,
+  "n_trades": 997,
+  "completed_trade_count": 997,
+  "open_at_end_count": 0,
+  "avg_holding_days": 1.9,
+  "final_equity": 325413.77
+ },
+ "trade_stats_recomputed": {
+  "n_trades": 997,
+  "avg_pnl_pct": -0.009186,
+  "win_rate": 0.344
+ },
+ "holding_days_recomputed": {
+  "avg_holding_days": 1.85,
+  "max_holding_days": 23,
+  "min_holding_days": 1
+ },
+ "exit_reason_counts": [
+  {
+   "exit_reason": "signal",
+   "len": 1
+  },
+  {
+   "exit_reason": "trailing_stop",
+   "len": 996
+  }
+ ],
+ "execution": {
+  "buy_invalid_price": 0,
+  "buy_suspended": 0,
+  "buy_limit_up": 56,
+  "buy_no_slot": 1727,
+  "buy_cash": 0,
+  "buy_lot_size": 0,
+  "buy_same_day_reentry": 0,
+  "buy_exposure": 0,
+  "buy_score_filter": 0,
+  "sell_invalid_price": 0,
+  "sell_suspended": 0,
+  "sell_limit_down": 3,
+  "pending_exit": 3
+ },
+ "stats_full": {
+  "total_return": -0.6746,
+  "annual_return": -0.4406,
+  "max_drawdown": -0.6858,
+  "sharpe": -2.45,
+  "sortino": -3.12,
+  "calmar": -0.64,
+  "win_rate": 0.344,
+  "profit_factor": 1.34,
+  "n_trades": 997,
+  "completed_trade_count": 997,
+  "open_at_end_count": 0,
+  "avg_pnl": -0.0092,
+  "avg_win": 0.0635,
+  "avg_loss": 0.0473,
+  "best": 1.0222,
+  "worst": -0.2662,
+  "median_pnl": -0.0231,
+  "avg_holding_days": 1.9,
+  "final_equity": 325413.77,
+  "initial_capital": 1000000.0,
+  "avg_exposure": 0.4514,
+  "max_exposure": 0.6148,
+  "mc_maxdd_p50": -1.0,
+  "mc_maxdd_p95": -1.0,
+  "execution": {
+   "buy_invalid_price": 0,
+   "buy_suspended": 0,
+   "buy_limit_up": 56,
+   "buy_no_slot": 1727,
+   "buy_cash": 0,
+   "buy_lot_size": 0,
+   "buy_same_day_reentry": 0,
+   "buy_exposure": 0,
+   "buy_score_filter": 0,
+   "sell_invalid_price": 0,
+   "sell_suspended": 0,
+   "sell_limit_down": 3,
+   "pending_exit": 3
+  },
+  "pending_exit_positions": 0,
+  "market_matrix_shape": [
+   487,
+   4458
+  ],
+  "market_matrix_bytes": 180202662,
+  "timing_ms": {
+   "load_panel": 2378.9,
+   "market_data_matrix_build": 0.0,
+   "market_data_direct_load": 2378.9,
+   "strategy_signals": 457.8,
+   "filter_score": 36.3,
+   "signals_score": 552.8,
+   "matrix_build": 268.7,
+   "simulate": 524.7,
+   "statistics": 23.5,
+   "total": 3731.6
+  },
+  "panel_rows": 1902241,
+  "panel_columns": 15,
+  "feature_columns": 15,
+  "full_feature_fallback": false,
+  "execution_backend": "matrix_native",
+  "selection": {
+   "strategy_matches": 19260,
+   "entry_candidates": 19260,
+   "entry_trigger_filtered": 0,
+   "entry_trigger_enabled": false
+  },
+  "shared_market_data": false,
+  "matrix_data_cache_hit": true,
+  "matrix_data_cache_status": "covering",
+  "matrix_data_cache_timing_ms": {
+   "axes": 2833.4,
+   "layout": 712.5,
+   "scan": 4613.5,
+   "derived": 445.2,
+   "flush_close": 154.3,
+   "total_before_publish": 8759.9
+  }
+ }
+}

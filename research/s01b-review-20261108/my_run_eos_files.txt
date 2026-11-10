@@ -1,0 +1,27 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.0.3, pluggy-1.6.0 -- C:\work\sourcecode\tick-stock-panel\backend\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\work\sourcecode\tick-stock-panel\backend
+configfile: pyproject.toml
+plugins: anyio-4.13.0, asyncio-1.3.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 16 items
+
+tests/backtest/test_end_settlement.py::test_t_eos_1_signal_latch_on_last_bar_is_settled PASSED [  6%]
+tests/backtest/test_end_settlement.py::test_t_eos_2_pending_exit_is_settled_as_end PASSED [ 12%]
+tests/backtest/test_end_settlement.py::test_t_eos_3_last_bar_entry_settles_same_open_price PASSED [ 18%]
+tests/backtest/test_end_settlement.py::test_t_eos_4_blocked_sell_on_last_bar_is_marked PASSED [ 25%]
+tests/backtest/test_end_settlement.py::test_t_eos_5_finalize_open_at_end_still_marks PASSED [ 31%]
+tests/backtest/test_end_settlement.py::test_p3_risk_latch_on_entry_day_does_not_escape_settlement PASSED [ 37%]
+tests/backtest/test_end_settlement.py::test_p5_hold_policy_decision_on_last_bar_does_not_escape PASSED [ 43%]
+tests/backtest/test_end_settlement.py::test_carry_out_segment_does_not_settle PASSED [ 50%]
+tests/backtest/test_limit_down_close_exit.py::test_close_t_exit_deferred_past_sealed_limit_down PASSED [ 56%]
+tests/backtest/test_limit_down_close_exit.py::test_close_t_exit_on_normal_day_fills_same_day PASSED [ 62%]
+tests/backtest/test_limit_down_close_exit.py::test_intraday_stop_loss_not_blocked_by_sealed_close PASSED [ 68%]
+tests/backtest/test_limit_down_close_exit.py::test_open_t1_exit_after_sealed_limit_down_signal_day PASSED [ 75%]
+tests/backtest/test_limit_down_close_exit.py::test_stuck_position_at_window_end_is_recorded PASSED [ 81%]
+tests/backtest/test_limit_down_close_exit.py::test_close_t_exit_deferred_past_sealed_limit_down_portfolio_mode PASSED [ 87%]
+tests/backtest/test_limit_down_close_exit.py::test_intraday_stop_loss_not_blocked_by_sealed_close_portfolio_mode PASSED [ 93%]
+tests/backtest/test_limit_down_close_exit.py::test_stuck_position_at_window_end_is_recorded_portfolio_mode PASSED [100%]
+
+============================= 16 passed in 3.23s ==============================

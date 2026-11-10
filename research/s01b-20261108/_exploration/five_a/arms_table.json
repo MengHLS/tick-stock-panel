@@ -1,0 +1,347 @@
+[
+ {
+  "arm": "base_nodefaults_10bp",
+  "toggle": "baseline",
+  "n_trades": 208,
+  "total_return": -0.5147,
+  "annual_return": -0.0973,
+  "annual_252_recomputed": -0.097343,
+  "max_drawdown": -0.7195,
+  "sharpe": -0.28,
+  "final_equity": 485293.78,
+  "buy_limit_up": 226,
+  "sell_suspended": 1,
+  "sell_limit_down": 0,
+  "sell_invalid_price": 0,
+  "pending_exit": 1,
+  "n_same_key": 208,
+  "same_key_pnl_delta": 0.0,
+  "only_this_arm_n": 0,
+  "only_this_arm_pnl": 0.0,
+  "only_baseline_n": 0,
+  "effective_cfg_real_diff": {},
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": 0.0,
+  "price_check_counts": {
+   "entry": {
+    "ok": 208
+   },
+   "exit": {
+    "ok": 208
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 4.954194062989359e-05,
+  "exit_price_gap_max_vs_adj": 4.9106137890220225e-05
+ },
+ {
+  "arm": "only_entry_price_basis_raw",
+  "toggle": "{\"entry_price_basis\": \"raw\"}",
+  "n_trades": 208,
+  "total_return": -0.5653,
+  "annual_return": -0.1113,
+  "annual_252_recomputed": -0.111313,
+  "max_drawdown": -0.7431,
+  "sharpe": -0.34,
+  "final_equity": 434710.53,
+  "buy_limit_up": 225,
+  "sell_suspended": 1,
+  "sell_limit_down": 1,
+  "sell_invalid_price": 0,
+  "pending_exit": 2,
+  "n_same_key": 195,
+  "same_key_pnl_delta": -7122.88,
+  "only_this_arm_n": 13,
+  "only_this_arm_pnl": -55748.24,
+  "only_baseline_n": 13,
+  "effective_cfg_real_diff": {
+   "entry_price_basis": [
+    "adjusted",
+    "raw"
+   ]
+  },
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": -0.0506,
+  "price_check_counts": {
+   "entry": {
+    "corp_action_restated(x1.3000)": 2,
+    "corp_action_restated(x1.4000)": 1,
+    "corp_action_restated(x1.5000)": 1,
+    "ok": 204
+   },
+   "exit": {
+    "ok": 208
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "raw",
+  "entry_price_gap_max_vs_adj": 328.28511377205064,
+  "exit_price_gap_max_vs_adj": 231.28544299006242
+ },
+ {
+  "arm": "only_block_limit_open",
+  "toggle": "{\"block_limit_open\": true}",
+  "n_trades": 198,
+  "total_return": 0.1213,
+  "annual_return": 0.0163,
+  "annual_252_recomputed": 0.01635,
+  "max_drawdown": -0.4012,
+  "sharpe": 0.19,
+  "final_equity": 1121259.36,
+  "buy_limit_up": 534,
+  "sell_suspended": 0,
+  "sell_limit_down": 0,
+  "sell_invalid_price": 0,
+  "pending_exit": 0,
+  "n_same_key": 113,
+  "same_key_pnl_delta": -49962.74,
+  "only_this_arm_n": 85,
+  "only_this_arm_pnl": 492109.18,
+  "only_baseline_n": 95,
+  "effective_cfg_real_diff": {
+   "block_limit_open": [
+    false,
+    true
+   ]
+  },
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": 0.636,
+  "price_check_counts": {
+   "entry": {
+    "ok": 198
+   },
+   "exit": {
+    "ok": 198
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 4.921806865354483e-05,
+  "exit_price_gap_max_vs_adj": 5.476792128433772e-05
+ },
+ {
+  "arm": "only_finalize_open_at_end",
+  "toggle": "{\"finalize_open_at_end\": true}",
+  "n_trades": 208,
+  "total_return": -0.5218,
+  "annual_return": -0.0992,
+  "annual_252_recomputed": -0.099226,
+  "max_drawdown": -0.7195,
+  "sharpe": -0.29,
+  "final_equity": 478212.34,
+  "buy_limit_up": 226,
+  "sell_suspended": 1,
+  "sell_limit_down": 0,
+  "sell_invalid_price": 0,
+  "pending_exit": 1,
+  "n_same_key": 208,
+  "same_key_pnl_delta": 32536.62,
+  "only_this_arm_n": 0,
+  "only_this_arm_pnl": 0.0,
+  "only_baseline_n": 0,
+  "effective_cfg_real_diff": {
+   "finalize_open_at_end": [
+    false,
+    true
+   ]
+  },
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": -0.0071,
+  "price_check_counts": {
+   "entry": {
+    "ok": 208
+   },
+   "exit": {
+    "close_valuation(end)": 5,
+    "ok": 203
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 4.954194062989359e-05,
+  "exit_price_gap_max_vs_adj": 8.36
+ },
+ {
+  "arm": "only_execution_costs",
+  "toggle": "{\"execution_costs\": {\"min_commission\": 5.0, \"transfer_fee_pct\": 2e-06}}",
+  "n_trades": 208,
+  "total_return": -0.5146,
+  "annual_return": -0.0973,
+  "annual_252_recomputed": -0.097317,
+  "max_drawdown": -0.7194,
+  "sharpe": -0.28,
+  "final_equity": 485420.69,
+  "buy_limit_up": 226,
+  "sell_suspended": 1,
+  "sell_limit_down": 0,
+  "sell_invalid_price": 0,
+  "pending_exit": 1,
+  "n_same_key": 208,
+  "same_key_pnl_delta": 126.87,
+  "only_this_arm_n": 0,
+  "only_this_arm_pnl": 0.0,
+  "only_baseline_n": 0,
+  "effective_cfg_real_diff": {
+   "execution_costs": [
+    null,
+    {
+     "min_commission": 5.0,
+     "transfer_fee_pct": 2e-06,
+     "buy_slippage_tiers": [],
+     "price_decimals": 4
+    }
+   ]
+  },
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": 0.0001,
+  "price_check_counts": {
+   "entry": {
+    "slippage_in_price": 208
+   },
+   "exit": {
+    "slippage_in_price": 208
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 0.22185159817351519,
+  "exit_price_gap_max_vs_adj": 0.2498845054839478
+ },
+ {
+  "arm": "only_trailing_peak_price_close",
+  "toggle": "{\"trailing_peak_price\": \"close\"}",
+  "n_trades": 208,
+  "total_return": -0.5147,
+  "annual_return": -0.0973,
+  "annual_252_recomputed": -0.097343,
+  "max_drawdown": -0.7195,
+  "sharpe": -0.28,
+  "final_equity": 485293.78,
+  "buy_limit_up": 226,
+  "sell_suspended": 1,
+  "sell_limit_down": 0,
+  "sell_invalid_price": 0,
+  "pending_exit": 1,
+  "n_same_key": 208,
+  "same_key_pnl_delta": 0.0,
+  "only_this_arm_n": 0,
+  "only_this_arm_pnl": 0.0,
+  "only_baseline_n": 0,
+  "effective_cfg_real_diff": {
+   "trailing_peak_price": [
+    "high",
+    "close"
+   ]
+  },
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": 0.0,
+  "price_check_counts": {
+   "entry": {
+    "ok": 208
+   },
+   "exit": {
+    "ok": 208
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 4.954194062989359e-05,
+  "exit_price_gap_max_vs_adj": 4.9106137890220225e-05
+ },
+ {
+  "arm": "only_exit_signal_requires_profit",
+  "toggle": "{\"exit_signal_requires_profit\": true}",
+  "n_trades": 178,
+  "total_return": -0.3262,
+  "annual_return": -0.0544,
+  "annual_252_recomputed": -0.054392,
+  "max_drawdown": -0.6177,
+  "sharpe": -0.11,
+  "final_equity": 673798.76,
+  "buy_limit_up": 225,
+  "sell_suspended": 1,
+  "sell_limit_down": 1,
+  "sell_invalid_price": 0,
+  "pending_exit": 2,
+  "n_same_key": 52,
+  "same_key_pnl_delta": 40463.25,
+  "only_this_arm_n": 126,
+  "only_this_arm_pnl": -10499.85,
+  "only_baseline_n": 156,
+  "effective_cfg_real_diff": {
+   "exit_signal_requires_profit": [
+    false,
+    true
+   ]
+  },
+  "effective_cfg_derived_diff": {
+   "exit_signal_profit_basis": [
+    null,
+    "holding_peak_close"
+   ]
+  },
+  "delta_total_return_vs_base": 0.1885,
+  "price_check_counts": {
+   "entry": {
+    "ok": 178
+   },
+   "exit": {
+    "ok": 178
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 5.074615071976041e-05,
+  "exit_price_gap_max_vs_adj": 5.28679782121344e-05
+ },
+ {
+  "arm": "base_nodefaults_gross",
+  "toggle": "gross",
+  "n_trades": 208,
+  "total_return": -0.4729,
+  "annual_return": -0.0867,
+  "annual_252_recomputed": -0.086717,
+  "max_drawdown": -0.7108,
+  "sharpe": -0.23,
+  "final_equity": 527074.75,
+  "buy_limit_up": 226,
+  "sell_suspended": 1,
+  "sell_limit_down": 0,
+  "sell_invalid_price": 0,
+  "pending_exit": 1,
+  "n_same_key": 208,
+  "same_key_pnl_delta": 41831.53,
+  "only_this_arm_n": 0,
+  "only_this_arm_pnl": 0.0,
+  "only_baseline_n": 0,
+  "effective_cfg_real_diff": {
+   "commission_pct": [
+    0.0003,
+    0.0
+   ],
+   "slippage_bps": [
+    10.0,
+    0.0
+   ],
+   "stamp_tax_pct": [
+    0.001,
+    0.0
+   ]
+  },
+  "effective_cfg_derived_diff": {},
+  "delta_total_return_vs_base": 0.0418,
+  "price_check_counts": {
+   "entry": {
+    "ok": 208
+   },
+   "exit": {
+    "ok": 208
+   }
+  },
+  "price_check_unexplained": 0,
+  "basis_used": "adjusted",
+  "entry_price_gap_max_vs_adj": 4.954194062989359e-05,
+  "exit_price_gap_max_vs_adj": 4.9106137890220225e-05
+ }
+]

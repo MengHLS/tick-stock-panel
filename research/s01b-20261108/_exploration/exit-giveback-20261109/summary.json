@@ -1,0 +1,722 @@
+{
+  "meta": {
+    "generated": "2026-11-09",
+    "role": "研究侧只读测量，不进验收基准",
+    "peak_basis_primary": "raw_close（与 entry_price/exit_price 同为不复权基；entry/exit 均取自开盘价×10bp 滑点）",
+    "peak_basis_sensitivity": "复权 close（entry/exit 按当日 close/raw_close 换算）",
+    "window": "entry_date..exit_date 含两端",
+    "price_panel": "D:\\TSP\\data\\kline_daily_enriched\\date=*\\*.parquet",
+    "trades_missing_bars": []
+  },
+  "dist_by_exit_reason": [
+    {
+      "exit_reason": "max_hold",
+      "n": 58,
+      "sum_giveback_yuan": 1899333.17,
+      "sum_pnl": 2761991.56,
+      "sum_position_value": 7340917.63,
+      "peak_gain": {
+        "mean": 0.636735,
+        "median": 0.460719,
+        "p10": 0.112712,
+        "p25": 0.207266,
+        "p75": 0.975607,
+        "p90": 1.227588,
+        "max": 3.573689,
+        "min": -0.012513
+      },
+      "exit_gain_gross": {
+        "mean": 0.381626,
+        "median": 0.209041,
+        "p10": -0.063954,
+        "p25": 0.076739,
+        "p75": 0.569339,
+        "p90": 0.896368,
+        "max": 3.142756,
+        "min": -0.129279
+      },
+      "pnl_pct_net": {
+        "mean": 0.38091,
+        "median": 0.207103,
+        "p10": -0.065455,
+        "p25": 0.075013,
+        "p75": 0.577104,
+        "p90": 0.893326,
+        "max": 3.138831,
+        "min": -0.130676
+      },
+      "cost_yuan": {
+        "mean": 265.050552,
+        "median": 245.1425,
+        "p10": 175.97,
+        "p25": 206.3775,
+        "p75": 310.89375,
+        "p90": 365.029,
+        "max": 620.21,
+        "min": 99.13
+      },
+      "giveback_pp_vs_gross": {
+        "mean": 0.255109,
+        "median": 0.175557,
+        "p10": 0.02543,
+        "p25": 0.089938,
+        "p75": 0.368089,
+        "p90": 0.576757,
+        "max": 1.171385,
+        "min": -0.016179
+      },
+      "giveback_pp_vs_net": {
+        "mean": 0.255825,
+        "median": 0.177895,
+        "p10": 0.027574,
+        "p25": 0.092168,
+        "p75": 0.369285,
+        "p90": 0.56544,
+        "max": 1.174416,
+        "min": -0.013515
+      },
+      "giveback_yuan": {
+        "mean": 32747.123621,
+        "median": 21161.095,
+        "p10": 3593.416,
+        "p25": 10963.05,
+        "p75": 42196.05,
+        "p90": 78746.355,
+        "max": 134722.44,
+        "min": -1862.82
+      }
+    },
+    {
+      "exit_reason": "signal",
+      "n": 136,
+      "sum_giveback_yuan": 5049442.1,
+      "sum_pnl": -2435133.35,
+      "sum_position_value": 17369123.03,
+      "peak_gain": {
+        "mean": 0.148189,
+        "median": 0.091827,
+        "p10": -0.033749,
+        "p25": 0.008973,
+        "p75": 0.223309,
+        "p90": 0.3237,
+        "max": 1.7536,
+        "min": -0.200799
+      },
+      "exit_gain_gross": {
+        "mean": -0.143271,
+        "median": -0.156793,
+        "p10": -0.316448,
+        "p25": -0.240861,
+        "p75": -0.072081,
+        "p90": 0.030663,
+        "max": 0.47645,
+        "min": -0.416373
+      },
+      "pnl_pct_net": {
+        "mean": -0.143808,
+        "median": -0.157253,
+        "p10": -0.315816,
+        "p25": -0.240677,
+        "p75": -0.071064,
+        "p90": 0.029011,
+        "max": 0.474082,
+        "min": -0.417309
+      },
+      "cost_yuan": {
+        "mean": 181.638206,
+        "median": 178.705,
+        "p10": 125.04,
+        "p25": 161.1925,
+        "p75": 208.345,
+        "p90": 243.82,
+        "max": 319.42,
+        "min": 24.77
+      },
+      "giveback_pp_vs_gross": {
+        "mean": 0.29146,
+        "median": 0.265782,
+        "p10": 0.137046,
+        "p25": 0.188592,
+        "p75": 0.354509,
+        "p90": 0.44187,
+        "max": 1.35868,
+        "min": 0.042378
+      },
+      "giveback_pp_vs_net": {
+        "mean": 0.291996,
+        "median": 0.263771,
+        "p10": 0.138508,
+        "p25": 0.189946,
+        "p75": 0.349946,
+        "p90": 0.44309,
+        "max": 1.360917,
+        "min": 0.043881
+      },
+      "giveback_yuan": {
+        "mean": 37128.250735,
+        "median": 33346.075,
+        "p10": 16286.42,
+        "p25": 21397.4475,
+        "p75": 45941.475,
+        "p90": 65253.52,
+        "max": 185173.93,
+        "min": 5869.97
+      }
+    },
+    {
+      "exit_reason": "end",
+      "n": 5,
+      "sum_giveback_yuan": 147654.0,
+      "sum_pnl": 0.0,
+      "sum_position_value": 783214.41,
+      "peak_gain": {
+        "mean": 0.083054,
+        "median": 0.032727,
+        "p10": 0.003165,
+        "p25": 0.010817,
+        "p75": 0.036472,
+        "p90": 0.216903,
+        "max": 0.337191,
+        "min": -0.001937
+      },
+      "exit_gain_gross": {
+        "mean": -0.103696,
+        "median": -0.088142,
+        "p10": -0.293975,
+        "p25": -0.232739,
+        "p75": -0.037398,
+        "p90": 0.0898,
+        "max": 0.174599,
+        "min": -0.334799
+      },
+      "pnl_pct_net": {
+        "mean": 0.0,
+        "median": 0.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p75": 0.0,
+        "p90": 0.0,
+        "max": 0.0,
+        "min": 0.0
+      },
+      "cost_yuan": {
+        "mean": 47.308,
+        "median": 47.58,
+        "p10": 46.102,
+        "p25": 46.3,
+        "p75": 48.33,
+        "p90": 48.348,
+        "max": 48.36,
+        "min": 45.97
+      },
+      "giveback_pp_vs_gross": {
+        "mean": 0.18675,
+        "median": 0.162591,
+        "p10": 0.069624,
+        "p25": 0.120869,
+        "p75": 0.243557,
+        "p90": 0.320185,
+        "max": 0.371271,
+        "min": 0.035461
+      },
+      "giveback_pp_vs_net": {
+        "mean": 0.083054,
+        "median": 0.032727,
+        "p10": 0.003165,
+        "p25": 0.010817,
+        "p75": 0.036472,
+        "p90": 0.216903,
+        "max": 0.337191,
+        "min": -0.001937
+      },
+      "giveback_yuan": {
+        "mean": 29530.8,
+        "median": 24750.0,
+        "p10": 10878.0,
+        "p25": 19041.0,
+        "p75": 38979.0,
+        "p90": 51260.4,
+        "max": 59448.0,
+        "min": 5436.0
+      }
+    },
+    {
+      "exit_reason": "ALL",
+      "n": 199,
+      "sum_giveback_yuan": 7096429.27,
+      "sum_pnl": 326858.21,
+      "sum_position_value": 25493255.07,
+      "peak_gain": {
+        "mean": 0.288943,
+        "median": 0.155064,
+        "p10": -0.01525,
+        "p25": 0.035107,
+        "p75": 0.3237,
+        "p90": 0.781306,
+        "max": 3.573689,
+        "min": -0.200799
+      },
+      "exit_gain_gross": {
+        "mean": 0.010708,
+        "median": -0.095577,
+        "p10": -0.284936,
+        "p25": -0.202451,
+        "p75": 0.100561,
+        "p90": 0.479919,
+        "max": 3.142756,
+        "min": -0.416373
+      },
+      "pnl_pct_net": {
+        "mean": 0.012739,
+        "median": -0.0811,
+        "p10": -0.278421,
+        "p25": -0.197071,
+        "p75": 0.097633,
+        "p90": 0.477546,
+        "max": 3.138831,
+        "min": -0.417309
+      },
+      "cost_yuan": {
+        "mean": 202.574211,
+        "median": 193.61,
+        "p10": 120.754,
+        "p25": 166.973,
+        "p75": 239.475,
+        "p90": 290.746,
+        "max": 620.21,
+        "min": 24.77
+      },
+      "giveback_pp_vs_gross": {
+        "mean": 0.278234,
+        "median": 0.245879,
+        "p10": 0.09527,
+        "p25": 0.152941,
+        "p75": 0.358506,
+        "p90": 0.497304,
+        "max": 1.35868,
+        "min": -0.016179
+      },
+      "giveback_pp_vs_net": {
+        "mean": 0.276204,
+        "median": 0.247685,
+        "p10": 0.083311,
+        "p25": 0.152929,
+        "p75": 0.35189,
+        "p90": 0.498936,
+        "max": 1.360917,
+        "min": -0.013515
+      },
+      "giveback_yuan": {
+        "mean": 35660.448593,
+        "median": 29976.96,
+        "p10": 10674.32,
+        "p25": 18545.3,
+        "p75": 45285.3,
+        "p90": 69089.144,
+        "max": 185173.93,
+        "min": -1862.82
+      }
+    }
+  ],
+  "peak_tiers": [
+    {
+      "tier": "peak>=20%",
+      "n_peak": 85,
+      "n_exit_below_tier": 52,
+      "share_fell": 0.6118,
+      "fell_exit_gain": {
+        "mean": 0.003273,
+        "median": -0.009579,
+        "p10": -0.147652,
+        "p25": -0.077283,
+        "p75": 0.109658,
+        "p90": 0.16711,
+        "max": 0.195019,
+        "min": -0.227456
+      },
+      "fell_drop_pp": {
+        "mean": 0.316751,
+        "median": 0.297173,
+        "p10": 0.139481,
+        "p25": 0.23546,
+        "p75": 0.396474,
+        "p90": 0.516919,
+        "max": 0.606718,
+        "min": 0.092407
+      },
+      "fell_giveback_yuan": 2194761.56,
+      "by_reason": {
+        "max_hold": {
+          "n_peak": 44,
+          "n_fell": 15,
+          "fell_exit_gain_mean": 0.08749,
+          "fell_exit_gain_median": 0.109278,
+          "fell_drop_pp_mean": 0.248233,
+          "fell_drop_pp_median": 0.245114,
+          "fell_giveback_yuan": 455103.5
+        },
+        "signal": {
+          "n_peak": 40,
+          "n_fell": 36,
+          "fell_exit_gain_mean": -0.036577,
+          "fell_exit_gain_median": -0.061858,
+          "fell_drop_pp_mean": 0.349583,
+          "fell_drop_pp_median": 0.320659,
+          "fell_giveback_yuan": 1714908.06
+        },
+        "end": {
+          "n_peak": 1,
+          "n_fell": 1,
+          "fell_exit_gain_mean": 0.174599,
+          "fell_exit_gain_median": 0.174599,
+          "fell_drop_pp_mean": 0.162591,
+          "fell_drop_pp_median": 0.162591,
+          "fell_giveback_yuan": 24750.0
+        }
+      }
+    },
+    {
+      "tier": "peak>=50%",
+      "n_peak": 32,
+      "n_exit_below_tier": 13,
+      "share_fell": 0.4062,
+      "fell_exit_gain": {
+        "mean": 0.308551,
+        "median": 0.32625,
+        "p10": 0.124947,
+        "p25": 0.214214,
+        "p75": 0.4181,
+        "p90": 0.473209,
+        "max": 0.493797,
+        "min": 0.023109
+      },
+      "fell_drop_pp": {
+        "mean": 0.545829,
+        "median": 0.568657,
+        "p10": 0.130174,
+        "p25": 0.369992,
+        "p75": 0.661158,
+        "p90": 0.858213,
+        "max": 1.35868,
+        "min": 0.083609
+      },
+      "fell_giveback_yuan": 935559.71,
+      "by_reason": {
+        "max_hold": {
+          "n_peak": 27,
+          "n_fell": 8,
+          "fell_exit_gain_mean": 0.32811,
+          "fell_exit_gain_median": 0.346132,
+          "fell_drop_pp_mean": 0.408506,
+          "fell_drop_pp_median": 0.445547,
+          "fell_giveback_yuan": 415858.0
+        },
+        "signal": {
+          "n_peak": 5,
+          "n_fell": 5,
+          "fell_exit_gain_mean": 0.277258,
+          "fell_exit_gain_median": 0.277595,
+          "fell_drop_pp_mean": 0.765547,
+          "fell_drop_pp_median": 0.661158,
+          "fell_giveback_yuan": 519701.71
+        },
+        "end": {
+          "n_peak": 0,
+          "n_fell": 0,
+          "fell_exit_gain_mean": null,
+          "fell_exit_gain_median": null,
+          "fell_drop_pp_mean": null,
+          "fell_drop_pp_median": null,
+          "fell_giveback_yuan": 0.0
+        }
+      }
+    },
+    {
+      "tier": "peak>=100%",
+      "n_peak": 16,
+      "n_exit_below_tier": 12,
+      "share_fell": 0.75,
+      "fell_exit_gain": {
+        "mean": 0.602401,
+        "median": 0.557527,
+        "p10": 0.403073,
+        "p25": 0.48946,
+        "p75": 0.672226,
+        "p90": 0.87265,
+        "max": 0.968364,
+        "min": 0.366014
+      },
+      "fell_drop_pp": {
+        "mean": 0.705278,
+        "median": 0.629827,
+        "p10": 0.442322,
+        "p25": 0.543374,
+        "p75": 0.816322,
+        "p90": 1.144923,
+        "max": 1.35868,
+        "min": 0.186274
+      },
+      "fell_giveback_yuan": 1102682.53,
+      "by_reason": {
+        "max_hold": {
+          "n_peak": 14,
+          "n_fell": 10,
+          "fell_exit_gain_mean": 0.635744,
+          "fell_exit_gain_median": 0.601563,
+          "fell_drop_pp_mean": 0.619789,
+          "fell_drop_pp_median": 0.582157,
+          "fell_giveback_yuan": 817862.34
+        },
+        "signal": {
+          "n_peak": 2,
+          "n_fell": 2,
+          "fell_exit_gain_mean": 0.435685,
+          "fell_exit_gain_median": 0.435685,
+          "fell_drop_pp_mean": 1.132723,
+          "fell_drop_pp_median": 1.132723,
+          "fell_giveback_yuan": 284820.19
+        },
+        "end": {
+          "n_peak": 0,
+          "n_fell": 0,
+          "fell_exit_gain_mean": null,
+          "fell_exit_gain_median": null,
+          "fell_drop_pp_mean": null,
+          "fell_drop_pp_median": null,
+          "fell_giveback_yuan": 0.0
+        }
+      }
+    },
+    {
+      "tier": "peak>=200%",
+      "n_peak": 2,
+      "n_exit_below_tier": 1,
+      "share_fell": 0.5,
+      "fell_exit_gain": {
+        "mean": 0.889916,
+        "median": 0.889916,
+        "p10": 0.889916,
+        "p25": 0.889916,
+        "p75": 0.889916,
+        "p90": 0.889916,
+        "max": 0.889916,
+        "min": 0.889916
+      },
+      "fell_drop_pp": {
+        "mean": 1.171385,
+        "median": 1.171385,
+        "p10": 1.171385,
+        "p25": 1.171385,
+        "p75": 1.171385,
+        "p90": 1.171385,
+        "max": 1.171385,
+        "min": 1.171385
+      },
+      "fell_giveback_yuan": 134722.44,
+      "by_reason": {
+        "max_hold": {
+          "n_peak": 2,
+          "n_fell": 1,
+          "fell_exit_gain_mean": 0.889916,
+          "fell_exit_gain_median": 0.889916,
+          "fell_drop_pp_mean": 1.171385,
+          "fell_drop_pp_median": 1.171385,
+          "fell_giveback_yuan": 134722.44
+        },
+        "signal": {
+          "n_peak": 0,
+          "n_fell": 0,
+          "fell_exit_gain_mean": null,
+          "fell_exit_gain_median": null,
+          "fell_drop_pp_mean": null,
+          "fell_drop_pp_median": null,
+          "fell_giveback_yuan": 0.0
+        },
+        "end": {
+          "n_peak": 0,
+          "n_fell": 0,
+          "fell_exit_gain_mean": null,
+          "fell_exit_gain_median": null,
+          "fell_drop_pp_mean": null,
+          "fell_drop_pp_median": null,
+          "fell_giveback_yuan": 0.0
+        }
+      }
+    }
+  ],
+  "giveback": {
+    "total_yuan_raw_basis": 7096429.27,
+    "total_yuan_adj_basis": 6081346.9,
+    "sys_total_pnl": 242725.28,
+    "ratio_to_sys_total_pnl": 29.2365,
+    "ratio_to_sum_pnl_amount_194": 21.711,
+    "n_peak_above_entry": 166,
+    "avg_giveback_per_trade": 35660.45,
+    "avg_position_value": 128106.81,
+    "avg_cost_per_trade": 202.57,
+    "total_cost": 40312.27
+  },
+  "counterfactual_peak_half": [
+    {
+      "frac": 0.5,
+      "sum_pnl_cf_all199": 2780685.22,
+      "delta_all199": 2453827.01,
+      "sum_pnl_cf_completed194": 2754606.17,
+      "delta_completed194": 2427747.96,
+      "harm_n": 30,
+      "harm_yuan": -819384.18,
+      "harm_reasons": [
+        {
+          "exit_reason": "max_hold",
+          "count": 28
+        },
+        {
+          "exit_reason": "signal",
+          "count": 1
+        },
+        {
+          "exit_reason": "end",
+          "count": 1
+        }
+      ],
+      "gain_n": 141,
+      "gain_yuan": 3307735.49
+    },
+    {
+      "frac": 0.6,
+      "sum_pnl_cf_all199": 3535297.62,
+      "delta_all199": 3208439.41,
+      "sum_pnl_cf_completed194": 3502777.57,
+      "delta_completed194": 3175919.36,
+      "harm_n": 23,
+      "harm_yuan": -586006.59,
+      "harm_reasons": [
+        {
+          "exit_reason": "max_hold",
+          "count": 22
+        },
+        {
+          "exit_reason": "signal",
+          "count": 1
+        }
+      ],
+      "gain_n": 148,
+      "gain_yuan": 3801592.34
+    },
+    {
+      "frac": 0.7,
+      "sum_pnl_cf_all199": 4286520.72,
+      "delta_all199": 3959662.51,
+      "sum_pnl_cf_completed194": 4247677.67,
+      "delta_completed194": 3920819.46,
+      "harm_n": 18,
+      "harm_yuan": -372278.88,
+      "harm_reasons": [
+        {
+          "exit_reason": "max_hold",
+          "count": 18
+        }
+      ],
+      "gain_n": 153,
+      "gain_yuan": 4339087.73
+    }
+  ],
+  "timing": {
+    "days_to_peak_by_reason": {
+      "max_hold": {
+        "mean": 42.310345,
+        "median": 45.0,
+        "p10": 28.1,
+        "p25": 34.25,
+        "p75": 53.0,
+        "p90": 58.0,
+        "max": 60.0,
+        "min": 1.0
+      },
+      "signal": {
+        "mean": 10.117647,
+        "median": 6.0,
+        "p10": 0.0,
+        "p25": 1.0,
+        "p75": 16.25,
+        "p90": 30.0,
+        "max": 46.0,
+        "min": 0.0
+      },
+      "end": {
+        "mean": 0.8,
+        "median": 1.0,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p75": 1.0,
+        "p90": 1.6,
+        "max": 2.0,
+        "min": 0.0
+      },
+      "ALL": {
+        "mean": 19.266332,
+        "median": 14.0,
+        "p10": 0.0,
+        "p25": 1.0,
+        "p75": 34.5,
+        "p90": 49.2,
+        "max": 60.0,
+        "min": 0.0
+      }
+    },
+    "peak_frac_by_reason": {
+      "max_hold": {
+        "mean": 0.713372,
+        "median": 0.75835,
+        "p10": 0.4683,
+        "p25": 0.60455,
+        "p75": 0.895825,
+        "p90": 0.9667,
+        "max": 1.0,
+        "min": 0.0167
+      },
+      "signal": {
+        "mean": 0.212035,
+        "median": 0.13895,
+        "p10": 0.0,
+        "p25": 0.020975,
+        "p75": 0.372825,
+        "p90": 0.5369,
+        "max": 0.7931,
+        "min": 0.0
+      },
+      "end": {
+        "mean": 0.1,
+        "median": 0.1,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p75": 0.2,
+        "p90": 0.2,
+        "max": 0.2,
+        "min": 0.0
+      },
+      "ALL": {
+        "mean": 0.355338,
+        "median": 0.2885,
+        "p10": 0.0,
+        "p25": 0.0426,
+        "p75": 0.6191,
+        "p90": 0.8333,
+        "max": 1.0,
+        "min": 0.0
+      }
+    },
+    "share_peak_in_last5_bars": 0.0704,
+    "n_corporate_action_windows": 17
+  },
+  "consistency": {
+    "sum_pnl_amount_199": 326858.21,
+    "sum_pnl_amount_194_completed": 326858.21,
+    "sum_pnl_amount_5_open": 0.0,
+    "equity_end": 1242725.28,
+    "equity_gain": 242725.28,
+    "residual_vs_system": 0.0,
+    "recon_realized_plus_open_mark_minus_cost": 242961.8,
+    "recon_gap_vs_equity": 236.52
+  }
+}

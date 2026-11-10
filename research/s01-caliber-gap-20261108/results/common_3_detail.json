@@ -1,0 +1,53 @@
+[
+ {
+  "symbol": "002463.SZ",
+  "entry_date": "2019-07-02",
+  "entry_price_eq": true,
+  "exit_price_eq": true,
+  "shares_r": 8100.0,
+  "shares_p": 8100.0,
+  "pnl_pct_r": 0.908326,
+  "pnl_pct_p": 0.908356,
+  "pnl_pct_diff": 3e-05,
+  "pnl_amount_r": 107780.14,
+  "pnl_amount_p": 107782.91,
+  "pnl_amount_diff": 2.77,
+  "gross_pnl_by_shares_r": 108113.94,
+  "cost_r": 333.8,
+  "cost_p": 331.03
+ },
+ {
+  "symbol": "002938.SZ",
+  "entry_date": "2019-07-02",
+  "entry_price_eq": true,
+  "exit_price_eq": true,
+  "shares_r": 3700.0,
+  "shares_p": 3700.0,
+  "pnl_pct_r": 0.339482,
+  "pnl_pct_p": 0.339504,
+  "pnl_pct_diff": 2.2e-05,
+  "pnl_amount_r": 39995.84,
+  "pnl_amount_p": 39998.04,
+  "pnl_amount_diff": 2.2,
+  "gross_pnl_by_shares_r": 40239.35,
+  "cost_r": 243.51,
+  "cost_p": 241.31
+ },
+ {
+  "symbol": "002124.SZ",
+  "entry_date": "2019-10-31",
+  "entry_price_eq": true,
+  "exit_price_eq": true,
+  "shares_r": 7800.0,
+  "shares_p": 5400.0,
+  "pnl_pct_r": -0.254874,
+  "pnl_pct_p": -0.254862,
+  "pnl_pct_diff": 1.2e-05,
+  "pnl_amount_r": -32049.05,
+  "pnl_amount_p": -22186.59,
+  "pnl_amount_diff": 9862.46,
+  "gross_pnl_by_shares_r": -31887.18,
+  "cost_r": 161.87,
+  "cost_p": -9700.59
+ }
+]

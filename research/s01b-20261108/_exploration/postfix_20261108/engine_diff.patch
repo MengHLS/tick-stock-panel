@@ -1,0 +1,89 @@
+﻿diff --git a/backend/app/backtest/engine.py b/backend/app/backtest/engine.py
+index 5d1524e5..962373c8 100644
+--- a/backend/app/backtest/engine.py
++++ b/backend/app/backtest/engine.py
+@@ -4097,11 +4097,26 @@ class BacktestEngine:
+                         )
+ 
+             cash_for_plan = cash
++            # 末日终结结算窗口 (契约 D-EOS S-1/S-7): 只在末根 K 线、非跨段结转、且
++            # 未要求期末盯市时开启。判定在循环外算一次; 循环内在每个持仓体顶部调用
++            # 结算步 —— 该位置在建仓日 / pending / risk / 信号闩锁 / 延展策略五条
++            # 早退分支之前, 所以 P1~P6 没有任何一条能绕过它 (契约 §1.3)。
++            end_settlement = (
++                time_id == time_count - 1
++                and not options.carry_out
++                and not config.finalize_open_at_end
++            )
+             for position_id in list(positions):
+                 pos = positions.get(position_id)
+                 if pos is None:
+                     continue
+                 asset_id = int(pos["asset_id"])
++                if end_settlement and _try_sell(
++                    time_id, position_id, "end", date_text, sold_today
++                ):
++                    # SETTLED: 已按该臂 exit_fill 的末根价成交、现金已入账、trade 已
++                    # 闭环; 本 bar 余下步骤不再触碰该持仓 (契约 I3)。
++                    continue
+                 if pos["entry_date"] == date_text:
+                     if config.stop_loss_pct is not None:
+                         stop_line = float(pos["risk_entry_price"]) * (
+@@ -4242,11 +4257,13 @@ class BacktestEngine:
+                         pos["next_open_exit_signal_date"] = date_text
+                 elif config.max_hold_days is not None and pos["hold_days"] >= config.max_hold_days:
+                     reason = "max_hold"
+-                elif (
+-                    time_id == time_count - 1
+-                    and not config.finalize_open_at_end
+-                    and not options.carry_out
+-                ):
++                elif end_settlement:
++                    # 防御性重复 (契约 S-2): 终结结算步已在持仓体顶部跑过, 能走到
++                    # 这里只剩"末日不可成交"(P6) 的遗留 —— 它已被登记 pending 并在
++                    # 上面的 pending 守卫里 continue 掉, 故本分支在守卫下不可达。
++                    # 保留而不用 assert: 回测引擎不应在生产路径抛断言; 计数器让
++                    # "不该发生"在 stats["execution"] 里可见。
++                    _count("end_branch_reached_after_settlement")
+                     reason = "end"
+                 if reason:
+                     _try_sell(
+@@ -4397,7 +4414,12 @@ class BacktestEngine:
+                     if np.isfinite(value) and value > 0
+                 },
+             )
+-        elif config.finalize_open_at_end:
++        else:
++            # MARKED 记账号 (契约 S-3/S-8): 只为仍留在 positions 的持仓追加
++            # open_at_end 记录 —— 现金与持仓市值已在末行权益写入之前定稿, 这里不再
++            # 调用 _sell, 也不改动末行任何数字。两条终态由此收敛:
++            #   * finalize_open_at_end=True: 全部持仓走此分支 (= 改前行为, 逐字节不变);
++            #   * 默认臂: 只剩末日不可成交 (P6: 停牌/一字跌停) 的持仓走此分支。
+             for position_id in list(positions):
+                 pos = positions.pop(position_id)
+                 asset_id = int(pos["asset_id"])
+@@ -4433,24 +4455,6 @@ class BacktestEngine:
+                     open_at_end=True,
+                     entry_signal_id=pos["entry_signal_id"],
+                 ))
+-        else:
+-            for position_id in list(positions):
+-                pos = positions[position_id]
+-                asset_id = int(pos["asset_id"])
+-                last_time = None
+-                for t in range(time_count - 1, -1, -1):
+-                    if _valid_price(exit_prices[t, asset_id]):
+-                        last_time = t
+-                        break
+-                if last_time is None:
+-                    continue
+-                _sell(
+-                    last_time,
+-                    position_id,
+-                    str(pos.get("pending_exit_reason") or "end"),
+-                    matrix.timestamp_labels[last_time][:10],
+-                    set(),
+-                )
+ 
+         statistics_started = time.perf_counter()
+         stats = self._calc_portfolio_stats_from_values(

@@ -1,0 +1,348 @@
+{
+ "contract": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261108_v0.15.md §7.16.4",
+ "data_dir": "D:\\TSP\\data",
+ "facts_forms": {
+  "omitted": {
+   "production": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   },
+   "research": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   },
+   "diagnostic": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   }
+  },
+  "none_kwarg": {
+   "production": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   },
+   "research": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   },
+   "diagnostic": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   }
+  },
+  "explicit_path": {
+   "production": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   },
+   "research": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   },
+   "diagnostic": {
+    "ok": true,
+    "blocked": [],
+    "non_active": []
+   }
+  }
+ },
+ "combo_detail_shapes": {
+  "G1_single_alias_vol60": {
+   "code": "FS03",
+   "n_keys": 7,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "submitted_id",
+    "table_row"
+   ],
+   "has_status": false,
+   "has_violations": false,
+   "has_dual_ids": false
+  },
+  "G1_single_alias_ma120": {
+   "code": "FS03",
+   "n_keys": 7,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "submitted_id",
+    "table_row"
+   ],
+   "has_status": false,
+   "has_violations": false,
+   "has_dual_ids": false
+  },
+  "G1_single_alias_prior_high_20": {
+   "code": "FS03",
+   "n_keys": 7,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "submitted_id",
+    "table_row"
+   ],
+   "has_status": false,
+   "has_violations": false,
+   "has_dual_ids": false
+  },
+  "G2_single_collision_ma20": {
+   "code": "FS01",
+   "n_keys": 8,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "status",
+    "submitted_id",
+    "table_row"
+   ],
+   "has_status": true,
+   "has_violations": false,
+   "has_dual_ids": false
+  },
+  "G3_dual_id": {
+   "code": "FS04",
+   "n_keys": 8,
+   "keys": [
+    "canonical_id",
+    "code",
+    "dual_ids",
+    "message",
+    "mode",
+    "resolved_id",
+    "submitted_id",
+    "table_row"
+   ],
+   "has_status": false,
+   "has_violations": false,
+   "has_dual_ids": true
+  },
+  "G4_two_ids_both_FS01": {
+   "code": "FS01",
+   "n_keys": 9,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "status",
+    "submitted_id",
+    "table_row",
+    "violations"
+   ],
+   "has_status": true,
+   "has_violations": true,
+   "has_dual_ids": false
+  },
+  "G5_FS01_then_FS03": {
+   "code": "FS01",
+   "n_keys": 9,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "status",
+    "submitted_id",
+    "table_row",
+    "violations"
+   ],
+   "has_status": true,
+   "has_violations": true,
+   "has_dual_ids": false
+  },
+  "G6_three_ids": {
+   "code": "FS01",
+   "n_keys": 9,
+   "keys": [
+    "canonical_id",
+    "code",
+    "message",
+    "mode",
+    "resolved_id",
+    "status",
+    "submitted_id",
+    "table_row",
+    "violations"
+   ],
+   "has_status": true,
+   "has_violations": true,
+   "has_dual_ids": false
+  },
+  "G7_FS04_plus_third_id": {
+   "code": "FS04",
+   "n_keys": 8,
+   "keys": [
+    "canonical_id",
+    "code",
+    "dual_ids",
+    "message",
+    "mode",
+    "resolved_id",
+    "submitted_id",
+    "table_row"
+   ],
+   "has_status": false,
+   "has_violations": false,
+   "has_dual_ids": true
+  }
+ },
+ "disk_status": {
+  "cf_auction_resonance": {
+   "status": "draft",
+   "version": 2,
+   "updated_at": "2026-10-31T18:19:56",
+   "file_mtime_ns": 1793441996359659300
+  },
+  "uf_auction_post0920_match_growth": {
+   "status": "draft",
+   "version": 2,
+   "updated_at": "2026-10-31T18:19:56",
+   "file_mtime_ns": 1793441996355662200
+  },
+  "uf_auction_tail_imbalance": {
+   "status": "draft",
+   "version": 2,
+   "updated_at": "2026-10-31T18:19:56",
+   "file_mtime_ns": 1793441996353661800
+  },
+  "uf_auction_tail_match_growth": {
+   "status": "draft",
+   "version": 2,
+   "updated_at": "2026-10-31T18:19:56",
+   "file_mtime_ns": 1793441996354661300
+  },
+  "uf_auction_volume_surprise": {
+   "status": "draft",
+   "version": 2,
+   "updated_at": "2026-10-31T18:19:56",
+   "file_mtime_ns": 1793441996358660000
+  },
+  "uf_auction_volume_vs_prev": {
+   "status": "draft",
+   "version": 2,
+   "updated_at": "2026-10-31T18:19:56",
+   "file_mtime_ns": 1793441996356663700
+  },
+  "uf_dist_prior_high_250": {
+   "status": "draft",
+   "version": 1,
+   "updated_at": "2026-11-07T16:07:00",
+   "file_mtime_ns": 1794038820278336300
+  },
+  "uf_ma120": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637132505200
+  },
+  "uf_ma200": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637138675800
+  },
+  "uf_prior_high_20": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637145843600
+  },
+  "uf_prior_high_250": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637158697800
+  },
+  "uf_prior_high_55": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637151558100
+  },
+  "uf_prior_low_10": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637164849500
+  },
+  "uf_prior_vol_20": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637171849100
+  },
+  "uf_vol60": {
+   "status": "active",
+   "version": 1,
+   "updated_at": "2026-11-07T23:33:57",
+   "file_mtime_ns": 1794065637123810400
+  }
+ },
+ "default_source": {
+  "_data_dir": "D:\\TSP\\data",
+  "disk_status_counts": {
+   "draft": 7,
+   "active": 8
+  },
+  "active_ids_read_back": {
+   "uf_vol60": "active",
+   "uf_ma120": "active",
+   "uf_ma200": "active",
+   "uf_prior_high_20": "active",
+   "uf_prior_high_55": "active",
+   "uf_prior_high_250": "active",
+   "uf_prior_low_10": "active",
+   "uf_prior_vol_20": "active"
+  }
+ },
+ "file_sizes": {
+  "app/factors/gate.py": {
+   "bytes": 36262,
+   "sha256": "fc8120c9fe50fabe21b7daa89d50d5e5847d555e5b23028acfda3bee30e0bf69",
+   "mtime_ns": 1794081477180775600
+  },
+  "tests/test_factor_gate.py": {
+   "bytes": 54386,
+   "sha256": "4658023ee76490912992423ba515faace75fb6eeaeeac4d40516255e8bb58dd2",
+   "mtime_ns": 1794081477184775900
+  },
+  "app/factors/dsl.py": {
+   "bytes": 36785,
+   "sha256": "49f3a1106095ad0cf4a6c1cb8ccde42283957756f89ac1f226bf1624fea0c78b",
+   "mtime_ns": 1794060679710632800
+  },
+  "app/factors/store.py": {
+   "bytes": 21104,
+   "sha256": "f6f3ffa82758e25aa025785a442e674a9cca761661583969c2c47c94306e3f88",
+   "mtime_ns": 1794064085149830500
+  },
+  "app/api/backtest.py": {
+   "bytes": 64729,
+   "sha256": "cebd2dbffdf4a4bf4f34a70806bd34915aab8cbaba1ccdcc6b7133a3c0322bdc",
+   "mtime_ns": 1794069530698187500
+  }
+ }
+}

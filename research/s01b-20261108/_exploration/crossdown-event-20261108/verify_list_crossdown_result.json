@@ -1,0 +1,105 @@
+{
+ "dirs": [
+  "C:\\work\\sourcecode\\tick-stock-panel\\backend\\app\\strategy\\research",
+  "D:\\TSP\\data\\strategies\\custom",
+  "D:\\TSP\\data\\strategies\\ai",
+  "D:\\TSP\\data\\strategies\\composite"
+ ],
+ "n_strategies_in_list": 5,
+ "ids": [
+  "custom_factor_first_board_chain_strict_rebreak",
+  "custom_khunter_limit_up_pullback",
+  "custom_mvoa5yy6",
+  "custom_mw7fvp17",
+  "first_limit_pullback_3f_runner_t74"
+ ],
+ "target": [
+  {
+   "id": "custom_mw7fvp17",
+   "name": "双均线 20/60 金叉",
+   "description": "20 日均线上穿 60 日均线买入，下穿卖出，最长持有 60 个交易日。",
+   "tags": [
+    "趋势",
+    "双均线",
+    "S01"
+   ],
+   "asset_types": [
+    "stock"
+   ],
+   "timeframes": [
+    "1d"
+   ],
+   "basic_filter": {
+    "price_min": 2.0,
+    "price_max": null,
+    "market_cap_min": null,
+    "float_cap_min": null,
+    "float_cap_max": null,
+    "amount_min": null,
+    "amount_max": null,
+    "turnover_min": null,
+    "turnover_max": null,
+    "exclude_st": true,
+    "exclude_new_days": 30,
+    "boards": [
+     "沪主板",
+     "深主板",
+     "创业板",
+     "科创板",
+     "北交所"
+    ]
+   },
+   "params": [
+    {
+     "id": "fast_period",
+     "label": "快线周期",
+     "type": "int",
+     "default": 20,
+     "min": 5,
+     "max": 60,
+     "step": 1
+    },
+    {
+     "id": "slow_period",
+     "label": "慢线周期",
+     "type": "int",
+     "default": 60,
+     "min": 20,
+     "max": 250,
+     "step": 1
+    }
+   ],
+   "scoring": {},
+   "order_by": "score",
+   "descending": true,
+   "limit": 100,
+   "source": "custom",
+   "execution_backend": "matrix_native"
+  }
+ ],
+ "n_loaded": 10,
+ "loaded_ids": [
+  "ai_26a1525f69",
+  "ai_75a67366",
+  "ai_b8183b64",
+  "custom_factor_first_board_chain_strict_rebreak",
+  "custom_khunter_limit_up_pullback",
+  "custom_mvoa5yy6",
+  "custom_mw7fvp17",
+  "factor_rank_research",
+  "first_board_chain_rebreak",
+  "first_limit_pullback_3f_runner_t74"
+ ],
+ "load_errors": [],
+ "checks": {
+  "list_count_is_5": true,
+  "target_present": true,
+  "name_is_baseline": true,
+  "tags_are_baseline": true,
+  "no_s01b_in_name": true,
+  "no_s01b_in_tags": true,
+  "backtest_defaults_empty": true,
+  "description_is_baseline": true,
+  "load_errors_empty": true
+ }
+}

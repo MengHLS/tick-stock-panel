@@ -1,0 +1,71 @@
+PASS C值 base_nodefaults_10bp=483571.22 期望483571.23  |  Δ=-0.01 (容差±0.05)
+PASS 末行终态 base_nodefaults_10bp positions=0/cash=value  |  positions=0 value=483571.22 cash=483571.22 exposure=0.0
+PASS C值 only_trailing_peak_price_close=483571.22 期望483571.23  |  Δ=-0.01 (容差±0.05)
+PASS 末行终态 only_trailing_peak_price_close positions=0/cash=value  |  positions=0 value=483571.22 cash=483571.22 exposure=0.0
+PASS C值 only_execution_costs=483698.12 期望483698.12  |  Δ=+0.00 (容差±0.05)
+PASS 末行终态 only_execution_costs positions=0/cash=value  |  positions=0 value=483698.12 cash=483698.12 exposure=0.0
+PASS C值 only_entry_price_basis_raw=432987.97 期望432987.98  |  Δ=-0.01 (容差±0.05)
+PASS 末行终态 only_entry_price_basis_raw positions=0/cash=value  |  positions=0 value=432987.97 cash=432987.97 exposure=0.0
+PASS C值 base_nodefaults_gross=525402.74 期望525402.74  |  Δ=+0.00 (容差±0.05)
+PASS 末行终态 base_nodefaults_gross positions=0/cash=value  |  positions=0 value=525402.74 cash=525402.74 exposure=0.0
+PASS C值 only_block_limit_open=1117814.25 期望1117814.25  |  Δ=+0.00 (容差±0.05)
+PASS 末行终态 only_block_limit_open positions=0/cash=value  |  positions=0 value=1117814.25 cash=1117814.25 exposure=0.0
+PASS 字节不变 only_finalize_open_at_end/trades.parquet  |  bytes=23154 equal=True
+PASS 字节不变 only_finalize_open_at_end/equity.parquet  |  bytes=20752 equal=True
+PASS 字节不变 only_finalize_open_at_end/drawdown.parquet  |  bytes=10206 equal=True
+PASS 末值不变 only_finalize_open_at_end=478212.34  |  expect 478212.34
+PASS execution 不变 only_finalize_open_at_end  |  diff_keys=[]
+PASS 字节不变 only_exit_signal_requires_profit/trades.parquet  |  bytes=21042 equal=True
+PASS 字节不变 only_exit_signal_requires_profit/equity.parquet  |  bytes=20622 equal=True
+PASS 字节不变 only_exit_signal_requires_profit/drawdown.parquet  |  bytes=10309 equal=True
+PASS 末值不变 only_exit_signal_requires_profit=673798.76  |  expect 673798.76
+PASS execution 不变 only_exit_signal_requires_profit  |  diff_keys=[]
+PASS 字节不变 a0_10bp/trades.parquet  |  bytes=22854 equal=True
+PASS 字节不变 a0_10bp/equity.parquet  |  bytes=18918 equal=True
+PASS 字节不变 a0_10bp/drawdown.parquet  |  skip: exists_old=False exists_new=False
+PASS 末值不变 a0_10bp=1242725.28  |  expect 1242725.28
+PASS execution 不变 a0_10bp  |  diff_keys=[]
+PASS equity 行数不变 base_nodefaults_10bp  |  1779 -> 1779
+PASS equity 前 1778 行逐格相同 base_nodefaults_10bp
+PASS equity 末行日期不变 base_nodefaults_10bp  |  2026-10-30 == 2026-10-30
+PASS trades 排序后逐格相同 base_nodefaults_10bp
+PASS drawdown 仅末行可变 base_nodefaults_10bp  |  last_row_changed=True
+PASS execution 只允许 P6 键变化 base_nodefaults_10bp  |  diff_keys=[]
+PASS equity 行数不变 only_trailing_peak_price_close  |  1779 -> 1779
+PASS equity 前 1778 行逐格相同 only_trailing_peak_price_close
+PASS equity 末行日期不变 only_trailing_peak_price_close  |  2026-10-30 == 2026-10-30
+PASS trades 排序后逐格相同 only_trailing_peak_price_close
+PASS drawdown 仅末行可变 only_trailing_peak_price_close  |  last_row_changed=True
+PASS execution 只允许 P6 键变化 only_trailing_peak_price_close  |  diff_keys=[]
+PASS equity 行数不变 only_execution_costs  |  1779 -> 1779
+PASS equity 前 1778 行逐格相同 only_execution_costs
+PASS equity 末行日期不变 only_execution_costs  |  2026-10-30 == 2026-10-30
+PASS trades 排序后逐格相同 only_execution_costs
+PASS drawdown 仅末行可变 only_execution_costs  |  last_row_changed=True
+PASS execution 只允许 P6 键变化 only_execution_costs  |  diff_keys=[]
+PASS equity 行数不变 only_entry_price_basis_raw  |  1779 -> 1779
+PASS equity 前 1778 行逐格相同 only_entry_price_basis_raw
+PASS equity 末行日期不变 only_entry_price_basis_raw  |  2026-10-30 == 2026-10-30
+PASS trades 排序后逐格相同 only_entry_price_basis_raw
+PASS drawdown 仅末行可变 only_entry_price_basis_raw  |  last_row_changed=True
+PASS execution 只允许 P6 键变化 only_entry_price_basis_raw  |  diff_keys=[]
+PASS equity 行数不变 base_nodefaults_gross  |  1779 -> 1779
+PASS equity 前 1778 行逐格相同 base_nodefaults_gross
+PASS equity 末行日期不变 base_nodefaults_gross  |  2026-10-30 == 2026-10-30
+PASS trades 排序后逐格相同 base_nodefaults_gross
+PASS drawdown 仅末行可变 base_nodefaults_gross  |  last_row_changed=True
+PASS execution 只允许 P6 键变化 base_nodefaults_gross  |  diff_keys=[]
+PASS equity 行数不变 only_block_limit_open  |  1779 -> 1779
+PASS equity 前 1778 行逐格相同 only_block_limit_open
+PASS equity 末行日期不变 only_block_limit_open  |  2026-10-30 == 2026-10-30
+PASS trades 排序后逐格相同 only_block_limit_open
+PASS drawdown 仅末行可变 only_block_limit_open  |  last_row_changed=True
+PASS execution 只允许 P6 键变化 only_block_limit_open  |  diff_keys=[]
+PASS closed 口径 base_nodefaults_10bp: completed==n_trades==open_at_end+completed  |  n_trades=208 completed=208 open_at_end=0
+PASS closed 口径 only_trailing_peak_price_close: completed==n_trades==open_at_end+completed  |  n_trades=208 completed=208 open_at_end=0
+PASS closed 口径 only_execution_costs: completed==n_trades==open_at_end+completed  |  n_trades=208 completed=208 open_at_end=0
+PASS closed 口径 only_entry_price_basis_raw: completed==n_trades==open_at_end+completed  |  n_trades=208 completed=208 open_at_end=0
+PASS closed 口径 base_nodefaults_gross: completed==n_trades==open_at_end+completed  |  n_trades=208 completed=208 open_at_end=0
+PASS closed 口径 only_block_limit_open: completed==n_trades==open_at_end+completed  |  n_trades=198 completed=198 open_at_end=0
+
+TOTAL 69  PASS 69  FAIL 0

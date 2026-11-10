@@ -1,0 +1,11 @@
+# 六次跑批的退出码（2026-11-08，cd C:\work\sourcecode\tick-stock-panel）
+# 统一模板：backend\.venv\Scripts\python.exe research\matrix-native-risk-20261108\run_risk_probe.py --variant <V> --start 2019-07-01 --end 2021-06-30 --tag <TAG>
+custom   rc=0 tag=base_2y    # --variant custom    （基线，STOP_LOSS=None）
+custom   rc=0 tag=custom_2y  # --variant custom    （同一输入重跑，可复现性对照）
+custom_sl rc=0 tag=sl_2y     # --variant custom_sl （STOP_LOSS=-0.08）
+custom_tp rc=0 tag=tp_2y     # --variant custom_tp （TRAILING_TAKE_PROFIT_ACTIVATE=0.10 / DRAWDOWN=0.05）
+custom_ts rc=0 tag=ts_2y     # --variant custom_ts （TRAILING_STOP=0.05）
+custom_mh rc=0 tag=mh_2y     # --variant custom_mh （MAX_HOLD_DAYS=20）
+# 汇总与复核
+summarize.py       rc=0
+verify_stop_fill.py rc=0

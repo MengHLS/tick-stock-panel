@@ -1,0 +1,55 @@
+{
+  "trades_file": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\_exploration\\results\\a0_10bp\\trades.parquet",
+  "n_trades": 199,
+  "exit_reason_counts": {
+    "signal": 136,
+    "end": 5,
+    "max_hold": 58
+  },
+  "stop_loss_exit_count": 0,
+  "counterfactual_10pct": {
+    "hit_by_daily_close": 125,
+    "hit_rate_by_daily_close": 0.6281,
+    "hit_by_intraday_low": 141,
+    "hit_rate_by_intraday_low": 0.7085,
+    "window": "entry_date..exit_date inclusive, raw plane, stop_line = entry_price*(1-0.10)"
+  },
+  "counterfactual_8pct_by_close": {
+    "hit": 140,
+    "hit_rate": 0.7035,
+    "hit_by_intraday_low": 153,
+    "hit_rate_by_intraday_low": 0.7688
+  },
+  "signal_exits": {
+    "n": 136,
+    "mean_pnl_pct": -0.143808,
+    "median_pnl_pct": -0.157253,
+    "sum_pnl_amount": -2435133.35,
+    "losers_lt_10pct": 92,
+    "losers_lt_10pct_share_of_signal": 0.6765,
+    "losers_lt_10pct_blocked_exit_days_gt0": 1,
+    "losers_lt_10pct_exit_open_gap_below_stop10": 91,
+    "losers_lt_10pct_exit_bar_missing": 0,
+    "losers_lt_10pct_median_pnl": -0.209391,
+    "losers_lt_10pct_mean_pnl": -0.222292,
+    "signal_exits_blocked_exit_days_gt0": 1,
+    "signal_exits_sum_blocked_days": 1,
+    "signal_exits_would_hit_10pct_close": 104,
+    "signal_to_exit_td_dist": {
+      "min": 1,
+      "p50": 1.0,
+      "max": 2
+    },
+    "deep_losers_days_past_stop10": {
+      "n": 91,
+      "p10": 6.0,
+      "p50": 20.0,
+      "p90": 41.0,
+      "max": 56
+    }
+  },
+  "all_trades_pnl": {
+    "mean": 0.012739,
+    "sum_pnl_amount": 326858.21
+  }
+}

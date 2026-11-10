@@ -1,0 +1,193 @@
+
+
+# ---------------------------- §7.16.4 组合键形态（开发经理 2026-11-08 实测的 7 组）
+#: 开发经理在真盘（`RegistryFacts(D:/TSP/data)`、`production`）实测的 7 组 detail 形态。
+#: 契约 v0.15 §7.16.4 的「追加键穷举表」只给了单一变体（7 / 8 / 8 / 8 / 7），**没有 9 键
+#: 这一行** —— 9 键 = `status`（FS01 追加）与 `violations`（批量追加）**并存**。已派
+#: 架构师出 v0.16 补组合行；本组用例按当前实现钉死形态，**不为了对齐那张表把
+#: `violations` 压掉**（表缺行，不是实现多写）。
+DETAIL_KEYS_7 = FS03_DETAIL_KEYS
+DETAIL_KEYS_8_STATUS = DETAIL_KEYS_7 | {"status"}
+DETAIL_KEYS_8_DUAL = DETAIL_KEYS_7 | {"dual_ids"}
+DETAIL_KEYS_9 = DETAIL_KEYS_7 | {"status", "violations"}
+
+#: 真盘上 8 个 active canonical（2026-11-08 盘上实测：15 json = 8 active + 7 draft）。
+REAL_ACTIVE_IDS = (
+    "uf_vol60",
+    "uf_ma120",
+    "uf_ma200",
+    "uf_prior_high_20",
+    "uf_prior_high_55",
+    "uf_prior_high_250",
+    "uf_prior_low_10",
+    "uf_prior_vol_20",
+)
+
+
+def _real_source() -> gate.RegistryFacts:
+    return gate.RegistryFacts(REAL_DATA_DIR)
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+@pytest.mark.parametrize("alias_id", ["vol60", "ma120", "prior_high_20"])
+def test_real_disk_group1_single_alias_is_fs03_with_seven_keys(alias_id) -> None:
+    """组 1：单 id alias → FS03，**恰 7 键**（无 status、无 violations）。"""
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable([alias_id], "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS03"
+    assert set(error.detail) == DETAIL_KEYS_7
+    assert len(error.detail) == 7
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_group2_single_collision_name_is_fs01_with_eight_keys() -> None:
+    """组 2：单 id 撞名 `ma20` → FS01，**8 键**（7 + status）。"""
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(["ma20"], "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS01"
+    assert set(error.detail) == DETAIL_KEYS_8_STATUS
+    assert len(error.detail) == 8
+    assert "violations" not in error.detail
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_group3_dual_id_is_fs04_with_eight_keys() -> None:
+    """组 3：双 id `vol60` + `uf_vol60` → FS04，**8 键**（7 + dual_ids）。"""
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(["vol60", "uf_vol60"], "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS04"
+    assert set(error.detail) == DETAIL_KEYS_8_DUAL
+    assert error.detail["dual_ids"] == ["vol60", "uf_vol60"]
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_group4_two_ids_both_fs01_is_nine_keys() -> None:
+    """组 4：2 个不同 id 都 FS01 → FS01，**9 键**（status + violations 并存）。"""
+    ids = ["uf_dist_prior_high_250", "cf_auction_resonance"]
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(ids, "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS01"
+    assert set(error.detail) == DETAIL_KEYS_9
+    assert len(error.detail) == 9
+    assert error.detail["status"] is not None  # 两个都是 draft，不是 None
+    assert [row["submitted_id"] for row in error.detail["violations"]] == ids
+    assert [row["code"] for row in error.detail["violations"]] == ["FS01", "FS01"]
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_group5_first_fs01_then_fs03_is_nine_keys() -> None:
+    """组 5：2 个不同 id，首码 FS01 / 次码 FS03 → FS01，**9 键**。"""
+    ids = ["uf_dist_prior_high_250", "vol60"]
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(ids, "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS01"
+    assert set(error.detail) == DETAIL_KEYS_9
+    assert [row["code"] for row in error.detail["violations"]] == ["FS01", "FS03"]
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_group6_three_ids_is_nine_keys() -> None:
+    """组 6：3 个不同 id（FS01 + FS01 + FS03）→ FS01，**9 键**（键数不随 id 数增长）。"""
+    ids = ["uf_dist_prior_high_250", "cf_auction_resonance", "vol60"]
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(ids, "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS01"
+    assert set(error.detail) == DETAIL_KEYS_9
+    assert len(error.detail["violations"]) == 3
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_group7_fs04_wins_and_violations_absent() -> None:
+    """组 7：FS04 + 第 3 个不同 id → FS04，**8 键**（FS04 优先时 `violations` 不出现）。"""
+    ids = ["vol60", "uf_vol60", "uf_dist_prior_high_250"]
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(ids, "production", facts=_real_source())
+    error = excinfo.value
+    assert error.code == "FS04"
+    assert set(error.detail) == DETAIL_KEYS_8_DUAL
+    assert "violations" not in error.detail
+    assert "status" not in error.detail
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_real_disk_detail_key_shape_is_intentional_design() -> None:
+    """设计说明（不是新契约）：9 键 = FS01 的 `status` 与批量的 `violations` **并存**；
+
+    `FS04` 优先时 `violations` 不出现（`_guard_dual_id` 在 violations 计算之前抛）。
+    这两条是有意设计，不是「多写了键」：`status` 跟最终 code 走（§7.16.4 去重条），
+    `violations` 跟「>=2 个不同 id」走（§7.16.4 批量条），两个条件互不排斥。
+    """
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(
+            ["uf_dist_prior_high_250", "cf_auction_resonance"], "production", facts=_real_source()
+        )
+    both = set(excinfo.value.detail)
+    assert {"status", "violations"} <= both
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(
+            ["vol60", "uf_vol60", "uf_dist_prior_high_250"], "production", facts=_real_source()
+        )
+    dual = set(excinfo.value.detail)
+    assert {"status", "violations"}.isdisjoint(dual)
+
+
+# ---------------------------------- 缺省事实源必须绑定 data_dir（P0，2026-11-08 返工）
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_default_facts_source_binds_settings_data_dir_and_sees_active() -> None:
+    """P0 回归：不传 facts / 显式 None / 显式 Path 三种形态结论必须逐项相同。
+
+    缺陷原样：`RegistryFacts()` 不带 data_dir → `_load_definitions()` 返回 `{}` →
+    `status=None` → 8 只 **active** 被全判 `FS01`，静默停产。
+    """
+    default_source = gate.default_facts_source()
+    assert default_source._data_dir is not None, "缺省事实源没绑定 data_dir（P0 回归）"
+
+    explicit = gate.RegistryFacts(REAL_DATA_DIR)
+    for mode in ("production", "research", "diagnostic"):
+        omitted = gate.assert_factors_usable(list(REAL_ACTIVE_IDS), mode)
+        none_kwarg = gate.assert_factors_usable(list(REAL_ACTIVE_IDS), mode, facts=None)
+        with_path = gate.assert_factors_usable(list(REAL_ACTIVE_IDS), mode, facts=explicit)
+        assert omitted == none_kwarg == with_path
+        assert omitted.ok is True, f"{mode} 下 8 只 active 应为 ok=True：{omitted.blocked}"
+        assert omitted.blocked == ()
+
+
+@pytest.mark.skipif(not REAL_DATA_DIR.is_dir(), reason="本机无 D:/TSP/data 生产目录")
+def test_default_source_reads_eight_active_and_seven_draft_from_real_disk() -> None:
+    """盘上事实对账：15 个 json = 8 active + 7 draft，缺省源必须逐只读对。"""
+    source = gate.default_facts_source()
+    statuses = {fid: source.facts(fid).status for fid in REAL_STORE_IDS}
+    assert sorted((str(value) for value in statuses.values())) == ["active"] * 8 + ["draft"] * 7
+    for fid in REAL_ACTIVE_IDS:
+        assert statuses[fid] == "active"
+
+
+def test_default_facts_source_raises_instead_of_empty_source(monkeypatch) -> None:
+    """解析不到 data_dir 时**抛 GateError(FS09)**，不得静默退化成空事实源。"""
+    import app.config as config_module
+
+    monkeypatch.setattr(config_module.settings, "data_dir", None, raising=False)
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.default_facts_source()
+    error = excinfo.value
+    assert error.code == "FS09"
+    assert set(error.detail) == FS03_DETAIL_KEYS
+    assert error.detail["submitted_id"] == "data_dir"
+    assert "data_dir" in error.detail["message"]
+
+
+def test_assert_factors_usable_uses_the_bound_default_source(monkeypatch) -> None:
+    """`facts` 缺省时走 `default_facts_source()`；解析失败即 GateError，绝不静默判 draft。"""
+    import app.config as config_module
+
+    monkeypatch.setattr(config_module.settings, "data_dir", None, raising=False)
+    with pytest.raises(gate.GateError) as excinfo:
+        gate.assert_factors_usable(["close"], "production")
+    assert excinfo.value.code == "FS09"
+    assert excinfo.value.detail["submitted_id"] == "data_dir"

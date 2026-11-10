@@ -1,0 +1,49 @@
+{
+ "generated_by": "h2_reentry.py",
+ "generated_at": "2026-11-08T21:18:59",
+ "verdict_h2": "REFUTED",
+ "trades": 519,
+ "distinct_symbols": 496,
+ "entry_signal_is_cross_up": {
+  "exact_true": 519,
+  "tie_tolerant_true": 519,
+  "signal_date_not_in_panel": 0,
+  "exact_false": 0,
+  "false_rows": [],
+  "missing_rows": []
+ },
+ "pairs": {
+  "all_adjacent_pairs": 518,
+  "same_symbol_pairs": 23,
+  "share_with_new_cross_up": 1.0,
+  "share_with_no_new_cross_up": 0.0,
+  "share_signal_strictly_after_prev_exit": 1.0,
+  "share_reusing_prev_signal_date": 0.0,
+  "sessions_prev_exit_to_next_signal": {
+   "min": 26,
+   "median": 430.0,
+   "max": 1491
+  }
+ },
+ "same_day_reentry_blocks": {
+  "buy_same_day_reentry": 0,
+  "buy_no_slot": 69042,
+  "buy_limit_up": 550,
+  "buy_suspended": 0
+ },
+ "code_refs": {
+  "new_golden_cross": [
+   "research/s01b-20261108/strategies/custom/s01b_a1.py:81  cross_up = (fast > slow) & (prev_fast <= prev_slow)",
+   "research/s01b-20261108/strategies/custom/s01b_a1.py:87  entry=cross_up.astype(np.uint8)",
+   "backend/app/backtest/matrix.py:2502-2507  _delay_signal_matrix(..., entry_delay_bars)",
+   "backend/app/backtest/matrix.py:3184-3208  移位：matrix.entry[t] = source_entry[t-entry_delay_bars]"
+  ],
+  "entry_execution_and_reentry_guard": [
+   "backend/app/backtest/engine.py:3593  for asset_id in np.flatnonzero(matrix.entry[time_id])",
+   "backend/app/backtest/engine.py:3595-3597  已有同标的持仓且 allow_same_asset_positions=False -> 跳过",
+   "backend/app/backtest/engine.py:3598-3600  当日已卖出该标的 -> buy_same_day_reentry++ 且跳过",
+   "backend/app/backtest/engine.py:3614-3616  槽位不足 -> buy_no_slot",
+   "backend/app/backtest/engine.py:3333-3358  同一套限制的计划态实现"
+  ]
+ }
+}

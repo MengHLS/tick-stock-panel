@@ -1,0 +1,82 @@
+{
+ "verdict": "③ 第三支键（execution_costs 策略）+ ① 同名列存不同量（成交价 vs 报价）",
+ "not": "② 不成立——两臂都真吃了 raw（见 T5）",
+ "constants": {
+  "slippage_bps": 10.0,
+  "fill_in": 1.001,
+  "fill_out": 0.999
+ },
+ "T1_entry_ratio": {
+  "n_matched_keys": 102,
+  "n_equals_1p001": 102,
+  "n_outlier": 0,
+  "min": 1.0009885057471266,
+  "max": 1.0010162601626016
+ },
+ "T2_exit_ratio": {
+  "n_equals_0p999": 99,
+  "n_outlier": 3,
+  "outliers": [
+   {
+    "symbol": "301513.SZ",
+    "entry_date": "2026-10-13",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "x199": 44.38,
+    "r_out": 0.9970793080206696
+   },
+   {
+    "symbol": "601858.SH",
+    "entry_date": "2026-10-16",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.72,
+    "x199": 20.13,
+    "r_out": 0.9267955801104972
+   },
+   {
+    "symbol": "301428.SZ",
+    "entry_date": "2026-10-29",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.88,
+    "x199": 40.99,
+    "r_out": 1.0026908023483365
+   }
+  ],
+  "outlier_reason": "a0 的 finalize_open_at_end=True ⇒ 期末未平仓按最后收盘价落账；raw 臂仍是次日开盘虚拟成交，故这 3 笔口径不同、不适用 0.999"
+ },
+ "T3_same_family": {
+  "n": 208,
+  "n_equals_1p001": 208,
+  "min": 1.0009803921568627,
+  "max": 1.0010162601626016
+ },
+ "T4_config": {
+  "a0_meta_backtest_defaults": {
+   "trailing_peak_price": "close",
+   "entry_price_basis": "raw",
+   "block_limit_open": true,
+   "finalize_open_at_end": true,
+   "exit_signal_requires_profit": false,
+   "execution_costs": {
+    "min_commission": 5.0,
+    "transfer_fee_pct": 2e-06
+   }
+  },
+  "a0_meta_has_execution_costs": true,
+  "raw_arm_resolved_entry_price_basis": "raw",
+  "raw_arm_resolved_execution_costs": null,
+  "base_resolved_execution_costs": null
+ },
+ "T5_deflate": {
+  "n_equals_raw_price": 102,
+  "n_total": 102,
+  "note": "a0 价格 ÷ 1.001 与 raw 臂价格逐笔相等（相对误差 ≤1e-3）"
+ },
+ "shares": {
+  "n_same": 9,
+  "n_total": 102,
+  "r_sh_min": 0.3157894736842105,
+  "r_sh_max": 3.0,
+  "note": "股数不同源自预算÷含滑点价，非价基不同"
+ }
+}

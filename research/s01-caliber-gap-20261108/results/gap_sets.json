@@ -1,0 +1,56 @@
+{
+ "research_all": {
+  "side": "research",
+  "n": 252,
+  "pnl_amount_sum": -336088.06,
+  "entry_value_sum": 28922080.46,
+  "avg_pnl_pct": -0.01143,
+  "win_rate": 0.3016,
+  "median_pnl_pct": -0.051307
+ },
+ "research_common": {
+  "side": "research",
+  "n": 3,
+  "pnl_amount_sum": 115726.93,
+  "entry_value_sum": 362216.75,
+  "avg_pnl_pct": 0.330978,
+  "win_rate": 0.6667,
+  "median_pnl_pct": 0.339482
+ },
+ "research_only": {
+  "side": "research",
+  "n": 249,
+  "pnl_amount_sum": -451814.99,
+  "entry_value_sum": 28559863.71,
+  "avg_pnl_pct": -0.015556,
+  "win_rate": 0.2972,
+  "median_pnl_pct": -0.051628
+ },
+ "prod_all": {
+  "side": "prod",
+  "n": 199,
+  "pnl_amount_sum": 326858.21,
+  "entry_value_sum": 25500950.65,
+  "avg_pnl_pct": 0.012739,
+  "win_rate": 0.3266,
+  "median_pnl_pct": -0.0811
+ },
+ "prod_common": {
+  "side": "prod",
+  "n": 3,
+  "pnl_amount_sum": 125594.36,
+  "entry_value_sum": 323523.53,
+  "avg_pnl_pct": 0.330999,
+  "win_rate": 0.6667,
+  "median_pnl_pct": 0.339504
+ },
+ "prod_only": {
+  "side": "prod",
+  "n": 196,
+  "pnl_amount_sum": 201263.85,
+  "entry_value_sum": 25177427.12,
+  "avg_pnl_pct": 0.007867,
+  "win_rate": 0.3214,
+  "median_pnl_pct": -0.08317
+ }
+}

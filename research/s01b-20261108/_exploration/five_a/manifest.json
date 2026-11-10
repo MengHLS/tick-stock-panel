@@ -1,0 +1,180 @@
+{
+ "arms": {
+  "base_nodefaults_10bp": {
+   "result_json_sha256": "f167c5edaaa3cc098e61c457ee3e66f8ec49ec196d4315992744d022e8006ef9",
+   "effective_config_json_sha256": "7dc01c24c7f6f3a39963b11fadde0545a22aa9ff242d24fa13c892296612d096",
+   "artifacts_sha256": {
+    "trades.parquet": "d595d31c144a761d7286609c9b3bf4c2eace2573fe1383c3816df011365b7a56",
+    "equity.parquet": "b0d1612804996396bb7bf0839b28828b4fed98e419d907d8d262c3f15190bffb",
+    "drawdown.parquet": "5d26ce86767199398e2fa48100c934b77f8ce7797adcaa79eb1996bbf1592ced",
+    "trades_priced.parquet": "799c6f87a99717f2436191648d9a82e3fe6f367c1fb82292996c3c604367531f"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "d595d31c144a761d7286609c9b3bf4c2eace2573fe1383c3816df011365b7a56",
+    "equity.parquet": "b0d1612804996396bb7bf0839b28828b4fed98e419d907d8d262c3f15190bffb",
+    "drawdown.parquet": "5d26ce86767199398e2fa48100c934b77f8ce7797adcaa79eb1996bbf1592ced"
+   },
+   "n_trades": 208,
+   "gross": false,
+   "single_toggle_injected": null,
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "only_entry_price_basis_raw": {
+   "result_json_sha256": "1017230d98f11a3ea3282c3e2b9ba1919ebd13ae937c84adda2d753713df375a",
+   "effective_config_json_sha256": "00956e72cb36cc799f5e2fb0c22ffa1e11a396c9ed979537358defee90c7860b",
+   "artifacts_sha256": {
+    "trades.parquet": "97b45411ead186dfdc882416679ce2a85a436cb433a21d3e678b3a6ca9385135",
+    "equity.parquet": "b7e6f7e5977d86aaa12a5ac2e7d55ea254a7b1c50b643ec80da6a4bea7adbac5",
+    "drawdown.parquet": "1d7ba340cc7035ce3da83d5f49336dc4b218988c14b414cf4ca8800cce138670",
+    "trades_priced.parquet": "de3127a95486b212062586cdb222385987189372d80d3364053ef21754615fc0"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "97b45411ead186dfdc882416679ce2a85a436cb433a21d3e678b3a6ca9385135",
+    "equity.parquet": "b7e6f7e5977d86aaa12a5ac2e7d55ea254a7b1c50b643ec80da6a4bea7adbac5",
+    "drawdown.parquet": "1d7ba340cc7035ce3da83d5f49336dc4b218988c14b414cf4ca8800cce138670"
+   },
+   "n_trades": 208,
+   "gross": false,
+   "single_toggle_injected": {
+    "entry_price_basis": "raw"
+   },
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "only_block_limit_open": {
+   "result_json_sha256": "698da29ab041d78853aa5a65714a3825b200c3e68cd5ac62875498c9a2555715",
+   "effective_config_json_sha256": "d4e70f5fb1ba5a6265142bb34a27c9c342cd3dd8258e3fa533bec08dd3c7e146",
+   "artifacts_sha256": {
+    "trades.parquet": "697bf05373dd18cf343fbf372f2fbc3166862b60256fc05c66838e3ce16a84d8",
+    "equity.parquet": "b6ad9938ee14a2dad4cb944586f4e3704c80ca5add055ef4ff33a4c25328a297",
+    "drawdown.parquet": "36579853ec634387bea6f3df9672df27694d1f5b742baf37f4d8e74c9790cb82",
+    "trades_priced.parquet": "53a30601ac1027b0d04fb08875370e7173f928c46ea27b85639a84d254947fd1"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "697bf05373dd18cf343fbf372f2fbc3166862b60256fc05c66838e3ce16a84d8",
+    "equity.parquet": "b6ad9938ee14a2dad4cb944586f4e3704c80ca5add055ef4ff33a4c25328a297",
+    "drawdown.parquet": "36579853ec634387bea6f3df9672df27694d1f5b742baf37f4d8e74c9790cb82"
+   },
+   "n_trades": 198,
+   "gross": false,
+   "single_toggle_injected": {
+    "block_limit_open": true
+   },
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "only_finalize_open_at_end": {
+   "result_json_sha256": "a6e69fc523138a7204d37126a6dc6bf919fc60d99a306ead28b9189d62ef5798",
+   "effective_config_json_sha256": "906b4873439c01d2daca2252802ef0c9d62e88338d1672aec302409c3be2c58e",
+   "artifacts_sha256": {
+    "trades.parquet": "c2f6d54c3800be23eba7b2bd83223b03502d04871f58993640e061661fefc74e",
+    "equity.parquet": "04989612393ab5fb3d614a86c098f86cb441e017c2378d8e2b9b98aaff988a38",
+    "drawdown.parquet": "ba0219c13d01b1e403bc0d1c65d7d33ee129772fc74d19fc5c42a6337e90d34b",
+    "trades_priced.parquet": "db55e5aa848a51da53eaa0b034fd25d5d32d948fa6a69245d0ad12b6f52a31a8"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "c2f6d54c3800be23eba7b2bd83223b03502d04871f58993640e061661fefc74e",
+    "equity.parquet": "04989612393ab5fb3d614a86c098f86cb441e017c2378d8e2b9b98aaff988a38",
+    "drawdown.parquet": "ba0219c13d01b1e403bc0d1c65d7d33ee129772fc74d19fc5c42a6337e90d34b"
+   },
+   "n_trades": 208,
+   "gross": false,
+   "single_toggle_injected": {
+    "finalize_open_at_end": true
+   },
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "only_execution_costs": {
+   "result_json_sha256": "638043505e2c9eac42158bcc194f650f61a027bcf430d914f0102bb720d6627e",
+   "effective_config_json_sha256": "b2de813cd10d95f536ad7e0ae6789393e50205de1096eaab2ea88a5579b3c1b3",
+   "artifacts_sha256": {
+    "trades.parquet": "38f07d8005d48a022aa700be11a7a601971df5b2da6f3a02c8090c51fa7d4495",
+    "equity.parquet": "50fa64c5893983528263cb34f01193ae2d7bc40a9b9d5854239d8d2ff51d9fbc",
+    "drawdown.parquet": "47a040bc0e5df214e6f4a5bb2b7c0131a938144ce853bb20299a968ffdf22610",
+    "trades_priced.parquet": "4f51fdac64a1b575aa2b53001f1172586b2c57b0ca9dbac0ec96c69cf1b53d0a"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "38f07d8005d48a022aa700be11a7a601971df5b2da6f3a02c8090c51fa7d4495",
+    "equity.parquet": "50fa64c5893983528263cb34f01193ae2d7bc40a9b9d5854239d8d2ff51d9fbc",
+    "drawdown.parquet": "47a040bc0e5df214e6f4a5bb2b7c0131a938144ce853bb20299a968ffdf22610"
+   },
+   "n_trades": 208,
+   "gross": false,
+   "single_toggle_injected": {
+    "execution_costs": {
+     "min_commission": 5.0,
+     "transfer_fee_pct": 2e-06
+    }
+   },
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "only_trailing_peak_price_close": {
+   "result_json_sha256": "ed2fa4f9f2ab226317126715503ff925bcd5938fee3fe33a275af3f19e81e098",
+   "effective_config_json_sha256": "ced4f642d0b10f4eb8f6885fe2c83e11c9fdd2857fc55859dcf49e4c2c9b3381",
+   "artifacts_sha256": {
+    "trades.parquet": "d595d31c144a761d7286609c9b3bf4c2eace2573fe1383c3816df011365b7a56",
+    "equity.parquet": "b0d1612804996396bb7bf0839b28828b4fed98e419d907d8d262c3f15190bffb",
+    "drawdown.parquet": "5d26ce86767199398e2fa48100c934b77f8ce7797adcaa79eb1996bbf1592ced",
+    "trades_priced.parquet": "799c6f87a99717f2436191648d9a82e3fe6f367c1fb82292996c3c604367531f"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "d595d31c144a761d7286609c9b3bf4c2eace2573fe1383c3816df011365b7a56",
+    "equity.parquet": "b0d1612804996396bb7bf0839b28828b4fed98e419d907d8d262c3f15190bffb",
+    "drawdown.parquet": "5d26ce86767199398e2fa48100c934b77f8ce7797adcaa79eb1996bbf1592ced"
+   },
+   "n_trades": 208,
+   "gross": false,
+   "single_toggle_injected": {
+    "trailing_peak_price": "close"
+   },
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "only_exit_signal_requires_profit": {
+   "result_json_sha256": "184806d95839844a41e199831e4870fad8de98dbaee1563162a0a9c0e8b896fb",
+   "effective_config_json_sha256": "4d24ab2a5e213a480fb77bd516ab7a480100001a7a290831b8da4ef43f096359",
+   "artifacts_sha256": {
+    "trades.parquet": "a4634cb6edd43611730f23fd6e6164db8c200e6689dedb887f8b5e0ff6b67d48",
+    "equity.parquet": "e21dc8fedd0c5ca20ac9b68058231c984eb368196adb6981e71eb254d254892c",
+    "drawdown.parquet": "d4593e0f5fcdbfaa035035050938647d7c10c42f1548bbad35f29abfbf0e694d",
+    "trades_priced.parquet": "b757252efc5ab6b9a155cb2e32d070c7beae51a885c8a3e1483ca8dbe6ed0ae1"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "a4634cb6edd43611730f23fd6e6164db8c200e6689dedb887f8b5e0ff6b67d48",
+    "equity.parquet": "e21dc8fedd0c5ca20ac9b68058231c984eb368196adb6981e71eb254d254892c",
+    "drawdown.parquet": "d4593e0f5fcdbfaa035035050938647d7c10c42f1548bbad35f29abfbf0e694d"
+   },
+   "n_trades": 178,
+   "gross": false,
+   "single_toggle_injected": {
+    "exit_signal_requires_profit": true
+   },
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  },
+  "base_nodefaults_gross": {
+   "result_json_sha256": "adbff173a7b31de4b723bf0fb69591fc356fea2ff4668ec14e4327d9a813d040",
+   "effective_config_json_sha256": "e498f2aca84157aa6bfeff0269a93a34e0005fc2449b59f56ccb1a16a33fc451",
+   "artifacts_sha256": {
+    "trades.parquet": "aef69c2bf4f7459fc676306e700b98da18598dba1791e4d1ad42eddcf3433a81",
+    "equity.parquet": "be167d4aecffa2d2f6a9912a40cf9fe0a10304728599842af81d306db79fa46f",
+    "drawdown.parquet": "a504f0db202ffbef31e967e274f32c0ec3b3f10e6deb81e8ed4d788fdf5b9951",
+    "trades_priced.parquet": "5388b6f5e6a3de69104db327745ae555f92b5e6fd763136227a08d3845377de9"
+   },
+   "three_parquet_sha256": {
+    "trades.parquet": "aef69c2bf4f7459fc676306e700b98da18598dba1791e4d1ad42eddcf3433a81",
+    "equity.parquet": "be167d4aecffa2d2f6a9912a40cf9fe0a10304728599842af81d306db79fa46f",
+    "drawdown.parquet": "a504f0db202ffbef31e967e274f32c0ec3b3f10e6deb81e8ed4d788fdf5b9951"
+   },
+   "n_trades": 208,
+   "gross": true,
+   "single_toggle_injected": null,
+   "strategy_file_sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+  }
+ },
+ "notes": {
+  "baseline": "base_nodefaults_10bp",
+  "baseline_definition": "生产文件原样，不注入任何 backtest_defaults（= 今天生产文件的真实默认）",
+  "same_key": "(symbol, entry_date) 交集；same_key_pnl_delta = Σ(arm - base) 同键；only_this_arm_pnl = Σ 仅本臂出现的笔",
+  "annual_return": "stats.annual_return 与按 252 交易日复算的年化并列，二者应一致",
+  "price_basis": "cf = close/raw_close（adj = raw * cf）；raw_open = round(open*raw_close/close,2) 与引擎 raw_open 重建公式相同",
+  "no_sum": "各臂不可相加，本文件不做占比合成",
+  "exit_signal_profit_basis": "派生只读字段（随 exit_signal_requires_profit 联动），不是独立输入"
+ }
+}

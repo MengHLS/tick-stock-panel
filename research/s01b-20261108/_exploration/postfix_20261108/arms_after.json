@@ -1,0 +1,80 @@
+[
+ {
+  "arm": "base_nodefaults_10bp",
+  "D": 485293.78,
+  "C": 483571.23,
+  "after": 483571.22,
+  "delta_vs_C": -0.01,
+  "total_return_before": null,
+  "total_return_after": -0.5164,
+  "mdd_after": -0.7195,
+  "n_trades": 208,
+  "open_at_end_count": 0,
+  "pending_exit_positions": 0
+ },
+ {
+  "arm": "only_trailing_peak_price_close",
+  "D": 485293.78,
+  "C": 483571.23,
+  "after": 483571.22,
+  "delta_vs_C": -0.01,
+  "total_return_before": null,
+  "total_return_after": -0.5164,
+  "mdd_after": -0.7195,
+  "n_trades": 208,
+  "open_at_end_count": 0,
+  "pending_exit_positions": 0
+ },
+ {
+  "arm": "only_execution_costs",
+  "D": 485420.69,
+  "C": 483698.12,
+  "after": 483698.12,
+  "delta_vs_C": 0.0,
+  "total_return_before": null,
+  "total_return_after": -0.5163,
+  "mdd_after": -0.7194,
+  "n_trades": 208,
+  "open_at_end_count": 0,
+  "pending_exit_positions": 0
+ },
+ {
+  "arm": "only_entry_price_basis_raw",
+  "D": 434710.53,
+  "C": 432987.98,
+  "after": 432987.97,
+  "delta_vs_C": -0.01,
+  "total_return_before": null,
+  "total_return_after": -0.567,
+  "mdd_after": -0.7441,
+  "n_trades": 208,
+  "open_at_end_count": 0,
+  "pending_exit_positions": 0
+ },
+ {
+  "arm": "base_nodefaults_gross",
+  "D": 527074.75,
+  "C": 525402.74,
+  "after": 525402.74,
+  "delta_vs_C": 0.0,
+  "total_return_before": null,
+  "total_return_after": -0.4746,
+  "mdd_after": -0.7108,
+  "n_trades": 208,
+  "open_at_end_count": 0,
+  "pending_exit_positions": 0
+ },
+ {
+  "arm": "only_block_limit_open",
+  "D": 1121259.36,
+  "C": 1117814.25,
+  "after": 1117814.25,
+  "delta_vs_C": 0.0,
+  "total_return_before": null,
+  "total_return_after": 0.1178,
+  "mdd_after": -0.4012,
+  "n_trades": 198,
+  "open_at_end_count": 0,
+  "pending_exit_positions": 0
+ }
+]

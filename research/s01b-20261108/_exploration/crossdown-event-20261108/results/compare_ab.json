@@ -1,0 +1,233 @@
+[
+ {
+  "a": "a0_10bp",
+  "b": "a1_10bp",
+  "trades_rows": [
+   208,
+   208
+  ],
+  "trades_columns": [
+   "symbol",
+   "name",
+   "entry_date",
+   "exit_date",
+   "entry_price",
+   "exit_price",
+   "pnl_pct",
+   "duration",
+   "exit_reason",
+   "shares",
+   "lots",
+   "position_pct",
+   "entry_value",
+   "exit_value",
+   "pnl_amount",
+   "entry_score",
+   "entry_signal_date",
+   "exit_signal_date",
+   "blocked_exit_days",
+   "entry_signal_id",
+   "exit_signal_id",
+   "open_at_end"
+  ],
+  "trades_column_identical": true,
+  "trades_exact_equal": true,
+  "diff_columns": {},
+  "equity_rows": [
+   1779,
+   1779
+  ],
+  "equity_columns": [
+   "date",
+   "value",
+   "cash",
+   "positions",
+   "exposure"
+  ],
+  "equity_exact_equal": true,
+  "equity_diff_columns": {},
+  "stats_diff": {},
+  "exit_reason_a": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 53
+   },
+   {
+    "exit_reason": "signal",
+    "len": 150
+   }
+  ],
+  "exit_reason_b": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 53
+   },
+   {
+    "exit_reason": "signal",
+    "len": 150
+   }
+  ]
+ },
+ {
+  "a": "diag_a0arm",
+  "b": "c0_10bp",
+  "trades_rows": [
+   199,
+   199
+  ],
+  "trades_columns": [
+   "symbol",
+   "name",
+   "entry_date",
+   "exit_date",
+   "entry_price",
+   "exit_price",
+   "pnl_pct",
+   "duration",
+   "exit_reason",
+   "shares",
+   "lots",
+   "position_pct",
+   "entry_value",
+   "exit_value",
+   "pnl_amount",
+   "entry_score",
+   "entry_signal_date",
+   "exit_signal_date",
+   "blocked_exit_days",
+   "entry_signal_id",
+   "exit_signal_id",
+   "open_at_end"
+  ],
+  "trades_column_identical": true,
+  "trades_exact_equal": true,
+  "diff_columns": {},
+  "equity_rows": [
+   1779,
+   1779
+  ],
+  "equity_columns": [
+   "date",
+   "value",
+   "cash",
+   "positions",
+   "exposure"
+  ],
+  "equity_exact_equal": true,
+  "equity_diff_columns": {},
+  "stats_diff": {},
+  "exit_reason_a": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "signal",
+    "len": 136
+   }
+  ],
+  "exit_reason_b": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "signal",
+    "len": 136
+   }
+  ]
+ },
+ {
+  "a": "c0_10bp",
+  "b": "c1_10bp",
+  "trades_rows": [
+   199,
+   199
+  ],
+  "trades_columns": [
+   "symbol",
+   "name",
+   "entry_date",
+   "exit_date",
+   "entry_price",
+   "exit_price",
+   "pnl_pct",
+   "duration",
+   "exit_reason",
+   "shares",
+   "lots",
+   "position_pct",
+   "entry_value",
+   "exit_value",
+   "pnl_amount",
+   "entry_score",
+   "entry_signal_date",
+   "exit_signal_date",
+   "blocked_exit_days",
+   "entry_signal_id",
+   "exit_signal_id",
+   "open_at_end"
+  ],
+  "trades_column_identical": true,
+  "trades_exact_equal": true,
+  "diff_columns": {},
+  "equity_rows": [
+   1779,
+   1779
+  ],
+  "equity_columns": [
+   "date",
+   "value",
+   "cash",
+   "positions",
+   "exposure"
+  ],
+  "equity_exact_equal": true,
+  "equity_diff_columns": {},
+  "stats_diff": {},
+  "exit_reason_a": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "signal",
+    "len": 136
+   }
+  ],
+  "exit_reason_b": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "signal",
+    "len": 136
+   }
+  ]
+ }
+]

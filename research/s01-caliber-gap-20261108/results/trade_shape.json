@@ -1,0 +1,170 @@
+{
+ "n": {
+  "research": 252,
+  "prod": 199
+ },
+ "open_at_end": {
+  "research": 0,
+  "prod": 5
+ },
+ "final_positions": {
+  "research": 5
+ },
+ "exit_reason": {
+  "research": [
+   {
+    "exit_reason": "signal",
+    "len": 199
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 53
+   }
+  ],
+  "prod": [
+   {
+    "exit_reason": "signal",
+    "len": 136
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "end",
+    "len": 5
+   }
+  ]
+ },
+ "entry_year": {
+  "research": [
+   {
+    "y": 2019,
+    "len": 21
+   },
+   {
+    "y": 2020,
+    "len": 41
+   },
+   {
+    "y": 2021,
+    "len": 28
+   },
+   {
+    "y": 2022,
+    "len": 40
+   },
+   {
+    "y": 2023,
+    "len": 28
+   },
+   {
+    "y": 2024,
+    "len": 34
+   },
+   {
+    "y": 2025,
+    "len": 32
+   },
+   {
+    "y": 2026,
+    "len": 28
+   }
+  ],
+  "prod": [
+   {
+    "y": 2019,
+    "len": 17
+   },
+   {
+    "y": 2020,
+    "len": 24
+   },
+   {
+    "y": 2021,
+    "len": 24
+   },
+   {
+    "y": 2022,
+    "len": 29
+   },
+   {
+    "y": 2023,
+    "len": 29
+   },
+   {
+    "y": 2024,
+    "len": 29
+   },
+   {
+    "y": 2025,
+    "len": 23
+   },
+   {
+    "y": 2026,
+    "len": 24
+   }
+  ]
+ },
+ "entry_score": {
+  "research_unique": [
+   0.0
+  ],
+  "prod_unique_n": 70,
+  "prod_top": [
+   2.14,
+   1.07,
+   0.94,
+   0.86,
+   0.79
+  ]
+ },
+ "date_range": {
+  "research": [
+   "2019-07-02",
+   "2026-10-09"
+  ],
+  "prod": [
+   "2019-07-02",
+   "2026-10-29"
+  ]
+ },
+ "avg_hold": {
+  "research": 34.95,
+  "prod": 44.16
+ },
+ "board_mix": {
+  "research": [
+   {
+    "pref": "00",
+    "len": 223
+   },
+   {
+    "pref": "60",
+    "len": 29
+   }
+  ],
+  "prod": [
+   {
+    "pref": "30",
+    "len": 57
+   },
+   {
+    "pref": "60",
+    "len": 56
+   },
+   {
+    "pref": "00",
+    "len": 49
+   },
+   {
+    "pref": "68",
+    "len": 33
+   },
+   {
+    "pref": "92",
+    "len": 4
+   }
+  ]
+ }
+}

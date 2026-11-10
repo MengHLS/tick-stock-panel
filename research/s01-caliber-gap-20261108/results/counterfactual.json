@@ -1,0 +1,93 @@
+{
+ "panel": {
+  "rows": 9752990,
+  "symbols": 5811,
+  "date_min": "2018-01-08",
+  "date_max": "2026-10-30"
+ },
+ "C0_research_gate": {
+  "name": "C0_research_gate",
+  "n_trades": 252,
+  "final_positions": 5,
+  "ALL": {
+   "label": "ALL",
+   "n_days": 1778,
+   "total_return": -0.32092874000000005,
+   "cagr": -0.053377160135876456,
+   "ann_vol": 0.18269398048427635,
+   "sharpe": -0.20885530025897028,
+   "sortino": -0.30888182976242506,
+   "max_drawdown": -0.500203354115061,
+   "calmar": -0.10671092006231968,
+   "n_closed_trades": 252,
+   "n_open_at_end": 0,
+   "win_rate": 0.30158730158730157,
+   "profit_factor": 0.8395006542311818,
+   "avg_pnl_pct": -0.01143032142857143,
+   "median_pnl_pct": -0.051306500000000005,
+   "avg_holding_days": 34.948412698412696,
+   "pct_trades_gt_20pct": 0.09523809523809523,
+   "gross_traded_over_initial": 57.43480321000005,
+   "avg_exposure": 0.583575,
+   "final_equity": 679071.26,
+   "start_equity": 1000000.0
+  },
+  "exit_reason": [
+   {
+    "exit_reason": "max_hold",
+    "len": 53
+   },
+   {
+    "exit_reason": "signal",
+    "len": 199
+   }
+  ]
+ },
+ "C1_production_gate": {
+  "name": "C1_production_gate",
+  "n_trades": 264,
+  "final_positions": 5,
+  "ALL": {
+   "label": "ALL",
+   "n_days": 1778,
+   "total_return": -0.21930435999999998,
+   "cagr": -0.03448017965854455,
+   "ann_vol": 0.18062912373210405,
+   "sharpe": -0.10384722327735049,
+   "sortino": -0.1546855995666544,
+   "max_drawdown": -0.46367914151691125,
+   "calmar": -0.07436215385006055,
+   "n_closed_trades": 264,
+   "n_open_at_end": 0,
+   "win_rate": 0.2727272727272727,
+   "profit_factor": 0.8992492815794189,
+   "avg_pnl_pct": -0.004553500000000002,
+   "median_pnl_pct": -0.044456499999999996,
+   "avg_holding_days": 33.21969696969697,
+   "pct_trades_gt_20pct": 0.10984848484848485,
+   "gross_traded_over_initial": 62.76169576000005,
+   "avg_exposure": 0.5858,
+   "final_equity": 780695.64,
+   "start_equity": 1000000.0
+  },
+  "exit_reason": [
+   {
+    "exit_reason": "signal",
+    "len": 220
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 44
+   }
+  ]
+ },
+ "C1_vs_production": {
+  "n_C1": 264,
+  "n_prod": 199,
+  "intersection": 2,
+  "C1_only": 262,
+  "prod_only": 197,
+  "jaccard": 0.0043
+ },
+ "elapsed_s": 149.8
+}

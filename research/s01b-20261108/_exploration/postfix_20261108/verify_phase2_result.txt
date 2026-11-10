@@ -1,0 +1,172 @@
+== S01b 阶段2 验收 ==
+[PASS] engine.py sha256 为修复后 4243fe97  4243fe97723dad20… size=269940
+[PASS] B  a0_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a0_10bp 记录 engine sha 与当前一致
+[PASS] B  a0_30bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a0_30bp 记录 engine sha 与当前一致
+[PASS] B  a0_gross 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a0_gross 记录 engine sha 与当前一致
+[PASS] B  a1_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a1_10bp 记录 engine sha 与当前一致
+[PASS] B  a1_30bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a1_30bp 记录 engine sha 与当前一致
+[PASS] B  a1_gross 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a1_gross 记录 engine sha 与当前一致
+[PASS] B  a2_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a2_10bp 记录 engine sha 与当前一致
+[PASS] B  a2_30bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a2_30bp 记录 engine sha 与当前一致
+[PASS] B  a2_gross 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a2_gross 记录 engine sha 与当前一致
+[PASS] B  a3_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a3_10bp 记录 engine sha 与当前一致
+[PASS] B  a3_30bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a3_30bp 记录 engine sha 与当前一致
+[PASS] B  a3_gross 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a3_gross 记录 engine sha 与当前一致
+[PASS] B  a2h_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a2h_10bp 记录 engine sha 与当前一致
+[PASS] B  a4_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a4_10bp 记录 engine sha 与当前一致
+[PASS] B  a0ev_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a0ev_10bp 记录 engine sha 与当前一致
+[PASS] B  a3ev_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  a3ev_10bp 记录 engine sha 与当前一致
+[PASS] B  prod_file_10bp 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  prod_file_10bp 记录 engine sha 与当前一致
+[PASS] B  smoke_a0 产物齐(3 parquet+json) 且 error=None  missing=[] error=None
+[PASS] B  smoke_a0 记录 engine sha 与当前一致
+[PASS] C  a0_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a0_10bp 复跑 stats 非易变字段一致
+[PASS] C  a0_30bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a0_30bp 复跑 stats 非易变字段一致
+[PASS] C  a0_gross 复跑字节一致(3 parquet)  {}
+[PASS] C  a0_gross 复跑 stats 非易变字段一致
+[PASS] C  a1_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a1_10bp 复跑 stats 非易变字段一致
+[PASS] C  a1_30bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a1_30bp 复跑 stats 非易变字段一致
+[PASS] C  a1_gross 复跑字节一致(3 parquet)  {}
+[PASS] C  a1_gross 复跑 stats 非易变字段一致
+[PASS] C  a2_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a2_10bp 复跑 stats 非易变字段一致
+[PASS] C  a2_30bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a2_30bp 复跑 stats 非易变字段一致
+[PASS] C  a2_gross 复跑字节一致(3 parquet)  {}
+[PASS] C  a2_gross 复跑 stats 非易变字段一致
+[PASS] C  a3_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a3_10bp 复跑 stats 非易变字段一致
+[PASS] C  a3_30bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a3_30bp 复跑 stats 非易变字段一致
+[PASS] C  a3_gross 复跑字节一致(3 parquet)  {}
+[PASS] C  a3_gross 复跑 stats 非易变字段一致
+[PASS] C  a2h_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a2h_10bp 复跑 stats 非易变字段一致
+[PASS] C  a4_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a4_10bp 复跑 stats 非易变字段一致
+[PASS] C  a0ev_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a0ev_10bp 复跑 stats 非易变字段一致
+[PASS] C  a3ev_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  a3ev_10bp 复跑 stats 非易变字段一致
+[PASS] C  prod_file_10bp 复跑字节一致(3 parquet)  {}
+[PASS] C  prod_file_10bp 复跑 stats 非易变字段一致
+[PASS] C  smoke_a0 复跑字节一致(3 parquet)  {}
+[PASS] C  smoke_a0 复跑 stats 非易变字段一致
+[PASS] D  D vs C：18 臂中 17 臂 stats 与产物完全未变  unchanged=17
+[PASS] D  a0_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a0_10bp stats.execution 整块未变
+[PASS] D  a0_30bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a0_30bp stats.execution 整块未变
+[PASS] D  a0_gross trades/equity 与旧 results 逐字节相同
+[PASS] D  a0_gross stats.execution 整块未变
+[PASS] D  a1_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a1_10bp stats.execution 整块未变
+[PASS] D  a1_30bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a1_30bp stats.execution 整块未变
+[PASS] D  a1_gross trades/equity 与旧 results 逐字节相同
+[PASS] D  a1_gross stats.execution 整块未变
+[PASS] D  a2_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a2_10bp stats.execution 整块未变
+[PASS] D  a2_30bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a2_30bp stats.execution 整块未变
+[PASS] D  a2_gross trades/equity 与旧 results 逐字节相同
+[PASS] D  a2_gross stats.execution 整块未变
+[PASS] D  a3_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a3_10bp stats.execution 整块未变
+[PASS] D  a3_30bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a3_30bp stats.execution 整块未变
+[PASS] D  a3_gross trades/equity 与旧 results 逐字节相同
+[PASS] D  a3_gross stats.execution 整块未变
+[PASS] D  a2h_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a2h_10bp stats.execution 整块未变
+[PASS] D  a4_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a4_10bp stats.execution 整块未变
+[PASS] D  a0ev_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a0ev_10bp stats.execution 整块未变
+[PASS] D  a3ev_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  a3ev_10bp stats.execution 整块未变
+[PASS] D  prod_file_10bp trades/equity 与旧 results 逐字节相同
+[PASS] D  prod_file_10bp stats.execution 整块未变
+[PASS] D  smoke_a0 trades/equity 与旧 results 逐字节相同
+[PASS] D  smoke_a0 stats.execution 整块未变
+[PASS] D  smoke_a0 仅 market_matrix_shape/bytes 差异（数据根扩容），产物仍字节相同  {"market_matrix_bytes": {"D": 25450417, "C": 28457175}, "market_matrix_shape": {"D": [59, 5197], "C": [59, 5811]}}
+[PASS] E  锚点 base_nodefaults_10bp Δ=-0.1700pp 与契约 -0.17pp 一致
+[PASS] E  锚点 only_execution_costs Δ=-0.1700pp 与契约 -0.17pp 一致
+[PASS] E  锚点 only_entry_price_basis_raw Δ=-0.1700pp 与契约 -0.17pp 一致
+[PASS] E  锚点 base_nodefaults_gross Δ=-0.1700pp 与契约 -0.17pp 一致
+[PASS] E  锚点 only_block_limit_open Δ=-0.3500pp 与契约 -0.35pp 一致
+[PASS] E  锚点 only_trailing_peak_price_close Δ=-0.1700pp 与契约 -0.17pp 一致
+[PASS] E  锚点 only_finalize_open_at_end Δ=+0.0000pp 与契约 +0.00pp 一致
+[PASS] E  锚点 only_exit_signal_requires_profit Δ=+0.0000pp 与契约 +0.00pp 一致
+[PASS] E  三臂锚点产物逐字节未变（finalize / requires_profit / a0_10bp 祖先）
+[PASS] F  REPORT.md 未动 (52097B/e60cd0b8…)  actual 52097B/e60cd0b8…
+[PASS] F  metrics_table.md 未动 (2738B/d025d8ce…)  actual 2738B/d025d8ce…
+[PASS] F  manifest.json 未动 (10054B/7fe2c540…)  actual 10054B/7fe2c540…
+[PASS] G  METRICS_D_vs_C_20261108.md 存在且非空  22884B
+[PASS] G  delta_arms.json 存在且非空  95027B
+[PASS] G  metrics_table_C_20261108.md 存在且非空  2738B
+[PASS] G  run_all_arms.py 存在且非空  11469B
+[PASS] G  build_delta.py 存在且非空  20225B
+[info] git status --porcelain: 115 条
+        M backend/app/api/backtest.py
+        M backend/app/api/strategy.py
+        M backend/app/backtest/engine.py
+        M backend/app/custom/research_calendar_pack/calendar_axis.py
+        M backend/app/custom/research_calendar_pack/factor_provider.py
+        M backend/app/factors/gate.py
+        M backend/app/services/backtest.py
+        M backend/app/strategy/engine.py
+        M backend/tests/backtest/test_limit_down_close_exit.py
+        M backend/tests/backtest/test_matrix_strategy.py
+        M backend/tests/test_auction_factor_pack.py
+        M backend/tests/test_factor_gate.py
+        M backend/tests/test_factor_provider_discovery.py
+        M backend/tests/test_factor_registry.py
+        M backend/tests/test_factor_store.py
+        M backend/tests/test_minute_routing.py
+        M docs/INDEX_20261107.md
+        M docs/architecture/DELIVERY_SCHEDULE_20261107.md
+        M docs/research/caliber-decisions-20261107.md
+        M research/b4-calendar-20261107/verify_e4.py
+        M research/strategy-search-20261107/GLOBAL_LEDGER_v3.json
+        M research/strategy-search-20261107/results/registry.json
+        M research/wyckoff-system-design-20261106/INTEGRATION-DESIGN.md
+       ?? .factor_engineer_batch/
+       ?? _check.py
+       ?? _e1.txt
+       ?? _files3.json
+       ?? _head_gate.py
+       ?? _index_prewrite.txt
+       ?? _o.txt
+       ?? _openapi_tmp.json
+       ?? _p1.py
+       ?? _p1.txt
+       ?? _p2.txt
+       ?? _probe_dir.py
+       ?? _rebuild_index.py
+       ?? _scan2.json
+       ?? _scan_docs.json
+       ?? _scan_docs2.json
+       ?? _secs.json
+
+TOTAL pass=128 fail=0

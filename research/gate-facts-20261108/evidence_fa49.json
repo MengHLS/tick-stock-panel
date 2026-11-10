@@ -1,0 +1,72 @@
+{
+  "gate_py_sha16": "b7e39bc5405b13a6",
+  "test_factor_gate_sha16": "8bc5a7f03f6f1c20",
+  "fa49_1_gate": {
+    "production": {
+      "raised": true,
+      "code": "FS09",
+      "detail_mode": "production",
+      "key_count": 7,
+      "keys_equal_seven": true,
+      "submitted_id": "data_dir",
+      "resolved_id": null,
+      "canonical_id": null,
+      "table_row": null
+    },
+    "research": {
+      "raised": true,
+      "code": "FS09",
+      "detail_mode": "research",
+      "key_count": 7,
+      "keys_equal_seven": true,
+      "submitted_id": "data_dir",
+      "resolved_id": null,
+      "canonical_id": null,
+      "table_row": null
+    },
+    "diagnostic": {
+      "raised": true,
+      "code": "FS09",
+      "detail_mode": "diagnostic",
+      "key_count": 7,
+      "keys_equal_seven": true,
+      "submitted_id": "data_dir",
+      "resolved_id": null,
+      "canonical_id": null,
+      "table_row": null
+    }
+  },
+  "fa49_1_mode_matches_caller": true,
+  "fa49_1_three_distinct": true,
+  "fa49_1_unit": {
+    "production": {
+      "raised": true,
+      "detail_mode": "production"
+    },
+    "research": {
+      "raised": true,
+      "detail_mode": "research"
+    },
+    "diagnostic": {
+      "raised": true,
+      "detail_mode": "diagnostic"
+    }
+  },
+  "fa49_1_unit_ok": true,
+  "fa49_2_all_seven_keys": true,
+  "fa49_2_no_violations": true,
+  "fa48_4_empty_dir": {
+    "raised": true,
+    "code": "FS01",
+    "key_count": 8,
+    "has_status": true
+  },
+  "fa48_4_no_data_dir": {
+    "raised": true,
+    "code": "FS09",
+    "key_count": 7,
+    "has_status": false
+  },
+  "fa48_4_codes_differ": true,
+  "all_pass": true
+}

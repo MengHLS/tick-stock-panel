@@ -1,0 +1,35 @@
+{
+ "delta_transfer_fee_explained": "研究侧 transfer_fee_pct=1e-5（common.py ACCOUNT），生产侧 2e-6（s01b_a0.py META.execution_costs）→ 差 8e-6（0.08bp）× 双边成交额",
+ "commission_pct_both": 0.0003,
+ "stamp_tax_pct_both": 0.001,
+ "min_commission_both": 5.0,
+ "rows": [
+  {
+   "symbol": "002463.SZ",
+   "entry_date": "2019-07-02",
+   "round_trip_value": 345356.46,
+   "pnl_amount_diff": 2.77,
+   "delta_transfer_fee": 8e-06,
+   "predicted": 2.76,
+   "residual": 0.01
+  },
+  {
+   "symbol": "002938.SZ",
+   "entry_date": "2019-07-02",
+   "round_trip_value": 275794.67,
+   "pnl_amount_diff": 2.2,
+   "delta_transfer_fee": 8e-06,
+   "predicted": 2.21,
+   "residual": -0.01
+  },
+  {
+   "symbol": "002124.SZ",
+   "entry_date": "2019-10-31",
+   "shares_r": 7800.0,
+   "shares_p": 5400.0,
+   "pnl_amount_diff": 9862.46,
+   "entry_price_eq": true,
+   "note": "份额不同，费目检验不适用；差额=份额差×每股盈亏"
+  }
+ ]
+}

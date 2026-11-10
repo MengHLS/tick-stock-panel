@@ -1,0 +1,25 @@
+{
+ "pairs": {
+  "a0_10bp__vs__a0ev_10bp": true,
+  "a3_10bp__vs__a3ev_10bp": true,
+  "prod_file_10bp__vs__a3_10bp": true,
+  "prod_file_10bp__vs__a3ev_10bp": true
+ },
+ "stop_loss_n": 425,
+ "in_-8.085_-8.0": 2,
+ "in_-8.10_-8.0": 3,
+ "worse_than_-15pct": 22,
+ "positive": 1,
+ "at_line_exact": 0,
+ "gap_below_line": 424,
+ "above_line": 1,
+ "min_pct": -51.4267,
+ "max_pct": 13.0196,
+ "mode": {
+  "-8.2393": 94,
+  "-8.2394": 84,
+  "-8.2395": 37,
+  "-8.2391": 23,
+  "-8.2392": 15
+ }
+}

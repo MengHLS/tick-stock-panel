@@ -1,0 +1,137 @@
+{
+ "a": "vA_prepatch",
+ "b": "vB_postpatch",
+ "trades": {
+  "frame": "trades",
+  "rows": [
+   199,
+   199
+  ],
+  "columns": [
+   [
+    "symbol",
+    "name",
+    "entry_date",
+    "exit_date",
+    "entry_price",
+    "exit_price",
+    "pnl_pct",
+    "duration",
+    "exit_reason",
+    "shares",
+    "lots",
+    "position_pct",
+    "entry_value",
+    "exit_value",
+    "pnl_amount",
+    "entry_score",
+    "entry_signal_date",
+    "exit_signal_date",
+    "blocked_exit_days",
+    "entry_signal_id",
+    "exit_signal_id",
+    "open_at_end"
+   ],
+   [
+    "symbol",
+    "name",
+    "entry_date",
+    "exit_date",
+    "entry_price",
+    "exit_price",
+    "pnl_pct",
+    "duration",
+    "exit_reason",
+    "shares",
+    "lots",
+    "position_pct",
+    "entry_value",
+    "exit_value",
+    "pnl_amount",
+    "entry_score",
+    "entry_signal_date",
+    "exit_signal_date",
+    "blocked_exit_days",
+    "entry_signal_id",
+    "exit_signal_id",
+    "open_at_end"
+   ]
+  ],
+  "columns_identical": true,
+  "dtypes_identical": true,
+  "parquet_sha256": [
+   "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+   "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06"
+  ],
+  "parquet_bytes_identical": true,
+  "diff_columns": {},
+  "exact_equal": true
+ },
+ "equity": {
+  "frame": "equity",
+  "rows": [
+   1779,
+   1779
+  ],
+  "columns": [
+   [
+    "date",
+    "value",
+    "cash",
+    "positions",
+    "exposure"
+   ],
+   [
+    "date",
+    "value",
+    "cash",
+    "positions",
+    "exposure"
+   ]
+  ],
+  "columns_identical": true,
+  "dtypes_identical": true,
+  "parquet_sha256": [
+   "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+   "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada"
+  ],
+  "parquet_bytes_identical": true,
+  "diff_columns": {},
+  "exact_equal": true
+ },
+ "stats_diff": {},
+ "timing_ms": [
+  {
+   "load_panel": 3857.9,
+   "market_data_matrix_build": 0.0,
+   "market_data_direct_load": 3857.9,
+   "strategy_signals": 1193.9,
+   "filter_score": 156.9,
+   "signals_score": 1605.4,
+   "matrix_build": 1025.2,
+   "simulate": 6145.3,
+   "statistics": 5.8,
+   "total": 12664.7
+  },
+  {
+   "load_panel": 3748.0,
+   "market_data_matrix_build": 0.0,
+   "market_data_direct_load": 3748.0,
+   "strategy_signals": 1118.9,
+   "filter_score": 146.3,
+   "signals_score": 1473.3,
+   "matrix_build": 774.3,
+   "simulate": 5629.2,
+   "statistics": 4.7,
+   "total": 11651.3
+  }
+ ],
+ "file_sha256": [
+  "61c237c6cdb2a4391524c48982cd7529606f1ce9d6dabf235527ff702f94b2dd",
+  "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07"
+ ],
+ "cross_down_line": [
+  "cross_down = fast < slow",
+  "cross_down = (fast < slow) & (prev_fast >= prev_slow)"
+ ]
+}

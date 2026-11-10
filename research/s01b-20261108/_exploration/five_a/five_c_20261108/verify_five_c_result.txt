@@ -1,0 +1,80 @@
+PASS | V01 688143.SH 2026-10-30 开盘 = 109.90 | open=109.9
+PASS | V02 688143.SH 2026-10-30 收盘 = 118.26 | close=118.26
+PASS | V03 该日有成交（非停牌） | volume=129029
+PASS | V04 开盘跌幅未触 20% 跌停 | -10.66%
+PASS | V05 trades.exit_price 等于当日开盘 | 
+PASS | V06 trades.exit_value = 21,929.45 | 
+PASS | V07 末行持仓市值 = 200×118.26 = 23,652.00 | 
+PASS | V08 缺口 = 23,652.00 − 21,929.45 = 1,722.55 | 1722.55
+PASS | V09 价基差 1,672.00 = 200×(118.26−109.90) | 
+PASS | V10 卖出费用 50.55 = 200×109.90 − 21,929.45 | 
+PASS | V11 分解闭合：价基差 + 费用 == 缺口 | 
+PASS | V12 Σpnl − 权益变动 = −1,722.56（独立口径同量） | 
+PASS | V13 开发经理的 1,722.55 与本诊断差 ≤0.02 | delta=-0.01
+PASS | V14 finalize 后现金 483,571.23 = 461,641.78 + 21,929.45 | 
+PASS | V15 闭式 (1e6 − Σentry + Σexit) 与 finalize 现金差 ≤0.5（208 笔逐个round 2dp 的舍入） | 0.11
+PASS | V16 报告口径 total_return 被末行高估 0.17pp | 0.1729
+PASS | V17 非 finalize 臂共 7 个 | ['base_nodefaults_10bp', 'base_nodefaults_gross', 'only_block_limit_open', 'only_entry_price_basis_raw', 'only_execution_costs', 'only_exit_signal_requires_profit', 'only_trailing_peak_price_close']
+PASS | V18 gap 与持仓集合闭合 [base_nodefaults_10bp] | gap=-1722.56 expect=-1722.55
+PASS | V18 gap 与持仓集合闭合 [only_entry_price_basis_raw] | gap=-1722.58 expect=-1722.55
+PASS | V18 gap 与持仓集合闭合 [only_block_limit_open] | gap=-3445.15 expect=-3445.11
+PASS | V18 gap 与持仓集合闭合 [only_execution_costs] | gap=-1722.6 expect=-1722.57
+PASS | V18 gap 与持仓集合闭合 [only_trailing_peak_price_close] | gap=-1722.56 expect=-1722.55
+PASS | V18 gap 与持仓集合闭合 [base_nodefaults_gross] | gap=-1672.0 expect=-1672.0
+PASS | V19 gross 臂 gap == −1,672.00（无费用，纯价基差） | -1672.0
+PASS | V20 exit_signal 臂无延后持仓 ⇒ gap ≈ 0 | 
+PASS | V21 finalize 臂末行持仓 5 且无延后卖出 | 
+PASS | V22 除 exit_signal 臂外，其余 6 个非 finalize 臂都有 1 笔延后卖出 | 
+PASS | V23 延后卖出标的均为 688143.SH 2026-09-04 | 
+PASS | V24 688143(asset 4962) 末日 _exit_signal_at 返回 True | 
+PASS | V25 末日循环内只对 4 个仓位发 _try_sell(end)（不含 688143） | [204, 205, 206, 207]
+PASS | V26 688143 的 _sell 出现在 4 笔卖出之后（循环外 finalize） | 
+PASS | V27 finalize 的 _sell 仍记 reason=end（不是 signal） | end
+PASS | V28 末行权益现金 461,641.78（= 10-29 现金 + 循环内 4 笔 exit_value） | 461641.78
+PASS | V29 a0 与单键 raw 臂同键 102 笔 | 
+PASS | V30 入场价比 102/102 == 1.001 | {'n_matched_keys': 102, 'n_equals_1p001': 102, 'n_outlier': 0, 'min': 1.0009885057471266, 'max': 1.0010162601626016}
+PASS | V31 出场价比 99/102 == 0.999，3 笔例外 | 
+PASS | V32 3 笔例外全是 a0 的期末未平仓（exit_date=末日） | 
+PASS | V33 同族对照 208/208 == 1.001（与价基无关） | 
+PASS | V34 a0 策略 META 含 execution_costs | 
+PASS | V35 单键 raw 臂 resolved.execution_costs 为 null | 
+PASS | V36 单键 raw 臂 resolved.entry_price_basis == raw | 
+PASS | V37 a0 ÷ 1.001 与 raw 臂价格 102/102 相等 | 
+PASS | V38 股数并非全同（排除「同一仓位」误读） | 9/102
+PASS | V39 REPORT.md 未改（52,097 B / e60cd0b8…） | e60cd0b857f40fb2
+PASS | V40 生产策略文件未改（3,478 B / 85ae72a5…） | 85ae72a5318523d1
+PASS | V41 引擎 engine.py 未改（mtime 早于 2026-11-08） | 2026-11-07T00:01:33.840914
+PASS | V42 engine.py sha256 记录 | ecc3d8261c5605ed
+PASS | V43 a0_10bp 产物 mtime 未变（16:21） | 2026-11-08T16:21:47.883873
+PASS | V44 ⑤-a 基线产物 mtime 未变（19:00） | 2026-11-08T19:00:48.688675
+PASS | V45 本次只读：diag1/diag2 未写 result 目录 | 
+PASS | V46 引擎调用序列来自 sys.settrace 实跑（事件数 > 20） | 28
+PASS | V47 末行现金 = 10-29 现金 + 循环内 4 笔 exit_value（暴力拼出，非人工挑） | 245373.34+216268.43=461641.78
+PASS | V48 未入账那笔 = 688143.SH，exit_value 21,929.45 | 688143.SH 21929.45
+PASS | V49 纯收盘盯市末值 == finalize 臂末值（跳臂交叉验证） | 478212.34 vs 478212.34
+PASS | V50 全按开盘清算 = 末行现金 + 延后 exit_value，与闭式差 ≤0.5 | diff=0.11
+PASS | V51 报告值既不等于 B 也不等于 C（混合口径），D−C = 1,722.55 | D−B=7081.44 D−C=1722.55
+PASS | V52 base resolved 价基 = adjusted，单键 raw 臂 = raw | adjusted / raw
+PASS | V53 a0 ÷ base × (adj/raw) == 1.001 命中 ≥109/111 | 109/111
+PASS | V54 2 笔例外均能解成「raw×1.001 ÷ 送股倍率」（倍率 ∈ 1.1~3.0） | [1.5, 1.3]
+PASS | V55 a0 ÷ 单键 raw 臂入场价 == 1.001 命中 102/102 | 102/102
+
+checks=60 pass=60 fail=0
+VERDICT ALL_PASS
+
+artifacts:
+  diag1_end_gap.py 16787 563fe26b0d14c104a8cad36ea50b13607ba952d9251c32b6e64d7395c8078190
+  diag1_result.json 16990 8f1ca647d751e06fa099f9b40f460ad1f067cd7e3a730be4d29086969fd700e0
+  diag1_table.md 4495 bf0092b7c0e1904031ca470dff86fa93eee145d463591ea0d506bf99e8e56473
+  diag1_stdout.txt 1517 565a7b0dbab2373db46d6a58a7ba778c7edf4b9eadbf6350d4f34f2b296da6cd
+  diag2_price_basis.py 10425 6080dff3ff0f37a9f41e9effb14abf87c3befb0086363752e8b70f2669ad07d3
+  diag2_result.json 2224 14a89a5aa62538c313ea9c26e0c4305e74ef28f8f0cf29d8479b931fcc32e3d6
+  diag2_table.md 2744 d044264c6e38b520babfdcee99ea5da5ae7372a3026a2939c1d3f7c1ae9f3d57
+  diag3_reconcile.py 10794 257fdc21ebc8d6e7d0f6f5d90cd9878b1b8143d4ecd2920c4c7c7ff85b523b28
+  diag3_result.json 2739 6df45b581d124c4d4ead8ac90a5b1f18fa8072bab76bcb55f44ba0daab0c9040
+  diag3_table.md 1479 04e8c6b5b808107dd89c79c245a23aebdd6088b80e3f2dc0dab0a32d7c05c8f1
+  price_20261030.csv 684 e711cb810d9fa5d8a10b70721bbfbdb6db917ebb7885780e74f64a9bd2281dda
+  trace_end_position.json 207627 899787c6ad54f177eb812af5a3f913ef049f5aa2013a01aaa4ddc6404becb9e7
+  trace_run.log 936 3e81ac1cc7a05db4a915f0be7ee324b4aa9c06b4052bf83d99d159c33f7f0611
+  diag_end_position.py 5495 d74e7032fc012b69fbaf8beb183bcc0ec105fa84fcd2a05d890ab7e904d1dbde
+  verify_five_c.py 12870 c137c9cf3398e26274e8bbdb0cd94aa680015688fda26faa08d827941fcabdcc

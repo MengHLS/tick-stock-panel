@@ -1,0 +1,17 @@
+﻿arm,method,n_arm,n_same_key,n_only_arm,n_only_base,arm_total,base_total,total_gap,same_key_delta,only_arm_sum,only_base_sum,identity_resid,same_key_share,same_key_share_pct
+base_nodefaults_10bp,A_pnl_amount,208,208,0,0,-516428.78,-516428.78,0.0,0.0,0.0,-0.0,0.0,,
+base_nodefaults_10bp,B_value_diff,208,208,0,0,-516428.88,-516428.88,0.0,0.0,0.0,-0.0,0.0,,
+only_entry_price_basis_raw,A_pnl_amount,208,195,13,13,-567012.05,-516428.78,-50583.27,-7122.88,-55748.24,12287.85,-0.0,0.1408,14.08
+only_entry_price_basis_raw,B_value_diff,208,195,13,13,-584247.21,-516428.88,-67818.33,-22541.24,-57564.94,12287.85,0.0,0.3324,33.24
+only_block_limit_open,A_pnl_amount,198,113,85,95,117814.21,-516428.78,634242.99,-49962.74,492109.18,192096.55,0.0,0.0788,7.88
+only_block_limit_open,B_value_diff,198,113,85,95,117814.24,-516428.88,634243.12,-49962.6,492109.15,192096.57,0.0,0.0788,7.88
+only_finalize_open_at_end,A_pnl_amount,208,208,0,0,-483892.16,-516428.78,32536.62,32536.62,0.0,-0.0,-0.0,1.0,100.0
+only_finalize_open_at_end,B_value_diff,208,208,0,0,-521787.76,-516428.88,-5358.88,-5358.88,0.0,-0.0,0.0,1.0,100.0
+only_execution_costs,A_pnl_amount,208,208,0,0,-516301.91,-516428.78,126.87,126.87,0.0,-0.0,-0.0,1.0,100.0
+only_execution_costs,B_value_diff,208,208,0,0,-516301.87,-516428.88,127.01,127.01,0.0,-0.0,-0.0,1.0,100.0
+only_trailing_peak_price_close,A_pnl_amount,208,208,0,0,-516428.78,-516428.78,0.0,0.0,0.0,-0.0,0.0,,
+only_trailing_peak_price_close,B_value_diff,208,208,0,0,-516428.88,-516428.88,0.0,0.0,0.0,-0.0,0.0,,
+only_exit_signal_requires_profit,A_pnl_amount,178,52,126,156,-326201.22,-516428.78,190227.56,40463.25,-10499.85,160264.16,-0.0,0.2127,21.27
+only_exit_signal_requires_profit,B_value_diff,178,52,126,156,-326201.18,-516428.88,190227.7,40463.33,-10499.83,160264.2,0.0,0.2127,21.27
+base_nodefaults_gross,A_pnl_amount,208,208,0,0,-474597.25,-516428.78,41831.53,41831.53,0.0,-0.0,0.0,1.0,100.0
+base_nodefaults_gross,B_value_diff,208,208,0,0,-474597.25,-516428.88,41831.63,41831.63,0.0,-0.0,0.0,1.0,100.0

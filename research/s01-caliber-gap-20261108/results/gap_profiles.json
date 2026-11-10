@@ -1,0 +1,151 @@
+{
+ "research_only_total": {
+  "n": 249,
+  "avg_pnl_pct": -0.015556,
+  "win": 0.2972,
+  "pnl_sum": -451814.99
+ },
+ "prod_only_total": {
+  "n": 196,
+  "avg_pnl_pct": 0.007867,
+  "win": 0.3214,
+  "pnl_sum": 201263.85
+ },
+ "prod_only_by_fail_price_raw": [
+  {
+   "fail_price_raw": false,
+   "n": 193,
+   "pnl_sum": 245920.69,
+   "avg_pnl_pct": 0.009454,
+   "win": 0.3264
+  },
+  {
+   "fail_price_raw": true,
+   "n": 3,
+   "pnl_sum": -44656.84,
+   "avg_pnl_pct": -0.094221,
+   "win": 0.0
+  }
+ ],
+ "research_only_by_fail_price_raw": [
+  {
+   "fail_price_raw": false,
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "prod_only_by_fail_amount20": [
+  {
+   "fail_amount20": false,
+   "n": 129,
+   "pnl_sum": -201108.1,
+   "avg_pnl_pct": -0.013809,
+   "win": 0.3101
+  },
+  {
+   "fail_amount20": true,
+   "n": 67,
+   "pnl_sum": 402371.95,
+   "avg_pnl_pct": 0.049602,
+   "win": 0.3433
+  }
+ ],
+ "research_only_by_fail_amount20": [
+  {
+   "fail_amount20": false,
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "prod_only_by_fail_bars120": [
+  {
+   "fail_bars120": false,
+   "n": 189,
+   "pnl_sum": -25370.46,
+   "avg_pnl_pct": -0.001131,
+   "win": 0.3175
+  },
+  {
+   "fail_bars120": true,
+   "n": 7,
+   "pnl_sum": 226634.31,
+   "avg_pnl_pct": 0.250805,
+   "win": 0.4286
+  }
+ ],
+ "research_only_by_fail_bars120": [
+  {
+   "fail_bars120": false,
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "prod_only_by_board": [
+  {
+   "board": "主板",
+   "n": 102,
+   "pnl_sum": -305175.39,
+   "avg_pnl_pct": -0.01712,
+   "win": 0.3235
+  },
+  {
+   "board": "非主板",
+   "n": 94,
+   "pnl_sum": 506439.24,
+   "avg_pnl_pct": 0.034981,
+   "win": 0.3191
+  }
+ ],
+ "research_only_by_board": [
+  {
+   "board": "主板",
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "prod_only_by_gate": [
+  {
+   "gate": "board_outside_60_00",
+   "n": 94,
+   "pnl_sum": 506439.24,
+   "avg_pnl_pct": 0.034981,
+   "win": 0.3191
+  },
+  {
+   "gate": "in_research_pool_not_selected",
+   "n": 67,
+   "pnl_sum": -270292.32,
+   "avg_pnl_pct": -0.024906,
+   "win": 0.3284
+  },
+  {
+   "gate": "amount20_lt_1e8",
+   "n": 31,
+   "pnl_sum": 25422.02,
+   "avg_pnl_pct": 0.013276,
+   "win": 0.3548
+  },
+  {
+   "gate": "price_raw_lt_3",
+   "n": 3,
+   "pnl_sum": -44656.84,
+   "avg_pnl_pct": -0.094221,
+   "win": 0.0
+  },
+  {
+   "gate": "observed_bars_lt_120",
+   "n": 1,
+   "pnl_sum": -15648.25,
+   "avg_pnl_pct": -0.20647,
+   "win": 0.0
+  }
+ ]
+}

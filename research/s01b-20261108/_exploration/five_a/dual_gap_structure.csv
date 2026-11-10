@@ -1,0 +1,9 @@
+﻿arm,n_rows,n_gap_gt_flag_tol,n_gap_open_at_end,gap_open_at_end,n_gap_flagged_closed,gap_flagged_closed,pred_div_closed_form,pred_resid,n_rounding_pm_0.01,sum_rounding,sum_gap,recon_ok
+base_nodefaults_10bp,208,0,0,0.0,0,0.0,0.0,0.0,64,0.1,0.1,True
+only_entry_price_basis_raw,208,19,0,0.0,19,17235.1,17235.1,-0.0,44,0.06,17235.16,True
+only_block_limit_open,198,0,0,0.0,0,0.0,0.0,0.0,41,-0.03,-0.03,True
+only_finalize_open_at_end,208,5,5,37895.5,0,0.0,0.0,0.0,62,0.1,37895.6,True
+only_execution_costs,208,0,0,0.0,0,0.0,0.0,0.0,48,-0.04,-0.04,True
+only_trailing_peak_price_close,208,0,0,0.0,0,0.0,0.0,0.0,64,0.1,0.1,True
+only_exit_signal_requires_profit,178,0,0,0.0,0,0.0,0.0,0.0,38,-0.04,-0.04,True
+base_nodefaults_gross,208,0,0,0.0,0,0.0,0.0,0.0,46,0.0,0.0,True

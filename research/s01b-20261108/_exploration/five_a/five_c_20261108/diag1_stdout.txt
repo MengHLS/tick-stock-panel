@@ -1,0 +1,79 @@
+{
+ "focus": {
+  "symbol": "688143.SH",
+  "entry_date": "2026-09-04",
+  "exit_date": "2026-10-30",
+  "exit_reason": "end",
+  "open_at_end": false,
+  "shares": 200.0,
+  "exchange_open": 109.9,
+  "exchange_close": 118.26,
+  "trade_exit_price": 109.9,
+  "exit_price_equals_open": true,
+  "exit_value_recorded": 21929.45,
+  "gross_at_open": 21980.0,
+  "sell_fee_implied": 50.55,
+  "mark_at_close": 23652.0,
+  "gap_total": 1722.55,
+  "gap_price_basis": 1672.0,
+  "gap_fee": 50.55,
+  "gap_check": 1722.55,
+  "market_value_last_row": 23652.0,
+  "market_value_equals_mark": true,
+  "equity_last_cash": 461641.78,
+  "final_cash_after_finalize": 483571.23,
+  "dev_manager_1722_56": 1722.55,
+  "dev_manager_delta_vs_gap": -0.01,
+  "corrected_total_return": -0.516429,
+  "corrected_annual_return": -0.0978,
+  "reported_annual_return": -0.0973
+ },
+ "base_gap": -1722.56,
+ "arms": {
+  "base_nodefaults_10bp": [
+   -1722.56,
+   1,
+   false
+  ],
+  "only_entry_price_basis_raw": [
+   -1722.58,
+   1,
+   false
+  ],
+  "only_block_limit_open": [
+   -3445.15,
+   1,
+   false
+  ],
+  "only_finalize_open_at_end": [
+   37895.5,
+   5,
+   true
+  ],
+  "only_execution_costs": [
+   -1722.6,
+   1,
+   false
+  ],
+  "only_trailing_peak_price_close": [
+   -1722.56,
+   1,
+   false
+  ],
+  "only_exit_signal_requires_profit": [
+   0.02,
+   0,
+   false
+  ],
+  "base_nodefaults_gross": [
+   -1672.0,
+   1,
+   false
+  ],
+  "a0_10bp_199": [
+   84132.93,
+   5,
+   true
+  ]
+ }
+}

@@ -1,0 +1,320 @@
+{
+ "task": "D-EOS 末日结算缺陷修复（阶段1）",
+ "generated_at": "2026-11-08 21:48:05",
+ "contract": {
+  "path": "docs/architecture/CONTRACT_END_SETTLEMENT_20261108.md",
+  "bytes": 37195,
+  "sha256": "c3c6501f1b2b14adaaf5704d3b959657220dff54a7b2d0f86048e086f1018fb7"
+ },
+ "engine": {
+  "path": "backend/app/backtest/engine.py",
+  "before": {
+   "bytes": 268800,
+   "sha256": "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe"
+  },
+  "after": {
+   "path": "backend/app/backtest/engine.py",
+   "bytes": 269940,
+   "sha256": "4243fe97723dad20d01bd440783cf71ea6ef05c55a9ffd4652492031e40d8386"
+  },
+  "git_numstat_plus": 28,
+  "git_numstat_minus": 24
+ },
+ "git_head": "22ed822ac5a6aa21e2333a424f3d62b33680065f",
+ "diff_patch": {
+  "path": "research/s01b-20261108/postfix_20261108/engine_diff.patch",
+  "bytes": 4745,
+  "sha256": "97552f23387aabb7db9a639abe0e605ba3bd8873f4ddc44737db8582240bfd0f"
+ },
+ "change_scripts": [
+  {
+   "path": "research/s01b-20261108/postfix_20261108/apply_patch.py",
+   "bytes": 8960,
+   "sha256": "2a2f07e829c971bc2e10c43a60b2280c0028a66321b50ea6f85631be5e756817"
+  },
+  {
+   "path": "research/s01b-20261108/postfix_20261108/apply_test_changes.py",
+   "bytes": 6316,
+   "sha256": "966d26cfe149810f102898cb3eefe3195d81a98e3689ab70a1a9f34aa4cdac92"
+  }
+ ],
+ "tests": [
+  {
+   "path": "backend/tests/backtest/test_end_settlement.py",
+   "bytes": 15493,
+   "sha256": "20b82bd168ae5ec337b3f5ccc9b80ba4ebca8db87f8eede59212dfd0d36e997f",
+   "role": "新增",
+   "path_in_repo": "backend/tests/backtest/test_end_settlement.py"
+  },
+  {
+   "path": "backend/tests/backtest/test_limit_down_close_exit.py",
+   "bytes": 10155,
+   "sha256": "e9f682f2470d95bfae029f6da23a5345b679abe8b8ea57507e2cde44adcc0ba4",
+   "role": "修订 1 个用例",
+   "path_in_repo": "backend/tests/backtest/test_limit_down_close_exit.py"
+  }
+ ],
+ "pytest": {
+  "backtest_before": "738 passed, 13 warnings in 196.34s (0:03:16)",
+  "backtest_after": "746 passed, 13 warnings in 159.10s (0:02:39)",
+  "risk_limits_before": "22 passed in 3.43s",
+  "risk_limits_after": "22 passed in 3.16s"
+ },
+ "upstream_untouched": {
+  "research/s01b-20261108/REPORT.md": {
+   "path": "research/s01b-20261108/REPORT.md",
+   "bytes": 52097,
+   "sha256": "e60cd0b857f40fb227dad704e62c6d132fbba9e5107f1c53ba3870c436d7ca9b"
+  },
+  "research/s01b-20261108/metrics_table.md": {
+   "path": "research/s01b-20261108/metrics_table.md",
+   "bytes": 2738,
+   "sha256": "d025d8ce96f98cc2a204d6a60c82b693306cdb15d0f597b6627d0070a915cf3a"
+  }
+ },
+ "verify": {
+  "summary": "TOTAL 69  PASS 69  FAIL 0",
+  "path": "research/s01b-20261108/postfix_20261108/verify_postfix_result.txt",
+  "bytes": 5904,
+  "sha256": "a7d98891783bac8be3817f107bb837395e520369011e6c204125e8ad6ab8e562"
+ },
+ "arms": [
+  {
+   "arm": "base_nodefaults_10bp",
+   "kind": "changed",
+   "final_before": 485293.78,
+   "final_after": 483571.22,
+   "expect_C": 483571.23,
+   "final_equity": 483571.22,
+   "total_return_before": -0.5147,
+   "total_return_after": -0.5164,
+   "annual_return_before": -0.0973,
+   "annual_return_after": -0.0978,
+   "mdd_before": -0.7195,
+   "mdd_after": -0.7195,
+   "n_trades": 208,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "a765ae5944dcd216f9bef34467bb5a3a580777f4994a1cf48399cf0fdb5af13a",
+    "equity": "8b268e842022269c768194b031aeaa45d02b626e096163f2a3fa6956bbcb17e8",
+    "drawdown": "905b858ca72366f78a4cd107cbc9ffdc49ec7f062e16413fab792b9b1150ba0d"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "d595d31c144a761d7286609c9b3bf4c2eace2573fe1383c3816df011365b7a56",
+    "equity": "b0d1612804996396bb7bf0839b28828b4fed98e419d907d8d262c3f15190bffb",
+    "drawdown": "5d26ce86767199398e2fa48100c934b77f8ce7797adcaa79eb1996bbf1592ced"
+   }
+  },
+  {
+   "arm": "only_trailing_peak_price_close",
+   "kind": "changed",
+   "final_before": 485293.78,
+   "final_after": 483571.22,
+   "expect_C": 483571.23,
+   "final_equity": 483571.22,
+   "total_return_before": -0.5147,
+   "total_return_after": -0.5164,
+   "annual_return_before": -0.0973,
+   "annual_return_after": -0.0978,
+   "mdd_before": -0.7195,
+   "mdd_after": -0.7195,
+   "n_trades": 208,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "a765ae5944dcd216f9bef34467bb5a3a580777f4994a1cf48399cf0fdb5af13a",
+    "equity": "8b268e842022269c768194b031aeaa45d02b626e096163f2a3fa6956bbcb17e8",
+    "drawdown": "905b858ca72366f78a4cd107cbc9ffdc49ec7f062e16413fab792b9b1150ba0d"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "d595d31c144a761d7286609c9b3bf4c2eace2573fe1383c3816df011365b7a56",
+    "equity": "b0d1612804996396bb7bf0839b28828b4fed98e419d907d8d262c3f15190bffb",
+    "drawdown": "5d26ce86767199398e2fa48100c934b77f8ce7797adcaa79eb1996bbf1592ced"
+   }
+  },
+  {
+   "arm": "only_execution_costs",
+   "kind": "changed",
+   "final_before": 485420.69,
+   "final_after": 483698.12,
+   "expect_C": 483698.12,
+   "final_equity": 483698.12,
+   "total_return_before": -0.5146,
+   "total_return_after": -0.5163,
+   "annual_return_before": -0.0973,
+   "annual_return_after": -0.0978,
+   "mdd_before": -0.7194,
+   "mdd_after": -0.7194,
+   "n_trades": 208,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "b6811828a439e1c1af541dec0bf1ade0135fd22a20a1e10a24d085164df52951",
+    "equity": "4938f88cea244b0cf60e1613f9561239f87560e9be313001d17ae95cbe66f0a5",
+    "drawdown": "6e0ce5e5c52dc09063aa63136c1966643ec898f61607fcdc77e3f29d6657ce5c"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "38f07d8005d48a022aa700be11a7a601971df5b2da6f3a02c8090c51fa7d4495",
+    "equity": "50fa64c5893983528263cb34f01193ae2d7bc40a9b9d5854239d8d2ff51d9fbc",
+    "drawdown": "47a040bc0e5df214e6f4a5bb2b7c0131a938144ce853bb20299a968ffdf22610"
+   }
+  },
+  {
+   "arm": "only_entry_price_basis_raw",
+   "kind": "changed",
+   "final_before": 434710.53,
+   "final_after": 432987.97,
+   "expect_C": 432987.98,
+   "final_equity": 432987.97,
+   "total_return_before": -0.5653,
+   "total_return_after": -0.567,
+   "annual_return_before": -0.1113,
+   "annual_return_after": -0.1118,
+   "mdd_before": -0.7431,
+   "mdd_after": -0.7441,
+   "n_trades": 208,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "9f8436c9dbad5d68d45ac389d3f30a5a1ed4f5d531de3ff814ff96cda487b351",
+    "equity": "5f3d88dcf20d1ed404e8df8eef39c3397f6e597dc9090ff656862fcb0363c217",
+    "drawdown": "69a8c0fbc6644b142d9c2db6e4be743cdd152bfe2bd1003fdd337e392d0422c3"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "97b45411ead186dfdc882416679ce2a85a436cb433a21d3e678b3a6ca9385135",
+    "equity": "b7e6f7e5977d86aaa12a5ac2e7d55ea254a7b1c50b643ec80da6a4bea7adbac5",
+    "drawdown": "1d7ba340cc7035ce3da83d5f49336dc4b218988c14b414cf4ca8800cce138670"
+   }
+  },
+  {
+   "arm": "base_nodefaults_gross",
+   "kind": "changed",
+   "final_before": 527074.75,
+   "final_after": 525402.74,
+   "expect_C": 525402.74,
+   "final_equity": 525402.74,
+   "total_return_before": -0.4729,
+   "total_return_after": -0.4746,
+   "annual_return_before": -0.0867,
+   "annual_return_after": -0.0871,
+   "mdd_before": -0.7108,
+   "mdd_after": -0.7108,
+   "n_trades": 208,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "21f85ece6770b5c005161014a456b42ec13bf0961ae0f32c07d7003f4b09e324",
+    "equity": "400cce908bcacb9da62eb23de642fb01f0f8e018c8c09e36561208e018b53602",
+    "drawdown": "484c5ac667d388fbf969a9d49702122e0d06b0091389c8637b517005f366955f"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "aef69c2bf4f7459fc676306e700b98da18598dba1791e4d1ad42eddcf3433a81",
+    "equity": "be167d4aecffa2d2f6a9912a40cf9fe0a10304728599842af81d306db79fa46f",
+    "drawdown": "a504f0db202ffbef31e967e274f32c0ec3b3f10e6deb81e8ed4d788fdf5b9951"
+   }
+  },
+  {
+   "arm": "only_block_limit_open",
+   "kind": "changed",
+   "final_before": 1121259.36,
+   "final_after": 1117814.25,
+   "expect_C": 1117814.25,
+   "final_equity": 1117814.25,
+   "total_return_before": 0.1213,
+   "total_return_after": 0.1178,
+   "annual_return_before": 0.0163,
+   "annual_return_after": 0.0159,
+   "mdd_before": -0.4012,
+   "mdd_after": -0.4012,
+   "n_trades": 198,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "3e6c55b9ae3b1e43fd2764f81f729e574174725f7958794e0c53c91bfa4cbcab",
+    "equity": "6151c63490c643e8b4efc2eede968c1a168e32cc8b927afcecefb53b1eea09df",
+    "drawdown": "10dac05216a4f8e745f9d7b38116c84f3c6a64358c0971e78f5deabe8e491276"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "697bf05373dd18cf343fbf372f2fbc3166862b60256fc05c66838e3ce16a84d8",
+    "equity": "b6ad9938ee14a2dad4cb944586f4e3704c80ca5add055ef4ff33a4c25328a297",
+    "drawdown": "36579853ec634387bea6f3df9672df27694d1f5b742baf37f4d8e74c9790cb82"
+   }
+  },
+  {
+   "arm": "only_finalize_open_at_end",
+   "kind": "byte-identical",
+   "final_before": 478212.34,
+   "final_after": 478212.34,
+   "expect_C": null,
+   "final_equity": 478212.34,
+   "total_return_before": -0.5218,
+   "total_return_after": -0.5218,
+   "annual_return_before": -0.0992,
+   "annual_return_after": -0.0992,
+   "mdd_before": -0.7195,
+   "mdd_after": -0.7195,
+   "n_trades": 208,
+   "open_at_end_count": 5,
+   "artifacts_sha256": {
+    "trades": "c2f6d54c3800be23eba7b2bd83223b03502d04871f58993640e061661fefc74e",
+    "equity": "04989612393ab5fb3d614a86c098f86cb441e017c2378d8e2b9b98aaff988a38",
+    "drawdown": "ba0219c13d01b1e403bc0d1c65d7d33ee129772fc74d19fc5c42a6337e90d34b"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "c2f6d54c3800be23eba7b2bd83223b03502d04871f58993640e061661fefc74e",
+    "equity": "04989612393ab5fb3d614a86c098f86cb441e017c2378d8e2b9b98aaff988a38",
+    "drawdown": "ba0219c13d01b1e403bc0d1c65d7d33ee129772fc74d19fc5c42a6337e90d34b"
+   }
+  },
+  {
+   "arm": "only_exit_signal_requires_profit",
+   "kind": "byte-identical",
+   "final_before": 673798.76,
+   "final_after": 673798.76,
+   "expect_C": null,
+   "final_equity": 673798.76,
+   "total_return_before": -0.3262,
+   "total_return_after": -0.3262,
+   "annual_return_before": -0.0544,
+   "annual_return_after": -0.0544,
+   "mdd_before": -0.6177,
+   "mdd_after": -0.6177,
+   "n_trades": 178,
+   "open_at_end_count": 0,
+   "artifacts_sha256": {
+    "trades": "a4634cb6edd43611730f23fd6e6164db8c200e6689dedb887f8b5e0ff6b67d48",
+    "equity": "e21dc8fedd0c5ca20ac9b68058231c984eb368196adb6981e71eb254d254892c",
+    "drawdown": "d4593e0f5fcdbfaa035035050938647d7c10c42f1548bbad35f29abfbf0e694d"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "a4634cb6edd43611730f23fd6e6164db8c200e6689dedb887f8b5e0ff6b67d48",
+    "equity": "e21dc8fedd0c5ca20ac9b68058231c984eb368196adb6981e71eb254d254892c",
+    "drawdown": "d4593e0f5fcdbfaa035035050938647d7c10c42f1548bbad35f29abfbf0e694d"
+   }
+  },
+  {
+   "arm": "a0_10bp",
+   "kind": "byte-identical",
+   "final_before": 1242725.28,
+   "final_after": 1242725.28,
+   "expect_C": null,
+   "final_equity": 1242725.28,
+   "total_return_before": 0.2427,
+   "total_return_after": 0.2427,
+   "annual_return_before": 0.0313,
+   "annual_return_after": 0.0313,
+   "mdd_before": -0.3927,
+   "mdd_after": -0.3927,
+   "n_trades": 199,
+   "open_at_end_count": 5,
+   "artifacts_sha256": {
+    "trades": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+    "equity": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada"
+   },
+   "baseline_artifacts_sha256": {
+    "trades": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+    "equity": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada"
+   }
+  }
+ ],
+ "reproduce": [
+  "backend\\.venv\\Scripts\\python.exe research\\s01b-20261108\\postfix_20261108\\verify_postfix.py",
+  "backend\\.venv\\Scripts\\python.exe -m pytest backend/tests/backtest -q",
+  "backend\\.venv\\Scripts\\python.exe -m pytest backend/tests/test_risk_limits_scale.py -q"
+ ]
+}

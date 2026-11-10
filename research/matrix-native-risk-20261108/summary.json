@@ -1,0 +1,146 @@
+{
+ "window": "2019-07-01..2021-06-30",
+ "rows": [
+  {
+   "tag": "base_2y",
+   "label": "STOP_LOSS=None（基线）",
+   "error": null,
+   "n_trades": 56,
+   "avg_holding_days": 43.02,
+   "max_holding_days": 60,
+   "total_return": 0.1683,
+   "annual_return": 0.0838,
+   "max_drawdown": -0.2351,
+   "win_rate_recomputed": 0.3571,
+   "exit_reason_counts": {
+    "end": 5,
+    "max_hold": 16,
+    "signal": 35
+   },
+   "matcher_config": {
+    "stop_loss_pct": null,
+    "take_profit_pct": null,
+    "trailing_stop_pct": null,
+    "trailing_take_profit_activate_pct": null,
+    "trailing_take_profit_drawdown_pct": null,
+    "max_hold_days": 60,
+    "exit_fill": "open_t+1",
+    "entry_fill": "open_t+1",
+    "matching": "open_t+1"
+   }
+  },
+  {
+   "tag": "sl_2y",
+   "label": "STOP_LOSS=-0.08",
+   "error": null,
+   "n_trades": 124,
+   "avg_holding_days": 18.88,
+   "max_holding_days": 60,
+   "total_return": 0.3067,
+   "annual_return": 0.1484,
+   "max_drawdown": -0.3187,
+   "win_rate_recomputed": 0.2097,
+   "exit_reason_counts": {
+    "end": 5,
+    "max_hold": 16,
+    "signal": 9,
+    "stop_loss": 94
+   },
+   "matcher_config": {
+    "stop_loss_pct": -0.08,
+    "take_profit_pct": null,
+    "trailing_stop_pct": null,
+    "trailing_take_profit_activate_pct": null,
+    "trailing_take_profit_drawdown_pct": null,
+    "max_hold_days": 60,
+    "exit_fill": "open_t+1",
+    "entry_fill": "open_t+1",
+    "matching": "open_t+1"
+   }
+  },
+  {
+   "tag": "tp_2y",
+   "label": "TRAILING_TAKE_PROFIT 0.10/0.05",
+   "error": null,
+   "n_trades": 137,
+   "avg_holding_days": 17.32,
+   "max_holding_days": 60,
+   "total_return": -0.047,
+   "annual_return": -0.0246,
+   "max_drawdown": -0.2334,
+   "win_rate_recomputed": 0.6642,
+   "exit_reason_counts": {
+    "end": 5,
+    "max_hold": 2,
+    "signal": 36,
+    "trailing_take_profit": 94
+   },
+   "matcher_config": {
+    "stop_loss_pct": null,
+    "take_profit_pct": null,
+    "trailing_stop_pct": null,
+    "trailing_take_profit_activate_pct": 0.1,
+    "trailing_take_profit_drawdown_pct": 0.05,
+    "max_hold_days": 60,
+    "exit_fill": "open_t+1",
+    "entry_fill": "open_t+1",
+    "matching": "open_t+1"
+   }
+  },
+  {
+   "tag": "ts_2y",
+   "label": "TRAILING_STOP=0.05",
+   "error": null,
+   "n_trades": 997,
+   "avg_holding_days": 1.85,
+   "max_holding_days": 23,
+   "total_return": -0.6746,
+   "annual_return": -0.4406,
+   "max_drawdown": -0.6858,
+   "win_rate_recomputed": 0.344,
+   "exit_reason_counts": {
+    "signal": 1,
+    "trailing_stop": 996
+   },
+   "matcher_config": {
+    "stop_loss_pct": null,
+    "take_profit_pct": null,
+    "trailing_stop_pct": 0.05,
+    "trailing_take_profit_activate_pct": null,
+    "trailing_take_profit_drawdown_pct": null,
+    "max_hold_days": 60,
+    "exit_fill": "open_t+1",
+    "entry_fill": "open_t+1",
+    "matching": "open_t+1"
+   }
+  },
+  {
+   "tag": "mh_2y",
+   "label": "MAX_HOLD_DAYS=20",
+   "error": null,
+   "n_trades": 120,
+   "avg_holding_days": 19.36,
+   "max_holding_days": 24,
+   "total_return": -0.2823,
+   "annual_return": -0.1577,
+   "max_drawdown": -0.3375,
+   "win_rate_recomputed": 0.4083,
+   "exit_reason_counts": {
+    "end": 5,
+    "max_hold": 103,
+    "signal": 12
+   },
+   "matcher_config": {
+    "stop_loss_pct": null,
+    "take_profit_pct": null,
+    "trailing_stop_pct": null,
+    "trailing_take_profit_activate_pct": null,
+    "trailing_take_profit_drawdown_pct": null,
+    "max_hold_days": 20,
+    "exit_fill": "open_t+1",
+    "entry_fill": "open_t+1",
+    "matching": "open_t+1"
+   }
+  }
+ ]
+}

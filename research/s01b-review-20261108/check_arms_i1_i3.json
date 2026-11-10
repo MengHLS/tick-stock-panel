@@ -1,0 +1,633 @@
+{
+ "base_nodefaults_10bp": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\base_nodefaults_10bp",
+  "pre_dir": "research\\s01b-20261108\\five_a\\base_nodefaults_10bp",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 483571.22,
+   "cash": 483571.22,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 208,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 109.9,
+    "shares": 200.0,
+    "pnl_amount": -12915.79,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "shares": 900.0,
+    "pnl_amount": -20096.12,
+    "open_at_end": false
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.72,
+    "shares": 2300.0,
+    "pnl_amount": -10520.27,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 63.2,
+    "shares": 1100.0,
+    "pnl_amount": 13528.62,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.88,
+    "shares": 1400.0,
+    "pnl_amount": -2533.06,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 485293.78,
+   "cash": 461641.78,
+   "positions": 1,
+   "exposure": 0.0487
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "base_nodefaults_gross": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\base_nodefaults_gross",
+  "pre_dir": "research\\s01b-20261108\\five_a\\base_nodefaults_gross",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 525402.74,
+   "cash": 525402.74,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 208,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 109.9,
+    "shares": 200.0,
+    "pnl_amount": -12820.0,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "shares": 1000.0,
+    "pnl_amount": -22140.0,
+    "open_at_end": false
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.72,
+    "shares": 2500.0,
+    "pnl_amount": -11225.0,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 63.2,
+    "shares": 1200.0,
+    "pnl_amount": 15012.0,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.88,
+    "shares": 1500.0,
+    "pnl_amount": -2490.0,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 527074.75,
+   "cash": 503422.74,
+   "positions": 1,
+   "exposure": 0.0449
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "only_block_limit_open": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\only_block_limit_open",
+  "pre_dir": "research\\s01b-20261108\\five_a\\only_block_limit_open",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 1117814.25,
+   "cash": 1117814.25,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 198,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 109.9,
+    "shares": 400.0,
+    "pnl_amount": -25831.59,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "shares": 2100.0,
+    "pnl_amount": -46890.94,
+    "open_at_end": false
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.72,
+    "shares": 5400.0,
+    "pnl_amount": -24699.76,
+    "open_at_end": false
+   },
+   {
+    "symbol": "688789.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.26,
+    "shares": 3000.0,
+    "pnl_amount": -10781.39,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 63.2,
+    "shares": 2600.0,
+    "pnl_amount": 31976.74,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 1121259.36,
+   "cash": 1073955.36,
+   "positions": 1,
+   "exposure": 0.0422
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "only_entry_price_basis_raw": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\only_entry_price_basis_raw",
+  "pre_dir": "research\\s01b-20261108\\five_a\\only_entry_price_basis_raw",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 432987.97,
+   "cash": 432987.97,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 208,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 109.9,
+    "shares": 200.0,
+    "pnl_amount": -12915.79,
+    "open_at_end": false
+   },
+   {
+    "symbol": "600641.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 30.01,
+    "shares": 1100.0,
+    "pnl_amount": -19922.55,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "shares": 800.0,
+    "pnl_amount": -17863.21,
+    "open_at_end": false
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.72,
+    "shares": 2200.0,
+    "pnl_amount": -10062.86,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.88,
+    "shares": 1200.0,
+    "pnl_amount": -2171.19,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 434710.53,
+   "cash": 411058.53,
+   "positions": 1,
+   "exposure": 0.0544
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "only_execution_costs": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\only_execution_costs",
+  "pre_dir": "research\\s01b-20261108\\five_a\\only_execution_costs",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 483698.12,
+   "cash": 483698.12,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 208,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 109.7901,
+    "shares": 200.0,
+    "pnl_amount": -12915.89,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.4655,
+    "shares": 900.0,
+    "pnl_amount": -20096.32,
+    "open_at_end": false
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.6983,
+    "shares": 2300.0,
+    "pnl_amount": -10520.37,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 63.1368,
+    "shares": 1100.0,
+    "pnl_amount": 13528.43,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.8391,
+    "shares": 1400.0,
+    "pnl_amount": -2533.21,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 485420.69,
+   "cash": 461768.69,
+   "positions": 1,
+   "exposure": 0.0487
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "only_exit_signal_requires_profit": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\only_exit_signal_requires_profit",
+  "pre_dir": "research\\s01b-20261108\\five_a\\only_exit_signal_requires_profit",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 673798.76,
+   "cash": 673798.76,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 178,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "002164.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 17.42,
+    "shares": 3600.0,
+    "pnl_amount": 15995.3,
+    "open_at_end": false
+   },
+   {
+    "symbol": "920627.BJ",
+    "exit_date": "2026-10-30",
+    "exit_price": 14.8,
+    "shares": 2200.0,
+    "pnl_amount": -11792.37,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "shares": 1300.0,
+    "pnl_amount": -29027.73,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 63.2,
+    "shares": 1500.0,
+    "pnl_amount": 18448.12,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 673798.76,
+   "cash": 673798.76,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "only_finalize_open_at_end": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\only_finalize_open_at_end",
+  "pre_dir": "research\\s01b-20261108\\five_a\\only_finalize_open_at_end",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 478212.34,
+   "cash": 245373.34,
+   "positions": 5,
+   "exposure": 0.4869
+  },
+  "n_trades": 208,
+  "n_oae": 5,
+  "positions_vs_oae": [
+   5,
+   5
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": null,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 118.26,
+    "shares": 200.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.38,
+    "shares": 900.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 20.13,
+    "shares": 2300.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 59.6,
+    "shares": 1100.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.99,
+    "shares": 1400.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 478212.34,
+   "cash": 245373.34,
+   "positions": 5,
+   "exposure": 0.4869
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "only_trailing_peak_price_close": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\only_trailing_peak_price_close",
+  "pre_dir": "research\\s01b-20261108\\five_a\\only_trailing_peak_price_close",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 483571.22,
+   "cash": 483571.22,
+   "positions": 0,
+   "exposure": 0.0
+  },
+  "n_trades": 208,
+  "n_oae": 0,
+  "positions_vs_oae": [
+   0,
+   0
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": true,
+  "end_trades": [
+   {
+    "symbol": "688143.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 109.9,
+    "shares": 200.0,
+    "pnl_amount": -12915.79,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.51,
+    "shares": 900.0,
+    "pnl_amount": -20096.12,
+    "open_at_end": false
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 21.72,
+    "shares": 2300.0,
+    "pnl_amount": -10520.27,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 63.2,
+    "shares": 1100.0,
+    "pnl_amount": 13528.62,
+    "open_at_end": false
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.88,
+    "shares": 1400.0,
+    "pnl_amount": -2533.06,
+    "open_at_end": false
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 485293.78,
+   "cash": 461641.78,
+   "positions": 1,
+   "exposure": 0.0487
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ },
+ "results_all/a0_10bp": {
+  "post_dir": "research\\s01b-20261108\\postfix_20261108\\results_all\\a0_10bp",
+  "pre_dir": "research\\s01b-20261108\\results\\a0_10bp",
+  "last_row": {
+   "date": "2026-10-30",
+   "value": 1242725.28,
+   "cash": 543407.28,
+   "positions": 5,
+   "exposure": 0.5627
+  },
+  "n_trades": 199,
+  "n_oae": 5,
+  "positions_vs_oae": [
+   5,
+   5
+  ],
+  "I1_residual": 0.0,
+  "cash_eq_value_when_flat": null,
+  "end_trades": [
+   {
+    "symbol": "301513.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 44.38,
+    "shares": 2400.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "601858.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 20.13,
+    "shares": 6100.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "688789.SH",
+    "exit_date": "2026-10-30",
+    "exit_price": 43.53,
+    "shares": 3300.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "301313.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 59.6,
+    "shares": 3000.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   },
+   {
+    "symbol": "301428.SZ",
+    "exit_date": "2026-10-30",
+    "exit_price": 40.99,
+    "shares": 3600.0,
+    "pnl_amount": 0.0,
+    "open_at_end": true
+   }
+  ],
+  "equity_head_identical": true,
+  "pre_last_row": {
+   "date": "2026-10-30",
+   "value": 1242725.28,
+   "cash": 543407.28,
+   "positions": 5,
+   "exposure": 0.5627
+  },
+  "trades_multiset_identical": true,
+  "pre_last_1399_trades": null
+ }
+}

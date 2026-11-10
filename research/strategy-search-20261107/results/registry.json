@@ -5732,5 +5732,510 @@
       "void_evidence": "results/e2_caliber_check_20261107.json",
       "status_set_at": "2026-11-07T14:45+08:00"
     }
+  },
+  "registrations": {
+    "schema": "research-trial-registration/1",
+    "registered_at": "2026-11-08T17:25+08:00",
+    "decided_by": "策略经理 2026-11-08 裁定（本文件只登记，不改口径）",
+    "registered_by": "因子研究员",
+    "n_trials": {
+      "kind": "global_lower_bound",
+      "before": 15,
+      "delta": 4,
+      "after": 19,
+      "exact": null,
+      "policy": "只增不减；参数邻域每格 +1",
+      "authoritative_ref": "GLOBAL_LEDGER_v3.json#global_N_lower_bound"
+    },
+    "hypotheses": {
+      "kind": "global_hypothesis_count",
+      "purpose": "假设计数（本族算一次预注册多臂检验）；与同层 n_trials 不是同一个数",
+      "before": 15,
+      "delta": 1,
+      "after": 16,
+      "decided_by": "策略经理 2026-11-08 §16.1",
+      "registered_at": "2026-11-08T18:59+08:00",
+      "registered_by": "因子研究员",
+      "basis": "§16.1（docs/research/caliber-decisions-20261107.md）：S01b_ma_cross_20_60_risk_exit 是一次预注册的多臂检验，假设计数 +1（同一预注册、同一数据、同一判据集 F1–F4）；臂 1/2/3 只改被测参数，a4 是 F4 判据原文写死的退路",
+      "distinct_from": "与同层 n_trials（global_N_lower_bound = 19，多重检验扣减用）是两个不同用途的数：本块只记假设计数 15→16，n_trials 仍为 15→19，二者互不推导、互不覆盖",
+      "authoritative_ref": "GLOBAL_LEDGER_v3.json#global_hypotheses"
+    },
+    "count_rationale": "四个配置各算一次：arm1（止损 -0.08 / MH60）、arm2（止损 -0.08 + 移动止盈 10/8，peak=close，MH60）、arm3（止损 -0.08 + 移动止盈 10/8 + MH45）、a4（仅 MH45、无止损）。成本档 @10 / @30 / @gross 是同一配置的情景，沿用既有规则不单独计数；臂 0（生产路径对照，199 笔 / +24.27%）是对照，不计数。报告原写 +3，按策略经理 2026-11-08 裁定改为 +4。",
+    "verdict": {
+      "conclusion": "判死（该入场不做风控出场改造）",
+      "entry_alpha": "未判定",
+      "criteria": {
+        "F1": "成立（10bp 全期为负且 30bp 更负）",
+        "F2": "按被测臂成立；机制不同（生产路径对照臂 0 的 gross 年化 +4.21% 为正，负值是风控出场叠加造成）",
+        "F3": "不成立（判据前提不满足：avg_pnl 下降、换手上升）",
+        "F4": "成立（OOS -22.97% vs 对照 +4.73%，换手比 1.55x）；a4 证明退路同样致命"
+      }
+    },
+    "prohibited_reading": "台账任何位置禁止把生产臂 0 的 199 笔 / +24.27% 写成「S01 的表现」或「S01 入场有 alpha」；臂 0 是生产路径对照，不是 S01 的复现，也不构成 S01 入场有 alpha 的证据",
+    "open_item": "生产路径 199 笔 / +24.27% 与研究侧 S01_ma_cross_20_60@10 的 252 笔 / −32.09% 之间跨管道差异的归因，是研究侧未结项（已另派），本台账不作归因结论",
+    "other_runs_not_registered": [
+      {
+        "tag": "a0_10bp / a0_30bp / a0_gross",
+        "why": "生产路径对照臂（无风控出场，MH60），不计数"
+      },
+      {
+        "tag": "a0ev_10bp / a3ev_10bp",
+        "why": "cross_down 事件式等价重跑，逐笔与水平式相同，不计数"
+      },
+      {
+        "tag": "prod_file_10bp",
+        "why": "生产策略文件自身复现，与 a3_10bp trades 全等，不计数"
+      },
+      {
+        "tag": "a2h_10bp",
+        "why": "臂 2 的峰值口径（high）对照，不计数"
+      }
+    ],
+    "entries": {
+      "S01b_ma_cross_20_60_risk_exit/stop_loss-8": {
+        "variant": "arm1",
+        "counted": true,
+        "n_trials": 1,
+        "params": {
+          "stop_loss": -0.08,
+          "trailing_take_profit": null,
+          "trailing_stop": null,
+          "max_hold_days": 60,
+          "trailing_peak_price": null
+        },
+        "scenarios": {
+          "10bp": {
+            "tag": "a1_10bp",
+            "n_trades": 519,
+            "total_return": -0.6969,
+            "annual_return": -0.1556,
+            "max_drawdown": -0.8386,
+            "sharpe": -0.51,
+            "win_rate": 0.1509,
+            "avg_pnl": -0.0145,
+            "median_pnl": -0.0824,
+            "avg_holding_days": 16.4,
+            "annual_turnover": 5.39,
+            "avg_exposure": 0.5654,
+            "exit_reason": {
+              "signal": 42,
+              "max_hold": 50,
+              "stop_loss": 425,
+              "end": 2
+            },
+            "result_path": "research/s01b-20261108/results/a1_10bp/result.json"
+          },
+          "30bp": {
+            "tag": "a1_30bp",
+            "n_trades": 521,
+            "total_return": -0.728,
+            "annual_return": -0.1684,
+            "max_drawdown": -0.8271,
+            "sharpe": -0.55,
+            "win_rate": 0.1451,
+            "avg_pnl": -0.0189,
+            "median_pnl": -0.0842,
+            "avg_holding_days": 16.4,
+            "annual_turnover": 4.57,
+            "avg_exposure": 0.5651,
+            "exit_reason": {
+              "signal": 40,
+              "max_hold": 52,
+              "stop_loss": 425,
+              "end": 4
+            },
+            "result_path": "research/s01b-20261108/results/a1_30bp/result.json"
+          },
+          "gross": {
+            "tag": "a1_gross",
+            "n_trades": 525,
+            "total_return": -0.4934,
+            "annual_return": -0.0918,
+            "max_drawdown": -0.7637,
+            "sharpe": -0.22,
+            "win_rate": 0.1546,
+            "avg_pnl": -0.0042,
+            "median_pnl": -0.08,
+            "avg_holding_days": 16.2,
+            "annual_turnover": 6.63,
+            "avg_exposure": 0.5673,
+            "exit_reason": {
+              "signal": 39,
+              "max_hold": 53,
+              "stop_loss": 432,
+              "end": 1
+            },
+            "result_path": "research/s01b-20261108/results/a1_gross/result.json"
+          }
+        },
+        "oos": {
+          "annual_return": -0.2297,
+          "max_drawdown": -0.7502,
+          "source": "REPORT.md §4.1（连续账户 equity 切片自算）"
+        },
+        "registered_name": "S01b_ma_cross_20_60_risk_exit",
+        "strategy_id_production": "custom_mw7fvp17（META.id；臂模板 s01b_a1/a2/a3/a4）",
+        "family": "趋势 · 双均线 20/60 金叉（S01b 风控退出变体）",
+        "pipeline": "生产路径：matrix_native 自算 + 引擎 basic_filter 股票池",
+        "caliber_label": "生产路径（matrix_native + 引擎 basic_filter 股票池），与研究侧 `S01_ma_cross_20_60@*`（研究管道，252 笔 / −32.09%）不是同一入场管道，不可跨管道比较",
+        "cross_pipeline_comparable": false,
+        "account": {
+          "initial_capital": 1000000.0,
+          "max_positions": 5,
+          "max_exposure_pct": 0.6,
+          "entry_price_basis": "raw",
+          "block_limit_open": true,
+          "finalize_open_at_end": true,
+          "commission_pct": 0.0003,
+          "stamp_tax_pct": 0.001,
+          "transfer_fee_pct": 2e-06,
+          "min_commission": 5.0,
+          "fill": "次日开盘撮合、等权",
+          "slippage_bps_by_scenario": {
+            "10bp": 10.0,
+            "30bp": 30.0,
+            "gross": 0.0
+          }
+        },
+        "window": "2019-07-01..2026-10-30（1,779 交易日）",
+        "oos_window": "2023-01-03..2026-10-30（段首权益=2022-12-30，IS_END=2022-12-30）",
+        "source": [
+          "research/s01b-20261108/REPORT.md §1/§4.1",
+          "research/s01b-20261108/PREREG_S01B_20261108.md",
+          "research/s01b-20261108/metrics.json",
+          "research/s01b-20261108/results/a1_10bp/result.json",
+          "research/s01b-20261108/results/a1_30bp/result.json",
+          "research/s01b-20261108/results/a1_gross/result.json"
+        ]
+      },
+      "S01b_ma_cross_20_60_risk_exit/stop_loss-8+ttp_10_8": {
+        "variant": "arm2",
+        "counted": true,
+        "n_trials": 1,
+        "params": {
+          "stop_loss": -0.08,
+          "trailing_take_profit": {
+            "activate": 0.1,
+            "drawdown": 0.08
+          },
+          "trailing_peak_price": "close",
+          "trailing_stop": null,
+          "max_hold_days": 60
+        },
+        "scenarios": {
+          "10bp": {
+            "tag": "a2_10bp",
+            "n_trades": 1126,
+            "total_return": -0.8548,
+            "annual_return": -0.2391,
+            "max_drawdown": -0.9058,
+            "sharpe": -0.99,
+            "win_rate": 0.3529,
+            "avg_pnl": -0.0139,
+            "median_pnl": -0.0824,
+            "avg_holding_days": 7.1,
+            "annual_turnover": 6.42,
+            "avg_exposure": 0.5194,
+            "exit_reason": {
+              "signal": 9,
+              "max_hold": 5,
+              "stop_loss": 718,
+              "trailing_take_profit": 393,
+              "end": 1
+            },
+            "result_path": "research/s01b-20261108/results/a2_10bp/result.json"
+          },
+          "30bp": {
+            "tag": "a2_30bp",
+            "n_trades": 1142,
+            "total_return": -0.8639,
+            "annual_return": -0.2461,
+            "max_drawdown": -0.9102,
+            "sharpe": -1.0,
+            "win_rate": 0.3518,
+            "avg_pnl": -0.0142,
+            "median_pnl": -0.0842,
+            "avg_holding_days": 7.0,
+            "annual_turnover": 5.88,
+            "avg_exposure": 0.5158,
+            "exit_reason": {
+              "signal": 8,
+              "max_hold": 5,
+              "stop_loss": 729,
+              "trailing_take_profit": 398,
+              "end": 2
+            },
+            "result_path": "research/s01b-20261108/results/a2_30bp/result.json"
+          },
+          "gross": {
+            "tag": "a2_gross",
+            "n_trades": 1134,
+            "total_return": -0.7755,
+            "annual_return": -0.1907,
+            "max_drawdown": -0.8697,
+            "sharpe": -0.73,
+            "win_rate": 0.3578,
+            "avg_pnl": -0.0103,
+            "median_pnl": -0.08,
+            "avg_holding_days": 7.1,
+            "annual_turnover": 7.35,
+            "avg_exposure": 0.5227,
+            "exit_reason": {
+              "signal": 8,
+              "max_hold": 4,
+              "stop_loss": 718,
+              "trailing_take_profit": 402,
+              "end": 2
+            },
+            "result_path": "research/s01b-20261108/results/a2_gross/result.json"
+          }
+        },
+        "oos": {
+          "annual_return": -0.1383,
+          "max_drawdown": -0.6504,
+          "source": "REPORT.md §4.1（连续账户 equity 切片自算）"
+        },
+        "related_control_not_counted": {
+          "tag": "a2h_10bp",
+          "what": "同配置但 trailing_peak_price=high（峰值口径对照）",
+          "n_trades": 1487,
+          "annual_return": -0.2372,
+          "reason": "峰值口径对照，不是独立参数配置，不计数"
+        },
+        "registered_name": "S01b_ma_cross_20_60_risk_exit",
+        "strategy_id_production": "custom_mw7fvp17（META.id；臂模板 s01b_a1/a2/a3/a4）",
+        "family": "趋势 · 双均线 20/60 金叉（S01b 风控退出变体）",
+        "pipeline": "生产路径：matrix_native 自算 + 引擎 basic_filter 股票池",
+        "caliber_label": "生产路径（matrix_native + 引擎 basic_filter 股票池），与研究侧 `S01_ma_cross_20_60@*`（研究管道，252 笔 / −32.09%）不是同一入场管道，不可跨管道比较",
+        "cross_pipeline_comparable": false,
+        "account": {
+          "initial_capital": 1000000.0,
+          "max_positions": 5,
+          "max_exposure_pct": 0.6,
+          "entry_price_basis": "raw",
+          "block_limit_open": true,
+          "finalize_open_at_end": true,
+          "commission_pct": 0.0003,
+          "stamp_tax_pct": 0.001,
+          "transfer_fee_pct": 2e-06,
+          "min_commission": 5.0,
+          "fill": "次日开盘撮合、等权",
+          "slippage_bps_by_scenario": {
+            "10bp": 10.0,
+            "30bp": 30.0,
+            "gross": 0.0
+          }
+        },
+        "window": "2019-07-01..2026-10-30（1,779 交易日）",
+        "oos_window": "2023-01-03..2026-10-30（段首权益=2022-12-30，IS_END=2022-12-30）",
+        "source": [
+          "research/s01b-20261108/REPORT.md §1/§4.1",
+          "research/s01b-20261108/PREREG_S01B_20261108.md",
+          "research/s01b-20261108/metrics.json",
+          "research/s01b-20261108/results/a2_10bp/result.json",
+          "research/s01b-20261108/results/a2_30bp/result.json",
+          "research/s01b-20261108/results/a2_gross/result.json"
+        ]
+      },
+      "S01b_ma_cross_20_60_risk_exit/stop_loss-8+ttp_10_8+hold45": {
+        "variant": "arm3",
+        "counted": true,
+        "n_trials": 1,
+        "params": {
+          "stop_loss": -0.08,
+          "trailing_take_profit": {
+            "activate": 0.1,
+            "drawdown": 0.08
+          },
+          "trailing_peak_price": "close",
+          "trailing_stop": null,
+          "max_hold_days": 45
+        },
+        "scenarios": {
+          "10bp": {
+            "tag": "a3_10bp",
+            "n_trades": 1135,
+            "total_return": -0.8611,
+            "annual_return": -0.2439,
+            "max_drawdown": -0.91,
+            "sharpe": -1.01,
+            "win_rate": 0.3483,
+            "avg_pnl": -0.0146,
+            "median_pnl": -0.0824,
+            "avg_holding_days": 7.1,
+            "annual_turnover": 6.32,
+            "avg_exposure": 0.5173,
+            "exit_reason": {
+              "signal": 9,
+              "max_hold": 12,
+              "stop_loss": 725,
+              "trailing_take_profit": 388,
+              "end": 1
+            },
+            "result_path": "research/s01b-20261108/results/a3_10bp/result.json"
+          },
+          "30bp": {
+            "tag": "a3_30bp",
+            "n_trades": 1158,
+            "total_return": -0.8734,
+            "annual_return": -0.2538,
+            "max_drawdown": -0.9142,
+            "sharpe": -1.03,
+            "win_rate": 0.3469,
+            "avg_pnl": -0.0143,
+            "median_pnl": -0.0842,
+            "avg_holding_days": 6.9,
+            "annual_turnover": 6.19,
+            "avg_exposure": 0.5151,
+            "exit_reason": {
+              "signal": 6,
+              "max_hold": 10,
+              "stop_loss": 742,
+              "trailing_take_profit": 398,
+              "end": 2
+            },
+            "result_path": "research/s01b-20261108/results/a3_30bp/result.json"
+          },
+          "gross": {
+            "tag": "a3_gross",
+            "n_trades": 1148,
+            "total_return": -0.803,
+            "annual_return": -0.2055,
+            "max_drawdown": -0.8736,
+            "sharpe": -0.81,
+            "win_rate": 0.3543,
+            "avg_pnl": -0.0111,
+            "median_pnl": -0.08,
+            "avg_holding_days": 7.0,
+            "annual_turnover": 7.18,
+            "avg_exposure": 0.5222,
+            "exit_reason": {
+              "signal": 8,
+              "max_hold": 12,
+              "stop_loss": 728,
+              "trailing_take_profit": 398,
+              "end": 2
+            },
+            "result_path": "research/s01b-20261108/results/a3_gross/result.json"
+          }
+        },
+        "oos": {
+          "annual_return": -0.1457,
+          "max_drawdown": -0.6622,
+          "source": "REPORT.md §4.1（连续账户 equity 切片自算）"
+        },
+        "reproduction_note": "生产策略文件自身重跑（prod_file_10bp）逐字段相同、trades 1,135×22 DataFrame.equals=True；该重跑为复现，不计数",
+        "registered_name": "S01b_ma_cross_20_60_risk_exit",
+        "strategy_id_production": "custom_mw7fvp17（META.id；臂模板 s01b_a1/a2/a3/a4）",
+        "family": "趋势 · 双均线 20/60 金叉（S01b 风控退出变体）",
+        "pipeline": "生产路径：matrix_native 自算 + 引擎 basic_filter 股票池",
+        "caliber_label": "生产路径（matrix_native + 引擎 basic_filter 股票池），与研究侧 `S01_ma_cross_20_60@*`（研究管道，252 笔 / −32.09%）不是同一入场管道，不可跨管道比较",
+        "cross_pipeline_comparable": false,
+        "account": {
+          "initial_capital": 1000000.0,
+          "max_positions": 5,
+          "max_exposure_pct": 0.6,
+          "entry_price_basis": "raw",
+          "block_limit_open": true,
+          "finalize_open_at_end": true,
+          "commission_pct": 0.0003,
+          "stamp_tax_pct": 0.001,
+          "transfer_fee_pct": 2e-06,
+          "min_commission": 5.0,
+          "fill": "次日开盘撮合、等权",
+          "slippage_bps_by_scenario": {
+            "10bp": 10.0,
+            "30bp": 30.0,
+            "gross": 0.0
+          }
+        },
+        "window": "2019-07-01..2026-10-30（1,779 交易日）",
+        "oos_window": "2023-01-03..2026-10-30（段首权益=2022-12-30，IS_END=2022-12-30）",
+        "source": [
+          "research/s01b-20261108/REPORT.md §1/§4.1",
+          "research/s01b-20261108/PREREG_S01B_20261108.md",
+          "research/s01b-20261108/metrics.json",
+          "research/s01b-20261108/results/a3_10bp/result.json",
+          "research/s01b-20261108/results/a3_30bp/result.json",
+          "research/s01b-20261108/results/a3_gross/result.json"
+        ]
+      },
+      "S01b_ma_cross_20_60_risk_exit/hold45_only": {
+        "variant": "a4",
+        "counted": true,
+        "n_trials": 1,
+        "params": {
+          "stop_loss": null,
+          "trailing_take_profit": null,
+          "trailing_stop": null,
+          "max_hold_days": 45
+        },
+        "scenarios": {
+          "10bp": {
+            "tag": "a4_10bp",
+            "n_trades": 238,
+            "total_return": -0.6833,
+            "annual_return": -0.1503,
+            "max_drawdown": -0.713,
+            "sharpe": -0.57,
+            "win_rate": 0.3433,
+            "avg_pnl": -0.0387,
+            "median_pnl": -0.1072,
+            "avg_holding_days": 37.4,
+            "annual_turnover": 2.41,
+            "avg_exposure": 0.5561,
+            "exit_reason": {
+              "signal": 125,
+              "max_hold": 108,
+              "end": 5
+            },
+            "result_path": "research/s01b-20261108/results/a4_10bp/result.json"
+          }
+        },
+        "missing_scenarios": {
+          "30bp": "未跑",
+          "gross": "未跑",
+          "reason": "a4 只作 F4「退回只做 45 天上限」的退路检验，只跑 10bp"
+        },
+        "oos": {
+          "annual_return": -0.1465,
+          "max_drawdown": -0.713,
+          "source": "REPORT.md §4.1（连续账户 equity 切片自算）"
+        },
+        "why_counted": "独立参数配置（MH45 单独变化、无任何风控出场）；其 -15.03% 已被用作验收结论里「F4 退路同样致命」的证据，不计即低估搜索",
+        "registered_name": "S01b_ma_cross_20_60_risk_exit",
+        "strategy_id_production": "custom_mw7fvp17（META.id；臂模板 s01b_a1/a2/a3/a4）",
+        "family": "趋势 · 双均线 20/60 金叉（S01b 风控退出变体）",
+        "pipeline": "生产路径：matrix_native 自算 + 引擎 basic_filter 股票池",
+        "caliber_label": "生产路径（matrix_native + 引擎 basic_filter 股票池），与研究侧 `S01_ma_cross_20_60@*`（研究管道，252 笔 / −32.09%）不是同一入场管道，不可跨管道比较",
+        "cross_pipeline_comparable": false,
+        "account": {
+          "initial_capital": 1000000.0,
+          "max_positions": 5,
+          "max_exposure_pct": 0.6,
+          "entry_price_basis": "raw",
+          "block_limit_open": true,
+          "finalize_open_at_end": true,
+          "commission_pct": 0.0003,
+          "stamp_tax_pct": 0.001,
+          "transfer_fee_pct": 2e-06,
+          "min_commission": 5.0,
+          "fill": "次日开盘撮合、等权",
+          "slippage_bps_by_scenario": {
+            "10bp": 10.0,
+            "30bp": 30.0,
+            "gross": 0.0
+          }
+        },
+        "window": "2019-07-01..2026-10-30（1,779 交易日）",
+        "oos_window": "2023-01-03..2026-10-30（段首权益=2022-12-30，IS_END=2022-12-30）",
+        "source": [
+          "research/s01b-20261108/REPORT.md §1/§4.1",
+          "research/s01b-20261108/PREREG_S01B_20261108.md",
+          "research/s01b-20261108/metrics.json",
+          "research/s01b-20261108/results/a4_10bp/result.json"
+        ]
+      }
+    }
   }
 }

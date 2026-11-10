@@ -1,0 +1,92 @@
+[
+ {
+  "a": "a0_10bp",
+  "b": "a0ev_10bp",
+  "rows_a": 199,
+  "rows_b": 199,
+  "same_row_count": true,
+  "exact_equal": true,
+  "diff_columns": {},
+  "exit_reason_a": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "signal",
+    "len": 136
+   }
+  ],
+  "exit_reason_b": [
+   {
+    "exit_reason": "end",
+    "len": 5
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 58
+   },
+   {
+    "exit_reason": "signal",
+    "len": 136
+   }
+  ]
+ },
+ {
+  "a": "a3_10bp",
+  "b": "a3ev_10bp",
+  "rows_a": 1135,
+  "rows_b": 1135,
+  "same_row_count": true,
+  "exact_equal": true,
+  "diff_columns": {},
+  "exit_reason_a": [
+   {
+    "exit_reason": "end",
+    "len": 1
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 12
+   },
+   {
+    "exit_reason": "signal",
+    "len": 9
+   },
+   {
+    "exit_reason": "stop_loss",
+    "len": 725
+   },
+   {
+    "exit_reason": "trailing_take_profit",
+    "len": 388
+   }
+  ],
+  "exit_reason_b": [
+   {
+    "exit_reason": "end",
+    "len": 1
+   },
+   {
+    "exit_reason": "max_hold",
+    "len": 12
+   },
+   {
+    "exit_reason": "signal",
+    "len": 9
+   },
+   {
+    "exit_reason": "stop_loss",
+    "len": 725
+   },
+   {
+    "exit_reason": "trailing_take_profit",
+    "len": 388
+   }
+  ]
+ }
+]

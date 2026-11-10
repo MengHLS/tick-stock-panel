@@ -1,0 +1,11 @@
+{
+  "trailing_peak_price": "close",
+  "entry_price_basis": "raw",
+  "block_limit_open": true,
+  "finalize_open_at_end": true,
+  "exit_signal_requires_profit": false,
+  "execution_costs": {
+    "min_commission": 5.0,
+    "transfer_fee_pct": 2e-06
+  }
+}

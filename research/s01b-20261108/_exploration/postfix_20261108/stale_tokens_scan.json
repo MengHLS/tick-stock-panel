@@ -1,0 +1,173 @@
+{
+ "root": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108",
+ "d_only_token_glossary": {
+  "485,293.78": "base_nodefaults_10bp / only_trailing_peak_price_close 末值（D）",
+  "485,420.69": "only_execution_costs 末值（D）",
+  "434,710.53": "only_entry_price_basis_raw 末值（D）",
+  "527,074.75": "base_nodefaults_gross 末值（D）",
+  "1,121,259.36": "only_block_limit_open 末值（D）",
+  "-51.47": "基线总收益 −51.47%（D）",
+  "−51.47": "基线总收益 −51.47%（D）",
+  "-51.46": "only_execution_costs 总收益 −51.46%（D）",
+  "−51.46": "only_execution_costs 总收益 −51.46%（D）",
+  "-56.53": "only_entry_price_basis_raw 总收益 −56.53%（D）",
+  "−56.53": "only_entry_price_basis_raw 总收益 −56.53%（D）",
+  "+12.13": "only_block_limit_open 总收益 +12.13%（D）",
+  "12.13%": "only_block_limit_open 总收益 +12.13%（D）",
+  "-9.73": "基线年化 −9.73%（D）",
+  "−9.73": "基线年化 −9.73%（D）",
+  "-71.95": "基线 MDD −71.95%（D）",
+  "−71.95": "基线 MDD −71.95%（D）",
+  "1,722.56": "Σpnl 与权益变动缺口（该缺口已由修复消除）"
+ },
+ "c_markers": [
+  "483,571",
+  "−51.64",
+  "-51.64",
+  "−56.70",
+  "-56.70",
+  "+11.78",
+  "11.78%"
+ ],
+ "files": {
+  "crossdown-event-20261108\\DECOMP_METHOD_20261108.md": {
+   "bytes": 13904,
+   "d_only_tokens": {
+    "485,293.78": 1,
+    "1,722.56": 5
+   },
+   "c_tokens": {
+    "483,571": 1
+   },
+   "classification": "D_C_COMPARE（同时有 C 值，属对照记录）"
+  },
+  "crossdown-event-20261108\\XCHECK_170B_20261108.md": {
+   "bytes": 28831,
+   "d_only_tokens": {
+    "485,293.78": 1,
+    "−51.47": 1
+   },
+   "c_tokens": {},
+   "classification": "D_ONLY_STALE（只写 D 值 ⇒ 作废）"
+  },
+  "five_a\\arms_table.md": {
+   "bytes": 1849,
+   "d_only_tokens": {
+    "485,293.78": 2,
+    "485,420.69": 1,
+    "434,710.53": 1,
+    "527,074.75": 1,
+    "1,121,259.36": 1,
+    "-51.47": 2,
+    "-51.46": 1,
+    "-56.53": 1,
+    "+12.13": 1,
+    "12.13%": 1,
+    "-9.73": 6,
+    "-71.95": 3
+   },
+   "c_tokens": {},
+   "classification": "D_ONLY_STALE（只写 D 值 ⇒ 作废）"
+  },
+  "five_a\\dual_arms_table.md": {
+   "bytes": 9341,
+   "d_only_tokens": {
+    "-51.47": 2,
+    "-51.46": 1,
+    "-56.53": 1,
+    "12.13%": 1,
+    "-9.73": 3,
+    "-71.95": 3
+   },
+   "c_tokens": {},
+   "classification": "D_ONLY_STALE（只写 D 值 ⇒ 作废）"
+  },
+  "five_a\\five_c_20261108\\diag1_table.md": {
+   "bytes": 4495,
+   "d_only_tokens": {
+    "1,722.56": 2
+   },
+   "c_tokens": {},
+   "classification": "D_ONLY_STALE（只写 D 值 ⇒ 作废）"
+  },
+  "five_a\\five_c_20261108\\diag3_table.md": {
+   "bytes": 1479,
+   "d_only_tokens": {
+    "485,293.78": 1
+   },
+   "c_tokens": {
+    "483,571": 3
+   },
+   "classification": "D_C_COMPARE（同时有 C 值，属对照记录）"
+  },
+  "five_a\\five_c_20261108\\REPORT_five_c_20261108.md": {
+   "bytes": 18680,
+   "d_only_tokens": {
+    "485,293.78": 5,
+    "-51.47": 1,
+    "-9.73": 1,
+    "1,722.56": 4
+   },
+   "c_tokens": {
+    "483,571": 6,
+    "-51.64": 1
+   },
+   "classification": "D_C_COMPARE（同时有 C 值，属对照记录）"
+  },
+  "five_a\\REPORT_five_a_20261108.md": {
+   "bytes": 13533,
+   "d_only_tokens": {
+    "485,293.78": 3,
+    "485,420.69": 1,
+    "434,710.53": 1,
+    "527,074.75": 2,
+    "1,121,259.36": 1,
+    "-51.47": 4,
+    "−51.47": 1,
+    "-51.46": 1,
+    "-56.53": 1,
+    "+12.13": 2,
+    "12.13%": 2,
+    "-9.73": 4,
+    "-71.95": 4
+   },
+   "c_tokens": {},
+   "classification": "D_ONLY_STALE（只写 D 值 ⇒ 作废）"
+  },
+  "postfix_20261108\\REPORT_postfix_20261108.md": {
+   "bytes": 8952,
+   "d_only_tokens": {
+    "485,293.78": 2,
+    "485,420.69": 1,
+    "434,710.53": 1,
+    "527,074.75": 1,
+    "1,121,259.36": 1,
+    "-51.47": 2,
+    "-51.46": 1,
+    "-56.53": 1,
+    "+12.13": 1,
+    "12.13%": 1,
+    "-9.73": 3,
+    "-71.95": 4
+   },
+   "c_tokens": {
+    "483,571": 4,
+    "-51.64": 2,
+    "-56.70": 1,
+    "+11.78": 1,
+    "11.78%": 1
+   },
+   "classification": "D_C_COMPARE（同时有 C 值，属对照记录）"
+  },
+  "xcheck-29-20261108\\XCHECK_29_TRADES_20261108.md": {
+   "bytes": 11351,
+   "d_only_tokens": {
+    "485,293.78": 2,
+    "−51.47": 3,
+    "1,722.56": 4
+   },
+   "c_tokens": {},
+   "classification": "D_ONLY_STALE（只写 D 值 ⇒ 作废）"
+  }
+ }
+}

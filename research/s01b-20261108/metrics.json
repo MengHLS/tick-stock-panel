@@ -1,0 +1,633 @@
+[
+ {
+  "label": "臂 0 基线（无风控出场）",
+  "tags": {
+   "10bp": "a0_10bp",
+   "30bp": "a0_30bp",
+   "gross": "a0_gross"
+  },
+  "10bp": {
+   "annual": 0.0313,
+   "total": 0.2427,
+   "mdd": -0.3927,
+   "sharpe": 0.25,
+   "n_trades": 199,
+   "win_rate": 0.3351,
+   "avg_pnl": 0.0131,
+   "median_pnl": -0.0964,
+   "avg_holding": 45.3,
+   "hold_p50": 48.0,
+   "hold_p90": 60.0,
+   "annual_turnover": 3.48,
+   "avg_exposure": 0.5715,
+   "max_exposure": 0.7313,
+   "exit_reason": {
+    "end": 5,
+    "max_hold": 58,
+    "signal": 136
+   },
+   "final_equity": 1242725.28,
+   "elapsed_s": 44.1,
+   "error": null
+  },
+  "30bp": {
+   "annual": 0.018,
+   "total": 0.1343,
+   "mdd": -0.4089,
+   "sharpe": 0.2,
+   "n_trades": 199,
+   "win_rate": 0.3299,
+   "avg_pnl": 0.009,
+   "median_pnl": -0.1,
+   "avg_holding": 45.3,
+   "hold_p50": 48.0,
+   "hold_p90": 60.0,
+   "annual_turnover": 3.33,
+   "avg_exposure": 0.5718,
+   "max_exposure": 0.7321,
+   "exit_reason": {
+    "end": 5,
+    "max_hold": 58,
+    "signal": 136
+   },
+   "final_equity": 1134266.2,
+   "elapsed_s": 13.4,
+   "error": null
+  },
+  "gross": {
+   "annual": 0.0421,
+   "total": 0.3382,
+   "mdd": -0.3802,
+   "sharpe": 0.29,
+   "n_trades": 199,
+   "win_rate": 0.3351,
+   "avg_pnl": 0.0167,
+   "median_pnl": -0.0932,
+   "avg_holding": 45.3,
+   "hold_p50": 48.0,
+   "hold_p90": 60.0,
+   "annual_turnover": 3.61,
+   "avg_exposure": 0.5711,
+   "max_exposure": 0.7322,
+   "exit_reason": {
+    "end": 5,
+    "max_hold": 58,
+    "signal": 136
+   },
+   "final_equity": 1338157.49,
+   "elapsed_s": 12.9,
+   "error": null
+  },
+  "oos_by_scen": {
+   "10bp": {
+    "oos_start_value": 1040990.1,
+    "oos_end_value": 1242725.28,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": 0.0473,
+    "oos_mdd": -0.2954,
+    "oos_sharpe_self": 0.296,
+    "oos_days": 925
+   },
+   "30bp": {
+    "oos_start_value": 1000646.57,
+    "oos_end_value": 1134266.2,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": 0.0332,
+    "oos_mdd": -0.3033,
+    "oos_sharpe_self": 0.244,
+    "oos_days": 925
+   },
+   "gross": {
+    "oos_start_value": 1074087.2,
+    "oos_end_value": 1338157.49,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": 0.059,
+    "oos_mdd": -0.2898,
+    "oos_sharpe_self": 0.338,
+    "oos_days": 925
+   }
+  },
+  "delay": {
+   "trades": 199,
+   "paired": 199,
+   "unpaired": 0,
+   "delayed": 0,
+   "advanced": 0,
+   "same_exit_date": 199,
+   "delayed_share_of_paired": 0.0,
+   "base_trades": 199
+  }
+ },
+ {
+  "label": "臂 1 + 止损 -8%",
+  "tags": {
+   "10bp": "a1_10bp",
+   "30bp": "a1_30bp",
+   "gross": "a1_gross"
+  },
+  "10bp": {
+   "annual": -0.1556,
+   "total": -0.6969,
+   "mdd": -0.8386,
+   "sharpe": -0.51,
+   "n_trades": 519,
+   "win_rate": 0.1509,
+   "avg_pnl": -0.0145,
+   "median_pnl": -0.0824,
+   "avg_holding": 16.4,
+   "hold_p50": 5.0,
+   "hold_p90": 59.0,
+   "annual_turnover": 5.39,
+   "avg_exposure": 0.5654,
+   "max_exposure": 0.6858,
+   "exit_reason": {
+    "end": 2,
+    "max_hold": 50,
+    "signal": 42,
+    "stop_loss": 425
+   },
+   "final_equity": 303058.96,
+   "elapsed_s": 12.5,
+   "error": null
+  },
+  "30bp": {
+   "annual": -0.1684,
+   "total": -0.728,
+   "mdd": -0.8271,
+   "sharpe": -0.55,
+   "n_trades": 521,
+   "win_rate": 0.1451,
+   "avg_pnl": -0.0189,
+   "median_pnl": -0.0842,
+   "avg_holding": 16.4,
+   "hold_p50": 5.0,
+   "hold_p90": 60.0,
+   "annual_turnover": 4.57,
+   "avg_exposure": 0.5651,
+   "max_exposure": 0.7069,
+   "exit_reason": {
+    "end": 4,
+    "max_hold": 52,
+    "signal": 40,
+    "stop_loss": 425
+   },
+   "final_equity": 271957.64,
+   "elapsed_s": 12.8,
+   "error": null
+  },
+  "gross": {
+   "annual": -0.0918,
+   "total": -0.4934,
+   "mdd": -0.7637,
+   "sharpe": -0.22,
+   "n_trades": 525,
+   "win_rate": 0.1546,
+   "avg_pnl": -0.0042,
+   "median_pnl": -0.08,
+   "avg_holding": 16.2,
+   "hold_p50": 5.0,
+   "hold_p90": 60.0,
+   "annual_turnover": 6.63,
+   "avg_exposure": 0.5673,
+   "max_exposure": 0.6978,
+   "exit_reason": {
+    "end": 1,
+    "max_hold": 53,
+    "signal": 39,
+    "stop_loss": 432
+   },
+   "final_equity": 506571.51,
+   "elapsed_s": 12.9,
+   "error": null
+  },
+  "oos_by_scen": {
+   "10bp": {
+    "oos_start_value": 824056.69,
+    "oos_end_value": 303058.96,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.2297,
+    "oos_mdd": -0.7502,
+    "oos_sharpe_self": -0.87,
+    "oos_days": 925
+   },
+   "30bp": {
+    "oos_start_value": 596864.62,
+    "oos_end_value": 271957.64,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1854,
+    "oos_mdd": -0.7071,
+    "oos_sharpe_self": -0.616,
+    "oos_days": 925
+   },
+   "gross": {
+    "oos_start_value": 1031787.9,
+    "oos_end_value": 506571.51,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1694,
+    "oos_mdd": -0.6772,
+    "oos_sharpe_self": -0.561,
+    "oos_days": 925
+   }
+  },
+  "delay": {
+   "trades": 519,
+   "paired": 63,
+   "unpaired": 456,
+   "delayed": 0,
+   "advanced": 48,
+   "same_exit_date": 15,
+   "delayed_share_of_paired": 0.0,
+   "base_trades": 199
+  }
+ },
+ {
+  "label": "臂 2 + 止损 + 移动止盈 10/8",
+  "tags": {
+   "10bp": "a2_10bp",
+   "30bp": "a2_30bp",
+   "gross": "a2_gross"
+  },
+  "10bp": {
+   "annual": -0.2391,
+   "total": -0.8548,
+   "mdd": -0.9058,
+   "sharpe": -0.99,
+   "n_trades": 1126,
+   "win_rate": 0.3529,
+   "avg_pnl": -0.0139,
+   "median_pnl": -0.0824,
+   "avg_holding": 7.1,
+   "hold_p50": 4.0,
+   "hold_p90": 18.0,
+   "annual_turnover": 6.42,
+   "avg_exposure": 0.5194,
+   "max_exposure": 0.6736,
+   "exit_reason": {
+    "end": 1,
+    "max_hold": 5,
+    "signal": 9,
+    "stop_loss": 718,
+    "trailing_take_profit": 393
+   },
+   "final_equity": 145240.48,
+   "elapsed_s": 12.6,
+   "error": null
+  },
+  "30bp": {
+   "annual": -0.2461,
+   "total": -0.8639,
+   "mdd": -0.9102,
+   "sharpe": -1.0,
+   "n_trades": 1142,
+   "win_rate": 0.3518,
+   "avg_pnl": -0.0142,
+   "median_pnl": -0.0842,
+   "avg_holding": 7.0,
+   "hold_p50": 3.0,
+   "hold_p90": 18.0,
+   "annual_turnover": 5.88,
+   "avg_exposure": 0.5158,
+   "max_exposure": 0.6745,
+   "exit_reason": {
+    "end": 2,
+    "max_hold": 5,
+    "signal": 8,
+    "stop_loss": 729,
+    "trailing_take_profit": 398
+   },
+   "final_equity": 136065.43,
+   "elapsed_s": 13.2,
+   "error": null
+  },
+  "gross": {
+   "annual": -0.1907,
+   "total": -0.7755,
+   "mdd": -0.8697,
+   "sharpe": -0.73,
+   "n_trades": 1134,
+   "win_rate": 0.3578,
+   "avg_pnl": -0.0103,
+   "median_pnl": -0.08,
+   "avg_holding": 7.1,
+   "hold_p50": 3.0,
+   "hold_p90": 18.0,
+   "annual_turnover": 7.35,
+   "avg_exposure": 0.5227,
+   "max_exposure": 0.6878,
+   "exit_reason": {
+    "end": 2,
+    "max_hold": 4,
+    "signal": 8,
+    "stop_loss": 718,
+    "trailing_take_profit": 402
+   },
+   "final_equity": 224488.38,
+   "elapsed_s": 12.8,
+   "error": null
+  },
+  "oos_by_scen": {
+   "10bp": {
+    "oos_start_value": 256930.24,
+    "oos_end_value": 145240.48,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1383,
+    "oos_mdd": -0.6504,
+    "oos_sharpe_self": -0.456,
+    "oos_days": 925
+   },
+   "30bp": {
+    "oos_start_value": 212766.75,
+    "oos_end_value": 136065.43,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1101,
+    "oos_mdd": -0.6056,
+    "oos_sharpe_self": -0.305,
+    "oos_days": 925
+   },
+   "gross": {
+    "oos_start_value": 294467.31,
+    "oos_end_value": 224488.38,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.0683,
+    "oos_mdd": -0.5808,
+    "oos_sharpe_self": -0.143,
+    "oos_days": 925
+   }
+  },
+  "delay": {
+   "trades": 1126,
+   "paired": 101,
+   "unpaired": 1025,
+   "delayed": 0,
+   "advanced": 99,
+   "same_exit_date": 2,
+   "delayed_share_of_paired": 0.0,
+   "base_trades": 199
+  }
+ },
+ {
+  "label": "臂 3 + 上路 + 最长持有 45",
+  "tags": {
+   "10bp": "a3_10bp",
+   "30bp": "a3_30bp",
+   "gross": "a3_gross"
+  },
+  "10bp": {
+   "annual": -0.2439,
+   "total": -0.8611,
+   "mdd": -0.91,
+   "sharpe": -1.01,
+   "n_trades": 1135,
+   "win_rate": 0.3483,
+   "avg_pnl": -0.0146,
+   "median_pnl": -0.0824,
+   "avg_holding": 7.1,
+   "hold_p50": 3.0,
+   "hold_p90": 18.0,
+   "annual_turnover": 6.32,
+   "avg_exposure": 0.5173,
+   "max_exposure": 0.6842,
+   "exit_reason": {
+    "end": 1,
+    "max_hold": 12,
+    "signal": 9,
+    "stop_loss": 725,
+    "trailing_take_profit": 388
+   },
+   "final_equity": 138893.51,
+   "elapsed_s": 12.5,
+   "error": null
+  },
+  "30bp": {
+   "annual": -0.2538,
+   "total": -0.8734,
+   "mdd": -0.9142,
+   "sharpe": -1.03,
+   "n_trades": 1158,
+   "win_rate": 0.3469,
+   "avg_pnl": -0.0143,
+   "median_pnl": -0.0842,
+   "avg_holding": 6.9,
+   "hold_p50": 3.0,
+   "hold_p90": 18.0,
+   "annual_turnover": 6.19,
+   "avg_exposure": 0.5151,
+   "max_exposure": 0.6762,
+   "exit_reason": {
+    "end": 2,
+    "max_hold": 10,
+    "signal": 6,
+    "stop_loss": 742,
+    "trailing_take_profit": 398
+   },
+   "final_equity": 126615.45,
+   "elapsed_s": 12.9,
+   "error": null
+  },
+  "gross": {
+   "annual": -0.2055,
+   "total": -0.803,
+   "mdd": -0.8736,
+   "sharpe": -0.81,
+   "n_trades": 1148,
+   "win_rate": 0.3543,
+   "avg_pnl": -0.0111,
+   "median_pnl": -0.08,
+   "avg_holding": 7.0,
+   "hold_p50": 3.0,
+   "hold_p90": 18.0,
+   "annual_turnover": 7.18,
+   "avg_exposure": 0.5222,
+   "max_exposure": 0.6772,
+   "exit_reason": {
+    "end": 2,
+    "max_hold": 12,
+    "signal": 8,
+    "stop_loss": 728,
+    "trailing_take_profit": 398
+   },
+   "final_equity": 197023.43,
+   "elapsed_s": 12.6,
+   "error": null
+  },
+  "oos_by_scen": {
+   "10bp": {
+    "oos_start_value": 253959.44,
+    "oos_end_value": 138893.51,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe_self": -0.483,
+    "oos_days": 925
+   },
+   "30bp": {
+    "oos_start_value": 231454.07,
+    "oos_end_value": 126615.45,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1456,
+    "oos_mdd": -0.6523,
+    "oos_sharpe_self": -0.46,
+    "oos_days": 925
+   },
+   "gross": {
+    "oos_start_value": 284904.68,
+    "oos_end_value": 197023.43,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.0917,
+    "oos_mdd": -0.5802,
+    "oos_sharpe_self": -0.245,
+    "oos_days": 925
+   }
+  },
+  "delay": {
+   "trades": 1135,
+   "paired": 103,
+   "unpaired": 1032,
+   "delayed": 0,
+   "advanced": 102,
+   "same_exit_date": 1,
+   "delayed_share_of_paired": 0.0,
+   "base_trades": 199
+  }
+ },
+ {
+  "label": "对照 臂2 peak=high",
+  "tags": {
+   "10bp": "a2h_10bp",
+   "30bp": "a2h_30bp",
+   "gross": "a2h_gross"
+  },
+  "10bp": {
+   "annual": -0.2372,
+   "total": -0.8522,
+   "mdd": -0.9064,
+   "sharpe": -1.03,
+   "n_trades": 1487,
+   "win_rate": 0.4206,
+   "avg_pnl": -0.0097,
+   "median_pnl": -0.0824,
+   "avg_holding": 5.3,
+   "hold_p50": 3.0,
+   "hold_p90": 13.0,
+   "annual_turnover": 10.91,
+   "avg_exposure": 0.5116,
+   "max_exposure": 0.6531,
+   "exit_reason": {
+    "end": 1,
+    "max_hold": 3,
+    "signal": 16,
+    "stop_loss": 776,
+    "trailing_take_profit": 691
+   },
+   "final_equity": 147821.5,
+   "elapsed_s": 13.7,
+   "error": null
+  },
+  "30bp": null,
+  "gross": null,
+  "oos_by_scen": {
+   "10bp": {
+    "oos_start_value": 351518.89,
+    "oos_end_value": 147821.5,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.2023,
+    "oos_mdd": -0.7338,
+    "oos_sharpe_self": -0.854,
+    "oos_days": 925
+   }
+  },
+  "delay": {
+   "trades": 1487,
+   "paired": 117,
+   "unpaired": 1370,
+   "delayed": 0,
+   "advanced": 116,
+   "same_exit_date": 1,
+   "delayed_share_of_paired": 0.0,
+   "base_trades": 199
+  }
+ },
+ {
+  "label": "附加 只改 MAX_HOLD_DAYS=45",
+  "tags": {
+   "10bp": "a4_10bp",
+   "30bp": "a4_30bp",
+   "gross": "a4_gross"
+  },
+  "10bp": {
+   "annual": -0.1503,
+   "total": -0.6833,
+   "mdd": -0.713,
+   "sharpe": -0.57,
+   "n_trades": 238,
+   "win_rate": 0.3433,
+   "avg_pnl": -0.0387,
+   "median_pnl": -0.1072,
+   "avg_holding": 37.4,
+   "hold_p50": 44.0,
+   "hold_p90": 45.0,
+   "annual_turnover": 2.41,
+   "avg_exposure": 0.5561,
+   "max_exposure": 0.6573,
+   "exit_reason": {
+    "end": 5,
+    "max_hold": 108,
+    "signal": 125
+   },
+   "final_equity": 316665.8,
+   "elapsed_s": 12.6,
+   "error": null
+  },
+  "30bp": null,
+  "gross": null,
+  "oos_by_scen": {
+   "10bp": {
+    "oos_start_value": 581151.68,
+    "oos_end_value": 316665.8,
+    "oos_first_date": "2023-01-03",
+    "oos_last_date": "2026-10-30",
+    "oos_years": 3.833,
+    "oos_annual": -0.1465,
+    "oos_mdd": -0.5728,
+    "oos_sharpe_self": -0.552,
+    "oos_days": 925
+   }
+  },
+  "delay": {
+   "trades": 238,
+   "paired": 46,
+   "unpaired": 192,
+   "delayed": 0,
+   "advanced": 26,
+   "same_exit_date": 20,
+   "delayed_share_of_paired": 0.0,
+   "base_trades": 199
+  }
+ }
+]

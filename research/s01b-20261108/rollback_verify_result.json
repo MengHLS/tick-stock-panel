@@ -1,0 +1,194 @@
+{
+ "prod_file": {
+  "path": "D:\\TSP\\data\\strategies\\custom\\custom_mw7fvp17.py",
+  "size": 3449,
+  "sha256": "61c237c6cdb2a4391524c48982cd7529606f1ce9d6dabf235527ff702f94b2dd",
+  "sha256_bak": "61c237c6cdb2a4391524c48982cd7529606f1ce9d6dabf235527ff702f94b2dd",
+  "bytes_equal": true
+ },
+ "list_strategies_include_research_false": {
+  "count": 5,
+  "ids": [
+   "custom_factor_first_board_chain_strict_rebreak",
+   "custom_khunter_limit_up_pullback",
+   "custom_mvoa5yy6",
+   "custom_mw7fvp17",
+   "first_limit_pullback_3f_runner_t74"
+  ],
+  "names": {
+   "custom_factor_first_board_chain_strict_rebreak": "事件链首次收盘突破排名策略",
+   "custom_khunter_limit_up_pullback": "涨停回马枪",
+   "custom_mvoa5yy6": "首板前次结构 + 当前确认方式",
+   "custom_mw7fvp17": "双均线 20/60 金叉",
+   "first_limit_pullback_3f_runner_t74": "首板3F回踩 · T74 Runner"
+  },
+  "tags": {
+   "custom_factor_first_board_chain_strict_rebreak": [
+    "factor",
+    "auto-generated"
+   ],
+   "custom_khunter_limit_up_pullback": [
+    "涨停",
+    "回调",
+    "回马枪",
+    "实验"
+   ],
+   "custom_mvoa5yy6": [
+    "自定义",
+    "矩阵",
+    "均线",
+    "量比",
+    "乖离率",
+    "相对位置",
+    "高开过滤"
+   ],
+   "custom_mw7fvp17": [
+    "趋势",
+    "双均线",
+    "S01"
+   ],
+   "first_limit_pullback_3f_runner_t74": [
+    "首板",
+    "回踩",
+    "3F",
+    "T74",
+    "实验"
+   ]
+  },
+  "backtest_defaults": {
+   "custom_factor_first_board_chain_strict_rebreak": null,
+   "custom_khunter_limit_up_pullback": {
+    "schema_version": 1,
+    "entry_fill": "open_t+1",
+    "exit_fill": "open_t+1",
+    "position_sizing": "score_tier",
+    "score_tiers": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.55,
+      0.2
+     ],
+     [
+      0.72,
+      0.25
+     ]
+    ],
+    "plan_at_signal_close": true
+   },
+   "custom_mvoa5yy6": null,
+   "custom_mw7fvp17": null,
+   "first_limit_pullback_3f_runner_t74": {
+    "schema_version": 1,
+    "initial_capital": 100000,
+    "max_positions": 5,
+    "max_exposure_pct": 1.0,
+    "commission_pct": 0.00025,
+    "stamp_tax_pct": 0.0005,
+    "slippage_bps": 5.0,
+    "mode": "position",
+    "entry_fill": "open_t+1",
+    "exit_fill": "open_t+1",
+    "holding_days": 74,
+    "position_sizing": "score_tier",
+    "score_tiers": [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      0.55,
+      0.2
+     ],
+     [
+      0.7166666666666667,
+      0.25
+     ]
+    ],
+    "entry_open_gap_range": [
+     -0.04,
+     0.04
+    ],
+    "entry_prev_day_change_range": [
+     -0.05,
+     0.05
+    ],
+    "trailing_peak_price": "close",
+    "exit_signal_requires_profit": true,
+    "plan_at_signal_close": true,
+    "max_daily_entries": 2,
+    "entry_price_basis": "raw",
+    "block_limit_open": true,
+    "allow_same_asset_positions": true,
+    "finalize_open_at_end": true,
+    "execution_costs": {
+     "min_commission": 5.0,
+     "transfer_fee_pct": 1e-05,
+     "buy_slippage_tiers": [
+      [
+       100000000.0,
+       20.0
+      ],
+      [
+       500000000.0,
+       10.0
+      ],
+      [
+       2000000000.0,
+       5.0
+      ]
+     ]
+    },
+    "hold_extension": {
+     "decision_days": 5,
+     "strong_hold_days": 10,
+     "strong_hold_min_return": 0.03,
+     "runner_new_high_days": 3,
+     "runner_extend_days": 74
+    }
+   }
+  }
+ },
+ "target_meta": {
+  "name": "双均线 20/60 金叉",
+  "tags": [
+   "趋势",
+   "双均线",
+   "S01"
+  ],
+  "backtest_defaults": {},
+  "has_variant_keys": []
+ },
+ "engine_loaded_ids": [
+  "ai_26a1525f69",
+  "ai_75a67366",
+  "ai_b8183b64",
+  "custom_factor_first_board_chain_strict_rebreak",
+  "custom_khunter_limit_up_pullback",
+  "custom_mvoa5yy6",
+  "custom_mw7fvp17",
+  "factor_rank_research",
+  "first_board_chain_rebreak",
+  "first_limit_pullback_3f_runner_t74"
+ ],
+ "engine_loaded_count": 10,
+ "load_errors": [],
+ "checks": {
+  "prod_size_3449": true,
+  "prod_sha_61c237c6": true,
+  "prod_bytes_equal_bak": true,
+  "list_count_5": true,
+  "target_present": true,
+  "name_equals_baseline": true,
+  "name_no_S01b": true,
+  "tags_equals_baseline": true,
+  "tags_no_S01b": true,
+  "backtest_defaults_absent": true,
+  "item_json_no_variant_key": true,
+  "loaded_10": true,
+  "load_errors_0": true
+ },
+ "all_checks_pass": true
+}

@@ -1,0 +1,27 @@
+{
+ "entry_price": {
+  "n_diff": 0
+ },
+ "exit_date": {
+  "n_diff": 0
+ },
+ "exit_price": {
+  "n_diff": 0
+ },
+ "pnl_pct": {
+  "n_diff": 3
+ },
+ "pnl_amount": {
+  "n_diff": 3
+ },
+ "duration": {
+  "n_diff": 0
+ },
+ "exit_reason": {
+  "n_diff": 0
+ },
+ "shares": {
+  "n_diff": 1
+ },
+ "rows": 3
+}

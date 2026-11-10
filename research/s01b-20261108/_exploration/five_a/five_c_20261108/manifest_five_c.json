@@ -1,0 +1,78 @@
+{
+ "diag1_end_gap.py": {
+  "bytes": 16787,
+  "sha256": "563fe26b0d14c104a8cad36ea50b13607ba952d9251c32b6e64d7395c8078190"
+ },
+ "diag1_result.json": {
+  "bytes": 16990,
+  "sha256": "8f1ca647d751e06fa099f9b40f460ad1f067cd7e3a730be4d29086969fd700e0"
+ },
+ "diag1_table.md": {
+  "bytes": 4495,
+  "sha256": "bf0092b7c0e1904031ca470dff86fa93eee145d463591ea0d506bf99e8e56473"
+ },
+ "diag1_stdout.txt": {
+  "bytes": 1517,
+  "sha256": "565a7b0dbab2373db46d6a58a7ba778c7edf4b9eadbf6350d4f34f2b296da6cd"
+ },
+ "diag2_price_basis.py": {
+  "bytes": 10425,
+  "sha256": "6080dff3ff0f37a9f41e9effb14abf87c3befb0086363752e8b70f2669ad07d3"
+ },
+ "diag2_result.json": {
+  "bytes": 2224,
+  "sha256": "14a89a5aa62538c313ea9c26e0c4305e74ef28f8f0cf29d8479b931fcc32e3d6"
+ },
+ "diag2_table.md": {
+  "bytes": 2744,
+  "sha256": "d044264c6e38b520babfdcee99ea5da5ae7372a3026a2939c1d3f7c1ae9f3d57"
+ },
+ "diag3_reconcile.py": {
+  "bytes": 10794,
+  "sha256": "257fdc21ebc8d6e7d0f6f5d90cd9878b1b8143d4ecd2920c4c7c7ff85b523b28"
+ },
+ "diag3_result.json": {
+  "bytes": 2739,
+  "sha256": "6df45b581d124c4d4ead8ac90a5b1f18fa8072bab76bcb55f44ba0daab0c9040"
+ },
+ "diag3_table.md": {
+  "bytes": 1479,
+  "sha256": "04e8c6b5b808107dd89c79c245a23aebdd6088b80e3f2dc0dab0a32d7c05c8f1"
+ },
+ "diag3_stdout.txt": {
+  "bytes": 2741,
+  "sha256": "c57ec53f31b85825a1e603119ddec0ec1c2b5b5470250f41ac591a5f8017f49a"
+ },
+ "verify_five_c.py": {
+  "bytes": 12870,
+  "sha256": "c137c9cf3398e26274e8bbdb0cd94aa680015688fda26faa08d827941fcabdcc"
+ },
+ "verify_five_c_result.txt": {
+  "bytes": 6297,
+  "sha256": "ac695429d49c518f8d5302eda25d3b9b2f6e8dc157805881df0136ced7d7de3e"
+ },
+ "gen_report.py": {
+  "bytes": 21168,
+  "sha256": "18a67d5dfe84ce21355e1d07a86730c8383a09d57fea3ede7ac27aa71c87a6da"
+ },
+ "price_20261030.csv": {
+  "bytes": 684,
+  "sha256": "e711cb810d9fa5d8a10b70721bbfbdb6db917ebb7885780e74f64a9bd2281dda"
+ },
+ "diag_end_position.py": {
+  "bytes": 5495,
+  "sha256": "d74e7032fc012b69fbaf8beb183bcc0ec105fa84fcd2a05d890ab7e904d1dbde"
+ },
+ "trace_end_position.json": {
+  "bytes": 207627,
+  "sha256": "899787c6ad54f177eb812af5a3f913ef049f5aa2013a01aaa4ddc6404becb9e7"
+ },
+ "trace_run.log": {
+  "bytes": 936,
+  "sha256": "3e81ac1cc7a05db4a915f0be7ee324b4aa9c06b4052bf83d99d159c33f7f0611"
+ },
+ "REPORT_five_c_20261108.md": {
+  "bytes": 18680,
+  "sha256": "628ea960f41f279dc407a0926d25efbcf26f4da5d973d56e543a9cc2f73dc23a"
+ }
+}

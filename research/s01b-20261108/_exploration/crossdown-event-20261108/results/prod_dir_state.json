@@ -1,0 +1,65 @@
+{
+ "dir": "D:\\TSP\\data\\strategies\\custom",
+ "files": [
+  {
+   "name": ".seeded_v1",
+   "size": 24,
+   "sha256": "85d51c292ad2b4eb47a5bcf35696794cf21c9c3f2f307c365ccd6e10aab5d1c0",
+   "mtime": "2026-10-26 03:23:04.224103"
+  },
+  {
+   "name": "__pycache__/",
+   "type": "dir"
+  },
+  {
+   "name": "custom_factor_first_board_chain_strict_rebreak.py",
+   "size": 1394,
+   "sha256": "7fc46deb96b14f6c84aa172969471277007cc8a8398e43b024f446f18781d8cc",
+   "mtime": "2026-10-26 21:30:48.591946"
+  },
+  {
+   "name": "custom_khunter_limit_up_pullback.py",
+   "size": 12122,
+   "sha256": "684f5e82a7eff380ce58cd4d927aa80e925726f5f8170b4f57a2bc464ce3a4e5",
+   "mtime": "2026-11-06 12:00:42.555046"
+  },
+  {
+   "name": "custom_mvoa5yy6.py",
+   "size": 10741,
+   "sha256": "36b6bf61829d6fbd71cd48df7ea82dbab1c470c01c683fb76eb2f512fbc79be2",
+   "mtime": "2026-10-26 21:17:25.339164"
+  },
+  {
+   "name": "custom_mvoa5yy6.py.bak-20261026-gap-filter",
+   "size": 10578,
+   "sha256": "c03c962cad5aa4b0ea654f49b256f5d9b5f05ed4ddd2fda903c3f10e20669b63",
+   "mtime": "2026-10-26 18:26:36.375712"
+  },
+  {
+   "name": "custom_mw7fvp17.py",
+   "size": 3478,
+   "sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07",
+   "mtime": "2026-11-08 18:11:03.811701"
+  },
+  {
+   "name": "custom_mw7fvp17.py.bak_20261108",
+   "size": 3449,
+   "sha256": "61c237c6cdb2a4391524c48982cd7529606f1ce9d6dabf235527ff702f94b2dd",
+   "mtime": "2026-11-08 14:19:54.632616"
+  },
+  {
+   "name": "custom_mw7fvp17.py.bak_crossdown_20261108",
+   "size": 3449,
+   "sha256": "61c237c6cdb2a4391524c48982cd7529606f1ce9d6dabf235527ff702f94b2dd",
+   "mtime": "2026-11-08 18:08:34.070246"
+  }
+ ],
+ "checks": {
+  "prod_size_3478": true,
+  "prod_sha_85ae72a5": true,
+  "bak_20261108_untouched": true,
+  "bak_crossdown_is_prepatch": true,
+  "no_intermediate_files": true
+ },
+ "VERDICT": "OK"
+}

@@ -1,0 +1,104 @@
+{
+ "inputs": {
+  "base_trades": "s01b-20261108\\five_a\\base_nodefaults_10bp\\trades.parquet",
+  "a0_trades": "s01b-20261108\\results\\a0_10bp\\trades.parquet"
+ },
+ "A_cash_recon": {
+  "prev_date": "2026-10-29",
+  "prev_cash": 245373.34,
+  "last_date": "2026-10-30",
+  "last_cash": 461641.78,
+  "cash_delta": 216268.44,
+  "n_sells_last_day": 5,
+  "in_loop_symbols": [
+   "301513.SZ",
+   "601858.SH",
+   "301313.SZ",
+   "301428.SZ"
+  ],
+  "in_loop_exit_value_sum": 216268.43,
+  "in_loop_match": true,
+  "deferred_symbol": "688143.SH",
+  "deferred_exit_value": 21929.45,
+  "finalize_cash": 483571.23
+ },
+ "B_mark_to_close": {
+  "shares": {
+   "301513.SZ": 900.0,
+   "601858.SH": 2300.0,
+   "301313.SZ": 1100.0,
+   "301428.SZ": 1400.0,
+   "688143.SH": 200.0
+  },
+  "close": {
+   "301513.SZ": 44.38,
+   "601858.SH": 20.13,
+   "301313.SZ": 59.6,
+   "301428.SZ": 40.99,
+   "688143.SH": 118.26
+  },
+  "mark_items": {
+   "301513.SZ": 39942.0,
+   "601858.SH": 46299.0,
+   "301313.SZ": 65560.0,
+   "301428.SZ": 57386.0,
+   "688143.SH": 23652.0
+  },
+  "mark_total": 232839.0,
+  "mark_equity": 478212.34,
+  "finalize_arm_last_value": 478212.34,
+  "equals_finalize_arm": true
+ },
+ "C_full_liquidation": {
+  "cash_last_row": 461641.78,
+  "plus_deferred_exit_value": 483571.23,
+  "closed_form_cash": 483571.12,
+  "diff": 0.11
+ },
+ "D_reported": {
+  "reported_equity": 485293.78,
+  "mark_equity": 478212.34,
+  "full_liq_equity": 483571.23,
+  "diff_vs_mark": 7081.44,
+  "diff_vs_full_liq": 1722.55,
+  "is_mixed": true
+ },
+ "E_basis_attribution": {
+  "base_resolved_entry_price_basis": "adjusted",
+  "base_resolved_execution_costs": null,
+  "raw_arm_resolved_entry_price_basis": "raw",
+  "raw_arm_resolved_execution_costs": null,
+  "n_keys_a0_vs_raw": 102,
+  "n_entry_ratio_1p001_a0_vs_raw": 102,
+  "ratio_a0_vs_raw_min": 1.0009885057471266,
+  "ratio_a0_vs_raw_max": 1.0010162601626016,
+  "n_keys_a0_vs_base": 111,
+  "n_ratio_times_adj_over_raw_eq_1p001": 109,
+  "n_exceptions": 2,
+  "exceptions": [
+   {
+    "symbol": "300530.SZ",
+    "entry_date": "2020-03-25",
+    "exit_date": "2020-06-23",
+    "entry_price_raw": 39.8,
+    "entry_price_adj": 25.651241134751775,
+    "entry_price_base": 25.6512,
+    "entry_price_a0": 26.5599,
+    "expected_a0_if_raw_x_1p001": 39.84
+   },
+   {
+    "symbol": "920262.BJ",
+    "entry_date": "2025-04-15",
+    "exit_date": "2025-07-14",
+    "entry_price_raw": 35.0,
+    "entry_price_adj": 22.25087240667342,
+    "entry_price_base": 22.2509,
+    "entry_price_a0": 26.95,
+    "expected_a0_if_raw_x_1p001": 35.03
+   }
+  ],
+  "q_min": 0.6673352410040292,
+  "q_median": 1.0009998233527646,
+  "q_max": 1.0010162601626016
+ }
+}

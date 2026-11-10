@@ -1,0 +1,119 @@
+{
+ "research_only_by_prod_signal": [
+  {
+   "prod_signal": true,
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "research_only_by_in_prod_pool_price": [
+  {
+   "in_prod_pool_price": true,
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "research_only_by_prod_open_positions": [
+  {
+   "prod_open_positions": 5,
+   "n": 235,
+   "pnl_sum": -502958.08,
+   "avg_pnl_pct": -0.017972,
+   "win": 0.2936
+  },
+  {
+   "prod_open_positions": 6,
+   "n": 11,
+   "pnl_sum": 90450.59,
+   "avg_pnl_pct": 0.061663,
+   "win": 0.4545
+  },
+  {
+   "prod_open_positions": 0,
+   "n": 3,
+   "pnl_sum": -39307.5,
+   "avg_pnl_pct": -0.109382,
+   "win": 0.0
+  }
+ ],
+ "research_only_by_board": [
+  {
+   "board": "主板",
+   "n": 249,
+   "pnl_sum": -451814.99,
+   "avg_pnl_pct": -0.015556,
+   "win": 0.2972
+  }
+ ],
+ "prod_only_by_res_open_positions": [
+  {
+   "res_open_positions": 5,
+   "n": 174,
+   "pnl_sum": 222223.71,
+   "avg_pnl_pct": 0.010941,
+   "win": 0.3218
+  },
+  {
+   "res_open_positions": 6,
+   "n": 15,
+   "pnl_sum": 93982.96,
+   "avg_pnl_pct": 0.037925,
+   "win": 0.4
+  },
+  {
+   "res_open_positions": 0,
+   "n": 3,
+   "pnl_sum": -85136.68,
+   "avg_pnl_pct": -0.238521,
+   "win": 0.0
+  },
+  {
+   "res_open_positions": 7,
+   "n": 2,
+   "pnl_sum": -29806.14,
+   "avg_pnl_pct": -0.107498,
+   "win": 0.5
+  },
+  {
+   "res_open_positions": 3,
+   "n": 1,
+   "pnl_sum": 0.0,
+   "avg_pnl_pct": 0.0,
+   "win": 0.0
+  },
+  {
+   "res_open_positions": 4,
+   "n": 1,
+   "pnl_sum": 0.0,
+   "avg_pnl_pct": 0.0,
+   "win": 0.0
+  }
+ ],
+ "prod_only_by_res_buys_on_sig_date": [
+  {
+   "res_buys_on_sig_date": 0,
+   "n": 175,
+   "pnl_sum": -36992.94,
+   "avg_pnl_pct": 0.000548,
+   "win": 0.3086
+  },
+  {
+   "res_buys_on_sig_date": 1,
+   "n": 19,
+   "pnl_sum": 268062.93,
+   "avg_pnl_pct": 0.087424,
+   "win": 0.4211
+  },
+  {
+   "res_buys_on_sig_date": 2,
+   "n": 2,
+   "pnl_sum": -29806.14,
+   "avg_pnl_pct": -0.107498,
+   "win": 0.5
+  }
+ ]
+}

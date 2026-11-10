@@ -1,0 +1,144 @@
+{
+ "n_stop_loss": 94,
+ "at_stop_line_count": 68,
+ "below_stop_line_count": 26,
+ "above_stop_line_count": 0,
+ "rel_min": -0.199475,
+ "rel_max": 1.6e-05,
+ "below_pnl_min": -0.266161,
+ "below_pnl_mean": -0.137448,
+ "same_day_exit_count": 91,
+ "not_same_day": [
+  {
+   "symbol": "002678.SZ",
+   "entry_date": "2020-04-30",
+   "exit_signal_date": "2020-05-06",
+   "exit_date": "2020-05-07",
+   "duration": 2,
+   "exit_price": 6.3982,
+   "pnl_pct": -0.266161
+  },
+  {
+   "symbol": "603500.SH",
+   "entry_date": "2020-08-10",
+   "exit_signal_date": "2020-09-14",
+   "exit_date": "2020-09-15",
+   "duration": 26,
+   "exit_price": 6.8376,
+   "pnl_pct": -0.239683
+  },
+  {
+   "symbol": "002779.SZ",
+   "entry_date": "2020-09-16",
+   "exit_signal_date": "2020-09-21",
+   "exit_date": "2020-09-22",
+   "duration": 4,
+   "exit_price": 10.0962,
+   "pnl_pct": -0.216797
+  }
+ ],
+ "at_line_sample": [
+  {
+   "symbol": "002463.SZ",
+   "entry_date": "2019-07-02",
+   "exit_date": "2019-07-04",
+   "entry_price": 12.352,
+   "stop_line": 11.363840000000001,
+   "exit_price": 11.3639,
+   "pnl_pct": -0.083308,
+   "duration": 2
+  },
+  {
+   "symbol": "300105.SZ",
+   "entry_date": "2019-07-02",
+   "exit_date": "2019-07-04",
+   "entry_price": 5.0022,
+   "stop_line": 4.602024,
+   "exit_price": 4.602,
+   "pnl_pct": -0.083308,
+   "duration": 2
+  },
+  {
+   "symbol": "300628.SZ",
+   "entry_date": "2019-07-03",
+   "exit_date": "2019-07-08",
+   "entry_price": 22.4643,
+   "stop_line": 20.667156000000002,
+   "exit_price": 20.6671,
+   "pnl_pct": -0.083308,
+   "duration": 3
+  },
+  {
+   "symbol": "603817.SH",
+   "entry_date": "2019-07-05",
+   "exit_date": "2019-07-08",
+   "entry_price": 8.3031,
+   "stop_line": 7.638852000000001,
+   "exit_price": 7.6389,
+   "pnl_pct": -0.083308,
+   "duration": 1
+  },
+  {
+   "symbol": "000663.SZ",
+   "entry_date": "2019-07-05",
+   "exit_date": "2019-07-09",
+   "entry_price": 7.86,
+   "stop_line": 7.2312,
+   "exit_price": 7.2312,
+   "pnl_pct": -0.083308,
+   "duration": 2
+  }
+ ],
+ "below_line_sample": [
+  {
+   "symbol": "601330.SH",
+   "entry_date": "2019-07-02",
+   "exit_date": "2019-07-03",
+   "entry_price": 14.8526,
+   "stop_line": 13.664392000000001,
+   "exit_price": 12.2261,
+   "rel_vs_line": -0.10525839715371166,
+   "pnl_pct": -0.179796
+  },
+  {
+   "symbol": "000544.SZ",
+   "entry_date": "2019-07-02",
+   "exit_date": "2019-07-03",
+   "entry_price": 7.2925,
+   "stop_line": 6.7091,
+   "exit_price": 5.7321,
+   "rel_vs_line": -0.14562310891177654,
+   "pnl_pct": -0.2168
+  },
+  {
+   "symbol": "002645.SZ",
+   "entry_date": "2019-07-09",
+   "exit_date": "2019-07-10",
+   "entry_price": 8.3416,
+   "stop_line": 7.674272,
+   "exit_price": 7.5942,
+   "rel_vs_line": -0.010433823560071942,
+   "pnl_pct": -0.092869
+  },
+  {
+   "symbol": "600685.SH",
+   "entry_date": "2019-07-10",
+   "exit_date": "2019-08-02",
+   "entry_price": 16.228,
+   "stop_line": 14.929760000000002,
+   "exit_price": 14.8531,
+   "rel_vs_line": -0.00513471080580008,
+   "pnl_pct": -0.088016
+  },
+  {
+   "symbol": "600150.SH",
+   "entry_date": "2019-07-10",
+   "exit_date": "2019-08-06",
+   "entry_price": 23.2889,
+   "stop_line": 21.425788000000004,
+   "exit_price": 21.102,
+   "rel_vs_line": -0.01511206962376388,
+   "pnl_pct": -0.097162
+  }
+ ]
+}

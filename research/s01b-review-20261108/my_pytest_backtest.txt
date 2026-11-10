@@ -1,0 +1,36 @@
+........................................................................ [  9%]
+........................................................................ [ 19%]
+........................................................................ [ 28%]
+........................................................................ [ 38%]
+........................................................................ [ 48%]
+........................................................................ [ 57%]
+........................................................................ [ 67%]
+........................................................................ [ 77%]
+........................................................................ [ 86%]
+........................................................................ [ 96%]
+..........................                                               [100%]
+============================== warnings summary ===============================
+tests/backtest/test_dependencies.py::test_load_panel_for_backtest_supplies_raw_low_for_recovery
+tests/backtest/test_evidence.py::test_real_service_checks_and_persists_exact_result_inputs[False-polars_expr]
+tests/backtest/test_evidence.py::test_real_service_checks_and_persists_exact_result_inputs[True-polars_expr]
+tests/backtest/test_evidence.py::test_panel_audit_freezes_external_timeseries_values
+tests/backtest/test_worker_process.py::test_mining_rereads_snapshot_when_generation_commits_mid_read
+tests/backtest/test_worker_process.py::test_mining_rereads_snapshot_when_generation_commits_mid_read
+tests/backtest/test_worker_process.py::test_mining_fails_with_guidance_when_generation_keeps_drifting
+tests/backtest/test_worker_process.py::test_mining_fails_with_guidance_when_generation_keeps_drifting
+tests/backtest/test_worker_process.py::test_mining_artifact_commit_drift_leaves_no_artifacts
+  C:\work\sourcecode\tick-stock-panel\backend\app\backtest\engine.py:1191: DeprecationWarning: the `streaming` parameter was deprecated in 1.25.0; use `engine` instead.
+    .collect(streaming=True)
+
+tests/backtest/test_factor_metrics.py::test_factor_weight_and_decomposed_costs_change_group_results
+tests/backtest/test_first_board_chain_strategy.py::test_factor_backtest_service_loads_and_materializes_event_chain
+  C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\numpy\_core\_methods.py:219: RuntimeWarning: Degrees of freedom <= 0 for slice
+    ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+
+tests/backtest/test_factor_metrics.py::test_factor_weight_and_decomposed_costs_change_group_results
+tests/backtest/test_first_board_chain_strategy.py::test_factor_backtest_service_loads_and_materializes_event_chain
+  C:\work\sourcecode\tick-stock-panel\backend\.venv\Lib\site-packages\numpy\_core\_methods.py:211: RuntimeWarning: invalid value encountered in scalar divide
+    ret = ret.dtype.type(ret / rcount)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+746 passed, 13 warnings in 180.49s (0:03:00)

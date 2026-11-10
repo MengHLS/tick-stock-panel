@@ -1,0 +1,83 @@
+{
+ "n": {
+  "n_research": 252,
+  "n_prod": 199,
+  "net_count_diff": 53
+ },
+ "variants": [
+  {
+   "key": "symbol+entry_date",
+   "research_rows_matched": 3,
+   "prod_rows_matched": 3,
+   "keys_common": 3,
+   "keys_r_only": 249,
+   "keys_p_only": 196
+  },
+  {
+   "key": "symbol_only",
+   "research_rows_matched": 15,
+   "prod_rows_matched": 10,
+   "keys_common": 10,
+   "keys_r_only": 200,
+   "keys_p_only": 182
+  },
+  {
+   "key": "symbol+entry_month",
+   "research_rows_matched": 3,
+   "prod_rows_matched": 3,
+   "keys_common": 3,
+   "keys_r_only": 249,
+   "keys_p_only": 196
+  },
+  {
+   "key": "symbol+entry_year",
+   "research_rows_matched": 5,
+   "prod_rows_matched": 5,
+   "keys_common": 5,
+   "keys_r_only": 240,
+   "keys_p_only": 192
+  },
+  {
+   "key": "entry_date_only",
+   "research_rows_matched": 46,
+   "prod_rows_matched": 45,
+   "keys_common": 37,
+   "keys_r_only": 194,
+   "keys_p_only": 148
+  },
+  {
+   "key": "symbol+exit_date",
+   "research_rows_matched": 3,
+   "prod_rows_matched": 3,
+   "keys_common": 3,
+   "keys_r_only": 249,
+   "keys_p_only": 196
+  },
+  {
+   "key": "symbol+entry_signal_date",
+   "research_rows_matched": 3,
+   "prod_rows_matched": 3,
+   "keys_common": 3,
+   "keys_r_only": 249,
+   "keys_p_only": 196
+  },
+  {
+   "key": "symbol+entry_date+exit_date",
+   "research_rows_matched": 3,
+   "prod_rows_matched": 3,
+   "keys_common": 3,
+   "keys_r_only": 249,
+   "keys_p_only": 196
+  },
+  {
+   "key": "symbol+entry_date±1bar(prod→research)",
+   "prod_rows_matched": 0
+  },
+  {
+   "key": "symbol+holding_interval_overlap",
+   "pairs": 3,
+   "research_trades_involved": 3,
+   "prod_trades_involved": 3
+  }
+ ]
+}

@@ -1,0 +1,26 @@
+﻿[
+    {
+        "file":  "backend\\app\\backtest\\engine.py",
+        "bytes":  268800,
+        "sha256":  "ecc3d8261c5605edd877f5a48863cb239700486a9167de610ea0db82ec184cbe",
+        "mtime":  "2026-11-07 00:01:33"
+    },
+    {
+        "file":  "research\\s01b-20261108\\metrics_table.md",
+        "bytes":  2738,
+        "sha256":  "d025d8ce96f98cc2a204d6a60c82b693306cdb15d0f597b6627d0070a915cf3a",
+        "mtime":  "2026-11-08 17:54:14"
+    },
+    {
+        "file":  "research\\s01b-20261108\\REPORT.md",
+        "bytes":  52097,
+        "sha256":  "e60cd0b857f40fb227dad704e62c6d132fbba9e5107f1c53ba3870c436d7ca9b",
+        "mtime":  "2026-11-08 17:56:27"
+    },
+    {
+        "file":  "research\\s01b-20261108\\five_a\\manifest.json",
+        "bytes":  10054,
+        "sha256":  "7fe2c540ce229e7cede4c922e54cd89c0670c09a484683f14da08fc376b3124f",
+        "mtime":  "2026-11-08 19:06:29"
+    }
+]

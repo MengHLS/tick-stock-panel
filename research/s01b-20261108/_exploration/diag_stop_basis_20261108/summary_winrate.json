@@ -1,0 +1,56 @@
+{
+ "generated_by": "explain_winrate.py",
+ "generated_at": "2026-11-08T21:15:52",
+ "inputs": {
+  "a1_trades_sha256": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be",
+  "a1_trades_bytes": 41323,
+  "panel_source": "D:\\TSP\\data\\kline_daily_enriched",
+  "horizon_sessions": 60
+ },
+ "A_universe_base_rate": {
+  "windows": 9002802,
+  "touch_le_-8pct": 6116891,
+  "share": 0.679443,
+  "horizon_sessions": 60,
+  "ratio_p50": 0.873096,
+  "ratio_p10": 0.68918,
+  "ratio_p90": 0.975591
+ },
+ "B_counterfactual_hold_60": {
+  "all_519": {
+   "n": 519,
+   "horizon_ret_positive": 178,
+   "share_positive": 0.342967,
+   "median_horizon_ret": -0.093668,
+   "share_horizon_ret_gt_minus8": 0.485549
+  },
+  "stop_loss_425": {
+   "n": 425,
+   "horizon_ret_positive": 103,
+   "share_positive": 0.242353,
+   "median_horizon_ret": -0.132563,
+   "share_horizon_ret_gt_minus8": 0.390588
+  },
+  "non_stop_94": {
+   "n": 94,
+   "horizon_ret_positive": 75,
+   "share_positive": 0.797872,
+   "median_horizon_ret": 0.230676,
+   "share_horizon_ret_gt_minus8": 0.914894
+  }
+ },
+ "C_stop_trade_pnl_concentration": {
+  "n_stop": 425,
+  "share_pnl_within_50bp_of_minus8_24": 0.995294,
+  "pnl_p50": -0.082394,
+  "pnl_p10": -0.113938,
+  "pnl_p90": -0.082391
+ },
+ "D_entry_day_trigger_basis": {
+  "note": "建仓日引擎按收盘判（engine.py:4110），其余交易日按开盘/最低价判（:4017-4067）",
+  "entry_day_close_touch": 38,
+  "entry_day_low_touch_if_intraday": 66,
+  "share_close": 0.073218,
+  "share_low": 0.127168
+ }
+}

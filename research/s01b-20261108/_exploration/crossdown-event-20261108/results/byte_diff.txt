@@ -1,0 +1,11 @@
+--- custom_mw7fvp17.py.before
++++ custom_mw7fvp17.py.after
+@@ -92,5 +92,5 @@
+         prev_slow = np.asarray(valid_shift(slow, 1), dtype=np.float64)
+         cross_up = (fast > slow) & (prev_fast <= prev_slow)
+-        cross_down = fast < slow
++        cross_down = (fast < slow) & (prev_fast >= prev_slow)
+         momentum = np.asarray(matrix_feature(market, "momentum_20d"), dtype=np.float64)
+         momentum = np.where(np.isfinite(momentum), momentum, 0.0)
+
+--- changed_line_numbers=[94] byte_delta=29 roundtrip=True VERDICT=ONE_LINE_ONLY

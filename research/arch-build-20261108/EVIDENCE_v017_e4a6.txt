@@ -1,0 +1,23 @@
+C:\work\sourcecode\tick-stock-panel\research\arch-build-20261108\probe_v017_e4a6.py:44: SyntaxWarning: invalid escape sequence '\I'
+  print(f"{'周键':46} {'全轴':>5} {'窗内':>5}  {'ISO\错法(全)':>10} {'错法\ISO(全)':>11}  {'ISO\错法(窗)':>11} {'错法\ISO(窗)':>11}")
+C:\work\sourcecode\tick-stock-panel\research\arch-build-20261108\probe_v017_e4a6.py:44: SyntaxWarning: invalid escape sequence '\I'
+  print(f"{'周键':46} {'全轴':>5} {'窗内':>5}  {'ISO\错法(全)':>10} {'错法\ISO(全)':>11}  {'ISO\错法(窗)':>11} {'错法\ISO(窗)':>11}")
+AXIS bars=2141  2018-01-08 .. 2026-11-06
+window 2019-07-01 .. 2026-10-30  bars=1779
+
+周键                                                全轴    窗内   ISO\错法(全)   错法\ISO(全)    ISO\错法(窗)   错法\ISO(窗)
+iso_year_week   (iso_year, iso_week)             451   376           —           —            —           —
+dt_week         (calendar_year, iso_week)        453   378        0 [] 2 [datetime.date(2019, 12, 31), datetime.date(2024, 12, 31)]         0 [] 2 [datetime.date(2019, 12, 31), datetime.date(2024, 12, 31)]
+calendar+%W     (calendar_year, %W)              453   378        0 [] 2 [datetime.date(2019, 12, 31), datetime.date(2024, 12, 31)]         0 [] 2 [datetime.date(2019, 12, 31), datetime.date(2024, 12, 31)]
+
+--- 2026-11-06 ---
+iso_year_week   (iso_year, iso_week)           flags=None  in_full_set=False
+dt_week         (calendar_year, iso_week)      flags=None  in_full_set=False
+calendar+%W     (calendar_year, %W)            flags=None  in_full_set=False
+
+--- 2019-01-04 / 2024-01-05 / 2025-01-03 逐日 ---
+2019-01-04  iso_year_week:T | dt_week:T | calendar+%W:T
+2024-01-05  iso_year_week:T | dt_week:T | calendar+%W:T
+2025-01-03  iso_year_week:T | dt_week:T | calendar+%W:T
+2019-12-31  iso_year_week:F | dt_week:T | calendar+%W:T
+2024-12-31  iso_year_week:F | dt_week:T | calendar+%W:T

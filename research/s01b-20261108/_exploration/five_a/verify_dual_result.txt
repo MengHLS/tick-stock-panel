@@ -1,0 +1,40 @@
+PASS  split 行数 = 8 臂 × 2 记法
+PASS  每臂两记法齐备
+PASS  记法集合 = {A_pnl_amount, B_value_diff}
+PASS  恒等式残差全 ≤ 0.005
+PASS  同键 + 仅本臂 = 本臂笔数
+PASS  同键/仅本臂笔数两法一致
+PASS  基线自比两法均 0 差
+PASS  各臂缺口闭合 recon_ok
+PASS  缺口闭合残差 ≤ 0.005
+PASS  已平仓不等笔的除权闭式残差 ≤ 0.05
+PASS  出现非取整缺口的臂 = {entry_price_basis_raw, finalize_open_at_end}
+PASS  finalize 臂的不等笔全是期末未平仓
+PASS  pnl 法与既有 arms_table.json 逐值一致
+PASS  manifest 四张 parquet 复算一致（run 目录未被动过）
+PASS  manifest 三张 parquet × 8 臂 = 24 条
+PASS  199 分块 n_same_key = 111
+PASS  199 分块 n_only_arm = 88
+PASS  199 分块 n_only_base = 97
+PASS  199 A 同键 Δ = 102681.20
+PASS  199 A 仅199 = 472120.73
+PASS  199 A 仅208 = 268485.06
+PASS  199 A 总差 = 843286.99
+PASS  199 B 同键 Δ = 19128.46
+PASS  199 B 仅199 = 444928.01
+PASS  199 B 仅208 = 268485.11
+PASS  199 B 总差 = 732541.58
+PASS  199 两法同键占比 12.18% / 2.61%
+PASS  199 不等笔 = 29
+PASS  期末未平仓 5 笔 +84,132.95
+PASS  已平仓 24 笔 +26,612.60
+PASS  24 笔除权闭式残差 ≤ 0.05
+PASS  199 权益 = 1,242,725.28
+PASS  199 Σpnl − 5 笔浮亏 = 权益变化（残差 ≤ 0.05）
+PASS  199 Σ价差 + 24 笔分红 = 权益变化（残差 ≤ 0.05）
+PASS  appendix_199_29rows.csv 行数 = 29
+PASS  dual_per_trade.csv 行数 = Σ 各臂笔数
+PASS  每臂逐笔 pnl/价差/差 三列自洽
+PASS  dual 产物 sha256 复算一致
+
+checks=38  fails=0  VERDICT=ALL_PASS

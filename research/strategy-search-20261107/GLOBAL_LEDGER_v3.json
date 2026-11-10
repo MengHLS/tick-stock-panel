@@ -9,6 +9,32 @@
     "basis": "PROTOCOL.md §6.2；prior = research/strategy-reliability-20261106 T03 的 3 条固定规则",
     "policy": "只增不减；参数邻域每格 +1；情景间择优 +2"
   },
+  "global_hypotheses": {
+    "kind": "global_hypothesis_count",
+    "purpose": "假设计数（累计做了多少次独立假设/预注册检验）；不是多重检验扣减用的试验次数",
+    "before": 15,
+    "delta": 1,
+    "after": 16,
+    "decided_by": "策略经理 2026-11-08 §16.1（docs/research/caliber-decisions-20261107.md）",
+    "registered_at": "2026-11-08T18:59+08:00",
+    "registered_by": "因子研究员",
+    "basis": "§16.1：S01b_ma_cross_20_60_risk_exit 登记为一次预注册的多臂检验，假设计数 +1（同一预注册、同一数据、同一判据集 F1–F4）；臂 1/2/3 只改被测参数，a4 是 F4 判据原文写死的退路，属按预注册退路执行，不另加一次事后检验（即不是 +2）",
+    "baseline_ref": "baseline_global_hypotheses.total = 15（该块保留为 v0 起点，不随增量改写）",
+    "distinct_from": "与 global_N_lower_bound（= 19）是两个不同用途的数：global_hypotheses 是假设计数（15→16）；global_N_lower_bound 是多重检验扣减用的试验次数下限（= 15 + S01b 四个配置格 4 = 19）。两者互不推导、互不替代，禁止用一个去覆盖或减记另一个",
+    "history": [
+      {
+        "value": 15,
+        "at": "2026-11-07T00:43:25+08:00",
+        "basis": "baseline_global_hypotheses.total（旧全局 12 + prior 3）"
+      },
+      {
+        "value": 16,
+        "at": "2026-11-08T18:59+08:00",
+        "basis": "+1：S01b 本族算一次预注册多臂检验，见 §16.1"
+      }
+    ],
+    "registry_ref": "research/strategy-search-20261107/results/registry.json#registrations#hypotheses"
+  },
   "batch_registry_sha256": "506645a014e3e772f57dd747defe9b3ecf007800d262a207930182b049696c8b",
   "batch_id": "55df8aec7ce9",
   "batch_local_execution_trials": 12,
@@ -32,7 +58,7 @@
   ],
   "reconciliation": "旧全局12+3=15；批量局部12=两组各6次IS/OOS折执行，不是12个独立规则。批量2条与旧prior3的参数/数据/选择沿革重叠尚未独立证实。全局已知下限15，精确全局N未核定，禁止用局部12或未经核实的15直接重算DSR并验收。",
   "global_N_exact": null,
-  "global_N_lower_bound": 15,
+  "global_N_lower_bound": 20,
   "e1_entry": {
     "id": "E1-v3-C00",
     "type": "data_diagnostic",
@@ -46,5 +72,167 @@
     ],
     "status": "frozen_before_run"
   },
-  "policy": "纯复现不新增独立假设；参数邻域每格、规则改变、数据版本改变和情景择优按协议登记；禁止减少累计试验数。此次不执行DSR或新alpha搜索。"
+  "policy": "纯复现不新增独立假设；参数邻域每格、规则改变、数据版本改变和情景择优按协议登记；禁止减少累计试验数。此次不执行DSR或新alpha搜索。",
+  "caliber_conventions": {
+    "kind": "counting_rule_register",
+    "purpose": "试验计数口径登记：规定哪些跑动计入 global_N_lower_bound、哪些只作口径诊断。本块只定计法，不含任何增量数",
+    "decided_by": "策略经理 2026-11-09（docs/research/caliber-decisions-20261107.md §23.5；全文 docs/research/S01B_RULING_20261109.md §5）",
+    "recorded_by": "因子研究员",
+    "recorded_at": "2026-11-09T11:13+08:00",
+    "effective_from": "下一次对账起生效（前瞻）；不回改已登记的 S01b 四配置格，也不改写 registrations[0] 的 counted_configs / not_counted",
+    "N_impact_this_round": 0,
+    "numbers_unchanged": {
+      "global_N_lower_bound": 19,
+      "global_hypotheses": 16,
+      "global_N_exact": null
+    },
+    "rules": [
+      {
+        "id": "C-01",
+        "subject": "⑤-a 七单臂 + base_nodefaults_gross",
+        "counting": "N +0（口径诊断）",
+        "reason": "量的是「生产文件未声明 META.backtest_defaults」时逐项开关/口径的移动，不是策略参数试验，不构成新的搜索宽度",
+        "source": "S01B_RULING_20261109.md §5；research/s01b-20261108/five_a/REPORT_five_a_20261108.md"
+      },
+      {
+        "id": "C-02",
+        "subject": "a2h（peak=high）",
+        "counting": "N +0（臂 2 的口径对照）",
+        "reason": "峰值口径对照，不是新增策略参数格；已含在 registrations[0].not_counted 的「a2h 峰值口径对照」内",
+        "source": "S01B_RULING_20261109.md §5；caliber-decisions-20261107.md §23.5 第 2 条"
+      },
+      {
+        "id": "C-03",
+        "subject": "block_limit_open=True 若日后从「必写口径」升格为「策略选择」",
+        "counting": "须另立预注册 +1 格",
+        "reason": "升格即改变搜索对象（由补声明变为选参数），不得援引「⑤-a 已测过」，也不得由 C-01 的 N +0 反推该格免计",
+        "source": "S01B_RULING_20261109.md §5 第 3 条"
+      }
+    ],
+    "boundary_this_round": "止损 −8% 扩档（−15%/−20%）裁定不追加 ⇒ 无新试验、N 增量 0；若日后按 §23.4 的重开条件执行，另按新预注册计 +2 格",
+    "conflict_rule": "口径冲突时以 docs/research/caliber-decisions-20261107.md §23 为准；本块为其在台账侧的计法落地"
+  },
+  "global_N_lower_bound_history": [
+    {
+      "value": 15,
+      "at": "2026-11-07T00:43:25+08:00",
+      "basis": "v3 自载：旧全局 12 + prior 3"
+    },
+    {
+      "value": 19,
+      "at": "2026-11-08T17:25+08:00",
+      "basis": "+4：S01b 四配置（arm1/arm2/arm3/a4），见 registrations[0]（research/strategy-search-20261107/results/registry.json#registrations）"
+    },
+    {
+      "value": 20,
+      "at": "2026-11-09T20:20+08:00",
+      "basis": "+1：S01c 出场改造（trailing stop 25%，peak=close）预登记，见 registrations[1]（依据 docs/research/S01B_RULING_20261109.md §1/§3；策略经理 2026-11-09 派单 assignment 1bd3f8b4）"
+    },
+    {
+      "value": 20,
+      "at": "2026-11-09T20:50+08:00",
+      "value_change": false,
+      "note": "S01c 未执行，N 不回调；见 RULING_S01C",
+      "basis": "说明性记录，值不变（20 → 20）：S01c 经 research/s01c-20261109/RULING_S01C_20261109.md §3 判为『不采用 · 未执行』；计数只增不减，上一格 +1 已发生（搜索宽度已发生），故不下调。本格只改状态不改值"
+    }
+  ],
+  "registrations": [
+    {
+      "id": "S01b_ma_cross_20_60_risk_exit",
+      "registered_at": "2026-11-08T17:25+08:00",
+      "kind": "strategy_risk_exit_variants",
+      "n_trials_delta": 4,
+      "n_trials_before": 15,
+      "n_trials_after": 19,
+      "counted_configs": [
+        "arm1 stop_loss -0.08 / MH60",
+        "arm2 stop_loss -0.08 + ttp 10/8 (peak=close) / MH60",
+        "arm3 stop_loss -0.08 + ttp 10/8 + MH45",
+        "a4 MH45 only (no stop / no ttp)"
+      ],
+      "not_counted": [
+        "成本档 @10/@30/gross（同一配置的情景）",
+        "臂 0 生产路径对照",
+        "a2h 峰值口径对照",
+        "a0ev/a3ev 事件式等价重跑",
+        "prod_file_10bp 复现"
+      ],
+      "caliber_label": "生产路径（matrix_native + 引擎 basic_filter 股票池），与研究侧 `S01_ma_cross_20_60@*`（研究管道，252 笔 / −32.09%）不是同一入场管道，不可跨管道比较",
+      "cross_pipeline_comparable": false,
+      "verdict": "判死（该入场不做风控出场改造）；入场 alpha 未判定",
+      "detail_ref": "research/strategy-search-20261107/results/registry.json#registrations",
+      "source": [
+        "research/s01b-20261108/REPORT.md §1/§4.1",
+        "research/s01b-20261108/results/"
+      ]
+    },
+    {
+      "id": "S01c_trailing_stop_25",
+      "registered_at": "2026-11-09T20:20+08:00",
+      "registered_by": "因子研究员",
+      "decided_by": "策略经理 2026-11-09 派单（assignment 1bd3f8b4；依据 docs/research/S01B_RULING_20261109.md §1/§3）",
+      "kind": "strategy_exit_mechanism_prereg",
+      "registration_type": "pre_run_preregistration（预登记；登记时未执行）",
+      "status": "withdrawn_pre_run",
+      "n_trials_delta": 1,
+      "n_trials_before": 19,
+      "n_trials_after": 20,
+      "n_trials_note": "本格 1 格仍计入 N（=20）：未执行不等于未发生搜索，计数不下调（RULING_S01C §3）；若日后按 RULING_S01C §5 重开，另计 N +1。status=withdrawn_pre_run 表达的是「未执行」，不是「未入账」",
+      "subject": "S01c 出场改造 · 主假设「移动止损 trailing stop 25%（peak=close，无激活门槛）」",
+      "main_hypothesis": "以持仓期收盘价峰值（peak=close）为参照，自峰值回撤达 25% 即离场，且不设激活门槛（建仓即生效）；其余条件与 S01b 正式基准逐字相同",
+      "counted_configs": [
+        "trail 25%（peak=close，无激活门槛）/ 无 stop_loss / MH60"
+      ],
+      "not_counted": [
+        "目标涨幅止盈 +100%：本轮不跑、不并列，故不计"
+      ],
+      "baseline_ref": "S01b 正式基准 = 生产路径臂 0（生产文件 + 注入五项执行口径）：199 笔 / 总收益 +24.27% / 全期年化 +3.13%（252，日历年 7.33 年 +3.01%）/ OOS 年化 +4.73% / MDD −39.27%（docs/research/S01B_RULING_20261109.md §2）",
+      "relation_to_baseline": "唯一改动是出场；入场规则、股票池、成本、execution policy、MH60 与基准逐字相同，差值只度量出场这一格",
+      "param_source": "预注册拍定：25% 由主板日跌幅 10% 制度推出（约 2.5 个跌停幅度），不从样本收益分布里挑",
+      "prereg_ref": "research/s01c-20261109/PREREG_S01C_20261109.md",
+      "prereg_status": "登记时刻（2026-11-09T20:20+08:00）盘上未见 research/s01c-20261109/ 目录；**2026-11-09T20:50 已上盘核对**：PREREG_S01C_20261109.md sha256 de7fc709ba7c655b7e3ca50334bb8b20b8ba7d81ee365246323c26f81676490c（与 RULING_S01C 所引 de7fc709… 一致），主假设／25%／peak=close／无激活门槛与本行登记逐项一致；§1.1（第 101 行）与 §④.2（第 371 行）自认『不是新机制假设』——此自认是裁定判其落入 F1 锁的直接依据",
+      "caliber_label": "生产路径 199 基准的出场改造；不作跨管道比较（研究侧 252 笔 / −32.09% 管道不可比）",
+      "classification_note": "【2026-11-09 经裁定改判，原口径作废】原登记口径：『计为新机制假设的一格，不是参数邻域扩张』（当时判据：与 S01b 臂 2 的 ttp 10/8 不同格——触发量是回撤、参照系是持仓期收盘峰值、无激活门槛）。改判口径（RULING_S01C §1/§3）：落在 F1 锁内的**同族一次性参数位置检验**，非新机制假设 ⇒ global_hypotheses 不加（保 16）；引擎证据为同一条 trailing 线 `_trailing_risk_line`（engine.py:3012-3023），差别只有 d = 8%→25% 与去掉 +10% 激活门槛（预注册 §④.2 第 372 行）；N 格按『已登记 · 未执行』保留，不回调",
+      "basis": [
+        "docs/research/S01B_RULING_20261109.md §1：exit_signal_requires_profit 是真实开关（+18.85pp），S01b 结论不得外推为「任何出场改造都劣化」",
+        "docs/research/S01B_RULING_20261109.md §3：−15%/−20% 止损档不追加；本条不是该档位的重开（既不属固定止损档，也不是在 −8% 邻域取参数）",
+        "research/s01c-20261109/RULING_S01C_20261109.md §1 的两条锁（均引自 S01B_RULING 原文，我已逐行复核）：① 第 79 行 F1 锁『10bp 全期年化为负且 30bp 更负 → 不得再调出场参数继续搜』，推翻须『新机制假设』，而本格预注册 §1.1（第 101 行）/§④.2（第 371 行）自认不是新机制 ⇒ 自证不满足推翻条件；② 第 85 行理由 3『对不进入生产的入场做出场侧敏感性，决策价值为零、只增加 N』逐字适用；且 S01B_RULING §3 全文（第 73–92 行）无『例外』二字，预注册 §④.2（第 373 行）主张的『F1 一次性例外』不存在",
+        "research/s01c-20261109/RULING_S01C_20261109.md §2 的四处判据硬缺陷（即使日后重开也须先修）：D1 P1 的 A 门对基准自身不成立（实测 1,779 行权益曲线得 A=3.126074% < 门 3.13%；命中该门需 T ≥ +24.3059%，基准 T=+24.2725%，差 0.0334pp；30bp 档同刀口余量 0.0006pp）⇒ 判据可判死自己的基准；D2 FAIL① 的 MDD 方向写反（MDD∈[−1,0] 时 `MDD > MDD₀` 是回撤改善，应写 `MDD < MDD₀`）；D3 先验理由① 对本池为假（池含创业板/科创板/北交所，20% 板跌停 + 次日 −6.25% 即触 0.75 线；且跌停『前收×0.9』与线『峰值×0.75』量纲不同，0.25 > 2×0.10 推不出触及率）；D4 OOS 起点口径差 0.46pp（字面取 2023-01-03 收盘得 +4.2746%，落盘锚 oos_start_value 为 2022-12-30 收盘、得 +4.7300%，而 P5 是符号判据）。以上 D1–D4 我已独立复核：D1 用 DuckDB 复算 `_exploration/results/a0_10bp/equity.parquet`（N_td=1,779、T=+24.272528%、A(252/1779)=+3.126074%、MDD=−39.265%、命中 A≥3.13% 需 T≥+24.305931%）；D2 预注册第 259 行确写 `MDD > MDD₀`（而 MDD₀=−39.27%、MDD∈[−1,0]）；D3 第 105/115 行原文已引；D4 权益曲线 2022-12-30 收盘=1,040,990.10、2023-01-03 收盘=1,058,514.10，与裁定书一致；F1 触发亦核：arm2 10bp 年化 −23.91%、 30bp 年化 −24.61%（metrics.json）"
+      ],
+      "open_items": [],
+      "open_items_resolved": [
+        {
+          "question": "计数：global_hypotheses 是否 16→17",
+          "answer": "不加，保持 16。策略经理 2026-11-09 撤回了同日 20:44 批的 16→17：该增量的前提是『新机制假设』，RULING §1 已判其不是，前提不成立、增量作废",
+          "resolved_at": "2026-11-09",
+          "ref": "research/s01c-20261109/RULING_S01C_20261109.md §3"
+        },
+        {
+          "question": "决策出口：本格是否为例外",
+          "answer": "不写例外。S01B_RULING 第 79 行 F1 锁要求推翻须新机制假设（本格自认不是，见 §1.1/§④.2）；第 85 行理由 3『决策价值为零、只增加 N』逐字适用；§3 第 73–92 行无『例外』二字——给锁加例外＝改裁定，权力在所有者",
+          "resolved_at": "2026-11-09",
+          "ref": "research/s01c-20261109/RULING_S01C_20261109.md §1"
+        },
+        {
+          "question": "分类：是否落在 F1 锁内、是否撤回本格",
+          "answer": "落在 F1 锁内；不撤回。N 计数只增不减，撤回等于把已发生的搜索洗掉；本格改记为『已登记 · 未执行』（withdrawn_pre_run），N 保 20",
+          "resolved_at": "2026-11-09",
+          "ref": "research/s01c-20261109/RULING_S01C_20261109.md §1/§3"
+        },
+        {
+          "question": "预注册原文是否上盘核实",
+          "answer": "已核实（2026-11-09T20:50）：PREREG_S01C_20261109.md sha256 de7fc709ba7c655b7e3ca50334bb8b20b8ba7d81ee365246323c26f81676490c，与裁定书所引一致；主假设、25%、peak=close、无激活门槛逐项与本行登记一致，无需回改",
+          "resolved_at": "2026-11-09",
+          "ref": "research/s01c-20261109/PREREG_S01C_20261109.md §1.1/§④.2；RULING_S01C_20261109.md 文首"
+        }
+      ],
+      "registry_ref": null,
+      "registry_note": "尚无 run，results/registry.json 不动（该文件登记的是已产出的 run 与其配置格）；本格判『未执行』后仍不入该文件",
+      "verdict": "不采用 · 未执行（未跑、无数字）",
+      "verdict_date": "2026-11-09",
+      "verdict_ref": "research/s01c-20261109/RULING_S01C_20261109.md"
+    }
+  ],
+  "reconciliation_v4_note": "v3 的 reconciliation 描述 2026-11-07 时点。2026-11-08 起按 registrations 累加：global_N_lower_bound 15 → 19；精确全局 N 仍为 unknown（global_N_exact 保持 null），不得把 19 当精确 N 直接重算 DSR 并验收。",
+  "reconciliation_v5_note": "2026-11-09T20:50 定稿：registrations[1]（S01c_trailing_stop_25）当日 20:20 以预登记入账使 global_N_lower_bound 19 → 20；同日经 research/s01c-20261109/RULING_S01C_20261109.md §0/§3 判为『不采用 · 未执行』，本行随之改为 status=withdrawn_pre_run、verdict=不采用 · 未执行（未跑、无数字）。三处定值：global_N_lower_bound = 20（不下调——计数只增不减，该格是已发生的搜索宽度，撤回等于洗掉已发生的搜索）；global_hypotheses = 16（策略经理 2026-11-09 20:44 批的 16→17 于同日撤回，前提『新机制假设』经 RULING §1 判为不成立；本台账从未落过 17，故无需回改）；global_N_exact = null（仍为未知）。20 与 16 同样不得当精确 N 重算 DSR 并验收。"
 }

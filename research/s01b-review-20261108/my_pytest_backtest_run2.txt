@@ -1,0 +1,4 @@
+    ret = ret.dtype.type(ret / rcount)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+746 passed, 13 warnings in 163.69s (0:02:43)

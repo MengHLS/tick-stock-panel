@@ -1,0 +1,84 @@
+{
+ "axis": "D:/TSP/data/kline_daily_enriched  date=* partitions",
+ "axis_bars": 2141,
+ "axis_range": [
+  "2018-01-08",
+  "2026-11-06"
+ ],
+ "window": [
+  "2019-07-01",
+  "2026-10-30"
+ ],
+ "window_bars": 1779,
+ "week_end_rule": "next bar changes week key; last axis bar = null; compute on full axis then filter to window",
+ "next_bar": {
+  "iso": {
+   "full": 451,
+   "win": 376
+  },
+  "dt": {
+   "full": 453,
+   "win": 378
+  },
+  "w": {
+   "full": 453,
+   "win": 378
+  }
+ },
+ "groupby_last": {
+  "iso": {
+   "full": 452,
+   "win": 376
+  },
+  "dt": {
+   "full": 451,
+   "win": 376
+  },
+  "w": {
+   "full": 454,
+   "win": 378
+  }
+ },
+ "generated_at": "2026-11-08T13:26:40",
+ "diff_next_bar": {
+  "ISO_minus_dt_full": [],
+  "dt_minus_ISO_full": [
+   "2019-12-31",
+   "2024-12-31"
+  ],
+  "ISO_minus_dt_win": [],
+  "dt_minus_ISO_win": [
+   "2019-12-31",
+   "2024-12-31"
+  ]
+ },
+ "diff_groupby": {
+  "ISO_minus_dt_full": [
+   "2019-01-04",
+   "2024-01-05",
+   "2025-01-03"
+  ],
+  "dt_minus_ISO_full": [
+   "2019-12-31",
+   "2024-12-31"
+  ],
+  "ISO_minus_dt_win": [
+   "2024-01-05",
+   "2025-01-03"
+  ],
+  "dt_minus_ISO_win": [
+   "2019-12-31",
+   "2024-12-31"
+  ]
+ },
+ "flags_2026_11_06": {
+  "iso": null,
+  "dt": null,
+  "w": null
+ },
+ "flags_2019_01_04": {
+  "iso": true,
+  "dt": true,
+  "w": true
+ }
+}

@@ -1,0 +1,4418 @@
+{
+ "arms": [
+  {
+   "tag": "a0_10bp",
+   "label": "臂 0 基线（无风控出场）",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "C": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "C": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "2501c913b80b29c14432a49f0cfdc134234bee84611af07a239a202d88c43068",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.2427,
+    "annual_return": 0.0313,
+    "max_drawdown": -0.3927,
+    "sharpe": 0.25,
+    "win_rate": 0.3351,
+    "avg_pnl": 0.0131,
+    "median_pnl": -0.0964,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.478,
+    "avg_exposure": 0.5715,
+    "max_exposure": 0.7313,
+    "final_equity": 1242725.28,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.0473,
+    "oos_mdd": -0.2954,
+    "oos_sharpe": 0.296,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.2427,
+    "annual_return": 0.0313,
+    "max_drawdown": -0.3927,
+    "sharpe": 0.25,
+    "win_rate": 0.3351,
+    "avg_pnl": 0.0131,
+    "median_pnl": -0.0964,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.478,
+    "avg_exposure": 0.5715,
+    "max_exposure": 0.7313,
+    "final_equity": 1242725.28,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.0473,
+    "oos_mdd": -0.2954,
+    "oos_sharpe": 0.296,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 199,
+     "C": 199,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 194,
+     "C": 194,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "total_return": {
+     "D": 0.2427,
+     "C": 0.2427,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": 0.0313,
+     "C": 0.0313,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.3927,
+     "C": -0.3927,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": 0.25,
+     "C": 0.25,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3351,
+     "C": 0.3351,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": 0.0131,
+     "C": 0.0131,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0964,
+     "C": -0.0964,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 45.3,
+     "C": 45.3,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 48.0,
+     "C": 48.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 60.0,
+     "C": 60.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 3.478,
+     "C": 3.478,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5715,
+     "C": 0.5715,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.7313,
+     "C": 0.7313,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 1242725.28,
+     "C": 1242725.28,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     },
+     "C": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     }
+    },
+    "oos_annual": {
+     "D": 0.0473,
+     "C": 0.0473,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.2954,
+     "C": -0.2954,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": 0.296,
+     "C": 0.296,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a0_30bp",
+   "label": "臂 0 基线（无风控出场）",
+   "scenario": "30bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "35018b00cda9406acca20ed7de7aabbc2c0455395513b01ee13e45f0e2fb7672",
+     "C": "35018b00cda9406acca20ed7de7aabbc2c0455395513b01ee13e45f0e2fb7672",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "582596164cbee00881db4af5be46cbfbad5383103c5b2f67baf5343431e7af1a",
+     "C": "582596164cbee00881db4af5be46cbfbad5383103c5b2f67baf5343431e7af1a",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "ac7bb3b3a094d742c76d9af71f02c00e3002fe9815c8bf3d9faf5c37d1db9a07",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.1343,
+    "annual_return": 0.018,
+    "max_drawdown": -0.4089,
+    "sharpe": 0.2,
+    "win_rate": 0.3299,
+    "avg_pnl": 0.009,
+    "median_pnl": -0.1,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.328,
+    "avg_exposure": 0.5718,
+    "max_exposure": 0.7321,
+    "final_equity": 1134266.2,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.0332,
+    "oos_mdd": -0.3033,
+    "oos_sharpe": 0.244,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.1343,
+    "annual_return": 0.018,
+    "max_drawdown": -0.4089,
+    "sharpe": 0.2,
+    "win_rate": 0.3299,
+    "avg_pnl": 0.009,
+    "median_pnl": -0.1,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.328,
+    "avg_exposure": 0.5718,
+    "max_exposure": 0.7321,
+    "final_equity": 1134266.2,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.0332,
+    "oos_mdd": -0.3033,
+    "oos_sharpe": 0.244,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 199,
+     "C": 199,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 194,
+     "C": 194,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "total_return": {
+     "D": 0.1343,
+     "C": 0.1343,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": 0.018,
+     "C": 0.018,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.4089,
+     "C": -0.4089,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": 0.2,
+     "C": 0.2,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3299,
+     "C": 0.3299,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": 0.009,
+     "C": 0.009,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.1,
+     "C": -0.1,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 45.3,
+     "C": 45.3,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 48.0,
+     "C": 48.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 60.0,
+     "C": 60.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 3.328,
+     "C": 3.328,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5718,
+     "C": 0.5718,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.7321,
+     "C": 0.7321,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 1134266.2,
+     "C": 1134266.2,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     },
+     "C": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     }
+    },
+    "oos_annual": {
+     "D": 0.0332,
+     "C": 0.0332,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.3033,
+     "C": -0.3033,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": 0.244,
+     "C": 0.244,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a0_gross",
+   "label": "臂 0 基线（无风控出场）",
+   "scenario": "gross",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "6c53a19dc744ea4500492f7dd480ce81bc8ba3ac6fd7be46788fb710e6419a12",
+     "C": "6c53a19dc744ea4500492f7dd480ce81bc8ba3ac6fd7be46788fb710e6419a12",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "92af13517a990c60014022d9258d2a965311e85d3d5a3aacc85d249c7e84fa28",
+     "C": "92af13517a990c60014022d9258d2a965311e85d3d5a3aacc85d249c7e84fa28",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "4a9ff047f0b2cc412e5776be9d4937669e52f8582c5569b8db1eb33e115e57df",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.3382,
+    "annual_return": 0.0421,
+    "max_drawdown": -0.3802,
+    "sharpe": 0.29,
+    "win_rate": 0.3351,
+    "avg_pnl": 0.0167,
+    "median_pnl": -0.0932,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.606,
+    "avg_exposure": 0.5711,
+    "max_exposure": 0.7322,
+    "final_equity": 1338157.49,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.059,
+    "oos_mdd": -0.2898,
+    "oos_sharpe": 0.338,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.3382,
+    "annual_return": 0.0421,
+    "max_drawdown": -0.3802,
+    "sharpe": 0.29,
+    "win_rate": 0.3351,
+    "avg_pnl": 0.0167,
+    "median_pnl": -0.0932,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.606,
+    "avg_exposure": 0.5711,
+    "max_exposure": 0.7322,
+    "final_equity": 1338157.49,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.059,
+    "oos_mdd": -0.2898,
+    "oos_sharpe": 0.338,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 199,
+     "C": 199,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 194,
+     "C": 194,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "total_return": {
+     "D": 0.3382,
+     "C": 0.3382,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": 0.0421,
+     "C": 0.0421,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.3802,
+     "C": -0.3802,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": 0.29,
+     "C": 0.29,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3351,
+     "C": 0.3351,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": 0.0167,
+     "C": 0.0167,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0932,
+     "C": -0.0932,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 45.3,
+     "C": 45.3,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 48.0,
+     "C": 48.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 60.0,
+     "C": 60.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 3.606,
+     "C": 3.606,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5711,
+     "C": 0.5711,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.7322,
+     "C": 0.7322,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 1338157.49,
+     "C": 1338157.49,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     },
+     "C": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     }
+    },
+    "oos_annual": {
+     "D": 0.059,
+     "C": 0.059,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.2898,
+     "C": -0.2898,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": 0.338,
+     "C": 0.338,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a1_10bp",
+   "label": "臂 1 + 止损 -8%",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be",
+     "C": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "a92bc59f968c2e95e24f91d29b408f2e5d847334ac96b52f0efbef943dc1447f",
+     "C": "a92bc59f968c2e95e24f91d29b408f2e5d847334ac96b52f0efbef943dc1447f",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "9e9cfa04ecc77901c99a39d056881f235f196aab2f59c36fadbe82285093c6da",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 69042,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 26,
+    "pending_exit": 11
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 69042,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 26,
+    "pending_exit": 11
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 519,
+    "completed_trade_count": 517,
+    "open_at_end_count": 2,
+    "total_return": -0.6969,
+    "annual_return": -0.1556,
+    "max_drawdown": -0.8386,
+    "sharpe": -0.51,
+    "win_rate": 0.1509,
+    "avg_pnl": -0.0145,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 16.4,
+    "hold_p50": 5.0,
+    "hold_p90": 59.0,
+    "annual_turnover": 5.39,
+    "avg_exposure": 0.5654,
+    "max_exposure": 0.6858,
+    "final_equity": 303058.96,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 50,
+     "signal": 42,
+     "stop_loss": 425
+    },
+    "oos_annual": -0.2297,
+    "oos_mdd": -0.7502,
+    "oos_sharpe": -0.87,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 519,
+    "completed_trade_count": 517,
+    "open_at_end_count": 2,
+    "total_return": -0.6969,
+    "annual_return": -0.1556,
+    "max_drawdown": -0.8386,
+    "sharpe": -0.51,
+    "win_rate": 0.1509,
+    "avg_pnl": -0.0145,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 16.4,
+    "hold_p50": 5.0,
+    "hold_p90": 59.0,
+    "annual_turnover": 5.39,
+    "avg_exposure": 0.5654,
+    "max_exposure": 0.6858,
+    "final_equity": 303058.96,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 50,
+     "signal": 42,
+     "stop_loss": 425
+    },
+    "oos_annual": -0.2297,
+    "oos_mdd": -0.7502,
+    "oos_sharpe": -0.87,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 519,
+     "C": 519,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 517,
+     "C": 517,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 2,
+     "C": 2,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.6969,
+     "C": -0.6969,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.1556,
+     "C": -0.1556,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.8386,
+     "C": -0.8386,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.51,
+     "C": -0.51,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.1509,
+     "C": 0.1509,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0145,
+     "C": -0.0145,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0824,
+     "C": -0.0824,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 16.4,
+     "C": 16.4,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 5.0,
+     "C": 5.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 59.0,
+     "C": 59.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 5.39,
+     "C": 5.39,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5654,
+     "C": 0.5654,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6858,
+     "C": 0.6858,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 303058.96,
+     "C": 303058.96,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 2,
+      "max_hold": 50,
+      "signal": 42,
+      "stop_loss": 425
+     },
+     "C": {
+      "end": 2,
+      "max_hold": 50,
+      "signal": 42,
+      "stop_loss": 425
+     }
+    },
+    "oos_annual": {
+     "D": -0.2297,
+     "C": -0.2297,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.7502,
+     "C": -0.7502,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.87,
+     "C": -0.87,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a1_30bp",
+   "label": "臂 1 + 止损 -8%",
+   "scenario": "30bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "a01ef69d35ce6b44d965563bd7b633c444971f78153f56069b1cd92b3fe1d4a4",
+     "C": "a01ef69d35ce6b44d965563bd7b633c444971f78153f56069b1cd92b3fe1d4a4",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "e4f761826b4e9c31ceca8ff0378fb3586cdd99499dd423a5a81fa36b889afccb",
+     "C": "e4f761826b4e9c31ceca8ff0378fb3586cdd99499dd423a5a81fa36b889afccb",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "6b90c49999c70eac8424164aa2a7913828475c06b9f8dee9a4d4373fac808a32",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 68921,
+    "buy_cash": 0,
+    "buy_lot_size": 1,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 1,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 26,
+    "pending_exit": 11
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 68921,
+    "buy_cash": 0,
+    "buy_lot_size": 1,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 1,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 26,
+    "pending_exit": 11
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 521,
+    "completed_trade_count": 517,
+    "open_at_end_count": 4,
+    "total_return": -0.728,
+    "annual_return": -0.1684,
+    "max_drawdown": -0.8271,
+    "sharpe": -0.55,
+    "win_rate": 0.1451,
+    "avg_pnl": -0.0189,
+    "median_pnl": -0.0842,
+    "avg_holding_days": 16.4,
+    "hold_p50": 5.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 4.57,
+    "avg_exposure": 0.5651,
+    "max_exposure": 0.7069,
+    "final_equity": 271957.64,
+    "exit_reason": {
+     "end": 4,
+     "max_hold": 52,
+     "signal": 40,
+     "stop_loss": 425
+    },
+    "oos_annual": -0.1854,
+    "oos_mdd": -0.7071,
+    "oos_sharpe": -0.616,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 521,
+    "completed_trade_count": 517,
+    "open_at_end_count": 4,
+    "total_return": -0.728,
+    "annual_return": -0.1684,
+    "max_drawdown": -0.8271,
+    "sharpe": -0.55,
+    "win_rate": 0.1451,
+    "avg_pnl": -0.0189,
+    "median_pnl": -0.0842,
+    "avg_holding_days": 16.4,
+    "hold_p50": 5.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 4.57,
+    "avg_exposure": 0.5651,
+    "max_exposure": 0.7069,
+    "final_equity": 271957.64,
+    "exit_reason": {
+     "end": 4,
+     "max_hold": 52,
+     "signal": 40,
+     "stop_loss": 425
+    },
+    "oos_annual": -0.1854,
+    "oos_mdd": -0.7071,
+    "oos_sharpe": -0.616,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 521,
+     "C": 521,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 517,
+     "C": 517,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 4,
+     "C": 4,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.728,
+     "C": -0.728,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.1684,
+     "C": -0.1684,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.8271,
+     "C": -0.8271,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.55,
+     "C": -0.55,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.1451,
+     "C": 0.1451,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0189,
+     "C": -0.0189,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0842,
+     "C": -0.0842,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 16.4,
+     "C": 16.4,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 5.0,
+     "C": 5.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 60.0,
+     "C": 60.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 4.57,
+     "C": 4.57,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5651,
+     "C": 0.5651,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.7069,
+     "C": 0.7069,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 271957.64,
+     "C": 271957.64,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 4,
+      "max_hold": 52,
+      "signal": 40,
+      "stop_loss": 425
+     },
+     "C": {
+      "end": 4,
+      "max_hold": 52,
+      "signal": 40,
+      "stop_loss": 425
+     }
+    },
+    "oos_annual": {
+     "D": -0.1854,
+     "C": -0.1854,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.7071,
+     "C": -0.7071,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.616,
+     "C": -0.616,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a1_gross",
+   "label": "臂 1 + 止损 -8%",
+   "scenario": "gross",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "410b867816b008299b10778f37ab33fba906104dff7336b481b1bfce5ba22e01",
+     "C": "410b867816b008299b10778f37ab33fba906104dff7336b481b1bfce5ba22e01",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "9714b39f33bf12576badce6cd43f8b6b3264a53de96a301b682ed25575d7e01e",
+     "C": "9714b39f33bf12576badce6cd43f8b6b3264a53de96a301b682ed25575d7e01e",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "a43b5ce8fa34d7269c0bdfb8c6fa423718e0d2c22fc1a8fa60d856d3590a1b8f",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 68954,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 10,
+    "pending_exit": 8
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 68954,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 10,
+    "pending_exit": 8
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 525,
+    "completed_trade_count": 524,
+    "open_at_end_count": 1,
+    "total_return": -0.4934,
+    "annual_return": -0.0918,
+    "max_drawdown": -0.7637,
+    "sharpe": -0.22,
+    "win_rate": 0.1546,
+    "avg_pnl": -0.0042,
+    "median_pnl": -0.08,
+    "avg_holding_days": 16.2,
+    "hold_p50": 5.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 6.632,
+    "avg_exposure": 0.5673,
+    "max_exposure": 0.6978,
+    "final_equity": 506571.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 53,
+     "signal": 39,
+     "stop_loss": 432
+    },
+    "oos_annual": -0.1694,
+    "oos_mdd": -0.6772,
+    "oos_sharpe": -0.561,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 525,
+    "completed_trade_count": 524,
+    "open_at_end_count": 1,
+    "total_return": -0.4934,
+    "annual_return": -0.0918,
+    "max_drawdown": -0.7637,
+    "sharpe": -0.22,
+    "win_rate": 0.1546,
+    "avg_pnl": -0.0042,
+    "median_pnl": -0.08,
+    "avg_holding_days": 16.2,
+    "hold_p50": 5.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 6.632,
+    "avg_exposure": 0.5673,
+    "max_exposure": 0.6978,
+    "final_equity": 506571.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 53,
+     "signal": 39,
+     "stop_loss": 432
+    },
+    "oos_annual": -0.1694,
+    "oos_mdd": -0.6772,
+    "oos_sharpe": -0.561,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 525,
+     "C": 525,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 524,
+     "C": 524,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 1,
+     "C": 1,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.4934,
+     "C": -0.4934,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.0918,
+     "C": -0.0918,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.7637,
+     "C": -0.7637,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.22,
+     "C": -0.22,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.1546,
+     "C": 0.1546,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0042,
+     "C": -0.0042,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.08,
+     "C": -0.08,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 16.2,
+     "C": 16.2,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 5.0,
+     "C": 5.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 60.0,
+     "C": 60.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 6.632,
+     "C": 6.632,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5673,
+     "C": 0.5673,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6978,
+     "C": 0.6978,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 506571.51,
+     "C": 506571.51,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 1,
+      "max_hold": 53,
+      "signal": 39,
+      "stop_loss": 432
+     },
+     "C": {
+      "end": 1,
+      "max_hold": 53,
+      "signal": 39,
+      "stop_loss": 432
+     }
+    },
+    "oos_annual": {
+     "D": -0.1694,
+     "C": -0.1694,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6772,
+     "C": -0.6772,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.561,
+     "C": -0.561,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a2_10bp",
+   "label": "臂 2 + 止损 + 移动止盈 10/8",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "920fa88944bdd6d9e32a26bab410c67cb0f1fea854b5e929c6f5d14565792dbc",
+     "C": "920fa88944bdd6d9e32a26bab410c67cb0f1fea854b5e929c6f5d14565792dbc",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "331be457116f202dd1df35710f2fc090cd74fbc27dd029c60624b9eb32d77a7d",
+     "C": "331be457116f202dd1df35710f2fc090cd74fbc27dd029c60624b9eb32d77a7d",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "b17b4676045e5f765467b281a17d4a212b56b3f0776f4ac62ab7443c45c9b5f8",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46500,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 13
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46500,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 13
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1126,
+    "completed_trade_count": 1125,
+    "open_at_end_count": 1,
+    "total_return": -0.8548,
+    "annual_return": -0.2391,
+    "max_drawdown": -0.9058,
+    "sharpe": -0.99,
+    "win_rate": 0.3529,
+    "avg_pnl": -0.0139,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 4.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.423,
+    "avg_exposure": 0.5194,
+    "max_exposure": 0.6736,
+    "final_equity": 145240.48,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 5,
+     "signal": 9,
+     "stop_loss": 718,
+     "trailing_take_profit": 393
+    },
+    "oos_annual": -0.1383,
+    "oos_mdd": -0.6504,
+    "oos_sharpe": -0.456,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1126,
+    "completed_trade_count": 1125,
+    "open_at_end_count": 1,
+    "total_return": -0.8548,
+    "annual_return": -0.2391,
+    "max_drawdown": -0.9058,
+    "sharpe": -0.99,
+    "win_rate": 0.3529,
+    "avg_pnl": -0.0139,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 4.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.423,
+    "avg_exposure": 0.5194,
+    "max_exposure": 0.6736,
+    "final_equity": 145240.48,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 5,
+     "signal": 9,
+     "stop_loss": 718,
+     "trailing_take_profit": 393
+    },
+    "oos_annual": -0.1383,
+    "oos_mdd": -0.6504,
+    "oos_sharpe": -0.456,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1126,
+     "C": 1126,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1125,
+     "C": 1125,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 1,
+     "C": 1,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8548,
+     "C": -0.8548,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2391,
+     "C": -0.2391,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.9058,
+     "C": -0.9058,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.99,
+     "C": -0.99,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3529,
+     "C": 0.3529,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0139,
+     "C": -0.0139,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0824,
+     "C": -0.0824,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.1,
+     "C": 7.1,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 4.0,
+     "C": 4.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 6.423,
+     "C": 6.423,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5194,
+     "C": 0.5194,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6736,
+     "C": 0.6736,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 145240.48,
+     "C": 145240.48,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 1,
+      "max_hold": 5,
+      "signal": 9,
+      "stop_loss": 718,
+      "trailing_take_profit": 393
+     },
+     "C": {
+      "end": 1,
+      "max_hold": 5,
+      "signal": 9,
+      "stop_loss": 718,
+      "trailing_take_profit": 393
+     }
+    },
+    "oos_annual": {
+     "D": -0.1383,
+     "C": -0.1383,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6504,
+     "C": -0.6504,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.456,
+     "C": -0.456,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a2_30bp",
+   "label": "臂 2 + 止损 + 移动止盈 10/8",
+   "scenario": "30bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "eca85517ee44c85049857bdc54928860f1f19a5cd110ff3aa8d27453c116b387",
+     "C": "eca85517ee44c85049857bdc54928860f1f19a5cd110ff3aa8d27453c116b387",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "27313a44f8e531603fb270e23e7b7f54fec446e7823fd332357c2c0051d6f0ef",
+     "C": "27313a44f8e531603fb270e23e7b7f54fec446e7823fd332357c2c0051d6f0ef",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "44191c048a69312eeca0ff359ed23c19d0f8d362f18b584544aa3777fceeda1b",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46428,
+    "buy_cash": 0,
+    "buy_lot_size": 12,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 32,
+    "pending_exit": 14
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46428,
+    "buy_cash": 0,
+    "buy_lot_size": 12,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 32,
+    "pending_exit": 14
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1142,
+    "completed_trade_count": 1140,
+    "open_at_end_count": 2,
+    "total_return": -0.8639,
+    "annual_return": -0.2461,
+    "max_drawdown": -0.9102,
+    "sharpe": -1.0,
+    "win_rate": 0.3518,
+    "avg_pnl": -0.0142,
+    "median_pnl": -0.0842,
+    "avg_holding_days": 7.0,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 5.88,
+    "avg_exposure": 0.5158,
+    "max_exposure": 0.6745,
+    "final_equity": 136065.43,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 5,
+     "signal": 8,
+     "stop_loss": 729,
+     "trailing_take_profit": 398
+    },
+    "oos_annual": -0.1101,
+    "oos_mdd": -0.6056,
+    "oos_sharpe": -0.305,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1142,
+    "completed_trade_count": 1140,
+    "open_at_end_count": 2,
+    "total_return": -0.8639,
+    "annual_return": -0.2461,
+    "max_drawdown": -0.9102,
+    "sharpe": -1.0,
+    "win_rate": 0.3518,
+    "avg_pnl": -0.0142,
+    "median_pnl": -0.0842,
+    "avg_holding_days": 7.0,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 5.88,
+    "avg_exposure": 0.5158,
+    "max_exposure": 0.6745,
+    "final_equity": 136065.43,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 5,
+     "signal": 8,
+     "stop_loss": 729,
+     "trailing_take_profit": 398
+    },
+    "oos_annual": -0.1101,
+    "oos_mdd": -0.6056,
+    "oos_sharpe": -0.305,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1142,
+     "C": 1142,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1140,
+     "C": 1140,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 2,
+     "C": 2,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8639,
+     "C": -0.8639,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2461,
+     "C": -0.2461,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.9102,
+     "C": -0.9102,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -1.0,
+     "C": -1.0,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3518,
+     "C": 0.3518,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0142,
+     "C": -0.0142,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0842,
+     "C": -0.0842,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.0,
+     "C": 7.0,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 5.88,
+     "C": 5.88,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5158,
+     "C": 0.5158,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6745,
+     "C": 0.6745,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 136065.43,
+     "C": 136065.43,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 2,
+      "max_hold": 5,
+      "signal": 8,
+      "stop_loss": 729,
+      "trailing_take_profit": 398
+     },
+     "C": {
+      "end": 2,
+      "max_hold": 5,
+      "signal": 8,
+      "stop_loss": 729,
+      "trailing_take_profit": 398
+     }
+    },
+    "oos_annual": {
+     "D": -0.1101,
+     "C": -0.1101,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6056,
+     "C": -0.6056,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.305,
+     "C": -0.305,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a2_gross",
+   "label": "臂 2 + 止损 + 移动止盈 10/8",
+   "scenario": "gross",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "390423ad502f61ca591aed65234e947a75a5fb6432402a46809891eac4ffe0a4",
+     "C": "390423ad502f61ca591aed65234e947a75a5fb6432402a46809891eac4ffe0a4",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "306d5ee1259bd02c3805cc88d8aebe9a18b1edeaa9d0ae56af2636122a6aca35",
+     "C": "306d5ee1259bd02c3805cc88d8aebe9a18b1edeaa9d0ae56af2636122a6aca35",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "d925bbd9ceda681437657b4185191b0474fa4776a1f4a78b07ea384ac81d40f3",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46208,
+    "buy_cash": 0,
+    "buy_lot_size": 2,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 13
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46208,
+    "buy_cash": 0,
+    "buy_lot_size": 2,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 13
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1134,
+    "completed_trade_count": 1132,
+    "open_at_end_count": 2,
+    "total_return": -0.7755,
+    "annual_return": -0.1907,
+    "max_drawdown": -0.8697,
+    "sharpe": -0.73,
+    "win_rate": 0.3578,
+    "avg_pnl": -0.0103,
+    "median_pnl": -0.08,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 7.354,
+    "avg_exposure": 0.5227,
+    "max_exposure": 0.6878,
+    "final_equity": 224488.38,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 4,
+     "signal": 8,
+     "stop_loss": 718,
+     "trailing_take_profit": 402
+    },
+    "oos_annual": -0.0683,
+    "oos_mdd": -0.5808,
+    "oos_sharpe": -0.143,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1134,
+    "completed_trade_count": 1132,
+    "open_at_end_count": 2,
+    "total_return": -0.7755,
+    "annual_return": -0.1907,
+    "max_drawdown": -0.8697,
+    "sharpe": -0.73,
+    "win_rate": 0.3578,
+    "avg_pnl": -0.0103,
+    "median_pnl": -0.08,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 7.354,
+    "avg_exposure": 0.5227,
+    "max_exposure": 0.6878,
+    "final_equity": 224488.38,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 4,
+     "signal": 8,
+     "stop_loss": 718,
+     "trailing_take_profit": 402
+    },
+    "oos_annual": -0.0683,
+    "oos_mdd": -0.5808,
+    "oos_sharpe": -0.143,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1134,
+     "C": 1134,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1132,
+     "C": 1132,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 2,
+     "C": 2,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.7755,
+     "C": -0.7755,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.1907,
+     "C": -0.1907,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.8697,
+     "C": -0.8697,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.73,
+     "C": -0.73,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3578,
+     "C": 0.3578,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0103,
+     "C": -0.0103,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.08,
+     "C": -0.08,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.1,
+     "C": 7.1,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 7.354,
+     "C": 7.354,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5227,
+     "C": 0.5227,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6878,
+     "C": 0.6878,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 224488.38,
+     "C": 224488.38,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 2,
+      "max_hold": 4,
+      "signal": 8,
+      "stop_loss": 718,
+      "trailing_take_profit": 402
+     },
+     "C": {
+      "end": 2,
+      "max_hold": 4,
+      "signal": 8,
+      "stop_loss": 718,
+      "trailing_take_profit": 402
+     }
+    },
+    "oos_annual": {
+     "D": -0.0683,
+     "C": -0.0683,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.5808,
+     "C": -0.5808,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.143,
+     "C": -0.143,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a3_10bp",
+   "label": "臂 3 + 上路 + 最长持有 45",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "C": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "C": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1135,
+    "completed_trade_count": 1134,
+    "open_at_end_count": 1,
+    "total_return": -0.8611,
+    "annual_return": -0.2439,
+    "max_drawdown": -0.91,
+    "sharpe": -1.01,
+    "win_rate": 0.3483,
+    "avg_pnl": -0.0146,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.32,
+    "avg_exposure": 0.5173,
+    "max_exposure": 0.6842,
+    "final_equity": 138893.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 12,
+     "signal": 9,
+     "stop_loss": 725,
+     "trailing_take_profit": 388
+    },
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe": -0.483,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1135,
+    "completed_trade_count": 1134,
+    "open_at_end_count": 1,
+    "total_return": -0.8611,
+    "annual_return": -0.2439,
+    "max_drawdown": -0.91,
+    "sharpe": -1.01,
+    "win_rate": 0.3483,
+    "avg_pnl": -0.0146,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.32,
+    "avg_exposure": 0.5173,
+    "max_exposure": 0.6842,
+    "final_equity": 138893.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 12,
+     "signal": 9,
+     "stop_loss": 725,
+     "trailing_take_profit": 388
+    },
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe": -0.483,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1135,
+     "C": 1135,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1134,
+     "C": 1134,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 1,
+     "C": 1,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8611,
+     "C": -0.8611,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2439,
+     "C": -0.2439,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.91,
+     "C": -0.91,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -1.01,
+     "C": -1.01,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3483,
+     "C": 0.3483,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0146,
+     "C": -0.0146,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0824,
+     "C": -0.0824,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.1,
+     "C": 7.1,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 6.32,
+     "C": 6.32,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5173,
+     "C": 0.5173,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6842,
+     "C": 0.6842,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 138893.51,
+     "C": 138893.51,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 1,
+      "max_hold": 12,
+      "signal": 9,
+      "stop_loss": 725,
+      "trailing_take_profit": 388
+     },
+     "C": {
+      "end": 1,
+      "max_hold": 12,
+      "signal": 9,
+      "stop_loss": 725,
+      "trailing_take_profit": 388
+     }
+    },
+    "oos_annual": {
+     "D": -0.1457,
+     "C": -0.1457,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6622,
+     "C": -0.6622,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.483,
+     "C": -0.483,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a3_30bp",
+   "label": "臂 3 + 上路 + 最长持有 45",
+   "scenario": "30bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "8b83ae44a0e710b5e090fbc708efa984aa126e0a3244c0b771c4d2b51b7842b4",
+     "C": "8b83ae44a0e710b5e090fbc708efa984aa126e0a3244c0b771c4d2b51b7842b4",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "8338ae9e4350e17f4a18ac1afd2786c99e5ea66296dd0a49faf7109e6b1e0590",
+     "C": "8338ae9e4350e17f4a18ac1afd2786c99e5ea66296dd0a49faf7109e6b1e0590",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "57197c85fbc96442030ebaa496da2b73703eb1bc8be7f0d842172c8e23404f72",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46052,
+    "buy_cash": 0,
+    "buy_lot_size": 13,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 17
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46052,
+    "buy_cash": 0,
+    "buy_lot_size": 13,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 36,
+    "pending_exit": 17
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1158,
+    "completed_trade_count": 1156,
+    "open_at_end_count": 2,
+    "total_return": -0.8734,
+    "annual_return": -0.2538,
+    "max_drawdown": -0.9142,
+    "sharpe": -1.03,
+    "win_rate": 0.3469,
+    "avg_pnl": -0.0143,
+    "median_pnl": -0.0842,
+    "avg_holding_days": 6.9,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.191,
+    "avg_exposure": 0.5151,
+    "max_exposure": 0.6762,
+    "final_equity": 126615.45,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 10,
+     "signal": 6,
+     "stop_loss": 742,
+     "trailing_take_profit": 398
+    },
+    "oos_annual": -0.1456,
+    "oos_mdd": -0.6523,
+    "oos_sharpe": -0.46,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1158,
+    "completed_trade_count": 1156,
+    "open_at_end_count": 2,
+    "total_return": -0.8734,
+    "annual_return": -0.2538,
+    "max_drawdown": -0.9142,
+    "sharpe": -1.03,
+    "win_rate": 0.3469,
+    "avg_pnl": -0.0143,
+    "median_pnl": -0.0842,
+    "avg_holding_days": 6.9,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.191,
+    "avg_exposure": 0.5151,
+    "max_exposure": 0.6762,
+    "final_equity": 126615.45,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 10,
+     "signal": 6,
+     "stop_loss": 742,
+     "trailing_take_profit": 398
+    },
+    "oos_annual": -0.1456,
+    "oos_mdd": -0.6523,
+    "oos_sharpe": -0.46,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1158,
+     "C": 1158,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1156,
+     "C": 1156,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 2,
+     "C": 2,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8734,
+     "C": -0.8734,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2538,
+     "C": -0.2538,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.9142,
+     "C": -0.9142,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -1.03,
+     "C": -1.03,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3469,
+     "C": 0.3469,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0143,
+     "C": -0.0143,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0842,
+     "C": -0.0842,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 6.9,
+     "C": 6.9,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 6.191,
+     "C": 6.191,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5151,
+     "C": 0.5151,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6762,
+     "C": 0.6762,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 126615.45,
+     "C": 126615.45,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 2,
+      "max_hold": 10,
+      "signal": 6,
+      "stop_loss": 742,
+      "trailing_take_profit": 398
+     },
+     "C": {
+      "end": 2,
+      "max_hold": 10,
+      "signal": 6,
+      "stop_loss": 742,
+      "trailing_take_profit": 398
+     }
+    },
+    "oos_annual": {
+     "D": -0.1456,
+     "C": -0.1456,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6523,
+     "C": -0.6523,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.46,
+     "C": -0.46,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a3_gross",
+   "label": "臂 3 + 上路 + 最长持有 45",
+   "scenario": "gross",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "ce45d2d050f295dd38c001a58ff5aa4768eae193a7113a11aa9a8c0a2f413fae",
+     "C": "ce45d2d050f295dd38c001a58ff5aa4768eae193a7113a11aa9a8c0a2f413fae",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "833ecb25b29e4662a95bb5e4e32dc42d2a13653b0db1b34b7b3da08210349e79",
+     "C": "833ecb25b29e4662a95bb5e4e32dc42d2a13653b0db1b34b7b3da08210349e79",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "f290279da230e4cc5e95115c82c25401300e3ced6d9a395867c98c8a4ccd48f4",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 45584,
+    "buy_cash": 0,
+    "buy_lot_size": 4,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 37,
+    "pending_exit": 14
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 45584,
+    "buy_cash": 0,
+    "buy_lot_size": 4,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 37,
+    "pending_exit": 14
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1148,
+    "completed_trade_count": 1146,
+    "open_at_end_count": 2,
+    "total_return": -0.803,
+    "annual_return": -0.2055,
+    "max_drawdown": -0.8736,
+    "sharpe": -0.81,
+    "win_rate": 0.3543,
+    "avg_pnl": -0.0111,
+    "median_pnl": -0.08,
+    "avg_holding_days": 7.0,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 7.176,
+    "avg_exposure": 0.5222,
+    "max_exposure": 0.6772,
+    "final_equity": 197023.43,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 12,
+     "signal": 8,
+     "stop_loss": 728,
+     "trailing_take_profit": 398
+    },
+    "oos_annual": -0.0917,
+    "oos_mdd": -0.5802,
+    "oos_sharpe": -0.245,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1148,
+    "completed_trade_count": 1146,
+    "open_at_end_count": 2,
+    "total_return": -0.803,
+    "annual_return": -0.2055,
+    "max_drawdown": -0.8736,
+    "sharpe": -0.81,
+    "win_rate": 0.3543,
+    "avg_pnl": -0.0111,
+    "median_pnl": -0.08,
+    "avg_holding_days": 7.0,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 7.176,
+    "avg_exposure": 0.5222,
+    "max_exposure": 0.6772,
+    "final_equity": 197023.43,
+    "exit_reason": {
+     "end": 2,
+     "max_hold": 12,
+     "signal": 8,
+     "stop_loss": 728,
+     "trailing_take_profit": 398
+    },
+    "oos_annual": -0.0917,
+    "oos_mdd": -0.5802,
+    "oos_sharpe": -0.245,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1148,
+     "C": 1148,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1146,
+     "C": 1146,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 2,
+     "C": 2,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.803,
+     "C": -0.803,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2055,
+     "C": -0.2055,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.8736,
+     "C": -0.8736,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.81,
+     "C": -0.81,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3543,
+     "C": 0.3543,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0111,
+     "C": -0.0111,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.08,
+     "C": -0.08,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.0,
+     "C": 7.0,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 7.176,
+     "C": 7.176,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5222,
+     "C": 0.5222,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6772,
+     "C": 0.6772,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 197023.43,
+     "C": 197023.43,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 2,
+      "max_hold": 12,
+      "signal": 8,
+      "stop_loss": 728,
+      "trailing_take_profit": 398
+     },
+     "C": {
+      "end": 2,
+      "max_hold": 12,
+      "signal": 8,
+      "stop_loss": 728,
+      "trailing_take_profit": 398
+     }
+    },
+    "oos_annual": {
+     "D": -0.0917,
+     "C": -0.0917,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.5802,
+     "C": -0.5802,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.245,
+     "C": -0.245,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a2h_10bp",
+   "label": "对照 臂2 peak=high",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "abf94f8758c1fe5a57ccb6f70351a8b8fc075929f43ae45162594eba2db23528",
+     "C": "abf94f8758c1fe5a57ccb6f70351a8b8fc075929f43ae45162594eba2db23528",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "1088501e0a49fedc7dc39e10e7360214b0ec10ed5dc754afc8f30c1eb9a20d56",
+     "C": "1088501e0a49fedc7dc39e10e7360214b0ec10ed5dc754afc8f30c1eb9a20d56",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "9ff69b11a7e8786804fb40e3e9b06002f76be7938532576ae60dd21e904d70f4",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 34663,
+    "buy_cash": 0,
+    "buy_lot_size": 8,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 46,
+    "pending_exit": 21
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 34663,
+    "buy_cash": 0,
+    "buy_lot_size": 8,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 46,
+    "pending_exit": 21
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1487,
+    "completed_trade_count": 1486,
+    "open_at_end_count": 1,
+    "total_return": -0.8522,
+    "annual_return": -0.2372,
+    "max_drawdown": -0.9064,
+    "sharpe": -1.03,
+    "win_rate": 0.4206,
+    "avg_pnl": -0.0097,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 5.3,
+    "hold_p50": 3.0,
+    "hold_p90": 13.0,
+    "annual_turnover": 10.914,
+    "avg_exposure": 0.5116,
+    "max_exposure": 0.6531,
+    "final_equity": 147821.5,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 3,
+     "signal": 16,
+     "stop_loss": 776,
+     "trailing_take_profit": 691
+    },
+    "oos_annual": -0.2023,
+    "oos_mdd": -0.7338,
+    "oos_sharpe": -0.854,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1487,
+    "completed_trade_count": 1486,
+    "open_at_end_count": 1,
+    "total_return": -0.8522,
+    "annual_return": -0.2372,
+    "max_drawdown": -0.9064,
+    "sharpe": -1.03,
+    "win_rate": 0.4206,
+    "avg_pnl": -0.0097,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 5.3,
+    "hold_p50": 3.0,
+    "hold_p90": 13.0,
+    "annual_turnover": 10.914,
+    "avg_exposure": 0.5116,
+    "max_exposure": 0.6531,
+    "final_equity": 147821.5,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 3,
+     "signal": 16,
+     "stop_loss": 776,
+     "trailing_take_profit": 691
+    },
+    "oos_annual": -0.2023,
+    "oos_mdd": -0.7338,
+    "oos_sharpe": -0.854,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1487,
+     "C": 1487,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1486,
+     "C": 1486,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 1,
+     "C": 1,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8522,
+     "C": -0.8522,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2372,
+     "C": -0.2372,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.9064,
+     "C": -0.9064,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -1.03,
+     "C": -1.03,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.4206,
+     "C": 0.4206,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0097,
+     "C": -0.0097,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0824,
+     "C": -0.0824,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 5.3,
+     "C": 5.3,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 13.0,
+     "C": 13.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 10.914,
+     "C": 10.914,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5116,
+     "C": 0.5116,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6531,
+     "C": 0.6531,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 147821.5,
+     "C": 147821.5,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 1,
+      "max_hold": 3,
+      "signal": 16,
+      "stop_loss": 776,
+      "trailing_take_profit": 691
+     },
+     "C": {
+      "end": 1,
+      "max_hold": 3,
+      "signal": 16,
+      "stop_loss": 776,
+      "trailing_take_profit": 691
+     }
+    },
+    "oos_annual": {
+     "D": -0.2023,
+     "C": -0.2023,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.7338,
+     "C": -0.7338,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.854,
+     "C": -0.854,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a4_10bp",
+   "label": "附加 只改 MAX_HOLD_DAYS=45",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "aa42fdd051ff23f3ffe8e25db471e476756afb0962de1ffc0c32d3a610187558",
+     "C": "aa42fdd051ff23f3ffe8e25db471e476756afb0962de1ffc0c32d3a610187558",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "d5fbe895441a068060dcad0302699f9faf33097978526e31a64ac1d622b37afa",
+     "C": "d5fbe895441a068060dcad0302699f9faf33097978526e31a64ac1d622b37afa",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "9e53e48f76b7a78e8dda6d85749c624715a6ad3859321cb5e0f91eb0e1f7235a",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 75134,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 2,
+    "sell_limit_down": 0,
+    "pending_exit": 1
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 75134,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 2,
+    "sell_limit_down": 0,
+    "pending_exit": 1
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 238,
+    "completed_trade_count": 233,
+    "open_at_end_count": 5,
+    "total_return": -0.6833,
+    "annual_return": -0.1503,
+    "max_drawdown": -0.713,
+    "sharpe": -0.57,
+    "win_rate": 0.3433,
+    "avg_pnl": -0.0387,
+    "median_pnl": -0.1072,
+    "avg_holding_days": 37.4,
+    "hold_p50": 44.0,
+    "hold_p90": 45.0,
+    "annual_turnover": 2.409,
+    "avg_exposure": 0.5561,
+    "max_exposure": 0.6573,
+    "final_equity": 316665.8,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 108,
+     "signal": 125
+    },
+    "oos_annual": -0.1465,
+    "oos_mdd": -0.5728,
+    "oos_sharpe": -0.552,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 238,
+    "completed_trade_count": 233,
+    "open_at_end_count": 5,
+    "total_return": -0.6833,
+    "annual_return": -0.1503,
+    "max_drawdown": -0.713,
+    "sharpe": -0.57,
+    "win_rate": 0.3433,
+    "avg_pnl": -0.0387,
+    "median_pnl": -0.1072,
+    "avg_holding_days": 37.4,
+    "hold_p50": 44.0,
+    "hold_p90": 45.0,
+    "annual_turnover": 2.409,
+    "avg_exposure": 0.5561,
+    "max_exposure": 0.6573,
+    "final_equity": 316665.8,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 108,
+     "signal": 125
+    },
+    "oos_annual": -0.1465,
+    "oos_mdd": -0.5728,
+    "oos_sharpe": -0.552,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 238,
+     "C": 238,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 233,
+     "C": 233,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.6833,
+     "C": -0.6833,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.1503,
+     "C": -0.1503,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.713,
+     "C": -0.713,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.57,
+     "C": -0.57,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3433,
+     "C": 0.3433,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0387,
+     "C": -0.0387,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.1072,
+     "C": -0.1072,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 37.4,
+     "C": 37.4,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 44.0,
+     "C": 44.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 45.0,
+     "C": 45.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 2.409,
+     "C": 2.409,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5561,
+     "C": 0.5561,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6573,
+     "C": 0.6573,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 316665.8,
+     "C": 316665.8,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 5,
+      "max_hold": 108,
+      "signal": 125
+     },
+     "C": {
+      "end": 5,
+      "max_hold": 108,
+      "signal": 125
+     }
+    },
+    "oos_annual": {
+     "D": -0.1465,
+     "C": -0.1465,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.5728,
+     "C": -0.5728,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.552,
+     "C": -0.552,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a0ev_10bp",
+   "label": "等价性 臂0 事件式 cross_down",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "C": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "C": "1fa5003b5ddb4c4b2db07d90bd7a6c4f5fd29b3cee528bcd24da22936ad88ada",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "2501c913b80b29c14432a49f0cfdc134234bee84611af07a239a202d88c43068",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 78422,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 1,
+    "pending_exit": 1
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.2427,
+    "annual_return": 0.0313,
+    "max_drawdown": -0.3927,
+    "sharpe": 0.25,
+    "win_rate": 0.3351,
+    "avg_pnl": 0.0131,
+    "median_pnl": -0.0964,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.478,
+    "avg_exposure": 0.5715,
+    "max_exposure": 0.7313,
+    "final_equity": 1242725.28,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.0473,
+    "oos_mdd": -0.2954,
+    "oos_sharpe": 0.296,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 199,
+    "completed_trade_count": 194,
+    "open_at_end_count": 5,
+    "total_return": 0.2427,
+    "annual_return": 0.0313,
+    "max_drawdown": -0.3927,
+    "sharpe": 0.25,
+    "win_rate": 0.3351,
+    "avg_pnl": 0.0131,
+    "median_pnl": -0.0964,
+    "avg_holding_days": 45.3,
+    "hold_p50": 48.0,
+    "hold_p90": 60.0,
+    "annual_turnover": 3.478,
+    "avg_exposure": 0.5715,
+    "max_exposure": 0.7313,
+    "final_equity": 1242725.28,
+    "exit_reason": {
+     "end": 5,
+     "max_hold": 58,
+     "signal": 136
+    },
+    "oos_annual": 0.0473,
+    "oos_mdd": -0.2954,
+    "oos_sharpe": 0.296,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 199,
+     "C": 199,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 194,
+     "C": 194,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "total_return": {
+     "D": 0.2427,
+     "C": 0.2427,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": 0.0313,
+     "C": 0.0313,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.3927,
+     "C": -0.3927,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": 0.25,
+     "C": 0.25,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3351,
+     "C": 0.3351,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": 0.0131,
+     "C": 0.0131,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0964,
+     "C": -0.0964,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 45.3,
+     "C": 45.3,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 48.0,
+     "C": 48.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 60.0,
+     "C": 60.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 3.478,
+     "C": 3.478,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5715,
+     "C": 0.5715,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.7313,
+     "C": 0.7313,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 1242725.28,
+     "C": 1242725.28,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     },
+     "C": {
+      "end": 5,
+      "max_hold": 58,
+      "signal": 136
+     }
+    },
+    "oos_annual": {
+     "D": 0.0473,
+     "C": 0.0473,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.2954,
+     "C": -0.2954,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": 0.296,
+     "C": 0.296,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "a3ev_10bp",
+   "label": "等价性 臂3 事件式 cross_down",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "C": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "C": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1135,
+    "completed_trade_count": 1134,
+    "open_at_end_count": 1,
+    "total_return": -0.8611,
+    "annual_return": -0.2439,
+    "max_drawdown": -0.91,
+    "sharpe": -1.01,
+    "win_rate": 0.3483,
+    "avg_pnl": -0.0146,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.32,
+    "avg_exposure": 0.5173,
+    "max_exposure": 0.6842,
+    "final_equity": 138893.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 12,
+     "signal": 9,
+     "stop_loss": 725,
+     "trailing_take_profit": 388
+    },
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe": -0.483,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1135,
+    "completed_trade_count": 1134,
+    "open_at_end_count": 1,
+    "total_return": -0.8611,
+    "annual_return": -0.2439,
+    "max_drawdown": -0.91,
+    "sharpe": -1.01,
+    "win_rate": 0.3483,
+    "avg_pnl": -0.0146,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.32,
+    "avg_exposure": 0.5173,
+    "max_exposure": 0.6842,
+    "final_equity": 138893.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 12,
+     "signal": 9,
+     "stop_loss": 725,
+     "trailing_take_profit": 388
+    },
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe": -0.483,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1135,
+     "C": 1135,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1134,
+     "C": 1134,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 1,
+     "C": 1,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8611,
+     "C": -0.8611,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2439,
+     "C": -0.2439,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.91,
+     "C": -0.91,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -1.01,
+     "C": -1.01,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3483,
+     "C": 0.3483,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0146,
+     "C": -0.0146,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0824,
+     "C": -0.0824,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.1,
+     "C": 7.1,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 6.32,
+     "C": 6.32,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5173,
+     "C": 0.5173,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6842,
+     "C": 0.6842,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 138893.51,
+     "C": 138893.51,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 1,
+      "max_hold": 12,
+      "signal": 9,
+      "stop_loss": 725,
+      "trailing_take_profit": 388
+     },
+     "C": {
+      "end": 1,
+      "max_hold": 12,
+      "signal": 9,
+      "stop_loss": 725,
+      "trailing_take_profit": 388
+     }
+    },
+    "oos_annual": {
+     "D": -0.1457,
+     "C": -0.1457,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6622,
+     "C": -0.6622,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.483,
+     "C": -0.483,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "prod_file_10bp",
+   "label": "生产文件口径复现（5,510B 变体）",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "UNCHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "C": "3c0f27e974aeff76764cb1e5caf6b85c9ab98ac70a9c7f7e595c3c29460ea0aa",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "C": "efe2baa48af39d3d8288b41cbe85abe501dd7100785492823c661c03e4c16b5b",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "2ff4d5851ed3c606f156242639216c02e02619ddab4edec5a72884565a3cca85",
+     "same": null
+    }
+   },
+   "stats_diff": {},
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 550,
+    "buy_no_slot": 46282,
+    "buy_cash": 0,
+    "buy_lot_size": 9,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 1,
+    "sell_limit_down": 40,
+    "pending_exit": 16
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 1135,
+    "completed_trade_count": 1134,
+    "open_at_end_count": 1,
+    "total_return": -0.8611,
+    "annual_return": -0.2439,
+    "max_drawdown": -0.91,
+    "sharpe": -1.01,
+    "win_rate": 0.3483,
+    "avg_pnl": -0.0146,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.32,
+    "avg_exposure": 0.5173,
+    "max_exposure": 0.6842,
+    "final_equity": 138893.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 12,
+     "signal": 9,
+     "stop_loss": 725,
+     "trailing_take_profit": 388
+    },
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe": -0.483,
+    "oos_days": 925
+   },
+   "metrics_C": {
+    "n_trades": 1135,
+    "completed_trade_count": 1134,
+    "open_at_end_count": 1,
+    "total_return": -0.8611,
+    "annual_return": -0.2439,
+    "max_drawdown": -0.91,
+    "sharpe": -1.01,
+    "win_rate": 0.3483,
+    "avg_pnl": -0.0146,
+    "median_pnl": -0.0824,
+    "avg_holding_days": 7.1,
+    "hold_p50": 3.0,
+    "hold_p90": 18.0,
+    "annual_turnover": 6.32,
+    "avg_exposure": 0.5173,
+    "max_exposure": 0.6842,
+    "final_equity": 138893.51,
+    "exit_reason": {
+     "end": 1,
+     "max_hold": 12,
+     "signal": 9,
+     "stop_loss": 725,
+     "trailing_take_profit": 388
+    },
+    "oos_annual": -0.1457,
+    "oos_mdd": -0.6622,
+    "oos_sharpe": -0.483,
+    "oos_days": 925
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 1135,
+     "C": 1135,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 1134,
+     "C": 1134,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 1,
+     "C": 1,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.8611,
+     "C": -0.8611,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.2439,
+     "C": -0.2439,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.91,
+     "C": -0.91,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -1.01,
+     "C": -1.01,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.3483,
+     "C": 0.3483,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0146,
+     "C": -0.0146,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0824,
+     "C": -0.0824,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 7.1,
+     "C": 7.1,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 3.0,
+     "C": 3.0,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 18.0,
+     "C": 18.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 6.32,
+     "C": 6.32,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5173,
+     "C": 0.5173,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6842,
+     "C": 0.6842,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 138893.51,
+     "C": 138893.51,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 1,
+      "max_hold": 12,
+      "signal": 9,
+      "stop_loss": 725,
+      "trailing_take_profit": 388
+     },
+     "C": {
+      "end": 1,
+      "max_hold": 12,
+      "signal": 9,
+      "stop_loss": 725,
+      "trailing_take_profit": 388
+     }
+    },
+    "oos_annual": {
+     "D": -0.1457,
+     "C": -0.1457,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.6622,
+     "C": -0.6622,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.483,
+     "C": -0.483,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 925,
+     "C": 925,
+     "delta": 0
+    }
+   }
+  },
+  {
+   "tag": "smoke_a0",
+   "label": "冒烟 臂0 2023Q1（3 个月）",
+   "scenario": "10bp",
+   "has_D": true,
+   "has_C": true,
+   "status": "CHANGED",
+   "finalize_open_at_end": true,
+   "parquet_sha256": {
+    "trades.parquet": {
+     "D": "62530cee61b4370b36a8e92e3cf9b821e03d492c29ba832761189d5e8e8d24ff",
+     "C": "62530cee61b4370b36a8e92e3cf9b821e03d492c29ba832761189d5e8e8d24ff",
+     "same": true
+    },
+    "equity.parquet": {
+     "D": "511d2a2c817b75dbba43f31ac0f644becee2976b2930034f2a21377b56b0393e",
+     "C": "511d2a2c817b75dbba43f31ac0f644becee2976b2930034f2a21377b56b0393e",
+     "same": true
+    },
+    "drawdown.parquet": {
+     "D": null,
+     "C": "461cd354d6fc141dcb1218c1a26fec39971ea2d587e108d5165fe8516fc2db28",
+     "same": null
+    }
+   },
+   "stats_diff": {
+    "market_matrix_bytes": {
+     "D": 25450417,
+     "C": 28457175
+    },
+    "market_matrix_shape": {
+     "D": [
+      59,
+      5197
+     ],
+     "C": [
+      59,
+      5811
+     ]
+    }
+   },
+   "execution_D": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 13,
+    "buy_no_slot": 3522,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 0,
+    "pending_exit": 0
+   },
+   "execution_C": {
+    "buy_invalid_price": 0,
+    "buy_suspended": 0,
+    "buy_limit_up": 13,
+    "buy_no_slot": 3522,
+    "buy_cash": 0,
+    "buy_lot_size": 0,
+    "buy_same_day_reentry": 0,
+    "buy_exposure": 0,
+    "buy_score_filter": 0,
+    "sell_invalid_price": 0,
+    "sell_suspended": 0,
+    "sell_limit_down": 0,
+    "pending_exit": 0
+   },
+   "execution_same": true,
+   "metrics_D": {
+    "n_trades": 10,
+    "completed_trade_count": 5,
+    "open_at_end_count": 5,
+    "total_return": -0.0068,
+    "annual_return": -0.0287,
+    "max_drawdown": -0.069,
+    "sharpe": -0.16,
+    "win_rate": 0.0,
+    "avg_pnl": -0.0633,
+    "median_pnl": -0.0565,
+    "avg_holding_days": 29.8,
+    "hold_p50": 2.5,
+    "hold_p90": 44.0,
+    "annual_turnover": 0.157,
+    "avg_exposure": 0.5863,
+    "max_exposure": 0.6135,
+    "final_equity": 993210.78,
+    "exit_reason": {
+     "end": 5,
+     "signal": 5
+    },
+    "oos_annual": -0.027,
+    "oos_mdd": -0.069,
+    "oos_sharpe": -0.158,
+    "oos_days": 59
+   },
+   "metrics_C": {
+    "n_trades": 10,
+    "completed_trade_count": 5,
+    "open_at_end_count": 5,
+    "total_return": -0.0068,
+    "annual_return": -0.0287,
+    "max_drawdown": -0.069,
+    "sharpe": -0.16,
+    "win_rate": 0.0,
+    "avg_pnl": -0.0633,
+    "median_pnl": -0.0565,
+    "avg_holding_days": 29.8,
+    "hold_p50": 2.5,
+    "hold_p90": 44.0,
+    "annual_turnover": 0.157,
+    "avg_exposure": 0.5863,
+    "max_exposure": 0.6135,
+    "final_equity": 993210.78,
+    "exit_reason": {
+     "end": 5,
+     "signal": 5
+    },
+    "oos_annual": -0.027,
+    "oos_mdd": -0.069,
+    "oos_sharpe": -0.158,
+    "oos_days": 59
+   },
+   "deltas": {
+    "n_trades": {
+     "D": 10,
+     "C": 10,
+     "delta": 0
+    },
+    "completed_trade_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "open_at_end_count": {
+     "D": 5,
+     "C": 5,
+     "delta": 0
+    },
+    "total_return": {
+     "D": -0.0068,
+     "C": -0.0068,
+     "delta": 0.0
+    },
+    "annual_return": {
+     "D": -0.0287,
+     "C": -0.0287,
+     "delta": 0.0
+    },
+    "max_drawdown": {
+     "D": -0.069,
+     "C": -0.069,
+     "delta": 0.0
+    },
+    "sharpe": {
+     "D": -0.16,
+     "C": -0.16,
+     "delta": 0.0
+    },
+    "win_rate": {
+     "D": 0.0,
+     "C": 0.0,
+     "delta": 0.0
+    },
+    "avg_pnl": {
+     "D": -0.0633,
+     "C": -0.0633,
+     "delta": 0.0
+    },
+    "median_pnl": {
+     "D": -0.0565,
+     "C": -0.0565,
+     "delta": 0.0
+    },
+    "avg_holding_days": {
+     "D": 29.8,
+     "C": 29.8,
+     "delta": 0.0
+    },
+    "hold_p50": {
+     "D": 2.5,
+     "C": 2.5,
+     "delta": 0.0
+    },
+    "hold_p90": {
+     "D": 44.0,
+     "C": 44.0,
+     "delta": 0.0
+    },
+    "annual_turnover": {
+     "D": 0.157,
+     "C": 0.157,
+     "delta": 0.0
+    },
+    "avg_exposure": {
+     "D": 0.5863,
+     "C": 0.5863,
+     "delta": 0.0
+    },
+    "max_exposure": {
+     "D": 0.6135,
+     "C": 0.6135,
+     "delta": 0.0
+    },
+    "final_equity": {
+     "D": 993210.78,
+     "C": 993210.78,
+     "delta": 0.0
+    },
+    "exit_reason": {
+     "same": true,
+     "D": {
+      "end": 5,
+      "signal": 5
+     },
+     "C": {
+      "end": 5,
+      "signal": 5
+     }
+    },
+    "oos_annual": {
+     "D": -0.027,
+     "C": -0.027,
+     "delta": 0.0
+    },
+    "oos_mdd": {
+     "D": -0.069,
+     "C": -0.069,
+     "delta": 0.0
+    },
+    "oos_sharpe": {
+     "D": -0.158,
+     "C": -0.158,
+     "delta": 0.0
+    },
+    "oos_days": {
+     "D": 59,
+     "C": 59,
+     "delta": 0
+    }
+   }
+  }
+ ],
+ "anchor_six": [
+  {
+   "tag": "base_nodefaults_10bp",
+   "total_return_D": -0.5147,
+   "total_return_C": -0.5164,
+   "delta_pp": -0.17,
+   "final_D": 485293.78,
+   "final_C": 483571.22,
+   "expected_pp_D": -51.47,
+   "expected_pp_C": -51.64,
+   "mdd_D": -0.7195,
+   "mdd_C": -0.7195,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_execution_costs",
+   "total_return_D": -0.5146,
+   "total_return_C": -0.5163,
+   "delta_pp": -0.17,
+   "final_D": 485420.69,
+   "final_C": 483698.12,
+   "expected_pp_D": -51.46,
+   "expected_pp_C": -51.63,
+   "mdd_D": -0.7194,
+   "mdd_C": -0.7194,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_entry_price_basis_raw",
+   "total_return_D": -0.5653,
+   "total_return_C": -0.567,
+   "delta_pp": -0.17,
+   "final_D": 434710.53,
+   "final_C": 432987.97,
+   "expected_pp_D": -56.53,
+   "expected_pp_C": -56.7,
+   "mdd_D": -0.7431,
+   "mdd_C": -0.7441,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "base_nodefaults_gross",
+   "total_return_D": -0.4729,
+   "total_return_C": -0.4746,
+   "delta_pp": -0.17,
+   "final_D": 527074.75,
+   "final_C": 525402.74,
+   "expected_pp_D": null,
+   "expected_pp_C": null,
+   "mdd_D": -0.7108,
+   "mdd_C": -0.7108,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_block_limit_open",
+   "total_return_D": 0.1213,
+   "total_return_C": 0.1178,
+   "delta_pp": -0.35,
+   "final_D": 1121259.36,
+   "final_C": 1117814.25,
+   "expected_pp_D": 12.13,
+   "expected_pp_C": 11.78,
+   "mdd_D": -0.4012,
+   "mdd_C": -0.4012,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_trailing_peak_price_close",
+   "total_return_D": -0.5147,
+   "total_return_C": -0.5164,
+   "delta_pp": -0.17,
+   "final_D": 485293.78,
+   "final_C": 483571.22,
+   "expected_pp_D": -51.47,
+   "expected_pp_C": -51.64,
+   "mdd_D": -0.7195,
+   "mdd_C": -0.7195,
+   "parquet_trades_same": false
+  },
+  {
+   "tag": "only_finalize_open_at_end",
+   "total_return_D": -0.5218,
+   "total_return_C": -0.5218,
+   "delta_pp": 0.0,
+   "final_D": 478212.34,
+   "final_C": 478212.34,
+   "expected_pp_D": -52.18,
+   "expected_pp_C": -52.18,
+   "mdd_D": -0.7195,
+   "mdd_C": -0.7195,
+   "parquet_trades_same": true
+  },
+  {
+   "tag": "only_exit_signal_requires_profit",
+   "total_return_D": -0.3262,
+   "total_return_C": -0.3262,
+   "delta_pp": 0.0,
+   "final_D": 673798.76,
+   "final_C": 673798.76,
+   "expected_pp_D": -32.62,
+   "expected_pp_C": -32.62,
+   "mdd_D": -0.6177,
+   "mdd_C": -0.6177,
+   "parquet_trades_same": true
+  }
+ ],
+ "engine_C_sha256": "4243fe97723dad20d01bd440783cf71ea6ef05c55a9ffd4652492031e40d8386"
+}

@@ -1,0 +1,176 @@
+{
+ "generated_by": "diag_stop_basis.py",
+ "generated_at": "2026-11-08T21:18:57",
+ "verdict_h1": "REFUTED",
+ "inputs": {
+  "a1_trades": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\results\\a1_10bp\\trades.parquet",
+  "a1_trades_bytes": 41323,
+  "a1_trades_sha256": "3d6c2c24e6f2685ad6a8180b11f06b4db73ffbb0c648030f9578d8e07e1839be",
+  "a0_trades": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\results\\a0_10bp\\trades.parquet",
+  "a0_trades_sha256": "639be869aac3c40a744f57830fadb7570a9e37720cc2e89a38076c3ec0486a06",
+  "panel_source": "D:\\TSP\\data\\kline_daily_enriched",
+  "panel_rows": 1020015,
+  "panel_symbols": 608,
+  "panel_window": [
+   "2018-12-01",
+   "2026-11-02"
+  ],
+  "stop_loss_pct": -0.08,
+  "horizon_sessions": 60
+ },
+ "trade_counts": {
+  "trades_total": 519,
+  "stop_loss": 425,
+  "max_hold": 50,
+  "signal": 42,
+  "end": 2
+ },
+ "entry_plane": {
+  "rule": "entry_price_basis=raw -> fill = round(raw_close/close*open,2) x (1+slippage_bp)",
+  "n": 519,
+  "max_abs_diff": 10.615384615384613,
+  "share_within_0_02": 0.9961464354527938,
+  "outliers": [
+   {
+    "symbol": "300671.SZ",
+    "entry_date": "2021-04-14",
+    "entry_price_fill": 35.42,
+    "entry_day_open_raw": 46.0,
+    "entry_price_vs_raw_open": -10.615384615384613
+   },
+   {
+    "symbol": "001210.SZ",
+    "entry_date": "2026-05-18",
+    "entry_price_fill": 20.5205,
+    "entry_day_open_raw": 28.7,
+    "entry_price_vs_raw_open": -8.2
+   }
+  ]
+ },
+ "trigger_rate": {
+  "window_entry_to_exit": {
+   "raw": {
+    "n": 428,
+    "share": 0.8247
+   },
+   "adj": {
+    "n": 426,
+    "share": 0.8208
+   },
+   "diff_pp": 0.39
+  },
+  "horizon_60_sessions": {
+   "raw": {
+    "n": 441,
+    "share": 0.8497
+   },
+   "adj": {
+    "n": 440,
+    "share": 0.8478
+   },
+   "diff_pp": 0.19
+  },
+  "disagreements": [
+   {
+    "symbol": "600985.SH",
+    "entry_date": "2024-04-23",
+    "exit_date": "2024-06-28",
+    "exit_reason": "signal",
+    "trigger_day_raw": "2024-06-24",
+    "trigger_day_adj": null
+   },
+   {
+    "symbol": "001210.SZ",
+    "entry_date": "2026-05-18",
+    "exit_date": "2026-07-20",
+    "exit_reason": "stop_loss",
+    "trigger_day_raw": "2026-07-20",
+    "trigger_day_adj": null
+   }
+  ]
+ },
+ "stop_trade_shape": {
+  "stop_trades": 425,
+  "trigger_offset_hist": {
+   "0": 38,
+   "1": 94,
+   "2": 48,
+   "3": 40,
+   "4": 30,
+   "5": 18,
+   "6": 19,
+   "7": 16,
+   "8": 11,
+   "9": 7,
+   "10": 6,
+   "11": 4,
+   "12": 4,
+   "13": 5,
+   "14": 7,
+   "15": 6,
+   "16": 3,
+   "17": 5,
+   "18": 5,
+   "19": 4,
+   "20": 3,
+   "21": 2,
+   "22": 4,
+   "23": 2,
+   "24": 3,
+   "25": 3,
+   "26": 1,
+   "27": 3,
+   "28": 4,
+   "29": 2,
+   "30": 3,
+   "31": 3,
+   "32": 2,
+   "35": 1,
+   "39": 2,
+   "40": 1,
+   "41": 3,
+   "42": 2,
+   "43": 1,
+   "44": 4,
+   "48": 1,
+   "50": 1,
+   "51": 1,
+   "52": 1,
+   "56": 1,
+   "57": 1
+  },
+  "entry_day_close_trigger": 38,
+  "entry_day_close_trigger_share_of_stops": 0.0894,
+  "entry_day_close_trigger_share_of_all": 0.0732,
+  "first_session_trigger": 94,
+  "first_session_trigger_share_of_stops": 0.2212,
+  "first_session_trigger_share_of_all": 0.1811,
+  "exit_on_first_session_after_entry": 129,
+  "exit_first_session_share_of_stops": 0.3035,
+  "exit_first_session_share_of_all": 0.2486,
+  "same_day_exit": 0,
+  "trigger_day_equals_exit_day": 374,
+  "median_entry_day_move_vs_fill_raw": -0.007973,
+  "median_pnl_pct": -0.082394,
+  "raw_low_derived_vs_panel_maxdiff": 0.0
+ },
+ "counterfactual_a0_no_stop": {
+  "n": 199,
+  "would_stop_share": 0.7688,
+  "by_exit_reason": {
+   "signal": {
+    "n": 136,
+    "would_stop_share": 0.8897
+   },
+   "max_hold": {
+    "n": 58,
+    "would_stop_share": 0.5
+   },
+   "end": {
+    "n": 5,
+    "would_stop_share": 0.6
+   }
+  },
+  "note": "同一条 -8% 规则套在 a0（不设止损）199 笔各自的持仓窗内"
+ }
+}

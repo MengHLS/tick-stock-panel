@@ -1,0 +1,91 @@
+{
+ "arm_tag": "a2_gross",
+ "request": {
+  "strategy_id": "s01b_a2",
+  "start": "2019-07-01",
+  "end": "2026-10-30",
+  "gross": true,
+  "slippage_bps": 0.0,
+  "commission_pct": 0.0,
+  "stamp_tax_pct": 0.0,
+  "max_positions": 5,
+  "max_exposure_pct": 0.6,
+  "initial_capital": 1000000.0,
+  "holding_days": 60,
+  "matching": "open_t+1",
+  "position_sizing": "equal",
+  "mode": "position"
+ },
+ "strategy_file": {
+  "path": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\strategies_gross\\custom\\s01b_a2.py",
+  "size": 3638,
+  "sha256": "abd57a806c18e2c9f385243d21da37e46e748bb39d2fc41c15cd135ebf940715",
+  "meta_backtest_defaults": {
+   "trailing_peak_price": "close",
+   "entry_price_basis": "raw",
+   "block_limit_open": true,
+   "finalize_open_at_end": true,
+   "exit_signal_requires_profit": false,
+   "execution_costs": {
+    "min_commission": 0.0,
+    "transfer_fee_pct": 0.0
+   }
+  }
+ },
+ "execution_policy_normalized": {
+  "engine_options": {
+   "score_tiers": null,
+   "entry_open_gap_range": null,
+   "entry_prev_day_change_range": null,
+   "trailing_peak_price": "close",
+   "exit_signal_requires_profit": false,
+   "hold_extension_policy": null,
+   "execution_costs": "ExecutionCostPolicy(min_commission=0.0, transfer_fee_pct=0.0, buy_slippage_tiers=(), price_decimals=4)",
+   "plan_at_signal_close": false,
+   "max_daily_entries": null,
+   "entry_price_basis": "raw",
+   "block_limit_open": true,
+   "allow_same_asset_positions": false,
+   "finalize_open_at_end": true
+  }
+ },
+ "resolved_matcher_config": {
+  "matching": "open_t+1",
+  "entry_fill": "open_t+1",
+  "exit_fill": "open_t+1",
+  "fees_pct": 0.0002,
+  "commission_pct": 0.0,
+  "stamp_tax_pct": 0.0,
+  "slippage_bps": 0.0,
+  "max_positions": 5,
+  "max_exposure_pct": 0.6,
+  "initial_capital": 1000000.0,
+  "position_sizing": "equal",
+  "score_tiers": null,
+  "entry_open_gap_range": null,
+  "entry_prev_day_change_range": null,
+  "trailing_peak_price": "close",
+  "exit_signal_requires_profit": false,
+  "exit_signal_profit_basis": null,
+  "stop_loss_pct": -0.08,
+  "take_profit_pct": null,
+  "trailing_stop_pct": null,
+  "trailing_take_profit_activate_pct": 0.1,
+  "trailing_take_profit_drawdown_pct": 0.08,
+  "max_hold_days": 60,
+  "hold_extension": null,
+  "max_daily_entries": null,
+  "plan_at_signal_close": false,
+  "entry_price_basis": "raw",
+  "block_limit_open": true,
+  "allow_same_asset_positions": false,
+  "finalize_open_at_end": true,
+  "execution_costs": {
+   "min_commission": 0.0,
+   "transfer_fee_pct": 0.0,
+   "buy_slippage_tiers": [],
+   "price_decimals": 4
+  }
+ },
+ "engine_sha256": "4243fe97723dad20d01bd440783cf71ea6ef05c55a9ffd4652492031e40d8386"
+}

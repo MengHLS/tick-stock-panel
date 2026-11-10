@@ -1,0 +1,492 @@
+{
+ "levels": {
+  "window": [
+   "2019-03-04",
+   "2026-10-30"
+  ],
+  "n_dates": 1859,
+  "n_assets": 5811,
+  "cells_with_features": 8522133,
+  "cells_level_true": 4524733,
+  "cells_event_true": 89179,
+  "cells_level_only": 4435554,
+  "level_only_share_of_level_true": 0.9803,
+  "signals_exit_matches": {
+   "event_raw": false,
+   "event_shifted": false,
+   "level_raw": true,
+   "level_shifted": false
+  },
+  "signal_exit_true_cells": 4524733,
+  "n_trades": 199,
+  "level_only_days_inside_holdings": 137,
+  "trades_with_level_only_days_in_holding": 136,
+  "latch_on_event_day": 136,
+  "latch_on_level_only_day": 0,
+  "n_trades_with_blocked_exit": 1,
+  "n_trades_identical_to_a1": 199
+ },
+ "blocked_trades": [
+  {
+   "symbol": "603580.SH",
+   "entry_date": "2024-03-20",
+   "exit_signal_date": "2024-06-06",
+   "exit_date": "2024-06-11",
+   "exit_reason": "signal",
+   "latch_day_kind": "event_day",
+   "blocked_exit_days": 1,
+   "duration": 53,
+   "pnl_pct": -0.379823,
+   "level_only_days_in_holding": 2,
+   "level_only_days_on_blocked_or_untradable": 0,
+   "same_as_a1": true
+  }
+ ],
+ "blocked_day_grids": [
+  {
+   "trade": {
+    "symbol": "603580.SH",
+    "entry_date": "2024-03-20",
+    "exit_signal_date": "2024-06-06",
+    "exit_date": "2024-06-11",
+    "blocked_exit_days": 1,
+    "duration": 53,
+    "pnl_pct": -0.379823
+   },
+   "days": [
+    {
+     "date": "2024-03-20",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-03-21",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-03-22",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-03-25",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-03-26",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": true
+    },
+    {
+     "date": "2024-03-27",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-03-28",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-03-29",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-01",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-02",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-03",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-08",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-09",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-10",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-11",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-12",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-15",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": true
+    },
+    {
+     "date": "2024-04-16",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": true
+    },
+    {
+     "date": "2024-04-17",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-18",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-19",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-22",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-23",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-24",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-25",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-26",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-29",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-04-30",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-06",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-07",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-08",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-09",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-10",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-13",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-14",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-15",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-16",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-17",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-20",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-21",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-22",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-23",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-24",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-27",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-28",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-29",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-30",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-05-31",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-06-03",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-06-04",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-06-05",
+     "level_true": false,
+     "event_true": false,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-06-06",
+     "level_true": true,
+     "event_true": true,
+     "level_only": false,
+     "tradable": true,
+     "limit_down_locked": true
+    },
+    {
+     "date": "2024-06-07",
+     "level_true": true,
+     "event_true": false,
+     "level_only": true,
+     "tradable": true,
+     "limit_down_locked": false
+    },
+    {
+     "date": "2024-06-11",
+     "level_true": true,
+     "event_true": false,
+     "level_only": true,
+     "tradable": true,
+     "limit_down_locked": false
+    }
+   ]
+  }
+ ]
+}

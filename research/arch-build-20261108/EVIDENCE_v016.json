@@ -1,0 +1,891 @@
+{
+  "data_dir": "D:\\TSP\\data",
+  "base_keys": [
+    "code",
+    "mode",
+    "submitted_id",
+    "resolved_id",
+    "canonical_id",
+    "table_row",
+    "message"
+  ],
+  "gap1_matrix": [
+    {
+      "label": "single-alias-alias",
+      "mode": "production",
+      "code": "FS03",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "single-alias-alias",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "status"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "single-alias-alias",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "single-alias-alias2",
+      "mode": "production",
+      "code": "FS03",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "single-alias-alias2",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "status"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "single-alias-alias2",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "single-alias-alias3",
+      "mode": "production",
+      "code": "FS03",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "single-alias-alias3",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "status"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "single-alias-alias3",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "single-collision",
+      "mode": "production",
+      "code": "FS01",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "status"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "single-collision",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "status"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "single-collision",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "dual-id",
+      "mode": "production",
+      "code": "FS04",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "dual_ids"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "dual_ids"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "dual-id",
+      "mode": "research",
+      "code": "FS04",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "dual_ids"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "dual_ids"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "dual-id",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "2diff-both-FS01",
+      "mode": "production",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "2diff-both-FS01",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "2diff-both-FS01",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "2diff-FS01-then-FS03",
+      "mode": "production",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "2diff-FS01-then-FS03",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "2diff-FS01-then-FS03",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "2diff-FS03-then-FS01",
+      "mode": "production",
+      "code": "FS03",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "2diff-FS03-then-FS01",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "2diff-FS03-then-FS01",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "3diff-FS01-FS01-FS03",
+      "mode": "production",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 3,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "3diff-FS01-FS01-FS03",
+      "mode": "research",
+      "code": "FS01",
+      "n_keys": 9,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "status",
+        "violations"
+      ],
+      "distinct_blocked": 3,
+      "formula": "7+2=9",
+      "formula_extra": [
+        "status",
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "3diff-FS01-FS01-FS03",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "dual-plus-3rd",
+      "mode": "production",
+      "code": "FS04",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "dual_ids"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "dual_ids"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "dual-plus-3rd",
+      "mode": "research",
+      "code": "FS04",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "dual_ids"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "dual_ids"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "dual-plus-3rd",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "dual-plus-FS01-id",
+      "mode": "production",
+      "code": "FS04",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "dual_ids"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "dual_ids"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "dual-plus-FS01-id",
+      "mode": "research",
+      "code": "FS04",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "dual_ids"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "dual_ids"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "dual-plus-FS01-id",
+      "mode": "diagnostic",
+      "passed": true
+    },
+    {
+      "label": "FS02-alone",
+      "mode": "production",
+      "code": "FS02",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-alone",
+      "mode": "research",
+      "code": "FS02",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-alone",
+      "mode": "diagnostic",
+      "code": "FS02",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-plus-FS01",
+      "mode": "production",
+      "code": "FS02",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-plus-FS01",
+      "mode": "research",
+      "code": "FS02",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-plus-FS01",
+      "mode": "diagnostic",
+      "code": "FS02",
+      "n_keys": 7,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message"
+      ],
+      "distinct_blocked": 1,
+      "formula": "7+0=7",
+      "formula_extra": [],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-x2",
+      "mode": "production",
+      "code": "FS02",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-x2",
+      "mode": "research",
+      "code": "FS02",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "violations"
+      ],
+      "formula_ok": true
+    },
+    {
+      "label": "FS02-x2",
+      "mode": "diagnostic",
+      "code": "FS02",
+      "n_keys": 8,
+      "keys": [
+        "code",
+        "mode",
+        "submitted_id",
+        "resolved_id",
+        "canonical_id",
+        "table_row",
+        "message",
+        "violations"
+      ],
+      "distinct_blocked": 2,
+      "formula": "7+1=8",
+      "formula_extra": [
+        "violations"
+      ],
+      "formula_ok": true
+    }
+  ],
+  "gap1_algorithm_holds": true,
+  "gap1_observed_n_keys": [
+    7,
+    8,
+    9
+  ],
+  "gap2_default_source": {
+    "signature": {
+      "text": "(factor_ids: 'Iterable[str] | str', mode: 'str', *, allow_non_active: 'bool' = False, allow_retired: 'bool' = False, require_status: 'bool' = True, shadow: 'bool' = False, entry: 'str | None' = None, facts: 'FactsSource | None' = None, namespace: 'str | Mapping[str, str]' = 'factor') -> 'GateReport'",
+      "has_default_facts_source": true
+    },
+    "default_source_data_dir": "D:\\TSP\\data",
+    "default_source_bound": true,
+    "active_ids": [
+      "uf_vol60",
+      "uf_ma120",
+      "uf_ma200",
+      "uf_prior_high_20",
+      "uf_prior_high_250",
+      "uf_prior_high_55",
+      "uf_prior_low_10",
+      "uf_prior_vol_20"
+    ],
+    "omitted_facts_on_active_ids": {
+      "production": {
+        "ok": true,
+        "blocked": []
+      },
+      "research": {
+        "ok": true,
+        "blocked": []
+      },
+      "diagnostic": {
+        "ok": true,
+        "blocked": []
+      }
+    },
+    "explicit_empty_source": {
+      "ok": false,
+      "code": "FS01",
+      "status": null
+    },
+    "data_dir_none": {
+      "production": {
+        "raised": true,
+        "code": "FS09",
+        "detail_mode": "production",
+        "submitted_id": "data_dir",
+        "n_keys": 7
+      },
+      "research": {
+        "raised": true,
+        "code": "FS09",
+        "detail_mode": "production",
+        "submitted_id": "data_dir",
+        "n_keys": 7
+      },
+      "diagnostic": {
+        "raised": true,
+        "code": "FS09",
+        "detail_mode": "production",
+        "submitted_id": "data_dir",
+        "n_keys": 7
+      }
+    },
+    "data_dir_none_mode_fidelity": {
+      "production": true,
+      "research": false,
+      "diagnostic": false
+    }
+  },
+  "section_7_1": {
+    "start_line": 765,
+    "stop_line": 791,
+    "lf_chars": 2514,
+    "lf_sha8": "6d3db013",
+    "crlf_chars": 2541,
+    "crlf_sha8": "a8e88134"
+  },
+  "contract_four_tuple": {
+    "file": "docs/architecture/FACTOR_ENGINE_CONTRACTS_20261108_v0.16.md",
+    "total_bytes": 316155,
+    "total_lines": 2476,
+    "full_sha256": "848df9762431e9d432ed047263b7527ae364d6e4ae26512f7b748c4c437a77a9",
+    "body_bytes": 313158,
+    "body_sha256": "d58d90b577af07b427636f6dc28fbfa293eac7f75fd63460bf819edc85ecc9bb",
+    "mtime": "2026-11-08 04:38:45.831454000 +0800",
+    "footer_self_consistent": true
+  },
+  "verification": {
+    "verify_script": "research/arch-build-20261108/verify_v016.py",
+    "checks": "A1 A2 B1 B2 B3 A4 E1 E2 A6 A7 A8 A9 A10 A11",
+    "result": "SUMMARY ALL PASS",
+    "criterion_rows_v015_vs_v016": {
+      "v015_rows": 72,
+      "v016_rows": 78,
+      "common": 72,
+      "differing": [],
+      "added": [
+        "F-A48-1",
+        "F-A48-2",
+        "F-A48-3",
+        "F-A48-4",
+        "F-A49-1",
+        "F-A49-2"
+      ]
+    },
+    "fa48_independent_probe": {
+      "FA48_1": {
+        "settings_data_dir": "D:/TSP/data",
+        "default_source_data_dir": "D:/TSP/data",
+        "equal": true
+      },
+      "FA48_2": {
+        "active_ids_ok_in_three_modes": true
+      },
+      "FA48_3": {
+        "code": "FS09",
+        "n_keys": 7,
+        "submitted_id": "data_dir"
+      },
+      "FA48_4": {
+        "empty_dir_seen": {
+          "code": "FS01",
+          "n_keys": 8,
+          "status": null
+        },
+        "data_dir_none": {
+          "code": "FS09",
+          "n_keys": 7
+        },
+        "codes_differ": true
+      }
+    },
+    "fa49_status": {
+      "FA49_1": "FAIL today - detail.mode hardcoded to production in research/diagnostic (1/3)",
+      "FA49_2": "pass",
+      "owner": "系统开发工程师"
+    },
+    "doc_defect_found_and_fixed": {
+      "where": "§7.16.4 组合实测表 行 `[\"no_such_xyz\",\"uf_dist_prior_high_250\"]` diagnostic 列",
+      "was": "通过（diagnostic 放行 FS01，只剩 FS02 → 7）",
+      "now": "FS02 → **7**（… 只剩 FS02 一码、blocked 只 1 个 id ⇒ 不追加 violations）",
+      "why": "该格前缀写「通过」，与实产 FS02 抛错不符；已按证据改正，并新增校验项 A11 逐格比对文档表与证据"
+    },
+    "A11_negative_test": "injected two errors (FS01 9→8; revert to 通过) both caught"
+  }
+}

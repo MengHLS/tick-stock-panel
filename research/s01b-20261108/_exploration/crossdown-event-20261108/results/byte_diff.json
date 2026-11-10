@@ -1,0 +1,38 @@
+{
+ "pre": {
+  "path": "C:\\work\\sourcecode\\tick-stock-panel\\research\\s01b-20261108\\crossdown-event-20261108\\strategies_prepatch\\custom\\custom_mw7fvp17.py",
+  "size": 3449,
+  "sha256": "61c237c6cdb2a4391524c48982cd7529606f1ce9d6dabf235527ff702f94b2dd"
+ },
+ "post": {
+  "path": "D:\\TSP\\data\\strategies\\custom\\custom_mw7fvp17.py",
+  "size": 3478,
+  "sha256": "85ae72a5318523d1515903314a817ca5a75cd07b33790cefe0d7b5acea794a07",
+  "mtime": "2026-11-08T18:11:03.811701"
+ },
+ "byte_delta": 29,
+ "lines": [
+  105,
+  105
+ ],
+ "line_count_unchanged": true,
+ "changed_line_numbers": [
+  94
+ ],
+ "removed_lines": [
+  "-        cross_down = fast < slow"
+ ],
+ "added_lines": [
+  "+        cross_down = (fast < slow) & (prev_fast >= prev_slow)"
+ ],
+ "changed_line_pairs": [
+  1,
+  1
+ ],
+ "roundtrip_restores_pre_bytes": true,
+ "bom_pre": false,
+ "bom_post": false,
+ "crlf_pre": 105,
+ "crlf_post": 105,
+ "VERDICT": "ONE_LINE_ONLY"
+}

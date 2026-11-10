@@ -1,0 +1,64 @@
+{
+ "research": {
+  "n": 252,
+  "pnl_sum": -336088.06,
+  "top5_pnl": 516141.43,
+  "top5_share": -1.5357,
+  "top10_pnl": 817259.23,
+  "top1": [
+   {
+    "symbol": "002384.SZ",
+    "entry_date": "2026-03-05",
+    "pnl_pct": 1.236141,
+    "pnl_amount": 133226.33
+   },
+   {
+    "symbol": "002463.SZ",
+    "entry_date": "2019-07-02",
+    "pnl_pct": 0.908326,
+    "pnl_amount": 107780.14
+   },
+   {
+    "symbol": "002127.SZ",
+    "entry_date": "2020-04-01",
+    "pnl_pct": 0.82234,
+    "pnl_amount": 101761.64
+   }
+  ],
+  "best_pnl_pct": 1.2361,
+  "worst_pnl_pct": -0.4106,
+  "n_gt_50pct": 8,
+  "pnl_from_gt_50pct": 721159.76
+ },
+ "prod": {
+  "n": 199,
+  "pnl_sum": 326858.21,
+  "top5_pnl": 999917.77,
+  "top5_share": 3.0592,
+  "top10_pnl": 1495956.79,
+  "top1": [
+   {
+    "symbol": "300641.SZ",
+    "entry_date": "2024-04-12",
+    "pnl_pct": 3.138831,
+    "pnl_amount": 341884.35
+   },
+   {
+    "symbol": "688091.SH",
+    "entry_date": "2022-02-11",
+    "pnl_pct": 1.657608,
+    "pnl_amount": 213568.8
+   },
+   {
+    "symbol": "688313.SH",
+    "entry_date": "2025-05-06",
+    "pnl_pct": 1.295865,
+    "pnl_amount": 182241.28
+   }
+  ],
+  "best_pnl_pct": 3.1388,
+  "worst_pnl_pct": -0.4173,
+  "n_gt_50pct": 19,
+  "pnl_from_gt_50pct": 2106739.57
+ }
+}

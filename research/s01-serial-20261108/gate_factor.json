@@ -1,0 +1,126 @@
+{
+ "ids": {
+  "ma20": {
+   "id": "ma20",
+   "label": "20日均线",
+   "group": "研究补充",
+   "kind": "custom",
+   "warmup_bars": 21,
+   "formula": "ts_mean(close, 20)",
+   "provider": null
+  },
+  "ma60": {
+   "id": "ma60",
+   "label": "60日均线",
+   "group": "研究补充",
+   "kind": "custom",
+   "warmup_bars": 61,
+   "formula": "ts_mean(close, 60)",
+   "provider": null
+  },
+  "momentum_20d": {
+   "id": "momentum_20d",
+   "label": "20日动量",
+   "group": "动量",
+   "kind": "base",
+   "warmup_bars": 1,
+   "formula": "20个交易日累计收益率",
+   "provider": null
+  },
+  "in_universe": {
+   "id": "in_universe",
+   "label": "公共股票池掩码",
+   "group": "研究补充",
+   "kind": "custom",
+   "warmup_bars": 120,
+   "formula": "(observed_bars >= 120) & (st_flag == False as-of) & (raw_close >= 3.0) & (prior_amount20 >= 1e8) & (volume > 0)",
+   "provider": null
+  }
+ },
+ "gate": {
+  "factor": {
+   "ma20": {
+    "pass": false,
+    "codes": [
+     "FS01"
+    ],
+    "detail": {
+     "code": "FS01",
+     "mode": "production",
+     "submitted_id": "ma20",
+     "resolved_id": "ma20",
+     "canonical_id": "ma20",
+     "table_row": null,
+     "message": "因子 ma20 的 status=None 不允许在 production 模式使用",
+     "status": null
+    }
+   },
+   "ma60": {
+    "pass": false,
+    "codes": [
+     "FS01"
+    ],
+    "detail": {
+     "code": "FS01",
+     "mode": "production",
+     "submitted_id": "ma60",
+     "resolved_id": "ma60",
+     "canonical_id": "ma60",
+     "table_row": null,
+     "message": "因子 ma60 的 status=None 不允许在 production 模式使用",
+     "status": null
+    }
+   },
+   "momentum_20d": {
+    "pass": true,
+    "codes": []
+   },
+   "in_universe": {
+    "pass": false,
+    "codes": [
+     "FS01"
+    ],
+    "detail": {
+     "code": "FS01",
+     "mode": "production",
+     "submitted_id": "in_universe",
+     "resolved_id": "in_universe",
+     "canonical_id": "in_universe",
+     "table_row": null,
+     "message": "因子 in_universe 的 status=None 不允许在 production 模式使用",
+     "status": null
+    }
+   }
+  },
+  "column": {
+   "ma20": {
+    "pass": true,
+    "codes": []
+   },
+   "ma60": {
+    "pass": true,
+    "codes": []
+   },
+   "momentum_20d": {
+    "pass": true,
+    "codes": []
+   },
+   "in_universe": {
+    "pass": false,
+    "codes": [
+     "FS02"
+    ],
+    "detail": {
+     "code": "FS02",
+     "mode": "production",
+     "submitted_id": "in_universe",
+     "resolved_id": null,
+     "canonical_id": null,
+     "table_row": null,
+     "message": "因子未登记: in_universe"
+    }
+   }
+  }
+ },
+ "evidence": {}
+}
