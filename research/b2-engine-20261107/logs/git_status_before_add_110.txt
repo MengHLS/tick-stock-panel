@@ -1,7 +1,0 @@
-A  backend/app/custom/research_factor_pack/__init__.py
-A  backend/app/custom/research_factor_pack/factor_provider.py
-A  backend/app/custom/research_factor_pack/factor_specs.py
-A  backend/app/custom/research_universe_pack/__init__.py
-A  backend/app/custom/research_universe_pack/factor_provider.py
-A  backend/app/custom/research_universe_pack/universe.py
-?? backend/app/custom/research_calendar_pack/

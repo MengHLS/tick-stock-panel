@@ -1,2 +1,0 @@
-47b2cf4e784de13846aa2e5b67c706e2c75820743f9f46660484e54f0cc63ad5 *backend/scripts/build_referenced_factor_inventory.py
-3c9a186aad77078065e29d8fcfcc531d69021f4b0b4a1ed82dbb2810cca1ae91 *docs/architecture/evidence/referenced_factor_inventory.json
