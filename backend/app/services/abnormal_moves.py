@@ -19,14 +19,21 @@
 
 from __future__ import annotations
 
+import math
 import threading
 import time
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Any
 
 import polars as pl
 
-from app.indicators.pipeline import BENCH_KEYS, DEVIATION_WINDOWS, bench_rt_pct_for
+from app.indicators.pipeline import (
+    BENCH_KEYS,
+    DEVIATION_WINDOWS,
+    bench_rt_pct_for,
+    load_benchmark_momentum,
+)
 from app.market_time import cn_today
 from app.services import trading_day
 
@@ -299,6 +306,230 @@ def build_overview(
         "counts": counts,
         "total": total,
         "rows": out_rows[:limit],
+    }
+
+
+# ================================================================
+# 异动阈值价格压制 (弹窗「后续上涨空间」)
+#
+# 交易所异动阈值是偏离值上限。把阈值反解成收盘价, 就是当前窗口的
+# 「压制价」; 窗口每个交易日向前滚动, 因此明日/后日的压制价要按新的
+# N 日基准重算, 不能把今天的压制价当成固定值。
+#
+# 推导 (小数口径):
+#   deviate_N = P_now / P_base - 1 - (B_now / B_base - 1)
+#             = P_now / P_base - B_now / B_base
+#   P_cap = P_base * (threshold + B_now / B_base)
+#         = P_now + P_base * (threshold - deviate_N)
+#
+# 对第 k 个未来交易日, 基准日向前滚动 k 个交易日, B_now 假设保持当前
+# 指数点位。只使用已经发生的历史基准日, 不引入未来个股价格。
+# ================================================================
+
+_SUPPRESSION_MAX_FORWARD_DAYS = 10
+
+
+def _as_date(value: Any) -> date | None:
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value[:10])
+        except ValueError:
+            return None
+    return None
+
+
+def _suppression_sort_key(window: dict[str, Any]) -> tuple[int, float]:
+    """最临近的压制窗口: 已越过阈值优先, 其次按剩余空间由近到远。"""
+    today = (window.get("days") or [{}])[0]
+    room = float(today.get("room_pct") or 0.0)
+    if window.get("direction") == "down":
+        return (0 if room > 0 else 1, -room)
+    return (0 if room < 0 else 1, room)
+
+
+def build_suppression_schedule(
+    repo: Any,
+    *,
+    symbol: str,
+    forward_days: int = 5,
+) -> dict[str, Any]:
+    """返回各偏离窗口的收盘价压制位与后续交易日剩余空间。
+
+    参数:
+        symbol: 个股代码。
+        forward_days: 向后测算的交易日数 (0=仅今日), 上限 10。
+
+    返回 ``windows`` 中每个窗口包含 ``threshold`` / ``direction`` /
+    ``current_deviation`` / ``days``; ``days[0]`` 为今日, ``days[k]`` 为
+    第 k 个未来交易日。``room_pct`` 为相对现价的百分比空间:
+      - direction=up: 正数=距上方压制价还剩多少, 负数=已越过压制价;
+      - direction=down: 负数=距下方压制价还剩多少, 正数=已跌破压制价。
+    """
+    symbol = symbol.strip().upper()
+    forward_days = max(0, min(int(forward_days), _SUPPRESSION_MAX_FORWARD_DAYS))
+    hist = _hist_snapshot(repo)
+    cache_date = hist.get("cache_date")
+    base = (hist.get("rows") or {}).get(symbol)
+    if not base:
+        return {"symbol": symbol, "windows": {}, "reason": "no_snapshot"}
+
+    name = base.get("name")
+    close = base.get("close")
+    if close is None or not math.isfinite(float(close)) or float(close) <= 0:
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "no_close"}
+
+    rule = rule_for(symbol, name)
+    bench_key = _bench_key_of(symbol)
+    data_dir = getattr(getattr(repo, "store", None), "data_dir", None)
+    if not bench_key or data_dir is None:
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "no_benchmark"}
+
+    bench = load_benchmark_momentum(data_dir)
+    if bench is None or bench.is_empty():
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "no_benchmark"}
+    bench = bench.filter(pl.col("bench_key") == bench_key).sort("date")
+    bench_by_date = {
+        row["date"]: float(row["bench_close"])
+        for row in bench.iter_rows(named=True)
+        if row.get("date") is not None and row.get("bench_close") is not None
+    }
+    if not bench_by_date:
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "no_benchmark"}
+
+    end = _as_date(cache_date) or cn_today()
+    start = end - timedelta(days=180)
+    try:
+        stock = repo.get_daily(symbol, start, end)
+    except Exception:  # noqa: BLE001 - 数据不可用时降级为空, 弹窗不阻塞
+        stock = pl.DataFrame()
+    if stock.is_empty() or not {"date", "close"}.issubset(stock.columns):
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "no_history"}
+
+    stock = (
+        stock.select(["date", "close"])
+        .drop_nulls()
+        .unique(subset=["date"], keep="last")
+        .sort("date")
+    )
+    stock = stock.with_columns(pl.col("date").cast(pl.Date))
+    stock = stock.filter(pl.col("date") <= end)
+    # 最新快照可能含今日实时行; 以快照 close 为准, 避免日线末行与弹窗现价不一致。
+    stock = stock.filter(pl.col("date") != end)
+    if stock.is_empty():
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "no_history"}
+    stock = pl.concat(
+        [
+            stock,
+            pl.DataFrame({"date": [end], "close": [float(close)]}, schema_overrides={
+                "date": pl.Date,
+                "close": pl.Float64,
+            }),
+        ],
+        how="vertical_relaxed",
+    ).sort("date")
+
+    dates = stock["date"].to_list()
+    closes = [float(value) for value in stock["close"].to_list()]
+    last_index = len(dates) - 1
+    if last_index < min(DEVIATION_WINDOWS):
+        return {"symbol": symbol, "name": name, "windows": {}, "reason": "insufficient_history"}
+
+    windows: dict[str, dict[str, Any]] = {}
+    missing_history = False
+    for n in DEVIATION_WINDOWS:
+        deviate = base.get(f"deviate_{n}d")
+        if deviate is None:
+            continue
+        deviate = float(deviate)
+        if not math.isfinite(deviate):
+            continue
+        up_threshold, down_threshold = rule.thresholds[n]
+        direction = "up" if deviate >= 0 else "down"
+        threshold = up_threshold if direction == "up" else down_threshold
+        signed_threshold = threshold if direction == "up" else -threshold
+
+        base_index = last_index - n
+        if base_index < 0:
+            missing_history = True
+            continue
+        p_base = closes[base_index]
+        b_base = bench_by_date.get(dates[base_index])
+        if (
+            not math.isfinite(p_base)
+            or p_base <= 0
+            or b_base is None
+            or not math.isfinite(b_base)
+            or b_base <= 0
+        ):
+            missing_history = True
+            continue
+
+        # B_now / B_base 由当前偏离反解: deviate = P_now / P_base - B_now / B_base
+        bench_ratio_now = close / p_base - deviate
+        if not math.isfinite(bench_ratio_now) or bench_ratio_now <= 0:
+            missing_history = True
+            continue
+        b_now = b_base * bench_ratio_now
+
+        days: list[dict[str, Any]] = []
+        max_offset = min(forward_days, n)
+        for offset in range(max_offset + 1):
+            index = base_index + offset
+            if index < 0:
+                continue
+            p_window_base = closes[index]
+            b_window_base = bench_by_date.get(dates[index])
+            if (
+                not math.isfinite(p_window_base)
+                or p_window_base <= 0
+                or b_window_base is None
+                or not math.isfinite(b_window_base)
+                or b_window_base <= 0
+            ):
+                continue
+            cap = p_window_base * (signed_threshold + b_now / b_window_base)
+            if not math.isfinite(cap) or cap <= 0:
+                continue
+            days.append({
+                "offset": offset,
+                "base_date": dates[index].isoformat(),
+                "cap": round(cap, 3),
+                "room_pct": round(cap / close - 1.0, 4),
+            })
+        if not days:
+            missing_history = True
+            continue
+        windows[f"{n}d"] = {
+            "threshold": threshold,
+            "direction": direction,
+            "current_deviation": round(deviate, 4),
+            "days": days,
+        }
+
+    if not windows:
+        return {
+            "symbol": symbol,
+            "name": name,
+            "windows": {},
+            "reason": "insufficient_history" if missing_history else "no_deviation",
+        }
+
+    nearest_key = min(windows, key=lambda key: _suppression_sort_key(windows[key]))
+    nearest_day = windows[nearest_key]["days"][0]
+    return {
+        "symbol": symbol,
+        "name": name,
+        "asof": cache_date,
+        "close": round(float(close), 3),
+        "bench_key": bench_key,
+        "windows": windows,
+        "nearest": {
+            "window": nearest_key,
+            "direction": windows[nearest_key]["direction"],
+            "room_pct": nearest_day["room_pct"],
+        },
     }
 
 

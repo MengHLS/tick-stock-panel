@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, RefreshCw, Clock, LineChart, Star, RadioTower, Maximize2, Minimize2, Activity } from 'lucide-react'
-import { api } from '@/lib/api'
+import { api, type AbnormalRow } from '@/lib/api'
 import { QK } from '@/lib/queryKeys'
 import { cn } from '@/lib/cn'
 import { cnSignal } from '@/lib/signals'
@@ -24,11 +24,14 @@ import { navItemKey, type NavItem } from '@/lib/listNav'
 import { useListNav } from '@/lib/useListNav'
 import { DEFAULT_INTRADAY_DAYS } from '@/lib/kline'
 import { ExtensionSlot } from '@/extensions/ExtensionSlot'
+import { AbnormalSuppression } from '@/components/AbnormalSuppression'
 
 export interface Props {
   symbol: string | null
   name?: string
   onClose: () => void
+  /** 从偏移异动列表打开时带入的当前行: 保证不在 overview 前 N 条也能显示异动/压制信息 */
+  abnormalRow?: AbnormalRow | null
   /** 触发信息 (来自监控触发记录, 有值时在顶栏下方显示) */
   triggerInfo?: {
     price?: number | null
@@ -89,7 +92,9 @@ function fmtAbnormalCalcTime(asofSec: number): string {
 }
 
 
-export function StockPreviewDialogContent({ symbol, name, onClose, triggerInfo, navList: navListSource, onNavigate }: Props) {
+export function StockPreviewDialogContent({
+  symbol, name, onClose, abnormalRow, triggerInfo, navList: navListSource, onNavigate,
+}: Props) {
   const [view, setView] = useState<PreviewView>('daily')
   const [intradayDays, setIntradayDays] = useState<number | null>(loadIntradayDays)
   const [dateRange, setDateRange] = useState(getDefaultRange)
@@ -115,11 +120,14 @@ export function StockPreviewDialogContent({ symbol, name, onClose, triggerInfo, 
   const abnormal = useQuery({
     queryKey: QK.abnormalOverview(0.5, 300),
     queryFn: () => api.abnormalOverview(0.5, 300),
-    enabled: !!symbol && storage.abnormalEnabled.get(false),
+    enabled: !!symbol && !abnormalRow && storage.abnormalEnabled.get(false),
+    // enriched 缓存预热期间会返回空快照; 弹窗单独打开时也要短轮询恢复。
+    refetchInterval: (query) =>
+      query.state.data && query.state.data.cache_date == null ? 10_000 : false,
   })
-  const abRow = symbol
+  const abRow = abnormalRow ?? (symbol
     ? abnormal.data?.rows.find(r => r.symbol === symbol)
-    : undefined
+    : undefined)
   // 接近度最高的窗口 (信息条中高亮)
   const abDominantWindow = abRow
     ? Object.entries(abRow.windows).reduce(
@@ -502,6 +510,7 @@ export function StockPreviewDialogContent({ symbol, name, onClose, triggerInfo, 
                     .sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10))
                     .map(([w, info]) => {
                       const dominant = abDominantWindow?.[0] === w
+                      const thresholdSign = info.value >= 0 ? '+' : '−'
                       return (
                         <span
                           key={w}
@@ -514,20 +523,26 @@ export function StockPreviewDialogContent({ symbol, name, onClose, triggerInfo, 
                         >
                           {parseInt(w, 10)}日{' '}
                           <span className={info.value >= 0 ? 'text-bull' : 'text-bear'}>{fmtPct(info.value)}</span>
-                          <span className="text-muted"> / ±{(info.threshold * 100).toFixed(0)}%</span>
+                          <span className="text-muted"> / {thresholdSign}{(info.threshold * 100).toFixed(0)}%</span>
                           <span className="text-muted"> · 接近{(info.closeness * 100).toFixed(0)}%</span>
                         </span>
                       )
                     })}
-                  <span
-                    className="ml-auto shrink-0 font-mono text-[10px] text-muted"
-                    title="异动引擎上次计算时间"
-                  >
-                    计算于 {fmtAbnormalCalcTime(abnormal.data?.asof ?? 0)}
-                  </span>
+                  {abnormal.data?.asof != null && (
+                    <span
+                      className="ml-auto shrink-0 font-mono text-[10px] text-muted"
+                      title="异动引擎上次计算时间"
+                    >
+                      计算于 {fmtAbnormalCalcTime(abnormal.data.asof)}
+                    </span>
+                  )}
                 </div>
               )
             })()}
+
+            {abRow && symbol && (
+              <AbnormalSuppression symbol={symbol} days={effectiveIntradayDays} />
+            )}
 
             {/* 图表内容 — 内衬卡片容器, 图表区与弹窗背景分层 (纯样式) */}
             <div className="flex-1 overflow-auto p-3 sm:p-4">

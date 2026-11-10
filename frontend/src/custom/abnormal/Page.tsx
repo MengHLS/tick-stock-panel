@@ -144,15 +144,26 @@ const SIGNAL_META: Record<IntradaySignalKey, { label: string; cls: string }> = {
 export function AbnormalMoves() {
   const [tab, setTab] = useState<AbnormalTab>('intraday')
   // navList: 弹窗切股的候选列表, 打开详情时由来源 tab 一并给出
-  const [preview, setPreview] = useState<{ symbol: string; name: string; navList: NavItem[] } | null>(null)
+  const [preview, setPreview] = useState<{
+    symbol: string
+    name: string
+    navList: NavItem[]
+    abnormalRow?: AbnormalRow
+  } | null>(null)
 
   // 打开详情: 带上来源 tab 的候选列表, 切股限定在当前所见标的内
-  const openStock = useCallback((symbol: string, name?: string, navList?: NavItem[]) => {
-    setPreview({ symbol, name: name ?? symbol, navList: navList ?? [] })
+  const openStock = useCallback((
+    symbol: string,
+    name?: string,
+    navList?: NavItem[],
+    abnormalRow?: AbnormalRow,
+  ) => {
+    setPreview({ symbol, name: name ?? symbol, navList: navList ?? [], abnormalRow })
   }, [])
 
   const handleNavigate = useCallback((sym: string, name?: string) => {
-    setPreview(prev => (prev ? { ...prev, symbol: sym, name: name ?? sym } : prev))
+    // 切股后原行的偏离快照不再对应当前标的; 清掉后由弹窗按新 symbol 重新查 overview。
+    setPreview(prev => (prev ? { ...prev, symbol: sym, name: name ?? sym, abnormalRow: undefined } : prev))
   }, [])
 
   return (
@@ -208,7 +219,7 @@ export function AbnormalMoves() {
           <IntradayView onPreview={(r, navList) => openStock(r.symbol, r.name ?? undefined, navList)} />
         )}
         {tab === 'deviation' && (
-          <DeviationView onPreview={(r, navList) => openStock(r.symbol, r.name ?? undefined, navList)} />
+          <DeviationView onPreview={(r, navList) => openStock(r.symbol, r.name ?? undefined, navList, r)} />
         )}
       </div>
 
@@ -217,6 +228,7 @@ export function AbnormalMoves() {
           symbol={preview.symbol}
           name={preview.name}
           navList={preview.navList}
+          abnormalRow={preview.abnormalRow}
           onNavigate={handleNavigate}
           onClose={() => setPreview(null)}
         />
@@ -747,8 +759,13 @@ function DeviationView({ onPreview }: {
     queryKey: QK.abnormalOverview(minCloseness, 300, overviewFilters),
     queryFn: () => api.abnormalOverview(minCloseness, 300, overviewFilters),
     enabled, // 关闭时零计算
-    // 非交易时段偏离快照不变, 60s → 5min 兜底 (开盘后自动恢复); 字段缺失保持原频率
-    refetchInterval: () => (enabled && quoteStatus?.is_trading_hours !== false ? REFRESH_MS : 300_000),
+    // 非交易时段偏离快照不变, 60s → 5min 兜底; 但 enriched 缓存预热/重建期间会返回
+    // cache_date=null 的空快照, 此时必须短轮询, 否则空表会一直挂到下一个 5min 周期。
+    refetchInterval: (query) => {
+      if (!enabled) return false
+      if (query.state.data && query.state.data.cache_date == null) return 10_000
+      return quoteStatus?.is_trading_hours !== false ? REFRESH_MS : 300_000
+    },
     // 拖动 closeness 滑杆换 key 时沿用上一份结果, 不整表闪空
     placeholderData: (prev: any) => prev,
   })
@@ -824,6 +841,7 @@ function DeviationView({ onPreview }: {
   const handlePreviewRow = useCallback((row: AbnormalRow) => onPreview(row, navItemsRef.current), [onPreview])
 
   const counts = view?.counts
+  const warming = enabled && view != null && view.cache_date == null
   const updating = overview.isFetching
 
   return (
@@ -896,19 +914,32 @@ function DeviationView({ onPreview }: {
 
           {/* 统计 + 控制 */}
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <StatusChip label="已触发" count={counts?.triggered} tone="danger" />
-            <StatusChip label="异动边缘" count={counts?.edge} tone="warning" />
-            <StatusChip label="观察" count={counts?.watch} tone="muted" />
-            {view && (view.total ?? view.rows.length) > view.rows.length && (
+            {warming ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-muted">
+                <RefreshCw className="h-3 w-3 animate-spin" />
+                数据准备中…
+              </span>
+            ) : (
+              <>
+                <StatusChip label="已触发" count={counts?.triggered} tone="danger" />
+                <StatusChip label="异动边缘" count={counts?.edge} tone="warning" />
+                <StatusChip label="观察" count={counts?.watch} tone="muted" />
+              </>
+            )}
+            {!warming && view && (view.total ?? view.rows.length) > view.rows.length && (
               <span className="text-[10px] text-muted">
                 当前筛选共 {view.total} 条 · 显示前 {view.rows.length} 条
               </span>
             )}
             {enabled && (
               <span className="text-[10px] text-muted">
-                数据截至 {data?.cache_date ?? '—'}
-                {data?.includes_today ? ' (含今日收盘)' : ' · 已叠加今日实时涨跌'}
-                {data ? ` · 基准指数今日 ${(data.bench_rt_pct * 100).toFixed(2)}%` : ''}
+                {warming ? '数据准备中…' : (
+                  <>
+                    数据截至 {data?.cache_date ?? '—'}
+                    {data?.includes_today ? ' (含今日收盘)' : ' · 已叠加今日实时涨跌'}
+                    {data ? ` · 基准指数今日 ${(data.bench_rt_pct * 100).toFixed(2)}%` : ''}
+                  </>
+                )}
               </span>
             )}
             <div className="ml-auto flex items-center gap-2">
@@ -1080,7 +1111,7 @@ function DeviationView({ onPreview }: {
                 ) : rows.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-3 py-10 text-center text-muted">
-                      {view ? '当前没有满足条件的标的' : '暂无数据'}
+                      {warming ? '数据准备中，稍后自动刷新' : view ? '当前没有满足条件的标的' : '暂无数据'}
                     </td>
                   </tr>
                 ) : (

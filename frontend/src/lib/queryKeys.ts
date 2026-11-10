@@ -61,6 +61,9 @@ export const QK = {
                          ] as const,
   // 盘中异动信号聚合 (异动监控「盘中」tab)
   abnormalIntraday:     (limit: number) => ['abnormal-intraday', limit] as const,
+  // 异动阈值价格压制 (个股详情弹窗, 按 symbol + 预测天数)
+  abnormalSuppression:  (symbol: string, forwardDays: number) =>
+                           ['abnormal-suppression', symbol, forwardDays] as const,
   // 不用 watchlist- 前缀: 日K历史盘中几乎不变, 若被 SSE quotes_updated 高频失效
   // (expert 1s) 会导致全自选日K每秒重拉, staleTime 形同虚设。
   // 刷新点: staleTime 过期 + Watchlist 增删自选/改蜡烛天数时的手动失效;

@@ -1096,6 +1096,38 @@ export interface AbnormalOverviewFilters {
   query?: string
 }
 
+// ===== 异动阈值价格压制 (弹窗「后续上涨空间」) =====
+export interface AbnormalSuppressionDay {
+  /** 0=今日, 1=明日, ... (交易日) */
+  offset: number
+  /** 该预测日对应的 N 日窗口基准日 */
+  base_date: string
+  /** 收盘价压制位 */
+  cap: number
+  /** 相对现价的空间; up 正数=上涨空间, down 负数=下跌空间 */
+  room_pct: number
+}
+
+export interface AbnormalSuppressionWindow {
+  /** 阈值绝对值 (小数); 方向由 direction 决定 */
+  threshold: number
+  direction: 'up' | 'down'
+  /** 当前实时偏离值 */
+  current_deviation: number
+  days: AbnormalSuppressionDay[]
+}
+
+export interface AbnormalSuppression {
+  symbol: string
+  name?: string | null
+  asof?: string | null
+  close?: number | null
+  bench_key?: string
+  windows: Record<string, AbnormalSuppressionWindow>
+  nearest?: { window: string; direction: 'up' | 'down'; room_pct: number } | null
+  reason?: string
+}
+
 // ===== 盘中异动 (enriched 当日信号聚合, 异动监控「盘中」tab) =====
 export type IntradaySignalKey = 'limit_up' | 'broken' | 'recovery' | 'limit_down'
   | 'new_high' | 'new_low' | 'volume_surge'
@@ -5680,6 +5712,12 @@ export const api = {
   /** 盘中异动: enriched 当日信号命中行 (涨停/炸板/翘板/跌停/新高/新低/放量) */
   abnormalIntraday: (limit = 500) =>
     request<AbnormalIntradayPayload>(`/api/abnormal/intraday?limit=${limit}`),
+
+  /** 异动阈值价格压制: 各窗口今日/后续交易日的收盘价上限与剩余空间 */
+  abnormalSuppression: (symbol: string, forwardDays = 5) =>
+    request<AbnormalSuppression>(
+      `/api/abnormal/suppression?symbol=${encodeURIComponent(symbol)}&forward_days=${forwardDays}`,
+    ),
 
   // ===== Monitor Rules (监控规则) =====
   monitorRulesList: () =>

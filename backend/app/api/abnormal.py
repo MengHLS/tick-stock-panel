@@ -2,6 +2,7 @@
 
 - /intraday: 盘中量价信号聚合 (enriched 当日信号列, 零新增采集)
 - /overview: 偏移异动边缘总览 (交易所异动规则口径的接近度)
+- /suppression: 异动阈值反解的收盘价压制位 (今日/后续交易日)
 """
 from __future__ import annotations
 
@@ -9,7 +10,11 @@ from typing import Literal
 
 from fastapi import APIRouter, Query, Request
 
-from app.services.abnormal_moves import build_intraday, build_overview
+from app.services.abnormal_moves import (
+    build_intraday,
+    build_overview,
+    build_suppression_schedule,
+)
 
 router = APIRouter(prefix="/api/abnormal", tags=["abnormal"])
 
@@ -59,4 +64,23 @@ def abnormal_overview(
         exclude_st=exclude_st,
         symbols=symbols,
         query=q,
+    )
+
+
+@router.get("/suppression")
+def abnormal_suppression(
+    request: Request,
+    symbol: str = Query(..., min_length=6, max_length=16),
+    forward_days: int = Query(5, ge=0, le=10),
+):
+    """异动阈值价格压制: 各窗口今日/后续交易日的收盘价上限与剩余空间。
+
+    偏移异动的阈值本质上是价格上限; 把阈值反解成收盘价, 并随 N 日窗口
+    逐日滚动, 供个股详情弹窗展示「后续上涨空间」。
+    """
+    repo = request.app.state.repo
+    return build_suppression_schedule(
+        repo,
+        symbol=symbol,
+        forward_days=forward_days,
     )

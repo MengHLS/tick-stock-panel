@@ -67,3 +67,11 @@ def test_overview_api_rejects_unknown_board() -> None:
         params={"min_closeness": 0.5, "board": "不存在"},
     )
     assert resp.status_code == 422
+
+
+def test_suppression_api_rejects_invalid_forward_days() -> None:
+    resp = _client().get(
+        "/api/abnormal/suppression",
+        params={"symbol": "600000.SH", "forward_days": 11},
+    )
+    assert resp.status_code == 422
