@@ -201,6 +201,52 @@ def test_service_falls_back_to_daily_batch_when_cache_does_not_cover_range(tmp_p
     assert any(event["event_type"] == "Spring" for event in payload["events"])
 
 
+def test_second_request_hits_disk_cache_without_rereading(tmp_path: Path) -> None:
+    bars = _series()
+    end = bars[75]["date"]
+    panel = _Panel(_frame(bars), latest=bars[-1]["date"])
+    runtime = _runtime(panel, tmp_path)
+    first = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    assert first["status"] == "ready"
+    assert first["cached"] is False
+    range_calls = len(panel.calls)
+
+    second = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    assert second["status"] == "ready"
+    assert second["cached"] is True
+    assert len(panel.calls) == range_calls, "命中快照后不应再读区间"
+    assert second["events"] == first["events"]
+    assert list((tmp_path / "user_data" / "wyckoff_research" / "cache").glob("*.json"))
+
+
+def test_cache_misses_when_generation_changes(tmp_path: Path) -> None:
+    bars = _series()
+    end = bars[75]["date"]
+    panel = _Panel(_frame(bars), latest=bars[-1]["date"], generations=("gen-1", "gen-1", "gen-2", "gen-2"))
+    runtime = _runtime(panel, tmp_path)
+    load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    second = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    assert second["status"] == "ready"
+    assert second["cached"] is False
+    assert second["data_generation"] == "gen-2"
+
+
+def test_corrupt_cache_file_is_ignored(tmp_path: Path) -> None:
+    bars = _series()
+    end = bars[75]["date"]
+    panel = _Panel(_frame(bars), latest=bars[-1]["date"])
+    runtime = _runtime(panel, tmp_path)
+    load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    files = list((tmp_path / "user_data" / "wyckoff_research" / "cache").glob("*.json"))
+    assert files
+    files[0].write_text("{not json", encoding="utf-8")
+
+    payload = load_events(runtime, symbol="000001.SZ", window_bars=30, as_of=end, rule_version_expected=None)
+    assert payload["status"] == "ready"
+    assert payload["cached"] is False
+    assert len(panel.calls) == 2
+
+
 def test_service_default_as_of_and_out_of_window_pattern_ignored(tmp_path: Path) -> None:
     """默认截止最后一根已完成日线；弹簧落在 30 日窗口之外时不得输出。"""
     bars = _series()

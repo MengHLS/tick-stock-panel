@@ -3405,6 +3405,8 @@ export interface WyckoffResearchResponse {
   spec_source: string | null
   status: WyckoffResearchStatus
   data_generation: string | null
+  /** 命中磁盘快照（键含 data_generation 与规则指纹） */
+  cached?: boolean
   observed_generation?: string | null
   observed_bars?: number
   required_bars?: number

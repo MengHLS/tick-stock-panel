@@ -6,6 +6,7 @@ from typing import Any
 
 import polars as pl
 
+from . import cache
 from .rules import ASSET_TYPE, TIMEFRAME, compute_events, params_hash, rule_version
 from .spec import load_spec, spec_warnings
 
@@ -92,6 +93,19 @@ def load_events(
     # 覆盖不足时回退到稳定日线批量读取（同一 enriched 口径），避免把“读不到”误报成“无日线”。
     start = effective_as_of - timedelta(days=max(int(need_bars * 2.1), 120))
     generation_before = panel.data_generation(ASSET_TYPE)
+    cache_key = {
+        "symbol": symbol,
+        "as_of": effective_as_of,
+        "window": window_bars,
+        "rule_version": meta["rule_version"],
+        "params_hash": meta["params_hash"],
+    }
+    if generation_before:
+        # generation 进入缓存键：复权重建或数据换代后旧快照自然失效
+        cached = cache.read(runtime.data_dir, **cache_key, generation=generation_before)
+        if cached is not None:
+            cached["cached"] = True
+            return cached
     frame = panel.range(start, effective_as_of, symbols=[symbol], columns=REQUIRED_COLUMNS)
     if (frame is None or frame.is_empty()) and callable(getattr(market, "get_daily_batch", None)):
         frame = market.get_daily_batch([symbol], start, effective_as_of, columns=REQUIRED_COLUMNS)
@@ -142,7 +156,7 @@ def load_events(
         }
 
     events = computed["events"] + computed["candidates"]
-    return {
+    result = {
         **meta,
         "as_of": effective_as_of.isoformat(),
         "status": "ready",
@@ -151,3 +165,12 @@ def load_events(
         "events": events,
         "candidates": computed["candidates"],
     }
+    if generation_before:
+        cache.write(
+            runtime.data_dir,
+            payload=result,
+            **cache_key,
+            generation=generation_before,
+        )
+    result["cached"] = False
+    return result
