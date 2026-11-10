@@ -32,6 +32,21 @@
 | [auction-lockbox-20261101/](auction-lockbox-20261101/PROTOCOL.md) | 竞价 D+5 前瞻锁箱协议（等待数据） |
 | [first-board-right-tail-20261102/](first-board-right-tail-20261102/RESULTS.md) | 首板右尾 v2/v3 动态入场、早盘与市场特征、事件级两阶段及退出变体 pilot（No-Go） |
 | [first-board-t74-right-tail-20261106/](first-board-t74-right-tail-20261106/RESULTS.md) | T74 331% 基线 20 日右尾路径与止损先后诊断 |
+| [factor-audit-20261107/](factor-audit-20261107/FACTOR_GAP_SPEC_20261107.md) | 因子缺口规格 v1：因子清单与策略-因子映射、横截面分位统计 |
+| [parallel-data-20261106/](parallel-data-20261106/DATA_QUALITY.md) | 历史行情与证券数据质量审计（独立交付，全程只读） |
+| [parallel-review-20261106/](parallel-review-20261106/REVIEW.md) | 独立复盘快照与模拟成交对账 |
+
+## 顶层文件
+
+| 文件 | 说明 |
+| --- | --- |
+| [S01B_RULING_20261109.md](S01B_RULING_20261109.md) | S01b 裁定书：五条待裁定项一次结清 |
+| [DELIVERY_PROTOCOL_20261109.md](DELIVERY_PROTOCOL_20261109.md) | 交付流程（2026-11-09 修订，含只用系统回测修订） |
+| [caliber-decisions-20261107.md](caliber-decisions-20261107.md) | 口径决定记录：此前高/低点与 RSI（v1.1，含 E2 掩码截面排名） |
+| [AUDIT_R2_20261107.md](AUDIT_R2_20261107.md) | 独立审核第二轮：B2 新证据复审、Provider 静默吞异常定级、v0.10 复审、gate.py 定性 |
+| [AUDIT_R3_20261107.md](AUDIT_R3_20261107.md) | 独立审核第三轮：B4 调仓日轴抽验、三笔提交边界、验收判据、撞名 400 风险 |
+| [AUDIT_R4_20261107.md](AUDIT_R4_20261107.md) | 独立审核第四轮：v0.12 签发意见、全量 49 红归因、B4 判据正文 |
+| [CLEANUP_20261109.md](CLEANUP_20261109.md) | 整理记录（一次性）：S01b 过程产物清理 |
 
 ## 已迁出的研究档案
 
