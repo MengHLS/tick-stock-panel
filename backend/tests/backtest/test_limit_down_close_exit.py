@@ -163,8 +163,15 @@ def test_intraday_stop_loss_not_blocked_by_sealed_close_portfolio_mode():
 
 
 def test_stuck_position_at_window_end_is_recorded_portfolio_mode():
-    """组合模式: 期末仍被封板递延的持仓同样强制落账 (与独立路径同口径),
-    不再只进 pending_exit_positions 而在交易记录里消失。"""
+    """组合模式: 期末仍被封板递延的持仓按 MARKED 落账 (契约 D-EOS I3 / S-3)。
+
+    口径变更 (2026-11-08 D-EOS，随引擎"末日终结结算步"同批):
+      * 改前: 期末不可成交 (契约 §1.3 P6) 的持仓在 post-loop 以**封板价**"成交"、
+        并保留递延原因 —— 该价现实中排不出去 (§7.1 A-R5)，且末行现金/市值两处
+        口径不一致 (§1.2)。
+      * 改后: MARKED —— open_at_end=True、pnl_amount=0.0、exit_reason="end"，
+        市值留在末行权益、现金不含它 (I1/I2/I3)。
+    """
     days = _normal_panel(8, sealed={7: {"o": 10.30, "h": 10.32, "l": 9.27, "c": 9.27}})
     panel = _panel(days)
     dates = [r["date"] for r in panel.select(["symbol", "date"]).iter_rows(named=True)]
@@ -176,13 +183,21 @@ def test_stuck_position_at_window_end_is_recorded_portfolio_mode():
     matrix_result = engine.simulate_portfolio(panel, entry_mask, exit_mask, cfg)
     assert matrix_result.stats.get("n_trades") == 1
     trade = matrix_result.trades[0]
-    assert trade.exit_date == "2024-01-08"  # 末日强制落账
-    assert trade.exit_reason == "signal"    # 递延原因保留
-    assert trade.blocked_exit_days >= 1
-    assert trade.exit_price == 9.27
-    assert matrix_result.stats.get("pending_exit_positions") == 1  # 观测信号保留
+    assert trade.exit_date == "2024-01-08"      # 末日
+    assert trade.exit_reason == "end"           # MARKED 固定 end (不再保留递延原因)
+    assert trade.open_at_end is True            # 盯市, 不是伪造成交
+    assert trade.pnl_amount == 0.0
+    assert trade.blocked_exit_days >= 1         # "曾受阻"痕迹保留
+    assert trade.exit_price == 9.27             # 末日收盘 = 盯市价
+    assert matrix_result.stats.get("pending_exit_positions") == 1
+    row = matrix_result.equity_curve[-1]
+    assert row["positions"] == 1
+    assert abs(row["value"] - (row["cash"] + trade.shares * 9.27)) < 0.01
 
-    # legacy 组合路径 parity
+    # legacy 组合路径 (契约 §1.4 / §10 X-1): 同型缺陷本次不修，仍按旧口径
+    # "以封板价成交 + 保留递延原因" 落账 ⇒ 两路径在此分道，属登记在案的差异，
+    # 不是回归。
     legacy_result = engine.simulate_portfolio_legacy(panel, entry_mask, exit_mask, cfg)
-    assert [asdict(t) for t in legacy_result.trades] == [asdict(t) for t in matrix_result.trades]
     assert legacy_result.stats["pending_exit_positions"] == 1
+    assert [asdict(t)["exit_reason"] for t in legacy_result.trades] == ["signal"]
+    assert [t.open_at_end for t in legacy_result.trades] == [False]

@@ -100,7 +100,12 @@ def test_common_matrix_features_match_polars_indicator_pipeline():
     )
 
 
-def test_research_factor_catalog_matches_matrix_features():
+def _matrix_catalog_panel() -> pl.DataFrame:
+    """目录对比用例的合成面板 (两个标的、120 根、含 amount/turnover/连板列)。
+
+    独立成函数: 目录对比、不支持项正向断言、in_universe 双路径登记三处共用同一夹具,
+    免得各自造面板导致「支持数」在不同夹具下不可比。
+    """
     rows = []
     start = date(2024, 1, 1)
     for offset in range(120):
@@ -122,35 +127,142 @@ def test_research_factor_catalog_matches_matrix_features():
                     else (2 if (asset_id == 1 and offset % 23 == 0) else 0)
                 ),
             })
-    panel = pl.DataFrame(rows)
-    from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
+    return pl.DataFrame(rows)
 
-    # 联动因子由 linkage store 物化, 不能从这段无外部状态的合成面板推导。
-    factor_names = {item["id"] for item in FACTOR_COLUMNS} - LINKAGE_FACTOR_IDS
-    expected = FactorBacktestService._compute_missing_factors(panel, factor_names)
-    from app.backtest.fundamentals import (
-        FUNDAMENTAL_FACTOR_NAMES,
-        attach_matrix_fundamental_fields,
+
+def _matrix_catalog_market(panel):
+    """目录对比口径的市场矩阵: 同一条构造 + 财务字段挂载路径。"""
+    from app.backtest.fundamentals import FUNDAMENTAL_FACTOR_NAMES, attach_matrix_fundamental_fields
+
+    market = build_market_data_matrix(
+        panel,
+        field_columns={"amount", "turnover_rate", "consecutive_limit_ups"},
     )
+    return attach_matrix_fundamental_fields(market, None, sorted(FUNDAMENTAL_FACTOR_NAMES))
+
+#: 4 个「注册在 provider 包里、矩阵路径也有内置实现」的撞名因子（F-A44）。
+_COLLIDING_MATRIX_FACTORS = ("ma20", "ma60", "boll_lower", "boll_upper")
+
+#: 矩阵路径缺实现、真调必抛 `unsupported matrix feature` 的 12 名（实跑登记值）。
+#: 拆成两组，两组都由机器断言（见 test_matrix_path_unsupported_ids_each_really_raise）：
+#:   * 6 名非 alias、真缺能力 —— 矩阵侧既无内置分支，provider 也没给矩阵字段；
+#:   * 6 名是 alias，pack 只登记了 alias 到 `uf_*` canonical 的映射，而 canonical 在
+#:     矩阵侧没有实现（provider 有该 id，`materialize_matrix_factor_field` 却返回 None）。
+#: `ma120` / `ma200` 同样是 alias，但矩阵侧有内置 `ma{period}` 分支，故**不**在此列。
+_MATRIX_UNSUPPORTED_NO_ALIAS = (
+    "in_universe",
+    "market_breadth",
+    "month_end",
+    "prior_amount_20",
+    "sd20",
+    "week_end",
+)
+_MATRIX_UNSUPPORTED_ALIAS = (
+    "prior_high_20",
+    "prior_high_250",
+    "prior_high_55",
+    "prior_low_10",
+    "prior_vol_20",
+    "vol60",
+)
+EXPECTED_MATRIX_UNSUPPORTED = {
+    name: f"unsupported matrix feature: {name}"
+    for name in _MATRIX_UNSUPPORTED_NO_ALIAS + _MATRIX_UNSUPPORTED_ALIAS
+}
+
+#: 目录快照的实跑锚点：111 名目录 / 7 个联动因子 / 104 名参与 / 92 名矩阵支持。
+EXPECTED_CATALOG_COUNT = 111
+EXPECTED_LINKAGE_COUNT = 7
+EXPECTED_MATRIX_SUPPORTED_COUNT = 92
+
+
+def _matrix_path_unsupported(market, names):
+    """**行为探测**：对每个 id 真调一次 `matrix_feature`，谁抛
+    `unsupported matrix feature` 就记下原文消息。
+
+    为什么不用「provider 有没有覆写 `materialize_matrix`」推断：
+    B0 包 14 个因子都没覆写矩阵方法，但其中 `ma20` / `ma60` / `boll_lower` /
+    `boll_upper` 在 `matrix_feature` 的 `_MATRIX_COMPUTED_FEATURES` 里**本来就有**
+    内置实现，会正常算出数值 —— 按类型推断会把这 4 个（正好是 F-A44 的撞名因子）
+    误剔出对比集。只有真调用能区分「没实现」与「实现了但不在 provider 里」。
+
+    抛出**其它**异常不算「不支持」：直接往外抛，让用例红 —— 那是实现缺陷，不是缺能力。
+    """
+    unsupported = {}
+    for name in names:
+        try:
+            matrix_feature(market, name)
+        except ValueError as exc:
+            message = str(exc)
+            if not message.startswith("unsupported matrix feature"):
+                raise
+            unsupported[name] = message
+    return unsupported
+
+def test_research_factor_catalog_matches_matrix_features():
+    """目录里每一个「矩阵路径有实现」的因子，逐值对齐 frame 路径。
+
+    能力边界用**行为探测**（真调 `matrix_feature` 看抛不抛 unsupported），并把三个
+    数字都写成实跑锚点：目录 111 名 / 扣除 7 个联动因子后 104 名参与判定 / 12 名抛
+    unsupported（见 EXPECTED_MATRIX_UNSUPPORTED）/ 92 名进入逐值对比。
+    """
+    from app.custom.cross_sectional_linkage.compute import LINKAGE_FACTOR_IDS
+    from app.extensions.factors import ensure_factor_providers
+
+    # provider 装载的因子（B0 / E3 / E4）是进程级注册态；不先 ensure 就会把它们当
+    # 未知 id 抛 unsupported，支持数会随用例顺序漂移。
+    ensure_factor_providers()
+
+    panel = _matrix_catalog_panel()
+    # 联动因子由 linkage store 物化，不能从这段无外部状态的合成面板推导 —— 这是
+    # **数据来源**不在夹具里，与「矩阵路径有没有实现」无关；两条路径都不比。
+    catalog_ids = {item["id"] for item in FACTOR_COLUMNS}
+    assert len(catalog_ids) == EXPECTED_CATALOG_COUNT, f"目录条数变了: {len(catalog_ids)}"
+
+    considered = catalog_ids - LINKAGE_FACTOR_IDS
+    assert len(considered) == EXPECTED_CATALOG_COUNT - EXPECTED_LINKAGE_COUNT, len(considered)
+
+    market = _matrix_catalog_market(panel)
+    unsupported = _matrix_path_unsupported(market, considered)
+    factor_names = considered - set(unsupported)
+
+    # --- 登记口径：支持数 + 不支持清单都必须是实跑值，缩水就红 ---
+    assert set(unsupported) == set(EXPECTED_MATRIX_UNSUPPORTED), (
+        "矩阵不支持集合与登记值不一致; "
+        f"多出={sorted(set(unsupported) - set(EXPECTED_MATRIX_UNSUPPORTED))}, "
+        f"少了={sorted(set(EXPECTED_MATRIX_UNSUPPORTED) - set(unsupported))}"
+    )
+    assert len(factor_names) == EXPECTED_MATRIX_SUPPORTED_COUNT, (
+        f"矩阵支持数应为 {EXPECTED_MATRIX_SUPPORTED_COUNT}, 实为 {len(factor_names)}"
+    )
+
+    # 4 个撞名因子（F-A44）两条路径都有实现，必须留在对比集里 —— 之前按「provider
+    # 没覆写 materialize_matrix」把它们踢出去，等于先摘掉最该被比对的对象。
+    for name in _COLLIDING_MATRIX_FACTORS:
+        assert name in factor_names, f"{name} 必须留在逐值对比集里"
+
+    expected = FactorBacktestService._compute_missing_factors(panel, factor_names)
+    from app.backtest.fundamentals import FUNDAMENTAL_FACTOR_NAMES
 
     fundamental_names = sorted(factor_names & FUNDAMENTAL_FACTOR_NAMES)
     if fundamental_names:
-        # 夹具无财务数据: 两条路径都应得到全 null/NaN 列, 而不是报错。
+        # 夹具无财务数据：两条路径都应得到全 null/NaN 列，而不是报错。
         expected = expected.with_columns([
             pl.lit(None, dtype=pl.Float64).alias(name)
             for name in fundamental_names
             if name not in expected.columns
         ])
-    market = build_market_data_matrix(
-        panel,
-        field_columns={"amount", "turnover_rate", "consecutive_limit_ups"},
-    )
-    market = attach_matrix_fundamental_fields(market, None, fundamental_names)
 
+    max_abs_diff = {}
     for name in sorted(factor_names):
         expected_values = expected.sort(["date", "symbol"])[name].to_numpy().reshape(market.shape)
+        actual_values = matrix_feature(market, name)
+        diff = np.abs(actual_values.astype(np.float64) - expected_values.astype(np.float64))
+        finite = diff[np.isfinite(diff)]
+        if finite.size:
+            max_abs_diff[name] = float(finite.max())
         np.testing.assert_allclose(
-            matrix_feature(market, name),
+            actual_values,
             expected_values,
             rtol=2e-4,
             atol=2e-4,
@@ -158,6 +270,80 @@ def test_research_factor_catalog_matches_matrix_features():
             err_msg=name,
         )
 
+    # 4 个撞名因子逐值对比的实测 max_abs_diff 必须真有数字且落在容差内，
+    # 不能只靠 allclose 的隐式判定（审核要的显式判据）。
+    for name in _COLLIDING_MATRIX_FACTORS:
+        assert name in max_abs_diff, f"{name} 没算出 max_abs_diff（逐值对比没覆盖到）"
+        assert max_abs_diff[name] <= 2e-4, f"{name} max_abs_diff={max_abs_diff[name]!r}"
+
+
+def test_matrix_path_unsupported_ids_each_really_raise():
+    """被排除项逐条给「喂给 `matrix_feature` 必抛 unsupported」的正向断言。
+
+    这是排除集唯一的合法依据：不靠类型、不靠「没覆写」，每条都有抛错证据。
+    """
+    from app.extensions.factors import ensure_factor_providers
+
+    ensure_factor_providers()
+    market = _matrix_catalog_market(_matrix_catalog_panel())
+
+    for name, expected_message in EXPECTED_MATRIX_UNSUPPORTED.items():
+        with pytest.raises(ValueError) as excinfo:
+            matrix_feature(market, name)
+        assert str(excinfo.value) == expected_message, f"{name} 的抛错原文变了"
+
+    # --- 排除集逐名的真实归因，必须与登记值对上，不能只靠注释说明 ---
+    from app.backtest.matrix import _MATRIX_COMPUTED_FEATURES
+    from app.custom.research_factor_pack.factor_specs import _ALIAS_OF
+    from app.extensions.factors import (
+        materialize_matrix_factor_field,
+        provider_factor_ids,
+    )
+
+    # 11 名的共同机制（逐名断言，不靠推断）：因子已注册进 provider，但 provider 拿不出
+    # 矩阵字段，且名字不命中矩阵侧任何内置分支 —— 三者同时成立才允许判「不支持」。
+    for name in EXPECTED_MATRIX_UNSUPPORTED:
+        assert provider_factor_ids([name]), f"{name} 没进 provider 注册表"
+        assert materialize_matrix_factor_field(market, name) is None, (
+            f"{name} 已能出矩阵字段，不该再算不支持"
+        )
+        assert name not in _MATRIX_COMPUTED_FEATURES, f"{name} 有内置矩阵分支，不该算不支持"
+
+    # 两支的划分只是目录事实（谁在 alias 表里），不是能力归因；这里固定它防止漂移。
+    assert {n for n in _MATRIX_UNSUPPORTED_ALIAS if n in _ALIAS_OF} == set(
+        _MATRIX_UNSUPPORTED_ALIAS
+    ), "6 名 alias 支里有人不在 _ALIAS_OF"
+    assert not any(n in _ALIAS_OF for n in _MATRIX_UNSUPPORTED_NO_ALIAS), (
+        "5 名非 alias 支里有人其实有 alias"
+    )
+
+    # 反例：同样是 alias 但矩阵侧有内置 `ma{period}` 分支的两名，必须能算出数值。
+    for name in ("ma120", "ma200"):
+        assert name in _ALIAS_OF
+        assert matrix_feature(market, name).shape == market.shape
+
+
+def test_in_universe_both_path_reds_are_registered():
+    """`in_universe` 两条路径各自的红都固定下来，不再用「剔除」把它藏掉。
+
+    * 矩阵路径：抛 `unsupported matrix feature: in_universe`（缺矩阵实现）。
+    * frame 路径：本夹具没有 `raw_close` 列 → 抛 `in_universe 缺少必需列: ['raw_close']`
+      （E3 包的数据列缺口，与矩阵支不支持是两件事）。
+    """
+    from app.extensions.factors import ensure_factor_providers
+
+    ensure_factor_providers()
+    panel = _matrix_catalog_panel()
+
+    market = _matrix_catalog_market(panel)
+    with pytest.raises(ValueError) as matrix_excinfo:
+        matrix_feature(market, "in_universe")
+    assert str(matrix_excinfo.value) == "unsupported matrix feature: in_universe"
+
+    with pytest.raises(ValueError) as frame_excinfo:
+        FactorBacktestService._compute_missing_factors(panel, {"in_universe"})
+    assert "in_universe 缺少必需列" in str(frame_excinfo.value)
+    assert "raw_close" in str(frame_excinfo.value)
 
 def _panel_with_missing_asset_bar() -> pl.DataFrame:
     rows = []
