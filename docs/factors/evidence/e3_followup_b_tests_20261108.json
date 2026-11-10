@@ -1,0 +1,115 @@
+{
+  "generated_at": "2026-11-08T04:34:48.395148+08:00",
+  "checkout": {
+    "commit": "286c1c862631042a2e9a43c57e9762c122e21f7f",
+    "worktree": "C:\\TEMP\\tsp-b7\\w\\backend"
+  },
+  "command": "python -m pytest <test_id> -q -p no:cacheprovider --no-header --tb=line",
+  "environments": {
+    "clean": "无 TSP_DATA_DIR",
+    "with_data_dir": "TSP_DATA_DIR=D:/TSP/data"
+  },
+  "summary": {
+    "total": 7,
+    "failed_clean": 7,
+    "failed_with_data_dir": 7,
+    "fixed_by_real_data": 0
+  },
+  "counts_by_group": {
+    "assistant": 4,
+    "parallel": 2,
+    "matrix": 1
+  },
+  "rows": [
+    {
+      "test_id": "tests/test_assistant_actions.py::test_check_data_coverage_reports_gaps",
+      "group": "assistant",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "ValueError: 行情分析服务未就绪, 请确认后端已完成启动。",
+      "error_with_data_dir": "ValueError: 行情分析服务未就绪, 请确认后端已完成启动。",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\app\\custom\\assistant\\tools.py:287",
+      "root_cause": "ToolContext 未获 analysis 适配器",
+      "what_is_missing": "无（数据在 tmp_path 造）",
+      "fill_path": "测试侧补 stub repo（.store.data_dir），已实证通过"
+    },
+    {
+      "test_id": "tests/test_assistant_actions.py::test_check_data_coverage_fresh_data_has_few_issues",
+      "group": "assistant",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "ValueError: 行情分析服务未就绪, 请确认后端已完成启动。",
+      "error_with_data_dir": "ValueError: 行情分析服务未就绪, 请确认后端已完成启动。",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\app\\custom\\assistant\\tools.py:287",
+      "root_cause": "同上",
+      "what_is_missing": "无",
+      "fill_path": "同上"
+    },
+    {
+      "test_id": "tests/test_assistant_actions.py::test_check_data_coverage_weekend_with_friday_data_has_no_lag_issue",
+      "group": "assistant",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "ValueError: 行情分析服务未就绪, 请确认后端已完成启动。",
+      "error_with_data_dir": "ValueError: 行情分析服务未就绪, 请确认后端已完成启动。",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\app\\custom\\assistant\\tools.py:287",
+      "root_cause": "同上",
+      "what_is_missing": "无",
+      "fill_path": "同上"
+    },
+    {
+      "test_id": "tests/test_assistant_actions.py::test_check_data_coverage_symbol_lagging",
+      "group": "assistant",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "",
+      "error_with_data_dir": "",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\tests\\test_assistant_actions.py:406",
+      "root_cause": "同上（daily_missing 依赖 dataset_dates 非空）",
+      "what_is_missing": "无",
+      "fill_path": "同上"
+    },
+    {
+      "test_id": "tests/test_strategy_run_all_parallel.py::test_parallel_run_all_matches_sequential_results",
+      "group": "parallel",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "ValueError: selected strategies require history data",
+      "error_with_data_dir": "ValueError: selected strategies require history data",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\app\\strategy\\engine.py:1475",
+      "root_cause": "run_all 默认选中的策略集含需要 history 的后端，context.history=None",
+      "what_is_missing": "无（策略代码在 tmp_path）",
+      "fill_path": "显式传 strategy_ids 或给 context 一个 history stub；前者已实证 24/19/14 全命中"
+    },
+    {
+      "test_id": "tests/test_strategy_run_all_parallel.py::test_parallel_run_all_preserves_failure_semantics",
+      "group": "parallel",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "AssertionError: Regex pattern did not match.",
+      "error_with_data_dir": "AssertionError: Regex pattern did not match.",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\tests\\test_strategy_run_all_parallel.py:111",
+      "root_cause": "同上，异常信息随之改变导致 regex 不匹配",
+      "what_is_missing": "无",
+      "fill_path": "同上"
+    },
+    {
+      "test_id": "tests/backtest/test_matrix_strategy.py::test_research_factor_catalog_matches_matrix_features",
+      "group": "matrix",
+      "clean": "failed",
+      "with_data_dir": "failed",
+      "error_clean": "ValueError: in_universe 缺少必需列: ['raw_close']",
+      "error_with_data_dir": "ValueError: in_universe 缺少必需列: ['raw_close']",
+      "raise_site": "C:\\TEMP\\tsp-b7\\w\\backend\\app\\custom\\research_universe_pack\\universe.py:111",
+      "root_cause": "in_universe 需要 panel 里有 raw_close 列，而 raw_close 不是注册因子，物化链不会产出它",
+      "what_is_missing": "raw_close 列（不是数据集）",
+      "fill_path": "实现侧：矩阵路径补 in_universe（契约 B0b）+ 提供 raw_close；补数据无用"
+    }
+  ],
+  "counter_proofs": {
+    "assistant": "research/e3-data-availability-20261107/probe_b_fixtures.py：12 行 stub repo（仅有 .store.data_dir）即让 _check_data_coverage 通过全部断言，无需真实数据",
+    "parallel": "显式 strategy_ids 传入 3 个 polars 策略时，串行与并行命中数 24/19/14 完全一致",
+    "matrix": "77 个矩阵原生因子 0 失败；红线只在 in_universe（需 raw_close + 矩阵路径未实现）"
+  },
+  "verdict": "7 条无一条由「D:/TSP/data 里缺东西」造成；按 skip 标注会掩盖 4 条测试侧漂移 + 2 条选择面漂移 + 1 条实现缺口"
+}

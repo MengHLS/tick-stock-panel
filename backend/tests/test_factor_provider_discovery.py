@@ -17,7 +17,7 @@ import pytest
 from app.extensions import factors as ext
 from app.factors import registry
 
-REAL_PROVIDER_COUNT = 5
+REAL_PROVIDER_COUNT = 6
 PACK_MODULE = "app.custom.research_factor_pack.factor_provider"
 PACK_PROVIDER_ID = "official.research-factor-pack-b0"
 

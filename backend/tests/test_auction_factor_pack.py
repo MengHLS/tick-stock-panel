@@ -78,6 +78,12 @@ def _panel() -> pl.DataFrame:
 def _clean_registry():
     from app.factors import registry
 
+    # 本文件只测竞价包自己的动态注册。**入口先快照整表**：provider 装载包的因子
+    # （B0 14 个 + in_universe + 竞价包）同样是 kind=custom，属于进程级注册状态，
+    # 而 `extensions.factors._PROVIDERS_READY` 在首次发现后即为 True，被清掉后
+    # `all_factors()` 不会重新发现 —— 不恢复就会把 110 变成 93（全量跑 10 红）。
+    saved_registry = dict(registry._REGISTRY)
+
     def dynamic_ids():
         return [
             key for key, spec in registry._REGISTRY.items()
@@ -92,6 +98,9 @@ def _clean_registry():
     yield
     for key in dynamic_ids():
         registry._REGISTRY.pop(key, None)
+    # 恢复入口快照：只回滚本文件的增删，不把 provider 装载包留在被清空的状态。
+    registry._REGISTRY.clear()
+    registry._REGISTRY.update(saved_registry)
     _load_all_cache.clear()
     ext_factors._frame_cache.clear()
     ext_factors._sync_state = None

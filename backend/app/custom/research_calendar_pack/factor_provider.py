@@ -5,7 +5,9 @@
   的时序算子 (`ts_max` 等按 symbol 分组), 停牌日缺失会让「本标的 5 根内的最大日期」≠
   「本周最后一个交易日」, 用 DSL 写出来的不是日历。Provider 是既有扩展点, 提供
   `context.data_dir` 读权威日历。
-- 计算只调用 `calendar_axis.py`, 不重写口径; 日历来源与 ISO 周口径见该模块 docstring。
+- 计算只调用 `calendar_axis.py`, 不重写口径; 日历来源与周键口径 (`week_rule`) 见该模块
+  docstring。`week_rule` 由 `context.params["week_rule"]` 显式传入 (E4-A6), 缺省
+  `iso_year_week`; 域外取值 ValueError 不回退。
 
 矩阵路径 (`materialize_matrix_field`) 保持基类默认 `None` = 缺能力项 (与 B0/B2 的 pack
 因子一致), 矩阵侧接入属 B0b, 本批不动 `matrix.py`。
@@ -25,12 +27,16 @@ from app.custom.research_calendar_pack.calendar_axis import (
     attach_calendar_flags,
     calendar_diagnostics,
     load_trading_calendar,
+    resolve_week_rule,
 )
 from app.extensions.factors import FactorProvider, FactorProviderContext
 from app.factors.registry import FactorSpec
 
 # 日级日历列只依赖 date; 不声明任何价量列, 免得调用方为了 `month_end` 被迫物化行情列。
 CALENDAR_DEPENDENCIES = frozenset({"date"})
+
+#: `context.params` 里携带 `week_rule` 的键名 (E4-A6)。缺省 ISO 口径, 但策略必须显式给。
+WEEK_RULE_PARAM = "week_rule"
 
 _COMMON = {
     "kind": "custom",
@@ -63,8 +69,8 @@ _WEEK_END_SPEC = FactorSpec(
     label="周末交易日(ISO周)",
     group="日历",
     formula_text=(
-        "date == max(trade_date of ISO week (iso_year, iso_week))  # 跨年按 ISO 二元组, "
-        "不用自然周序号; 数据末端输出 null"
+        "date == max(trade_date of week key)  # 周键由 week_rule 参数决定: "
+        "iso_year_week(缺省, ISO 二元组) / dt_week(自然年+ISO 周序); 数据末端输出 null"
     ),
     **_COMMON,
 )
@@ -90,6 +96,8 @@ class ResearchCalendarProvider(FactorProvider):
         return {
             "calendar_source": "kline_daily_enriched",
             "week_key": "iso_year+iso_week",
+        "week_rule_default": "iso_year_week",
+        "week_rule_source": f"context.params[{WEEK_RULE_PARAM!r}]",
             "tail_policy": "null_until_month_or_week_closes",
             "frame_start": FRAME_START.isoformat(),
             "calendar_version": CALENDAR_VERSION,
@@ -113,7 +121,22 @@ class ResearchCalendarProvider(FactorProvider):
         days = load_trading_calendar(
             self._data_dir(context), asset_type=context.asset_type or "stock"
         )
-        return attach_calendar_flags(frame, days, columns=wanted)
+        return attach_calendar_flags(
+            frame,
+            days,
+            columns=wanted,
+            week_rule=self._week_rule(context),
+        )
+
+    @staticmethod
+    def _week_rule(context: FactorProviderContext) -> str:
+        """从 `context.params["week_rule"]` 取周键口径 (E4-A6), 缺省 `iso_year_week`。
+
+        取到域外值直接 ValueError, 不静默回退缺省 —— 静默回退会让策略以为自己选的口径
+        生效, 实际跑的是另一套调仓日。
+        """
+        raw = (context.params or {}).get(WEEK_RULE_PARAM)
+        return resolve_week_rule(raw if isinstance(raw, str) else None)
 
     @staticmethod
     def _data_dir(context: FactorProviderContext) -> Path:
@@ -135,7 +158,7 @@ class ResearchCalendarProvider(FactorProvider):
         days = load_trading_calendar(
             self._data_dir(context), asset_type=context.asset_type or "stock"
         )
-        return calendar_diagnostics(frame, days)
+        return calendar_diagnostics(frame, days, week_rule=self._week_rule(context))
 
 
 FACTOR_PROVIDERS = (ResearchCalendarProvider(),)

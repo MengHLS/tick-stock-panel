@@ -9,7 +9,10 @@
 * 纯新增、不接线：§7.7.3 / §7.16.3 的 9 个调用点一个都没改，本模块目前没有生产
   调用方。
 * 只判能从盘上事实判定的码：FS01 / FS02 / FS03 / FS05 / FS06。判不出来的分支一律
-  `NotImplementedError`，不静默放行（见 `check_ledger_consistency` 与 FS04 守卫）。
+  抛 `GateError`（§7.17.4 C1/C3：出口唯一、FS06 fail-closed），不静默放行。
+* 命名面（§7.17.2，v0.12）：`namespace` 由调用方声明 —— `"factor"`（缺省，等于今日
+  行为）与 `"column"`（按 §7.8.3 第一行 base 处理）两面；域外取值 / Mapping 缺键
+  → `FS09`（入参非法，§7.17.4 C4），不进 `blocked`。
 * 事实只有两处盘上文件：registry 的 `FactorSpec` 与 `custom_factors/*.json`（只读）；
   allowlist 只读 `referenced_factor_inventory.json` 的 `summary.live_config` 分层。
   不读旁挂 `.sha256`（F-A36），不写任何产物。
@@ -60,6 +63,24 @@ MODES: tuple[str, ...] = ("production", "research", "diagnostic", "none")
 #: `custom_factors/*.json` 的 status 取值（store.STATUSES 同源）。
 STATUSES: tuple[str, ...] = ("draft", "active", "watch", "retired")
 
+#: §7.7.2 / 开发经理 2026-11-08 裁定（`DELIVERY_SCHEDULE_202607…` §4 同精神）：
+#: **同一 `submitted_id` 命中多码时只报优先级最高一码**，不写 `violations`。
+#: `FS04` 不在此表内 —— 它由 `_guard_dual_id` 在聚合后单独判，且恒优先（§7.16.6）。
+#: 数值越小越优先：FS04 > FS03 > FS06 > FS01 > FS05。
+#: `FS05` 排在末位：`lang="python"` 只是「没有研究侧参考实现」，比 status / alias
+#: 问题更适合作为兜底，与 `_judge` docstring 的既有次序一致。
+_CODE_PRIORITY: dict[str, int] = {
+    "FS04": 0,
+    "FS03": 1,
+    "FS06": 2,
+    "FS01": 3,
+    "FS05": 4,
+}
+
+#: §7.17.2 S5：命名面取值域（`column` 面按 §7.8.3 第一行 base 处理）。域外一律 FS09；
+#: `base` / `virtual` 是 §7.8.3 的 **kind**，不是 namespace，传进来也按域外报错。
+_NAMESPACES: tuple[str, ...] = ("factor", "column")
+
 #: §7.8.3 裁定 B：闸门按「可复算性」分类，**不按 kind** —— 因此这里记的是
 #: **豁免集**（不是白名单）：只有 base / virtual 不 gate（§7.7.2 末行：两者无 status、
 #: 准入由台账 G1–G3 与代码审核承担）；其余一切（custom / composite / python / 以及
@@ -108,7 +129,7 @@ class GateError(Exception):
         self,
         code: str,
         detail: dict,
-        report: GateReport,
+        report: GateReport | None,
         entry: str | None = None,
     ) -> None:
         super().__init__(str(detail.get("message") or code))
@@ -306,6 +327,89 @@ class _Verdict:
     resolved: str | None
 
 
+def _invalid_argument(
+    param: str,
+    mode: str,
+    message: str,
+    entry: str | None = None,
+) -> GateError:
+    """§7.17.4 C4：入参非法 → `FS09`（`detail` 照 §7.16.4，**不加**附加键）。
+
+    `submitted_id` 记违规**参数名**（`"namespace"` / `"mode"` / `"status"`）；
+    `resolved_id` / `canonical_id` / `table_row` 为 `None`。返回异常对象而不是直接
+    raise，便于调用处写 `raise ... from exc` 保留因果链。
+    """
+    return GateError(
+        "FS09",
+        _detail("FS09", mode, param, None, None, None, message),
+        None,
+        entry=entry,
+    )
+
+
+def _namespace_faces(
+    namespace: str | Mapping[str, str],
+    ordered_ids: list[str],
+    mode: str,
+    entry: str | None = None,
+) -> dict[str, str]:
+    """§7.17.2 S3/S5：把 `namespace` 摊成逐 id 的命名面，域外/缺键一律 FS09。
+
+    * `str` 形态：整组同一面。
+    * `Mapping` 形态：逐 id 取面，**缺键即报错**（漏一个「忘了声明的列」就等于继续
+      误拦那 4 条）；多余键忽略（S3）。
+    """
+    if isinstance(namespace, str):
+        if namespace not in _NAMESPACES:
+            raise _invalid_argument(
+                "namespace",
+                mode,
+                f"namespace 取值非法: {namespace!r}（只接受 {list(_NAMESPACES)}）",
+                entry,
+            )
+        return dict.fromkeys(ordered_ids, namespace)
+    if not isinstance(namespace, Mapping):
+        raise _invalid_argument(
+            "namespace",
+            mode,
+            f"namespace 必须是 {' / '.join(_NAMESPACES)} 之一或 Mapping[str, str]，"
+            f"收到 {type(namespace).__name__}",
+            entry,
+        )
+    faces: dict[str, str] = {}
+    for factor_id in ordered_ids:
+        if factor_id not in namespace:
+            raise _invalid_argument(
+                "namespace",
+                mode,
+                f"namespace Mapping 缺键（未声明该 id 的命名面）: {factor_id!r}",
+                entry,
+            )
+        face = namespace[factor_id]
+        if not isinstance(face, str) or face not in _NAMESPACES:
+            raise _invalid_argument(
+                "namespace",
+                mode,
+                f"namespace Mapping 的值非法（id={factor_id!r}）: {face!r}",
+                entry,
+            )
+        faces[factor_id] = face
+    return faces
+
+
+def _column_verdict(fact: FactorFacts) -> _Verdict:
+    """§7.17.2 S2/S4：列面 id 按 §7.8.3 第一行 base 处理；面外 id fail-closed 报 FS02。
+
+    * S2：不判 status（无 FS01）、不判 alias（无 FS03/FS06）、不判 lang（无 FS05），
+      `non_active` 不记，`resolved` 仍取 `fact.factor_id`。
+    * S4：`namespace="column"` 且 id ∉ `_column_universe()` → **FS02**（不静默 allow、
+      不退化成 FS01），堵住「把 draft 因子改名成列名来免检」。
+    """
+    if fact.factor_id not in _column_universe():
+        return _Verdict(("FS02",), False, False, None)
+    return _Verdict((), False, False, fact.factor_id)
+
+
 def _judge(
     fact: FactorFacts,
     mode: str,
@@ -350,7 +454,10 @@ def _judge(
         # §7.8.4 末行：Provider 注册且无 status 的按 draft 处理。
         status = fact.status if fact.status is not None else "draft"
         if status not in STATUSES:
-            raise ValueError(f"status 非法: {status!r}（应为 {list(STATUSES)} 之一）")
+            # §7.17.4 C4：status 域外 → FS09（不得抛 ValueError，C1 出口唯一）。
+            raise _invalid_argument(
+                "status", mode, f"status 非法: {status!r}（应为 {list(STATUSES)} 之一）"
+            )
         if mode == "production":
             if status != "active":
                 codes.append("FS01")
@@ -375,6 +482,9 @@ def _judge(
         # §7.8.3：python 因子恒 reference_missing=true，没有研究侧参考实现。
         codes.append("FS05")
 
+    # 只报优先级最高一码（本函数返回多码仅用于内部保留全貌；上报取 codes[0]）。
+    if len(codes) > 1:
+        codes = sorted(codes, key=lambda c: _CODE_PRIORITY.get(c, 99))
     return _Verdict(tuple(codes), non_active, retired, resolved)
 
 
@@ -464,6 +574,48 @@ def _message(code: str, factor_id: str, status: str | None, mode: str, canonical
     return code
 
 
+def default_facts_source(mode: str = "production") -> RegistryFacts:
+    """缺省事实源：绑定 `settings.data_dir`（= `.env` 的 `DATA_DIR`），不是空壳。
+
+    为什么必须绑定（2026-11-08 开发经理实测的 P0 缺陷）：
+      * `RegistryFacts()` 不带 `data_dir` 时 `_load_definitions()` 直接返回 `{}`，
+        于是 `_definition_status(None)` → `None` → `_judge` 按 draft 判 `FS01`。
+        生产盘 `custom_factors` 现有 8 个 `active`，默认源会把它们**全部**判 `FS01`、
+        静默停产，且 `detail.status=None` 会被排障读成「盘上没有 status」。
+      * 盘上事实（`D:/TSP/data/user_data/custom_factors` 15 个 json）= 8 `active`
+        + 7 `draft`；传 `RegistryFacts(Path("D:/TSP/data"))` 时 8 只三模式全 `ok=True`。
+
+    解析不到 `data_dir` 时**抛错**，不静默按 draft 判：
+      * `app.config` 导入失败（例如脱离应用进程的裸脚本）或缺 `data_dir`
+        → `GateError(FS09)`，`submitted_id="data_dir"`，七键形状照 §7.16.4。
+      * `data_dir` 可解析但盘上没有 `user_data/custom_factors` 或没有该 id 的 JSON
+        → 不在这里抛：`status` 由 §7.8.4 末行按 draft 判 `FS01`。那是「盘上确实
+        没有 status」，与「压根没看到盘」是两回事，两者不许混成同一种报错。
+
+     `mode` 透传（v0.16 §7.17.5 `F-A49-1`）：本函数产出的 `FS09` 的 `detail["mode"]`
+    必须等于**调用方传的 `mode`**，不许写死 `"production"`；独立调用（不给 `mode`）
+    仍按 `"production"`，与 `F-A48-3` 的 `default_facts_source()` 裸调判据一致。
+    """
+    try:
+        from app.config import settings
+    except Exception as exc:
+        raise _invalid_argument(
+            "data_dir",
+            mode,
+            f"缺省事实源无法解析 data_dir（app.config 不可用）: {exc}；"
+            "显式传 facts=RegistryFacts(<data_dir>) 可绕过",
+        ) from exc
+    data_dir = getattr(settings, "data_dir", None)
+    if data_dir is None:
+        raise _invalid_argument(
+            "data_dir",
+            mode,
+            "缺省事实源无法解析 data_dir（settings.data_dir 为空）；"
+            "显式传 facts=RegistryFacts(<data_dir>) 可绕过",
+        )
+    return RegistryFacts(Path(data_dir))
+
+
 def assert_factors_usable(
     factor_ids: Iterable[str] | str,
     mode: str,
@@ -474,6 +626,7 @@ def assert_factors_usable(
     shadow: bool = False,
     entry: str | None = None,
     facts: FactsSource | None = None,
+    namespace: str | Mapping[str, str] = "factor",
 ) -> GateReport:
     """§7.7.2 的闸门：判定矩阵照 4x2 表，`mode` 的第三值见 §7.8.4。
 
@@ -483,14 +636,22 @@ def assert_factors_usable(
       * `allow_non_active` / `allow_retired`：§7.7.2 的 research 放行开关。
       * `require_status`：§7.16.3 签名里的开关；False 时整段 FS01 不判。
       * `shadow` / `entry`：CONTRACT-GAP 2 / 3。
+      * `namespace`：§7.17.2 的命名面，keyword-only，缺省 `"factor"` 即今日行为；
+        `"column"` 把该 id 按 §7.8.3 第一行 base 处理（面闭合判据 `_column_universe()`），
+        也接受 `Mapping[str, str]` 逐 id 声明；域外取值 / Mapping 缺键 → `FS09`。
 
     返回 `GateReport`；有 blocked 且 `shadow=False` 时抛 `GateError`（fail-closed）。
     """
-    if mode not in MODES:
-        raise ValueError(f"未知 mode: {mode!r}（只接受 {list(MODES)}）")
+    if not isinstance(mode, str) or mode not in MODES:
+        # §7.17.4 C4：入参非法一律 FS09（GateError），不抛 ValueError（C1 出口唯一）。
+        raise _invalid_argument(
+            "mode", str(mode), f"未知 mode: {mode!r}（只接受 {list(MODES)}）", entry
+        )
 
     ordered_ids = _normalise_ids(factor_ids)
-    source: FactsSource = facts if facts is not None else RegistryFacts()
+    faces = _namespace_faces(namespace, ordered_ids, mode, entry)
+    # 缺省事实源必须绑定 data_dir（见 default_facts_source 的 P0 说明）：
+    source: FactsSource = facts if facts is not None else default_facts_source(mode)
     blocked: list[tuple[str, str | None, str]] = []
     non_active: list[str] = []
     unknown: list[str] = []
@@ -500,22 +661,32 @@ def assert_factors_usable(
 
     if mode != "none":  # CONTRACT-GAP 1：none = 不判定
         for factor_id in ordered_ids:
-            fact = source.facts(factor_id)
-            verdict = _judge(
-                fact,
-                mode,
-                allow_non_active=allow_non_active,
-                allow_retired=allow_retired,
-                require_status=require_status,
-                facts=source,
-            )
+            try:
+                fact = source.facts(factor_id)
+            except ValueError as exc:
+                # 定义 JSON 的 status 域外（§7.17.4 C4）→ FS09，不让 ValueError 逃出去。
+                raise _invalid_argument("status", mode, str(exc), entry) from exc
+            if faces[factor_id] == "column":
+                verdict = _column_verdict(fact)
+            else:
+                verdict = _judge(
+                    fact,
+                    mode,
+                    allow_non_active=allow_non_active,
+                    allow_retired=allow_retired,
+                    require_status=require_status,
+                    facts=source,
+                )
             if verdict.resolved is not None:
                 resolved_by_id[factor_id] = verdict.resolved
                 gated_resolved[factor_id] = verdict.resolved
             if not fact.registered:
                 unknown.append(factor_id)
             if verdict.codes:
-                blocked.extend((factor_id, fact.status, code) for code in verdict.codes)
+                # 同一 submitted_id 命中多码 → 只报优先级最高一码（见 _CODE_PRIORITY）。
+                # 单码时行为与旧实现逐位相同；多码时不再重复计数，也不会触发 violations。
+                top_code = min(verdict.codes, key=lambda c: _CODE_PRIORITY.get(c, 99))
+                blocked.append((factor_id, fact.status, top_code))
             else:
                 if verdict.non_active:
                     non_active.append(factor_id)
@@ -548,7 +719,10 @@ def assert_factors_usable(
             first_status,
             _message(first_code, first_id, first_status, mode, resolved),
         )
-        if len(report.blocked) > 1:
+        # `violations` 只在 `blocked` 含 >=2 个**不同 id** 时出现（批量入口语义）；
+        # 单 id 多码已被聚合到一码（见 _CODE_PRIORITY），detail 恒为 §7.16.4 的 7 键
+        # （FS01 另加 status）。
+        if len({item_id for item_id, _s, _c in report.blocked}) > 1:
             detail["violations"] = [
                 {"submitted_id": item_id, "code": item_code}
                 for item_id, _item_status, item_code in report.blocked
@@ -620,16 +794,31 @@ def load_live_config_allowlist(path: str | Path | None = None) -> LiveConfigAllo
     )
 
 
-def check_ledger_consistency(*_args, **_kwargs) -> None:
+def check_ledger_consistency(
+    *_args,
+    mode: str = "production",
+    entry: str | None = None,
+    **_kwargs,
+) -> None:
     """§7.16.5：`alias_of` 必须与 §7.15.1 的 canonical 表一致，不一致报 FS06。
 
     这一支**判不出来**：§7.15.1 的 14 行表只存在于契约正文（markdown 表格），盘上
     没有机器可读的等价物，而 §7.16.5 明确「唯一权威、禁止二次登记」，本模块不能
-    自己造一份副本当权威。按派发书「判不出来的必须 raise NotImplementedError」，
-    这里显式抛出，绝不静默返回「一致」。
+    自己造一份副本当权威。按 §7.17.4 C3，判不出来就 `GateError(FS06)` fail-closed
+    （HTTP 400）：既不静默返回「一致」，也不再让 `NotImplementedError` 逃出闸门
+    （C1 出口唯一）。
     """
-    raise NotImplementedError(
-        "FS06 的「台账未裁定 / 表与定义不一致」分支无法从盘上事实判定："
-        "§7.15.1 的 14 行 canonical 表只存在于契约正文，盘上无机器可读副本，"
-        "§7.16.5 又禁止二次登记；需架构师先裁定机器可读台账的路径与形状。"
+    raise GateError(
+        "FS06",
+        _detail(
+            "FS06",
+            mode,
+            "ledger",
+            None,
+            None,
+            None,
+            "§7.15.1 的 canonical 台账没有机器可读副本，alias 台账一致性不可判定（FS06）",
+        ),
+        None,
+        entry=entry,
     )

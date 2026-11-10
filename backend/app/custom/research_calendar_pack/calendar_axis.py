@@ -8,10 +8,18 @@
 
 两个口径决定写死在这里, 不要放宽:
 
-1. `week_end` 用 **ISO 周** = `date.isocalendar()` 的 `(iso_year, iso_week)` 二元组,
-   不是自然周序号、也不只用 `week` 一位。跨年时 12 月末与 1 月初可能同属一个 ISO 周
-   (如 2018-12-31 属 2019-W01), 只取 `week` 一位会把不同年份的两个 W01 并成一个「周」,
-   从而漏判一个周末 —— 判据 E4-A4 给出跨年样本与差异条数。
+1. `week_end` 的周键由 `week_rule` **显式**决定, 取值只有两个, 缺省 `iso_year_week`:
+
+   * `iso_year_week`(缺省) = `date.isocalendar()` 的 `(iso_year, iso_week)` 二元组。
+     跨年时 12 月末与 1 月初可能同属一个 ISO 周 (如 2018-12-31 属 2019-W01)。
+   * `dt_week` = `(date.year, iso_week)` —— **自然年** + ISO 周序号。这是 `datetime`
+     只取 `dt.year` 的写法; 跨年时它与 ISO 键不一致 (2019-12-31 的 ISO 键是
+     2020-W01、自然年键是 2019-W01), 见判据 E4-A6 的集合差异。
+
+   **策略侧必须显式选一个**, 不得依赖缺省值: 两规则在本库实测差 2 个周末日
+   (整轴 451 vs 453), 缺省漂移会静默改变调仓日。`week_rule` 不是「只用 week 一位」
+   —— 只取 `week` 一位会把不同年份的两个 W01 并成一个「周」, 那是我方禁止的写法
+   (2018/2019、2024/2025 的 W01 会合并), 不在两个合法取值内。
 
 2. 数据末端**无法判定**「本月/本周是否已经结束」→ 输出 `null`, 不输出 0.0 / 1.0。
    理由: 若把数据末端 (2026-11-06, 月中) 判成 `month_end=1`, 任何 `month_end == 1`
@@ -38,8 +46,14 @@ CALENDAR_FACTOR_COLUMNS: tuple[str, str] = (FACTOR_COLUMN_MONTH_END, FACTOR_COLU
 FRAME_START = date(2018, 1, 8)
 # 权威日历所在数据集 (asset_type=stock)。ETF/index 的交易日与之一致; 缺目录时才回退。
 CALENDAR_DIR = "kline_daily_enriched"
-# 口径版本: 日历来源或 ISO 周口径变化时递增。
+# 口径版本: 日历来源或周键口径变化时递增。
 CALENDAR_VERSION = 1
+
+#: `week_rule` 的合法取值 (E4-A6)。缺省 `iso_year_week`; 调用方 (策略/研究) 必须显式选。
+WEEK_RULE_ISO = "iso_year_week"
+WEEK_RULE_DT = "dt_week"
+WEEK_RULES: tuple[str, str] = (WEEK_RULE_ISO, WEEK_RULE_DT)
+DEFAULT_WEEK_RULE = WEEK_RULE_ISO
 
 _CACHE: dict[tuple[str, int], tuple[date, ...]] = {}
 
@@ -108,14 +122,44 @@ def load_trading_calendar(
 
 
 def _iso_key(day: date) -> tuple[int, int]:
+    """`iso_year_week` 口径: (ISO 年, ISO 周序)。"""
     iso = day.isocalendar()
     return (iso[0], iso[1])
 
 
+def _dt_week_key(day: date) -> tuple[int, int]:
+    """`dt_week` 口径: (自然年, ISO 周序)。跨年周会因此被拆成两段。"""
+    return (day.year, day.isocalendar()[1])
+
+
+def week_key(day: date, week_rule: str = DEFAULT_WEEK_RULE) -> tuple[int, int]:
+    """按 `week_rule` 取一个交易日的周键; 域外取值 ValueError (fail-closed)。"""
+    if week_rule == WEEK_RULE_ISO:
+        return _iso_key(day)
+    if week_rule == WEEK_RULE_DT:
+        return _dt_week_key(day)
+    raise ValueError(f"week_rule 非法: {week_rule!r}（只接受 {list(WEEK_RULES)}）")
+
+
+def resolve_week_rule(week_rule: str | None = None) -> str:
+    """归一 `week_rule`: None → 缺省 `iso_year_week`; 域外抛 ValueError。"""
+    if week_rule is None:
+        return DEFAULT_WEEK_RULE
+    if week_rule not in WEEK_RULES:
+        raise ValueError(f"week_rule 非法: {week_rule!r}（只接受 {list(WEEK_RULES)}）")
+    return week_rule
+
+
 def calendar_flags(
     days: tuple[date, ...] | list[date],
+    *,
+    week_rule: str = DEFAULT_WEEK_RULE,
 ) -> dict[date, tuple[float | None, float | None]]:
-    """逐交易日给 (`month_end`, `week_end`): 1.0 是, 0.0 否, `None` 数据末端不可判。"""
+    """逐交易日给 (`month_end`, `week_end`): 1.0 是, 0.0 否, `None` 数据末端不可判。
+
+    `week_rule` 决定 `week_end` 的周键 (E4-A6), 只影响第二列; `month_end` 与它无关。
+    """
+    rule = resolve_week_rule(week_rule)
     ordered = tuple(days)
     flags: dict[date, tuple[float | None, float | None]] = {}
     for index, day in enumerate(ordered):
@@ -124,7 +168,7 @@ def calendar_flags(
             flags[day] = (None, None)       # 末端: 本月/本周是否结束未知
             continue
         month_end = 1.0 if (following.year, following.month) != (day.year, day.month) else 0.0
-        week_end = 1.0 if _iso_key(following) != _iso_key(day) else 0.0
+        week_end = 1.0 if week_key(following, rule) != week_key(day, rule) else 0.0
         flags[day] = (month_end, week_end)
     return flags
 
@@ -133,9 +177,10 @@ def calendar_frame(
     days: tuple[date, ...] | list[date],
     *,
     columns: tuple[str, ...] = CALENDAR_FACTOR_COLUMNS,
+    week_rule: str = DEFAULT_WEEK_RULE,
 ) -> pl.DataFrame:
-    """日历列 → 小帧 (date, month_end, week_end), 供 left join。"""
-    flags = calendar_flags(days)
+    """日历列 → 小帧 (date, month_end, week_end), 供 left join。`week_rule` 见 calendar_flags。"""
+    flags = calendar_flags(days, week_rule=week_rule)
     rows = [(day, month, week) for day, (month, week) in flags.items()]
     frame = pl.DataFrame(
         rows,
@@ -155,6 +200,7 @@ def attach_calendar_flags(
     days: tuple[date, ...] | list[date],
     *,
     columns: tuple[str, ...] = CALENDAR_FACTOR_COLUMNS,
+    week_rule: str = DEFAULT_WEEK_RULE,
 ) -> pl.DataFrame:
     """把日历列 left join 到面板帧 (不在日历里的日期 → `null`, 不猜)。"""
     wanted = tuple(name for name in columns if name not in frame.columns)
@@ -164,18 +210,24 @@ def attach_calendar_flags(
         return frame.with_columns([pl.lit(None, dtype=pl.Float64).alias(name) for name in wanted])
     if "date" not in frame.columns:
         raise ValueError("E4 日历列需要面板帧含 date 列")
-    return frame.join(calendar_frame(days, columns=wanted), on="date", how="left")
+    return frame.join(
+        calendar_frame(days, columns=wanted, week_rule=week_rule), on="date", how="left"
+    )
 
 
 def calendar_diagnostics(
     frame: pl.DataFrame | None,
     days: tuple[date, ...] | list[date],
+    *,
+    week_rule: str = DEFAULT_WEEK_RULE,
 ) -> dict[str, object]:
     """判据用的可观测项: 日历跨度、标记条数、末端 null、帧内缺日历的日期数。"""
+    rule = resolve_week_rule(week_rule)
     ordered = tuple(days)
-    flags = calendar_flags(ordered)
+    flags = calendar_flags(ordered, week_rule=rule)
     out: dict[str, object] = {
         "calendar_version": CALENDAR_VERSION,
+        "week_rule": rule,
         "n_dates": len(ordered),
         "first_date": ordered[0].isoformat() if ordered else None,
         "last_date": ordered[-1].isoformat() if ordered else None,

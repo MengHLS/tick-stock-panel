@@ -108,9 +108,11 @@ GOLDEN_COLUMNS: list[dict] = [
     {"id": "first_board_chain_recovered_not_breakout", "label": "事件链回攻未过前高", "group": "首板事件链", "desc": "结构有效且目标首板收盘未突破前高 P"},
     {"id": "first_board_chain_seed_close_preserved", "label": "事件链锚点收盘守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板收盘价"},
     {"id": "first_board_chain_seed_low_preserved", "label": "事件链锚点低点守住", "group": "首板事件链", "desc": "回调低点 L 不低于锚点首板最低价"},
+    # --- E5 market_breadth (2026-11-08): 台账 §16.4 门票, 单侧不建 uf_ 双胞胎 ---
+    {"id": "market_breadth", "label": "全市场站上60日均线占比", "group": "研究补充", "desc": "xs_mean(close > ma60, in_universe)"},
     # --- 日历包 E4 (B4, 2026-11-07): month_end / week_end, 追加在首板事件链之后 ---
     {"id": "month_end", "label": "月末交易日", "group": "日历", "desc": "date == max(trade_date of calendar month)  # 日历 = kline_daily_enriched distinct date; 数据末端 (本月是否结束未知) 输出 null"},
-    {"id": "week_end", "label": "周末交易日(ISO周)", "group": "日历", "desc": "date == max(trade_date of ISO week (iso_year, iso_week))  # 跨年按 ISO 二元组, 不用自然周序号; 数据末端输出 null"},
+    {"id": "week_end", "label": "周末交易日(ISO周)", "group": "日历", "desc": "date == max(trade_date of week key)  # 周键由 week_rule 参数决定: iso_year_week(缺省, ISO 二元组) / dt_week(自然年+ISO 周序); 数据末端输出 null"},
     # --- 研究基线包 B0 (14) + B2 in_universe (2026-11-07), 共 15 项, 追加在首板事件链之后 ---
     {"id": "ma20", "label": "20日均线", "group": "研究补充", "desc": "ts_mean(close, 20)"},
     {"id": "ma60", "label": "60日均线", "group": "研究补充", "desc": "ts_mean(close, 60)"},
@@ -286,8 +288,8 @@ def test_scoring_warmup_snapshot() -> None:
 
 def test_catalog_counts_and_kinds() -> None:
     specs = all_factors()
-    assert len(specs) == 110
-    assert len({spec.id for spec in specs}) == 110  # id 唯一
+    assert len(specs) == 111
+    assert len({spec.id for spec in specs}) == 111  # id 唯一
     virtual = [spec for spec in specs if spec.kind == "virtual"]
     assert len(virtual) == 61  # ma/ema 10 + 原有 26 + 扩充批次 16 + 事件链 9
     financial = [spec for spec in specs if spec.pit]
@@ -326,8 +328,8 @@ def test_get_factor_and_dependencies() -> None:
 def test_asset_type_filter() -> None:
     stock = all_factors(asset_type="stock")
     etf = all_factors(asset_type="etf")
-    assert len(stock) == 110
-    assert len(etf) == 87  # 财务 7 项仅股票
+    assert len(stock) == 111
+    assert len(etf) == 88  # 财务 7 项仅股票
 
 
 def test_register_factor_rejects_duplicate() -> None:
@@ -374,7 +376,7 @@ def test_factors_api_contract() -> None:
     assert response.status_code == 200
     payload = response.json()
     factors = payload["factors"]
-    assert len(factors) == 110
+    assert len(factors) == 111
     first = factors[0]
     assert first["id"] == "momentum_5d"
     assert first["kind"] == "base"
@@ -397,7 +399,7 @@ def test_factors_api_contract() -> None:
 def test_factors_api_asset_filter_and_validation() -> None:
     client = _client()
     etf = client.get("/api/factors", params={"asset_type": "etf"}).json()["factors"]
-    assert len(etf) == 87
+    assert len(etf) == 88
     assert all("stock" in item["asset_types"] for item in etf)
     # 非法资产类型 → 422 (fail-closed, 不静默回退全量)
     assert client.get("/api/factors", params={"asset_type": "index"}).status_code == 422

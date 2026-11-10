@@ -1,0 +1,289 @@
+{
+  "generated_at": "2026-11-08T04:30:55.480939+08:00",
+  "inputs": {
+    "st_history": {
+      "path": "D:\\TSP\\data\\st_history\\part.parquet",
+      "rows": 7758,
+      "symbols": 5817,
+      "sha256": "52227460a93417792fea6a59001950ce6f9ece15d04fc84c15c5e47819e4a990",
+      "min_flag_date": "2019-01-01",
+      "max_flag_date": "2026-10-29"
+    },
+    "manifest": {
+      "source": "research_security_status_history.statusType=ST",
+      "sourceDatabase": "stock-limit-up-analyzer",
+      "identifierSource": "research_security_identifier_history.identifierType=primary",
+      "coverageStart": "2019-01-01",
+      "coverageEnd": "2026-10-29",
+      "absencePolicy": "absence_of_ST_interval_is_non_ST",
+      "generatedAt": "2026-10-29T14:17:49.263061+00:00",
+      "sourceStIntervals": 1043,
+      "identifierRows": 5914,
+      "outputRows": 7758,
+      "securities": 5817,
+      "unmappedStIntervals": 0,
+      "conflicts": 0,
+      "note": "Transitions are derived from ST intervals; no current-name backfill.",
+      "currentOnlyBaselines": 4,
+      "currentOnlyNote": "Four symbols absent from the original identifier snapshot were marked non-ST from their first local bar; all first bars are after the source snapshot date."
+    },
+    "kline_symbols": 5813,
+    "kline_days": 2141
+  },
+  "A_2026_10_20_event": {
+    "as_of_st_true_2026_10_19": 218,
+    "false_rows_written_on_2026_10_20": 198,
+    "kept_st_true_not_closed": 20,
+    "arithmetic": 218,
+    "flip_subset_of_prior_st_set": true,
+    "kept20_last_bar_min": "2021-12-16",
+    "kept20_last_bar_max": "2024-08-14",
+    "flip198_last_bar_min": "2026-09-03",
+    "flip198_last_bar_max": "2026-11-06",
+    "kept_vs_flip_last_bar_disjoint": true,
+    "kept20_zero_bars_in_14d_window": true,
+    "flip198_symbols_with_bar_on_2026_10_20": 194,
+    "flip198_having_any_bar_in_window": 195,
+    "current_name_still_contains_ST": 195,
+    "current_name_no_ST": 3,
+    "current_name_no_ST_list": [
+      "002731.SZ",
+      "603517.SH",
+      "603838.SH"
+    ],
+    "instruments_as_of": "2026-11-05"
+  },
+  "A_same_shape_event_2026_09_05": {
+    "flag_date_is_weekday": "Saturday",
+    "as_of_st_true_2026_09_04": 213,
+    "false_rows_written_on_2026_09_05": 193,
+    "kept_st_true_not_closed": 20,
+    "arithmetic": 213,
+    "restored_true_rows_on_2026_09_07": 200,
+    "restored_that_were_just_flipped": 193,
+    "as_of_st_true_2026_09_07": 220,
+    "reversion_within_two_trading_days": true
+  },
+  "A_anomaly_ranking_false_rows_per_flag_date": [
+    {
+      "flag_date": "2019-01-01",
+      "false_rows": 3560
+    },
+    {
+      "flag_date": "2026-10-20",
+      "false_rows": 198
+    },
+    {
+      "flag_date": "2026-09-05",
+      "false_rows": 193
+    },
+    {
+      "flag_date": "2020-07-27",
+      "false_rows": 31
+    },
+    {
+      "flag_date": "2019-07-22",
+      "false_rows": 25
+    },
+    {
+      "flag_date": "2020-08-24",
+      "false_rows": 18
+    },
+    {
+      "flag_date": "2021-11-15",
+      "false_rows": 11
+    },
+    {
+      "flag_date": "2023-04-10",
+      "false_rows": 10
+    },
+    {
+      "flag_date": "2021-05-19",
+      "false_rows": 9
+    },
+    {
+      "flag_date": "2020-07-22",
+      "false_rows": 9
+    },
+    {
+      "flag_date": "2022-05-25",
+      "false_rows": 8
+    },
+    {
+      "flag_date": "2024-06-05",
+      "false_rows": 8
+    }
+  ],
+  "A_anomaly_ranking_true_rows_per_flag_date": [
+    {
+      "flag_date": "2026-09-07",
+      "true_rows": 200
+    },
+    {
+      "flag_date": "2019-01-02",
+      "true_rows": 76
+    },
+    {
+      "flag_date": "2024-05-06",
+      "true_rows": 38
+    },
+    {
+      "flag_date": "2025-04-30",
+      "true_rows": 33
+    },
+    {
+      "flag_date": "2026-04-30",
+      "true_rows": 31
+    },
+    {
+      "flag_date": "2023-05-05",
+      "true_rows": 29
+    },
+    {
+      "flag_date": "2026-05-06",
+      "true_rows": 28
+    },
+    {
+      "flag_date": "2020-05-06",
+      "true_rows": 26
+    },
+    {
+      "flag_date": "2022-05-06",
+      "true_rows": 22
+    },
+    {
+      "flag_date": "2021-05-06",
+      "true_rows": 21
+    },
+    {
+      "flag_date": "2019-05-06",
+      "true_rows": 18
+    },
+    {
+      "flag_date": "2025-05-06",
+      "true_rows": 16
+    }
+  ],
+  "A_window_and_backfill_impact": {
+    "window_first": "2026-10-20",
+    "window_last": "2026-11-06",
+    "window_trading_days": 14,
+    "market_symbol_days_with_bar": 77974,
+    "flip198_symbol_days_with_bar": 2709,
+    "flip198_symbol_days_with_bar_and_st_name": 2680,
+    "kept20_symbol_days_with_bar": 0,
+    "st_true_now_window_end": 20,
+    "st_true_after_backfill_window_end": 218,
+    "in_universe_asset_days_flipping_to_excluded": 2680,
+    "per_day": [
+      {
+        "date": "2026-10-20",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5568,
+        "flip198_symbols_with_bar": 194
+      },
+      {
+        "date": "2026-10-21",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5568,
+        "flip198_symbols_with_bar": 194
+      },
+      {
+        "date": "2026-10-22",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5570,
+        "flip198_symbols_with_bar": 194
+      },
+      {
+        "date": "2026-10-23",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5572,
+        "flip198_symbols_with_bar": 195
+      },
+      {
+        "date": "2026-10-26",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5568,
+        "flip198_symbols_with_bar": 194
+      },
+      {
+        "date": "2026-10-27",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5568,
+        "flip198_symbols_with_bar": 194
+      },
+      {
+        "date": "2026-10-28",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5569,
+        "flip198_symbols_with_bar": 194
+      },
+      {
+        "date": "2026-10-29",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5569,
+        "flip198_symbols_with_bar": 193
+      },
+      {
+        "date": "2026-10-30",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5570,
+        "flip198_symbols_with_bar": 193
+      },
+      {
+        "date": "2026-11-02",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5570,
+        "flip198_symbols_with_bar": 193
+      },
+      {
+        "date": "2026-11-03",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5569,
+        "flip198_symbols_with_bar": 193
+      },
+      {
+        "date": "2026-11-04",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5571,
+        "flip198_symbols_with_bar": 193
+      },
+      {
+        "date": "2026-11-05",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5570,
+        "flip198_symbols_with_bar": 192
+      },
+      {
+        "date": "2026-11-06",
+        "st_true_now": 20,
+        "st_true_after_backfill": 218,
+        "market_symbols_with_bar": 5572,
+        "flip198_symbols_with_bar": 193
+      }
+    ]
+  },
+  "code_evidence": {
+    "source_interval_reconstruction": "stock-limit-up-analyzer/server/securityStatus/baostockStatus.ts:mergeConsecutiveRuns",
+    "null_breaks_run": "predicate is (p.isST === 1); isST===null yields false -> else { current = null } closes the run",
+    "docstring_contradiction": "接口注释写 'null = 缺失，跳过'，实现并无跳过分支",
+    "caller": "stock-limit-up-analyzer/scripts/backfillStatusLiquidity.ts:695 isST: num(row.isST) -> null when field empty/missing",
+    "persist": "stock-limit-up-analyzer/server/securityStatus/persistence.ts:59 insert, 无 UPSERT/无唯一约束",
+    "manifest_source": "research_security_status_history.statusType=ST",
+    "manifest_generatedAt": "2026-10-29T14:17:49.263061+00:00",
+    "manifest_absencePolicy": "absence_of_ST_interval_is_non_ST"
+  }
+}
