@@ -9,7 +9,7 @@ import time
 import uuid
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
-from datetime import date, timedelta
+from datetime import date
 from itertools import pairwise
 from pathlib import Path
 from typing import Any, Literal
@@ -19,7 +19,6 @@ import polars as pl
 
 from app.backtest.factor import (
     FACTOR_METHODOLOGY_VERSION,
-    FACTOR_WARMUP_DAYS,
     FactorBacktestService,
     FactorBatchConfig,
 )
@@ -60,10 +59,15 @@ from app.enriched_generation import (
     _exclusive_generation_lock,
     get_enriched_generation,
 )
-from app.factors.registry import factor_columns_view
+from app.factors.registry import (
+    factor_calculation_order,
+    factor_columns_view,
+    get_factor,
+    missing_factor_ids,
+)
 from app.services.mining_jobs import MiningRunStore
 from app.services.mining_preflight import enriched_partition_dates
-from app.services.mining_schedule import MINING_ALGORITHM_VERSION
+from app.services.mining_schedule import MINING_ALGORITHM_VERSION, verify_mining_factor_snapshot
 from app.strategy import config as strategy_config
 from app.strategy.engine import StrategyEngine
 
@@ -353,46 +357,13 @@ def _load_compact_factor_panel(
         "amount",
         "turnover_rate",
     ]
-    from app.extensions.factors import (
-        factor_provider_dependencies,
-        factor_provider_for,
-    )
+    from app.factors.dsl import compile_formula_cached
+    from app.indicators.pipeline import ENRICHED_STORAGE_COLS
 
-    frame_provider_names = {
-        name for name in factor_names
-        if (provider := factor_provider_for(name)) is not None
-        and provider.kind != "sidecar"
-    }
-    provider_dependencies = factor_provider_dependencies(frame_provider_names)
-    provider_dependency_names = {
-        dependency
-        for dependencies in provider_dependencies.values()
-        for dependency in dependencies
-    }
-    if "consecutive_limit_ups" in provider_dependency_names or any(
-        name in ("limit_up_count_20d", "limit_up_count_60d")
-        for name in factor_names
-    ):
-        panel_columns.append("consecutive_limit_ups")
-    warmup_days = FACTOR_WARMUP_DAYS
-    if frame_provider_names:
-        required_bars = max(
-            (
-                factor_provider_for(name).warmup_bars(name)
-                for name in frame_provider_names
-                if factor_provider_for(name) is not None
-            ),
-            default=1,
-        )
-        warmup_days = max(
-            warmup_days,
-            math.ceil(max(required_bars - 1, 1) * 1.8) + 14,
-        )
-    load_start = (
-        config.start
-        if all(name == "turnover_rate" for name in factor_names)
-        else config.start - timedelta(days=warmup_days)
-    )
+    ordered = factor_calculation_order(factor_names)
+    required = set(ordered)
+    panel_columns.extend(sorted((required & set(ENRICHED_STORAGE_COLS)) - set(panel_columns)))
+    load_start = factor_service._factor_load_start(config, factor_names)
     raw = factor_service.engine.load_panel(
         config.symbols,
         load_start,
@@ -404,11 +375,7 @@ def _load_compact_factor_panel(
     if raw.is_empty():
         return raw
 
-    fundamental_names = [
-        str(name)
-        for name in factor_names
-        if str(name) in FUNDAMENTAL_FACTOR_NAMES
-    ]
+    fundamental_names = sorted(required & FUNDAMENTAL_FACTOR_NAMES)
     if fundamental_names:
         data_dir = getattr(
             getattr(getattr(factor_service.engine, "repo", None), "store", None),
@@ -448,10 +415,20 @@ def _load_compact_factor_panel(
         .get_column("len")
         .to_list()
     )
+    # 截面公式/组合必须同时看到全部标的; Python 表达式的分组方式不可静态穷尽。
+    full_cross_section = any(
+        spec.kind == "composite" or (
+            spec.kind == "custom" and (
+                spec.lang == "python" or compile_formula_cached(spec.formula_text).cross_sectional
+            )
+        )
+        for name in ordered if (spec := get_factor(name)) is not None
+    )
+    batch_size = len(group_sizes) if full_cross_section else _SYMBOL_BATCH_SIZE
     row_offset = 0
-    for offset in range(0, len(group_sizes), _SYMBOL_BATCH_SIZE):
+    for offset in range(0, len(group_sizes), batch_size):
         _raise_if_cancelled(cancel_check)
-        row_count = sum(group_sizes[offset:offset + _SYMBOL_BATCH_SIZE])
+        row_count = sum(group_sizes[offset:offset + batch_size])
         batch = raw.slice(row_offset, row_count)
         row_offset += row_count
         missing = set(factor_names) - set(batch.columns)
@@ -460,6 +437,7 @@ def _load_compact_factor_panel(
                 batch,
                 missing,
                 assume_sorted=True,
+                data_dir=factor_service._fundamentals_data_dir(),
             )
         projected = batch.filter(
             (pl.col("date") >= config.start)
@@ -510,11 +488,11 @@ def run_mining_runtime(
     )
     if not isinstance(expected_generation, str) or not expected_generation:
         raise ValueError("mining worker payload is missing its data generation")
-
     def _snapshot_abort(stage: str, detail: str = "") -> ValueError:
         suffix = f"（阶段: {stage}{'; ' + detail if detail else ''}）"
         return ValueError(MINING_GENERATION_FAILURE + suffix)
 
+    verify_mining_factor_snapshot(request.factor_names, fingerprint)
     try:
         current_generation = get_enriched_generation(data_dir, request.asset_type)
     except EnrichedGenerationUnavailableError as exc:
@@ -887,8 +865,7 @@ def _decode_runtime_request(
     if not factor_names or len(set(factor_names)) != len(factor_names):
         raise ValueError("factor_names must be non-empty and unique")
     # 注册表动态读取: worker 子进程已在入口加载自定义/复合因子
-    known_ids = frozenset(str(item["id"]) for item in factor_columns_view())
-    unknown_factors = sorted(set(factor_names) - known_ids)
+    unknown_factors = missing_factor_ids(factor_names)
     if unknown_factors:
         raise ValueError(f"unknown mining factors: {unknown_factors}")
     if len(factor_names) > 48:
@@ -1071,8 +1048,9 @@ def _prepare_base_market(
         requested_plan=merged,
         requested_forward_bars=request.forward_horizon,
     )
-    warmup_days = max(120, int(max(merged.warmup_bars, 1) * 1.6))
-    load_start = request.start - timedelta(days=warmup_days)
+    load_start = FactorBacktestService(service.engine)._factor_load_start(
+        request, request.factor_names, warmup_bars=merged.warmup_bars,
+    )
     return service.engine.load_market_data_matrix_for_backtest(
         request.symbols,
         load_start,

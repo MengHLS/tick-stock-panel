@@ -589,3 +589,15 @@ def test_load_into_registry_includes_ext_factors(data_dir):
         _decode_runtime_request(payload, data_dir, strategy_engine=None)
     except ValueError as exc:
         assert "unknown mining factors" not in str(exc)
+
+
+def test_cold_load_can_register_custom_factor_using_ext_field(data_dir):
+    from app.factors import store
+    from app.factors.registry import isolated_registry
+
+    _mk_config(data_dir)
+    store.save_one(data_dir, {"id": "uf_hot", "kind": "custom", "label": "热度", "formula": f"{COL} * 2"})
+    with isolated_registry():
+        assert get_factor(COL) is None
+        assert store.load_runtime_registry(data_dir) == ["uf_hot"]
+        assert get_factor("uf_hot").inputs == {COL}

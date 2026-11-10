@@ -27,9 +27,10 @@
 - 策略研究扩展（已实现）：`backend/app/custom/strategy_research` 通过只读回测结果、`MarketDataRead` 和独立 JSON 存储生成 T74 右尾路径报告、配对实验与因子假设台账；研究产物位于 `data/user_data/research/strategy_research/`，不写回测结果或策略目录。
 - 有状态因子 Provider（已实现）：`backend/app/custom/<namespace>/factor_provider.py` 导出 `FACTOR_PROVIDERS`；核心按因子 id 路由到 `FactorProvider`，支持帧/矩阵物化、sidecar generation、参数与空值策略、覆盖错误和版本化重建。`FactorSpec` 继续作为统一元数据目录。
 - 历史 ST 数据 Provider（已实现）：标准数据源可声明 `st_history` 数据集，设置页按 `st_history_data_provider` 独立路由；默认内置 `local_st_history` 读取本地规范数据。Provider 只返回 `symbol/flag_date/st_flag`，ST 宇宙过滤与涨跌停修正仍由核心完成。
-- 当前前端插槽：`layout.navigation.extra`、`stock-preview.footer`、`watchlist.toolbar`。
+- 当前前端插槽：`layout.navigation.extra`、`stock-preview.tabs`、`stock-preview.footer`、`watchlist.toolbar`。
 - 回测页面插槽（已实现）：`backtest.result.extra`、`backtest.trades.extra`、`backtest.savedResults.extra`、`backtest.settings.extra`。结果与交易上下文只传保存/运行快照和受控回调，不暴露回测页内部状态。
 - 后端继承点（已实现）：`NotificationFormatter`、`QuoteUpdateObserver`、`CandidateFilter`、`ScoringPolicy`、`RiskPolicy`、`BacktestCostModel`、`StrategyProvider`、`MonitorConditionEvaluator`。
+- 个股详情公共入口（已实现）：源码扩展通过 `@/extensions/stockPreview` 的 `openStockPreview` / `closeStockPreview` 调用；运行时页面通过 `ctx.ui` 调用相同能力。复用原弹窗、查询和列表切股，不要求每个扩展自行挂载图表。
 - 自定义仓位策略（`PositionSizingPolicy`，已实现）：`data/user_data/position_policies/*.py`，在「设置 → 定义 → 仓位策略」创建（表单 META + 只写一个 `def compute(ctx)` 函数，模板起步）。契约见 `app/backtest/position_sizing.py`：ctx 只含当日及以前信息（候选评分/近 60 日收益/已平仓快照/组合状态/参数），输出 weights + budget_scale，引擎侧单仓上限/现金/敞口钳制不变。保存/备份导入均过「AST 安全校验 → 结构解析 → 合成冒烟」三关；回测在「买入权重 → 自定义策略」选用，引用失效 400 拒绝、运行期异常当日回退等权并计入统计。
 - 因子平台与策略线的既有桥接（已实现，二开时直接复用、勿重复实现）：因子库一键生成单因子排名策略（`GenerateFactorStrategyDialog` → `custom_factor_*`）；策略触发器引用因子条件信号（`AddFactorSignalDialog`，`csg_f_*`）；自定义信号 AI 提示词含因子分组（`custom_signals_ai.py`）；策略回测因子归因（`strategy.py` 的 `factor_attribution`，覆盖 `meta.scoring` 非空的策略）。
 - 旧策略包格式与接口（兼容保留）：按依赖闭包打包策略 `.py` + 引用的自定义信号/因子定义 + 用户调参（叠加策略含子策略）。`app/services/strategy_bundle.py` 只保留兼容入口，实际实现统一位于 `app/services/resource_bundle.py`；新旧接口共用依赖闭包、ZIP 安全校验、打包与资源预检，旧导入复用 `config_backup.apply_archive` 的校验/逐条写盘/冒烟管线，缺失依赖在旧预览中只作预警。包内仅允许策略/调参/信号/因子四类，其他路径 400 拒绝。API：`GET /api/strategies/{id}/bundle`、`POST /api/strategies/bundle/inspect|apply`；当前页面入口使用下述统一资源传输。
@@ -131,6 +132,7 @@ export default extension
 
 ```text
 layout.navigation.extra
+stock-preview.tabs
 stock-preview.footer
 watchlist.toolbar
 backtest.result.extra
@@ -142,6 +144,7 @@ backtest.settings.extra
 各插槽 context 契约（均要求 `apiVersion: 1`，定义见 `frontend/src/extensions/types.ts` 的 `FrontendSlotContextMap`）：
 
 - `layout.navigation.extra`：`{ collapsed, pathname }`，侧边栏导航底部。
+- `stock-preview.tabs` 在个股详情顶部「日 K / 分时」右侧追加标签。组件接收当前证券的 `{ symbol: string, name: string | null }`。选中时挂载，离开时卸载。弹窗内切股会保留当前标签，并为新证券重新挂载组件。重新打开弹窗默认显示日 K。
 - `stock-preview.footer`：`{ symbol, name, view }`，个股详情对话框底部（日K/分时图表下方）；`view` 为 `'daily' | 'intraday'`。适合个股附加面板：龙虎榜、资金流、外部研究链接等。
 - `watchlist.toolbar`：`{ symbols, viewMode, selectedGroup, refresh }`，自选页工具栏末尾；`symbols` 为当前筛选视图中的标的，`refresh` 在扩展修改数据后调用以刷新自选增强数据。适合批量操作入口：自定义分析、导出、组合计算等。
 - `backtest.result.extra`：`{ result }`，完成/已保存结果快照的结果区尾部；只读，不触发重新回测。
@@ -150,6 +153,22 @@ backtest.settings.extra
 - `backtest.settings.extra`：`{ strategyId, strategyName, defaults }`，策略设置区尾部；只传当前策略标识与 `META.backtest_defaults` 快照。
 
 新增插槽前必须有真实用例，并同时定义 context 类型、异常隔离和测试；不能只在类型表中预留名字。
+
+#### 给个股详情添加一个标签
+
+在源码扩展 `frontend/src/custom/<namespace>/extension.tsx` 的 `slots` 数组加入以下注册项，把 `StockResearchTab` 换成自己的 React 组件。也可以将[完整示例](../frontend/src/custom/_template/extension.tsx.example)复制到该路径，重新构建前端后点击「个股研究」查看当前证券的代码和简称。
+
+```tsx
+{
+  name: 'stock-preview.tabs',
+  id: 'company-stock-research',
+  label: '个股研究',
+  order: 100,
+  component: StockResearchTab,
+}
+```
+
+`label` 是必填的非空标题，`id` 在本插槽内唯一。多个扩展标签按 `order` 升序排列（默认 100），同序按 `id` 排列。日期范围、分时周期、图表刷新和 `stock-preview.footer` 仅在内置图表视图显示。
 
 ### 3.3 当前路由与导航契约
 
@@ -187,6 +206,28 @@ const extension: FrontendExtension = {
 - 不用插槽绕过权限、数据口径或表单校验。
 - 不通过 DOM 查询、全局事件或 monkey patch 修改核心组件。
 - 不把整个核心页面复制到二开目录后长期独立维护。
+
+### 3.5 调用宿主个股详情
+
+```tsx
+import { openStockPreview } from '@/extensions/stockPreview'
+
+function StockLink() {
+  return <button onClick={() => openStockPreview({
+    symbol: '159558.SZ',
+    navList: [{ symbol: '159558.SZ' }, { symbol: '605365.SH' }],
+  })}>查看详情</button>
+}
+```
+
+`symbol` 使用完整交易所后缀；`name` 与 `navList` 可选，返回 `boolean` 表示请求是否接受。
+运行时 JS/TSX 页面包改用 `ctx.ui?.openStockPreview(...)`，关闭方法为 `ctx.ui?.closeStockPreview()`。
+通过源码导入编译的扩展也可保留上述公开 import，入口会转发给宿主，不会把另一套弹窗状态编入产物。
+
+这是新增公共前端能力：消费方按 L2 使用，宿主通过 `Layout` 单点挂载 `StockPreviewHost` 作最小接线，不新增后端 API 或插槽注册系统。
+连续调用复用当前窗口的公共弹窗，宿主换页或退出应用外壳清空请求；日K、分时、键盘切股和关闭清理沿用既有组件。
+已有页面自己的 `StockPreviewDialog` 调用不迁移，原查询键、缓存、数据源路由和用户数据不变。
+契约与旧宿主能力检测见 [Page Pack SDK](page-sdk.md#调用个股详情)。
 
 ## 4. 后端扩展规范
 
@@ -497,7 +538,7 @@ python3 scripts/upgrade_check.py <目标Tag或分支>
 
 ### 8.1 安装包升级保护（非 Git 用户）
 
-桌面安装包与 Docker 镜像的发布携带全量程序文件清单（`app/upgrade_manifest.json`，构建时生成）。后端每次启动会扫描程序目录并与清单对比，把用户「修改/新增」的程序文件常备备份到 `data/upgrade_guard/live/`——`data/` 不随升级覆盖，因此升级不会丢失这些文件。
+桌面安装包与 Docker 镜像的发布携带全量程序文件清单（`app/upgrade_manifest.json`，构建时生成）。后端每次启动会扫描程序目录并与清单对比，把用户「修改/新增」的程序文件备份到 `data/upgrade_guard/snapshots/`。**自动快照只保留最近一次成功备份**：先完整写入新副本，再原子更新状态指向新副本，最后删除旧副本。复制、报告生成或状态写入失败时保留上一份完整备份，不推进版本记录，可修复问题后重新扫描。旧版 `live/` 目录会在首次成功备份后迁入此机制。
 
 检测到版本变化（上次运行版本 ≠ 当前版本）时生成升级对比报告，在「设置 → 系统设置 → 升级保护」展示：
 
@@ -507,6 +548,8 @@ python3 scripts/upgrade_check.py <目标Tag或分支>
 - **新增文件可恢复**：用户新建的文件新版没有（如更换 Docker 镜像）。
 
 守卫不自动合并代码（自动改写程序文件风险不可控）。修改程序文件后重启或点「重新扫描」即可刷新常备备份；源码运行（无清单）时功能自动停用，Git 工作流仍以 `upgrade_check.py` 预检为准。
+
+升级报告及其文件归档也只保留最近一份，新报告和快照成功提交后清理更早的自动归档；普通重扫或点击「知道了」不会删除最近一份升级归档。中断写入遗留的自动副本会在下一次成功扫描后清理，清理失败时接口会报错并保留已提交的完整快照，之后可重扫。此保留策略仅作用于 `data/upgrade_guard/`，不清理手动导出的配置 ZIP 或其他备份目录。
 
 ## 9. 完成检查表
 

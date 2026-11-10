@@ -6,6 +6,7 @@ from typing import Any
 
 import polars as pl
 
+from app.factors.registry import factor_calculation_order, factor_warmup_bars
 from app.factors.registry import (
     factor_dependencies as _registry_factor_dependencies,
 )
@@ -50,19 +51,13 @@ def effective_scoring_directions(overrides: Mapping[str, Any] | None) -> dict[st
 
 
 def scoring_warmup_bars(scoring: Mapping[str, Any]) -> int:
-    warmups: list[int] = [
-        _ROLLING_SCORING_WARMUP.get(str(name), 1)
-        for name, weight in scoring.items()
-        if weight
-    ]
-    # 注册表是动态因子预热窗口的权威来源 (custom/composite/事件链等)。
-    for name, weight in scoring.items():
-        if not weight:
-            continue
-        spec = _registry_get_factor(str(name))
-        if spec is not None:
-            warmups.append(spec.warmup_bars)
-    return max(warmups, default=1)
+    from app.extensions.factors import factor_provider_warmup
+
+    weighted = [name for name, weight in scoring.items() if weight]
+    return max(
+        factor_warmup_bars(weighted),
+        factor_provider_warmup(weighted),
+    )
 
 
 def scoring_dependencies(scoring: Mapping[str, Any]) -> set[str]:
@@ -331,24 +326,36 @@ def materialize_scoring_columns(
             context=FactorProviderContext(),
         )
 
-    # A composite evaluates member factors by name. Materialize custom/composite
-    # members first so strategies and factor research share the same path.
-    composite_members: list[str] = []
-    for name in names:
-        spec = _registry_get_factor(str(name))
+    requested = set(names)
+    # 按依赖层批算, 同层仍共享批量缓存命中/列附着。中间列仅在本次求值中可见。
+    depths: dict[str, int] = {}
+    layers: dict[int, list[str]] = {}
+    for name in factor_calculation_order(requested - set(frame.columns)):
+        spec = _registry_get_factor(name)
+        if name in frame.columns or spec is None or spec.kind == "base":
+            continue
+        depth = 1 + max((depths.get(dep, 0) for dep in spec.inputs), default=0)
+        depths[name] = depth
+        layers.setdefault(depth, []).append(name)
+    for layer in layers.values():
+        frame = _materialize_scoring_layer(frame, layer)
+    # composites expose their member columns to callers that inspect the result
+    # (factor research and the auction pack rely on this); other intermediates
+    # remain private to the evaluation.
+    keep = set(requested)
+    for name in requested:
+        spec = _registry_get_factor(name)
         if spec is None or spec.kind != "composite":
             continue
-        for member_id, _ in spec.components:
-            member = _registry_get_factor(member_id)
-            if member is not None and member.kind in {"custom", "composite"}:
-                composite_members.append(member_id)
-    composite_members = [
-        member_id for member_id in dict.fromkeys(composite_members)
-        if member_id not in frame.columns and member_id not in names
-    ]
-    if composite_members:
-        frame = materialize_scoring_columns(frame, composite_members)
+        keep.update(
+            fid for fid in factor_calculation_order([name])
+            if (member := _registry_get_factor(fid)) is not None
+            and member.kind in {"custom", "composite"}
+        )
+    return frame.drop(depths.keys() - keep, strict=False)
 
+
+def _materialize_scoring_layer(frame: pl.DataFrame, names: Collection[str]) -> pl.DataFrame:
     # custom (DSL) 因子先物化: frame_transform 可能需要多阶段临时列 (嵌套窗口规避),
     # 与单表达式路径不同, 必须整体走帧变换 —— 与检验/试算共用同一条计算路径 (P3)。
     # P2b: 物化结果走内容寻址缓存 (键 = 定义 + 依赖列内容), 重复求值零成本;
@@ -375,7 +382,7 @@ def materialize_scoring_columns(
             continue
         key = cache_key(
             str(name), spec.formula_text, spec.version, frame,
-            set(spec.dependencies) | set(compiled.referenced_factors),
+            spec.inputs | ({"symbol", "date"} & set(frame.columns)),
         )
         if key is not None:
             cached = get_cached(key, frame.height)

@@ -105,6 +105,7 @@ class FactorProvider(ABC):
 _PROVIDERS: dict[str, FactorProvider] = {}
 _FACTOR_OWNERS: dict[str, str] = {}
 _PROVIDERS_READY = False
+_DISCOVERY_IN_PROGRESS = False
 
 #: 发现/装载的可查记录 (B0b-3): 计数、最后错误、包名。health 据此区分
 #: 「未安装」(missing_package / packages_scanned == 0) 与「装载失败」(failed_*)。
@@ -215,6 +216,21 @@ def _note_failure(kind: str, name: str, exc: BaseException) -> None:
         logger.warning("factor provider %s load failed %s: %s", kind, name, exc)
 
 
+def _discovery_guard(fn):
+    def wrapper() -> None:
+        global _DISCOVERY_IN_PROGRESS
+        if _PROVIDERS_READY or _DISCOVERY_IN_PROGRESS:
+            return
+        _DISCOVERY_IN_PROGRESS = True
+        try:
+            fn()
+        finally:
+            _DISCOVERY_IN_PROGRESS = False
+
+    return wrapper
+
+
+@_discovery_guard
 def ensure_factor_providers() -> None:
     """Discover optional ``factor_provider`` modules under app.custom.
 

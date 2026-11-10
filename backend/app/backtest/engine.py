@@ -11,7 +11,7 @@ import time
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Literal
 
@@ -63,6 +63,18 @@ def _last_valid_mean(values, window: int) -> float:
         if count == int(window):
             return total / count
     return float("nan")
+
+
+def history_load_start(engine, start: date, asset_type: str, bars: int, *, minimum_days: int = 120) -> date:
+    """保留既有最小预取范围; 长假或分区稀疏时按真实交易日向前取足。"""
+    fallback = start - timedelta(days=max(minimum_days, int(bars * 1.6)))
+    data_dir = getattr(getattr(getattr(engine, "repo", None), "store", None), "data_dir", None)
+    if bars <= 1 or data_dir is None:
+        return fallback
+    from app.services.mining_preflight import enriched_partition_dates
+
+    dates = enriched_partition_dates(data_dir, asset_type, end=start - timedelta(days=1))
+    return min(fallback, dates[max(0, len(dates) - bars)]) if dates else fallback
 
 
 def _matrix_entry_score(matrix: MarketMatrix, time_id: int, asset_id: int) -> float:

@@ -9,9 +9,8 @@ import time
 import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date
 from itertools import pairwise
-from math import ceil
 from pathlib import Path
 from typing import Any, Literal
 
@@ -19,12 +18,13 @@ import numpy as np
 import polars as pl
 
 from app.backtest import stats_v2
-from app.backtest.engine import BacktestEngine
+from app.backtest.engine import BacktestEngine, history_load_start
 from app.backtest.fundamentals import (
     FUNDAMENTAL_FACTOR_NAMES,
     attach_fundamental_factors,
     load_fundamental_snapshot,
 )
+from app.factors.registry import factor_calculation_order, factor_warmup_bars
 from app.factors.registry import factor_columns_view as _factor_columns_view
 from app.strategy.scoring import (
     VIRTUAL_SCORING_DEPENDENCIES as DERIVED_FACTOR_DEPENDENCIES,
@@ -354,7 +354,7 @@ class FactorBacktestService:
             trading_dates=trading_dates,
         )
 
-        metadata = {item["id"]: item for item in FACTOR_COLUMNS}
+        metadata = {item["id"]: item for item in _factor_columns_view()}
         fundamentals_missing = (
             any(name in FUNDAMENTAL_FACTOR_NAMES for name in factor_names)
             and self._fundamentals_missing()
@@ -494,55 +494,24 @@ class FactorBacktestService:
         factor_names: list[str],
         *,
         expected_generation: str | None = None,
+        warmup_bars: int = 1,
+        data_dir: Path | None = None,
     ) -> pl.DataFrame:
         panel_columns = [
             "symbol", "date", "open", "high", "low", "close", "volume", "amount",
             "turnover_rate",
         ]
         from app.extensions.factors import (
-            factor_provider_dependencies,
-            factor_provider_for,
             factor_provider_generation,
             is_transient_factor_provider_error,
             sidecar_factor_ids,
         )
+        from app.factors.registry import factor_dependencies
+        from app.indicators.pipeline import ENRICHED_STORAGE_COLS
 
-        frame_provider_names = {
-            name for name in factor_names
-            if (provider := factor_provider_for(name)) is not None
-            and provider.kind != "sidecar"
-        }
-        provider_dependencies = factor_provider_dependencies(frame_provider_names)
-        provider_dependency_names = {
-            dependency
-            for dependencies in provider_dependencies.values()
-            for dependency in dependencies
-        }
-        if (
-            any(
-                name in ("limit_up_count_20d", "limit_up_count_60d")
-                for name in factor_names
-            )
-            or "consecutive_limit_ups" in provider_dependency_names
-        ):
-            panel_columns.append("consecutive_limit_ups")
-        load_start = config.start
-        if any(name != "turnover_rate" for name in factor_names):
-            warmup_days = FACTOR_WARMUP_DAYS
-            if frame_provider_names:
-                required_bars = max(
-                    (
-                        factor_provider_for(name).warmup_bars(name)
-                        for name in frame_provider_names
-                        if factor_provider_for(name) is not None
-                    ),
-                    default=1,
-                )
-                warmup_days = max(
-                    warmup_days,
-                    ceil(max(required_bars - 1, 1) * 1.8) + 14,
-                )
-            load_start = config.start - timedelta(days=warmup_days)
+        required = set(factor_calculation_order(factor_names))
+        panel_columns.extend(sorted((required & set(ENRICHED_STORAGE_COLS)) - set(panel_columns)))
+        load_start = self._factor_load_start(config, factor_names, warmup_bars=warmup_bars)
 
         load_kwargs = {
             "columns": panel_columns,
@@ -550,9 +519,8 @@ class FactorBacktestService:
         }
         if expected_generation is not None:
             load_kwargs["expected_generation"] = expected_generation
-        from app.factors.registry import factor_dependencies
 
-        data_dir = self._fundamentals_data_dir()
+        data_dir = data_dir or self._fundamentals_data_dir()
         sidecar_names = sidecar_factor_ids()
         linkage_names = (
             set(factor_names) | factor_dependencies(factor_names)
@@ -578,6 +546,14 @@ class FactorBacktestService:
             if panel.is_empty():
                 return panel
             try:
+                fundamental_names = sorted(required & FUNDAMENTAL_FACTOR_NAMES)
+                if fundamental_names:
+                    # 点时财务因子: 公告日门控, 无数据标的保持 null (不参与该日截面)。
+                    panel = attach_fundamental_factors(
+                        panel,
+                        load_fundamental_snapshot(data_dir),
+                        fundamental_names,
+                    )
                 missing = set(factor_names) - set(panel.columns)
                 if missing:
                     panel = self._compute_missing_factors(
@@ -585,17 +561,6 @@ class FactorBacktestService:
                         missing,
                         data_dir=data_dir,
                         expected_linkage_generation=expected_linkage,
-                    )
-                fundamental_names = [
-                    name for name in factor_names
-                    if name in FUNDAMENTAL_FACTOR_NAMES
-                ]
-                if fundamental_names:
-                    # 点时财务因子: 公告日门控, 无数据标的保持 null。
-                    panel = attach_fundamental_factors(
-                        panel,
-                        load_fundamental_snapshot(data_dir),
-                        fundamental_names,
                     )
                 return panel
             except Exception as exc:
@@ -611,6 +576,19 @@ class FactorBacktestService:
                     asset_type=config.asset_type,
                 )
         raise RuntimeError("联动因子面板重读未返回结果")
+
+    def _factor_load_start(self, config, factor_names, *, warmup_bars: int = 1) -> date:
+        from app.extensions.factors import factor_provider_warmup
+
+        warmup_bars = max(
+            warmup_bars,
+            factor_warmup_bars(factor_names),
+            factor_provider_warmup(factor_names),
+        )
+        if set(factor_names) == {"turnover_rate"} and warmup_bars == 1:
+            return config.start
+        return history_load_start(self.engine, config.start, config.asset_type, warmup_bars,
+                                  minimum_days=FACTOR_WARMUP_DAYS)
 
     def _global_trading_dates(
         self,
@@ -879,42 +857,19 @@ class FactorBacktestService:
             if not factor_cols:
                 return panel
 
-        requested_ext = factor_cols & ext_factors.ext_factor_ids()
-        transitive_ext = factor_dependencies(factor_cols) & ext_factors.ext_factor_ids()
-        if requested_ext or transitive_ext:
-            panel = ext_factors.attach_ext_columns(panel, include_snapshot=False)
+        ordered = factor_calculation_order(factor_cols)
+        if any(name.startswith("ext_") for name in ordered):
+            panel = ext_factors.attach_ext_columns(panel, include_snapshot=False, data_dir=data_dir)
 
         from app.indicators.pipeline import compute_indicators
 
         # custom/composite 因子走注册表→DSL/组合 的同一条物化路径 (P3, 与策略评分共用);
         # 其底层依赖 (如 change_pct/ma20) 先经内置补算路径物化, 再做 DSL/组合物化。
         registry_names = {
-            name for name in factor_cols
+            name for name in ordered
             if (spec := get_factor(name)) is not None and spec.kind in ("custom", "composite")
         }
-        if registry_names:
-            base_deps: set[str] = set()
-            for name in registry_names:
-                spec = get_factor(name)
-                if spec is not None:
-                    base_deps.update(spec.dependencies)
-                    # Composite evaluates member factors by name. A custom member
-                    # that depends on ext_* must be materialized before the composite.
-                    if spec.kind == "composite":
-                        base_deps.update(member_id for member_id, _ in spec.components)
-            base_deps -= set(panel.columns) | registry_names
-            if base_deps:
-                panel = FactorBacktestService._compute_missing_factors(
-                    panel,
-                    base_deps,
-                    assume_sorted=assume_sorted,
-                    data_dir=data_dir,
-                    expected_linkage_generation=expected_linkage_generation,
-                )
-            panel = materialize_scoring_columns(panel, registry_names)
-            factor_cols = factor_cols - registry_names
-            if not factor_cols:
-                return panel
+        factor_cols = set(ordered) - registry_names - set(panel.columns)
 
         derived = factor_cols & set(DERIVED_FACTOR_DEPENDENCIES)
         indicator_columns = factor_cols - derived
@@ -925,7 +880,8 @@ class FactorBacktestService:
             needed=indicator_columns,
             assume_sorted=assume_sorted,
         )
-        return FactorBacktestService._compute_derived_factors(panel, derived)
+        panel = FactorBacktestService._compute_derived_factors(panel, derived)
+        return materialize_scoring_columns(panel, registry_names) if registry_names else panel
 
     @staticmethod
     def _compute_derived_factors(panel: pl.DataFrame, factor_cols: set[str]) -> pl.DataFrame:

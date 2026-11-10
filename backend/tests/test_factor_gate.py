@@ -492,8 +492,11 @@ def test_factor_spec_has_the_two_admission_fields_as_22nd_and_23rd() -> None:
     from app.factors.registry import FactorSpec
 
     fields = [item.name for item in dataclasses.fields(FactorSpec)]
-    assert len(fields) == 23
-    assert fields[-2:] == ["alias_of", "strategy_usable"]
+    # 上游在末尾追加了 input_windows/declared_warmup 两个计算计划字段;
+    # 本地准入字段仍固定在既有 21 个字段之后的第 22/23 位。
+    assert len(fields) == 25
+    assert fields[21:23] == ["alias_of", "strategy_usable"]
+    assert fields[23:] == ["input_windows", "declared_warmup"]
     spec = FactorSpec(id="x", label="x", group="g", formula_text="close")
     assert spec.alias_of is None
     assert spec.strategy_usable is True
