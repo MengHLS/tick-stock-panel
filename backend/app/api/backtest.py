@@ -12,7 +12,7 @@ from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.api.auth import COOKIE_NAME
 from app.config import settings
@@ -24,6 +24,11 @@ from app.services.backtest import (
     VectorbtUnavailable,
 )
 from app.services.daily_health import DailyIntegrityError
+from app.strategy.risk_limits import (
+    validate_max_hold_days,
+    validate_risk_scale,
+    validate_stop_loss,
+)
 from app.services.workload import admit_request, workload
 
 logger = logging.getLogger(__name__)
@@ -94,6 +99,18 @@ class BacktestRequest(BaseModel):
     slippage_bps: float = 5
     matching: Literal["close_t", "open_t+1"] = "close_t"
     asset_type: str = "stock"
+
+    # 风控参数量级校验（请求层）：写错单位（-8 而非 -0.08）会让止损被价格有效性
+    # 过滤而静默永不触发，这里 422 报错而不是静默跑完。
+    @field_validator("stop_loss_pct")
+    @classmethod
+    def _validate_stop_loss_pct(cls, value):
+        return validate_stop_loss(value, context="stop_loss_pct")
+
+    @field_validator("max_hold_days")
+    @classmethod
+    def _validate_max_hold_days(cls, value):
+        return validate_max_hold_days(value, context="max_hold_days")
 
 
 @router.post("/run")
@@ -202,7 +219,7 @@ def factor_run(req: FactorBacktestRequest, request: Request):
 
 
 class FactorBatchRequest(BaseModel):
-    factor_names: list[str] = Field(..., min_length=1, max_length=96)  # 目录 86 + 自定义余量
+    factor_names: list[str] = Field(..., min_length=1, max_length=200)  # 目录 110 + 自定义余量
     symbols: list[str] | None = None
     start: date | None = None
     end: date | None = None
@@ -374,6 +391,18 @@ class StrategyBacktestRequest(BaseModel):
     asset_type: str = "stock"
     minute_fill: bool = False
     regime_filter: dict | None = None
+
+    # 风控参数量级校验（请求层）：overrides 里的 stop_loss / max_hold_days 同样要拦，
+    # 否则写错的 -8 会在回测里被价格有效性过滤而静默失效（422 + 明确原因）。
+    @model_validator(mode="after")
+    def _validate_risk_scale_overrides(self):
+        overrides = self.overrides or {}
+        validate_risk_scale(
+            stop_loss=overrides.get("stop_loss"),
+            max_hold_days=overrides.get("max_hold_days"),
+            context="overrides",
+        )
+        return self
 
 
 def _guard_minute_strategy_backtest(

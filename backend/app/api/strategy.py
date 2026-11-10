@@ -16,7 +16,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from starlette.concurrency import run_in_threadpool
 
 from app.backtest.minute_trigger import MINUTE_EXIT_TRIGGER_SIGNALS
@@ -29,6 +29,7 @@ from app.strategy.ai_generator import (
 )
 from app.strategy.engine import StrategyDef, StrategyEngine
 from app.strategy.monitor import StrategyMonitorService
+from app.strategy.risk_limits import validate_risk_scale
 from app.strategy.prompt_builder import build_step1, build_step2
 from app.strategy.scoring import (
     SCORING_DIRECTIONS,
@@ -267,6 +268,18 @@ class RunAllRequest(BaseModel):
 class SaveConfigRequest(BaseModel):
     strategy_id: str
     overrides: dict
+
+    # 风控参数量级校验（overrides 写盘层）：-8（百分数写法）会在回测里被价格有效性
+    # 过滤而静默永不触发；保存时就拦下来，422 + 明确原因。
+    @model_validator(mode="after")
+    def _validate_risk_scale(self):
+        overrides = self.overrides or {}
+        validate_risk_scale(
+            stop_loss=overrides.get("stop_loss"),
+            max_hold_days=overrides.get("max_hold_days"),
+            context=f"overrides[{self.strategy_id}]",
+        )
+        return self
 
 
 class AIGenerateRequest(BaseModel):

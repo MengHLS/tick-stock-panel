@@ -22,6 +22,7 @@ import numpy as np
 import polars as pl
 
 from app.config import settings
+from app.strategy.risk_limits import validate_risk_scale
 from app.strategy.scoring import (
     SCORING_DIRECTION_LOW,
     effective_scoring,
@@ -640,16 +641,24 @@ class StrategyEngine:
         elif filter_history_fn is None or filter_fn is not None:
             raise ValueError("python_history_legacy strategy must declare only filter_history")
 
+        # 风控参数量级校验（装载层）：-8 这种百分数写法会被引擎的价格有效性过滤掉，
+        # 结果是「回测能跑、止损永远不触发」。这里在装载时就显式报错，该策略进入
+        # _load_errors，不会静默带着无效风控运行（口径见 app/strategy/risk_limits.py）。
+        stop_loss, max_hold_days = validate_risk_scale(
+            stop_loss=getattr(mod, "STOP_LOSS", None),
+            max_hold_days=getattr(mod, "MAX_HOLD_DAYS", None),
+            context=f"strategy {meta.get('id') or path.stem}",
+        )
         return StrategyDef(
             meta=meta,
             basic_filter=bf,
             entry_signals=getattr(mod, "ENTRY_SIGNALS", []),
             exit_signals=getattr(mod, "EXIT_SIGNALS", []),
-            stop_loss=getattr(mod, "STOP_LOSS", None),
+            stop_loss=stop_loss,
             trailing_stop=getattr(mod, "TRAILING_STOP", None),
             trailing_take_profit_activate=getattr(mod, "TRAILING_TAKE_PROFIT_ACTIVATE", None),
             trailing_take_profit_drawdown=getattr(mod, "TRAILING_TAKE_PROFIT_DRAWDOWN", None),
-            max_hold_days=getattr(mod, "MAX_HOLD_DAYS", None),
+            max_hold_days=max_hold_days,
             filter_fn=filter_fn,
             filter_history_fn=filter_history_fn,
             required_features=_resolve_required_features(meta, mod, filter_history_fn, path),
